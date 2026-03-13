@@ -1,0 +1,35 @@
+# Secrets
+.env
+dashboard/.env
+
+# Base de données (données sensibles de Patricia)
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+
+# Node
+node_modules/
+dashboard/node_modules/
+
+# Build
+dashboard/dist/
+
+# Exports temporaires
+*.xlsx
+*.zip
+hektor_download.zip
+
+# Logs
+log.txt
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

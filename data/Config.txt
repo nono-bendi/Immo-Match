@@ -1,0 +1,4 @@
+Version=4.12
+Application=LBI1.0
+Devise=Euro
+
