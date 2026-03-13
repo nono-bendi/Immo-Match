@@ -4,6 +4,7 @@ import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, S
 import NotificationBell from './NotificationBell'
 import UserMenu from './UserMenu'
 import { API_URL } from '../config'
+import { useAuth } from '../contexts/AuthContext'
 
 const PAGES = {
   '/':                { title: 'Tableau de bord',   subtitle: "Vue d'ensemble de votre activité",    icon: LayoutDashboard },
@@ -30,6 +31,8 @@ function formatDerniereAnalyse(dateStr) {
 
 function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
   const location = useLocation()
+  const { user } = useAuth()
+  const isDemo = user?.role === 'demo'
   const [derniereAnalyse, setDerniereAnalyse] = useState(null)
   const [titleKey, setTitleKey] = useState(0)
 
@@ -116,6 +119,12 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
 
         {/* ── Droite ── */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
+
+          {isDemo && (
+            <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300 tracking-wide">
+              MODE DÉMO
+            </span>
+          )}
 
           <span className="hidden lg:contents">{darkToggle}</span>
 

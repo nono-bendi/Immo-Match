@@ -54,7 +54,7 @@ function UserMenu() {
         </div>
         <div className="hidden md:block text-left">
           <p className="text-sm font-medium text-gray-900">{user?.nom}</p>
-          <p className="text-xs text-gray-500">{user?.role === 'admin' ? 'Administrateur' : 'Agent'}</p>
+          <p className="text-xs text-gray-500">{user?.role === 'admin' ? 'Administrateur' : user?.role === 'demo' ? 'Démo' : 'Agent'}</p>
         </div>
         <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>

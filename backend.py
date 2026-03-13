@@ -26,6 +26,9 @@ from typing import Optional
 
 load_dotenv()
 
+# Chemin vers la base de données (peut être surchargé via DB_PATH=immomatch_demo.db)
+DB_PATH = os.getenv("DB_PATH", "immomatch.db")
+
 # Configuration SMTP — secrets depuis .env
 SMTP_CONFIG = {
     "server": "smtp.gmail.com",
@@ -566,7 +569,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         )
     
     # Récupérer l'utilisateur depuis la BDD
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     user = conn.execute("SELECT id, email, nom, role FROM users WHERE id = ?", (payload.get("user_id"),)).fetchone()
     conn.close()
@@ -586,6 +589,15 @@ def get_optional_user(credentials: HTTPAuthorizationCredentials = Depends(securi
     except:
         return None
 
+def require_not_demo(current_user: dict = Depends(get_current_user)):
+    """Bloque les actions sensibles pour le compte démo (lecture seule)."""
+    if current_user.get("role") == "demo":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Action désactivée en mode démo"
+        )
+    return current_user
+
 
 app = FastAPI()
 
@@ -597,7 +609,7 @@ app.add_middleware(
 )
 
 def init_db():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('''
         CREATE TABLE IF NOT EXISTS prospects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -908,7 +920,7 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
 
 def get_settings_values():
     """Charge les settings depuis la base de données"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     # Valeurs par défaut
@@ -1009,7 +1021,7 @@ def sync_hektor_ftp():
         
         lines = text.strip().split("\n")
         
-        conn = sqlite3.connect("immomatch.db")
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
         imported = 0
@@ -1145,7 +1157,7 @@ def accueil():
 @app.post("/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister):
     """Créer un nouveau compte"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
@@ -1201,7 +1213,7 @@ def register(user_data: UserRegister):
 @app.post("/auth/login", response_model=TokenResponse)
 def login(user_data: UserLogin):
     """Connexion - retourne un token"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     # Chercher l'utilisateur
@@ -1254,7 +1266,7 @@ def change_password(data: dict, current_user: dict = Depends(get_current_user)):
     if len(new_password) < 6:
         raise HTTPException(status_code=400, detail="Le nouveau mot de passe doit contenir au moins 6 caractères")
     
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     user = conn.execute("SELECT password_hash FROM users WHERE id = ?", (current_user["id"],)).fetchone()
@@ -1281,7 +1293,7 @@ def trigger_sync():
 @app.get("/sync-status")
 def sync_status():
     """Retourne le statut de la dernière synchronisation"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     last_sync = cursor.execute("SELECT value FROM settings WHERE key = 'last_hektor_sync'").fetchone()
     interval = cursor.execute("SELECT value FROM settings WHERE key = 'sync_interval_hours'").fetchone()
@@ -1336,7 +1348,7 @@ def ftp_browse(path: str = "/"):
 
 @app.get("/prospects")
 def get_prospects():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT * FROM prospects")
     prospects = [dict(row) for row in cursor.fetchall()]
@@ -1345,7 +1357,7 @@ def get_prospects():
 
 @app.get("/notifications")
 def get_notifications():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     notifications = conn.execute('''
@@ -1365,7 +1377,7 @@ def get_notifications():
 
 @app.post("/notifications/mark-read")
 def mark_notifications_read():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('UPDATE notifications SET is_read = 1 WHERE is_read = 0')
     conn.commit()
     conn.close()
@@ -1373,7 +1385,7 @@ def mark_notifications_read():
 
 @app.post("/notifications/add")
 def add_notification(notif: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('''
         INSERT INTO notifications (type, title, message, link, created_at)
         VALUES (?, ?, ?, ?, ?)
@@ -1390,7 +1402,7 @@ def add_notification(notif: dict):
 
 @app.delete("/notifications/clear")
 def clear_notifications():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('DELETE FROM notifications')
     conn.commit()
     conn.close()
@@ -1402,7 +1414,7 @@ async def import_prospects(file: UploadFile = File(...)):
     df = pd.read_excel(BytesIO(contents), sheet_name="Prospects")
     df.columns = df.columns.str.strip()
     
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute("DELETE FROM prospects")
     
     for _, row in df.iterrows():
@@ -1436,7 +1448,7 @@ async def import_prospects(file: UploadFile = File(...)):
 
 @app.post("/prospects/add")
 def add_prospect(prospect: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -1472,7 +1484,7 @@ def add_prospect(prospect: dict):
 
 @app.put("/prospects/{prospect_id}")
 def update_prospect(prospect_id: int, prospect: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     # Vérifier si le prospect existe
     existing = conn.execute("SELECT id FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
@@ -1513,7 +1525,7 @@ def update_prospect(prospect_id: int, prospect: dict):
 
 @app.delete("/prospects/{prospect_id}")
 def delete_prospect(prospect_id: int):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     # Supprimer les matchings associés
     conn.execute("DELETE FROM matchings WHERE prospect_id = ?", (prospect_id,))
@@ -1526,7 +1538,7 @@ def delete_prospect(prospect_id: int):
 
 @app.get("/settings")
 def get_settings():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT key, value FROM settings")
     rows = cursor.fetchall()
@@ -1542,8 +1554,8 @@ def get_settings():
     return settings
 
 @app.post("/settings")
-def save_settings(settings: dict):
-    conn = sqlite3.connect("immomatch.db")
+def save_settings(settings: dict, _user: dict = Depends(require_not_demo)):
+    conn = sqlite3.connect(DB_PATH)
     
     for key, value in settings.items():
         value_str = json.dumps(value) if not isinstance(value, str) else value
@@ -1566,7 +1578,7 @@ def save_settings(settings: dict):
 
 @app.get("/export-all")
 def export_all():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     # Charger les données
     prospects_df = pd.read_sql_query("SELECT * FROM prospects", conn)
@@ -1597,8 +1609,8 @@ def export_all():
     )
 
 @app.post("/reset-database")
-def reset_database():
-    conn = sqlite3.connect("immomatch.db")
+def reset_database(_user: dict = Depends(require_not_demo)):
+    conn = sqlite3.connect(DB_PATH)
     conn.execute("DELETE FROM matchings")
     conn.execute("DELETE FROM prospects")
     conn.execute("DELETE FROM biens")
@@ -1608,7 +1620,7 @@ def reset_database():
 
 @app.get("/biens")
 def get_biens():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT * FROM biens")
     biens = [dict(row) for row in cursor.fetchall()]
@@ -1621,7 +1633,7 @@ async def import_biens(file: UploadFile = File(...)):
     df = pd.read_excel(BytesIO(contents))
     df.columns = df.columns.str.strip()
     
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute("DELETE FROM biens")
     
     for _, row in df.iterrows():
@@ -1789,7 +1801,7 @@ async def import_hektor(file: UploadFile = File(...)):
         text = content.decode('latin-1')
         lines = text.strip().split('\n')
         
-        conn = sqlite3.connect("immomatch.db")
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
         imported = 0
@@ -1873,7 +1885,7 @@ async def import_hektor(file: UploadFile = File(...)):
 
 @app.post("/biens/add")
 def add_bien(bien: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     conn.execute('''
         INSERT INTO biens (reference, type, ville, quartier, prix, surface, pieces, chambres, etat, exposition, stationnement, copropriete, exterieur, etage, description, date_ajout)
@@ -1903,7 +1915,7 @@ def add_bien(bien: dict):
 
 @app.put("/biens/{bien_id}")
 def update_bien(bien_id: int, bien: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     # Vérifier si le bien existe
     existing = conn.execute("SELECT id FROM biens WHERE id = ?", (bien_id,)).fetchone()
@@ -1943,7 +1955,7 @@ def update_bien(bien_id: int, bien: dict):
 
 @app.delete("/biens/{bien_id}")
 def delete_bien(bien_id: int):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     
     # Supprimer les matchings associés
     conn.execute("DELETE FROM matchings WHERE bien_id = ?", (bien_id,))
@@ -1956,7 +1968,7 @@ def delete_bien(bien_id: int):
 
 @app.get("/matchings")
 def get_matchings():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute('''
         SELECT m.*, p.nom as prospect_nom, p.budget_max as prospect_budget, 
@@ -1974,7 +1986,7 @@ def get_matchings():
 
 @app.get("/stats")
 def get_stats():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     # Compteurs de base
@@ -2092,7 +2104,7 @@ def get_stats():
 
 @app.get("/historique")
 def get_historique():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     # Grouper les matchings par date d'analyse
@@ -2119,13 +2131,13 @@ def get_historique():
     return [dict(row) for row in historique]
 
 @app.post("/matching/run/{prospect_id}")
-def run_matching(prospect_id: int):
+def run_matching(prospect_id: int, _user: dict = Depends(require_not_demo)):
     settings = get_settings_values()
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
 
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
@@ -2176,7 +2188,7 @@ def run_matching(prospect_id: int):
         resultats = scorer_biens_hybride(prospect, biens_filtres)
         resultat_brut = formater_pour_affichage(resultats)
 
-        conn = sqlite3.connect("immomatch.db")
+        conn = sqlite3.connect(DB_PATH)
         # Sauvegarder les biens refuses avant suppression
         refused_biens = {row[0] for row in conn.execute(
             "SELECT bien_id FROM matchings WHERE prospect_id = ? AND statut_prospect = 'refused'",
@@ -2244,7 +2256,7 @@ def run_matching(prospect_id: int):
         return {"error": str(e)}
 
 @app.post("/matching/run-all")
-def run_all_matchings():
+def run_all_matchings(_user: dict = Depends(require_not_demo)):
     settings = get_settings_values()
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']
@@ -2252,7 +2264,7 @@ def run_all_matchings():
     score_minimum = int(settings.get('score_minimum', 0))
     print(f"🎯 Score minimum configuré : {score_minimum}")
 
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects").fetchall()]
     biens = [dict(row) for row in conn.execute("SELECT * FROM biens").fetchall()]
@@ -2272,7 +2284,7 @@ def run_all_matchings():
         return {"error": "Clé API Anthropic non configurée"}
 
     # Sauvegarder tous les refus avant de vider
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     refused_map = {(row[0], row[1]) for row in conn.execute("SELECT prospect_id, bien_id FROM matchings WHERE statut_prospect = 'refused'").fetchall()}
     conn.execute("DELETE FROM matchings")
     conn.commit()
@@ -2305,7 +2317,7 @@ def run_all_matchings():
         try:
             resultats = scorer_biens_hybride(prospect, biens_filtres)
 
-            conn = sqlite3.connect("immomatch.db")
+            conn = sqlite3.connect(DB_PATH)
             for r in resultats:
                 bien_match = next((b for b in biens_filtres if b["id"] == r["bien_id"]), None)
                 if not bien_match:
@@ -2361,7 +2373,7 @@ def run_all_matchings():
 
 @app.get("/prospects/{prospect_id}")
 def get_prospect(prospect_id: int):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
     conn.close()
@@ -2373,7 +2385,7 @@ def get_prospect(prospect_id: int):
 
 @app.get("/biens/{bien_id}")
 def get_bien(bien_id: int):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
     conn.close()
@@ -2499,7 +2511,7 @@ def debug_prefiltre(prospect_id: int):
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
     
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
@@ -2549,7 +2561,7 @@ def debug_prefiltre(prospect_id: int):
 @app.get("/matchings/by-date")
 def get_matchings_by_date(date_analyse: str):
     """Récupère les matchings d'une analyse spécifique (par minute)"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     
     # Extraire la date jusqu'à la minute (sans secondes) pour grouper les analyses faites ensemble
@@ -2570,7 +2582,7 @@ def get_matchings_by_date(date_analyse: str):
     return [dict(m) for m in matchings]
 
 @app.post("/send-email")
-async def send_email(data: EmailRequest):
+async def send_email(data: EmailRequest, _user: dict = Depends(require_not_demo)):
     """Envoie un email de proposition immobilière"""
     try:
         # Créer le message
@@ -2632,7 +2644,7 @@ async def preview_email(data: EmailRequest):
 
 @app.get("/calibration/matchings")
 def get_matchings_for_calibration():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute("""
         SELECT m.id, m.prospect_id, m.bien_id, m.score, m.points_forts,
@@ -2652,7 +2664,7 @@ def get_matchings_for_calibration():
 
 @app.post("/calibration/feedback")
 def save_feedback(body: dict):
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     existing = conn.execute("SELECT id FROM calibration_feedback WHERE matching_id = ?", (body['matching_id'],)).fetchone()
     if existing:
         conn.execute("UPDATE calibration_feedback SET pertinent=?, score_avis=?, commentaire=?, created_at=? WHERE matching_id=?",
@@ -2666,7 +2678,7 @@ def save_feedback(body: dict):
 
 @app.get("/calibration/stats")
 def get_calibration_stats():
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     rows = conn.execute("""
         SELECT m.score, cf.pertinent, cf.score_avis
         FROM calibration_feedback cf
@@ -2694,7 +2706,7 @@ def get_calibration_stats():
 @app.patch("/matchings/{matching_id}/statut-prospect")
 def set_statut_prospect(matching_id: int, body: dict):
     """Marque un matching comme refusé ou réinitialise"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     statut = body.get("statut")  # "refused" ou None
     cursor.execute("UPDATE matchings SET statut_prospect = ? WHERE id = ?", (statut, matching_id))
@@ -2705,7 +2717,7 @@ def set_statut_prospect(matching_id: int, body: dict):
 @app.patch("/matchings/{matching_id}/email-sent")
 def mark_email_sent(matching_id: int):
     """Marque un matching comme ayant reçu un email"""
-    conn = sqlite3.connect("immomatch.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     now = datetime.now().isoformat()

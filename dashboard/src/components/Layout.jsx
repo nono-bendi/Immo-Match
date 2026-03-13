@@ -5,9 +5,14 @@ import TutorialModal from './TutorialModal'
 import { useTheme } from '../contexts/ThemeContext'
 
 function Layout({ children }) {
-  const [showTuto, setShowTuto] = useState(false)
+  const [showTuto, setShowTuto] = useState(() => !localStorage.getItem('immo_tutorial_seen'))
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { dark, toggle } = useTheme()
+
+  const handleCloseTuto = () => {
+    localStorage.setItem('immo_tutorial_seen', '1')
+    setShowTuto(false)
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -24,7 +29,7 @@ function Layout({ children }) {
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header
-          onOpenTutorial={() => setShowTuto(true)}
+          onOpenTutorial={() => { localStorage.removeItem('immo_tutorial_seen'); setShowTuto(true) }}
           onToggleSidebar={() => setSidebarOpen(o => !o)}
           darkToggle={
             <button
@@ -41,7 +46,7 @@ function Layout({ children }) {
         </main>
       </div>
 
-      <TutorialModal open={showTuto} onClose={() => setShowTuto(false)} />
+      <TutorialModal open={showTuto} onClose={handleCloseTuto} />
     </div>
   )
 }

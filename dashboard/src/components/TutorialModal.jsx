@@ -6,8 +6,10 @@ import { useState, useEffect, useRef } from 'react'
 import {
   X, ChevronRight, ChevronLeft, Sparkles,
   User, Save, Send, Eye, Edit3, Mail,
-  CheckCircle2, ArrowRight, Plus
+  CheckCircle2, ArrowRight, Plus,
+  Home, Target, BarChart2
 } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 // ─── Typewriter ───────────────────────────────────────
 function TypewriterText({ text, speed = 55, active }) {
@@ -24,6 +26,118 @@ function TypewriterText({ text, speed = 55, active }) {
     return () => clearInterval(t)
   }, [text, speed, active])
   return <>{displayed}</>
+}
+
+// ─── SLIDE 0 — Bienvenue ──────────────────────────────
+const PARTICLES = [
+  { size: 5, color: '#6366f1', x: 12, y: 18, dur: 3.2 },
+  { size: 3, color: '#10b981', x: 78, y: 25, dur: 4.1 },
+  { size: 6, color: '#f59e0b', x: 55, y: 72, dur: 3.7 },
+  { size: 4, color: '#7c3aed', x: 88, y: 60, dur: 4.8 },
+  { size: 3, color: '#6366f1', x: 25, y: 80, dur: 3.5 },
+  { size: 5, color: '#10b981', x: 68, y: 12, dur: 4.3 },
+  { size: 3, color: '#f59e0b', x: 40, y: 90, dur: 3.9 },
+  { size: 4, color: '#6366f1', x: 92, y: 40, dur: 4.6 },
+]
+
+function SlideWelcome({ active, userName }) {
+  const [step, setStep] = useState(0)
+  const firstName = userName ? userName.trim().split(' ')[0] : null
+
+  useEffect(() => {
+    if (!active) { setStep(0); return }
+    const delays = [150, 700, 1300, 1900, 2600, 3300]
+    const timers = delays.map((ms, i) => setTimeout(() => setStep(i + 1), ms))
+    return () => timers.forEach(clearTimeout)
+  }, [active])
+
+  const features = [
+    { Icon: Target,   label: 'Matching IA automatique', color: '#6366f1', dx: -70 },
+    { Icon: Mail,     label: 'Emails personnalisés',    color: '#f59e0b', dx:  70 },
+    { Icon: BarChart2,label: 'Scores calibrés',          color: '#10b981', dx: -70 },
+  ]
+
+  return (
+    <div style={{
+      width: '100%', height: '100%', position: 'relative', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '28px 28px', gap: '18px',
+    }}>
+
+      {/* Particules flottantes */}
+      {active && PARTICLES.map((p, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          width: p.size, height: p.size, borderRadius: '50%',
+          background: p.color, opacity: 0.25,
+          left: `${p.x}%`, top: `${p.y}%`,
+          animation: `floatParticle ${p.dur}s ease-in-out ${i * 0.4}s infinite alternate`,
+          pointerEvents: 'none',
+        }} />
+      ))}
+
+      {/* Icône logo */}
+      <div style={{
+        opacity: step >= 1 ? 1 : 0,
+        transform: step >= 1 ? 'scale(1) translateY(0)' : 'scale(0.4) translateY(24px)',
+        transition: 'opacity 0.55s cubic-bezier(.34,1.6,.64,1), transform 0.55s cubic-bezier(.34,1.6,.64,1)',
+        width: '68px', height: '68px', borderRadius: '20px',
+        background: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: step >= 1
+          ? '0 0 0 8px rgba(99,102,241,0.12), 0 0 0 16px rgba(99,102,241,0.06), 0 8px 32px rgba(99,102,241,0.5)'
+          : 'none',
+        animation: step >= 1 ? 'logoPulse 2.5s ease-in-out infinite' : 'none',
+      }}><Home size={28} color="white" strokeWidth={1.8} /></div>
+
+      {/* Bonjour + nom */}
+      <div style={{
+        opacity: step >= 2 ? 1 : 0,
+        transform: step >= 2 ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.92)',
+        transition: 'opacity 0.5s ease, transform 0.55s cubic-bezier(.34,1.3,.64,1)',
+        textAlign: 'center',
+      }}>
+        <div style={{ color: 'white', fontSize: firstName ? '26px' : '22px', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+          {firstName ? `Bonjour ${firstName} !` : 'Bienvenue !'}
+        </div>
+        <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: '12px', marginTop: '5px', letterSpacing: '0.03em' }}>
+          Votre assistant IA immobilier
+        </div>
+      </div>
+
+      {/* Fonctionnalités */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '265px' }}>
+        {features.map((f, i) => (
+          <div key={i} style={{
+            opacity: step >= 3 + i ? 1 : 0,
+            transform: step >= 3 + i
+              ? 'translateX(0) scale(1)'
+              : `translateX(${f.dx}px) scale(0.88)`,
+            transition: `opacity 0.5s ease, transform 0.55s cubic-bezier(.34,1.4,.64,1)`,
+            display: 'flex', alignItems: 'center', gap: '12px',
+            background: `linear-gradient(135deg, rgba(255,255,255,0.06) 0%, ${f.color}14 100%)`,
+            border: `1px solid ${f.color}45`,
+            borderRadius: '12px',
+            padding: '11px 15px',
+            boxShadow: step >= 3 + i ? `0 4px 20px ${f.color}18, inset 0 1px 0 rgba(255,255,255,0.06)` : 'none',
+          }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <f.Icon size={16} color={f.color} />
+            </div>
+            <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: 500, flex: 1 }}>{f.label}</span>
+            <div style={{
+              width: '7px', height: '7px', borderRadius: '50%',
+              background: f.color, boxShadow: `0 0 8px ${f.color}`,
+              opacity: step >= 3 + i ? 1 : 0,
+              transition: 'opacity 0.4s ease 0.25s',
+              flexShrink: 0,
+            }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ─── SLIDE 1 — Formulaire prospect ───────────────────
@@ -913,6 +1027,13 @@ function SlideCalibration({ active }) {
 // ─── DONNÉES SLIDES ───────────────────────────────────
 const SLIDES = [
   {
+    id: 'welcome', num: '00', color: '#6366f1',
+    title: 'Bonjour et bienvenue !',
+    desc: "ImmoMatch est votre assistant IA pour l'immobilier. Il analyse automatiquement vos prospects, trouve les meilleurs biens, et génère les emails pour vos clients — en quelques secondes.",
+    cta: "Ce guide vous présente les 5 fonctionnalités clés. Prenez 2 minutes pour le parcourir.",
+    Component: SlideWelcome,
+  },
+  {
     id: 'prospect', num: '01', color: '#6366f1',
     title: 'Ajouter un prospect',
     desc: "Renseignez le profil de votre client — budget, type de bien, localisation. Tout se fait depuis le formulaire Nouveau prospect.",
@@ -954,7 +1075,8 @@ export default function TutorialModal({ open, onClose }) {
   const [current, setCurrent] = useState(0)
   const [progress, setProgress] = useState(0)
   const progRef = useRef(null)
-  const DURATION = 10000
+  const DURATION = 20000
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!open) return
@@ -1002,6 +1124,11 @@ export default function TutorialModal({ open, onClose }) {
         @keyframes bgFlash { 0%,100%{opacity:0} 50%{opacity:1} }
         @keyframes ring { 0%{transform:scale(1);opacity:0.5} 100%{transform:scale(1.85);opacity:0} }
         @keyframes scan { 0%{left:-60%} 100%{left:160%} }
+        @keyframes floatParticle { 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-18px) scale(1.3)} }
+        @keyframes logoPulse {
+          0%,100%{box-shadow:0 0 0 6px rgba(99,102,241,0.12),0 0 0 12px rgba(99,102,241,0.06),0 8px 32px rgba(99,102,241,0.4)}
+          50%{box-shadow:0 0 0 10px rgba(99,102,241,0.18),0 0 0 20px rgba(99,102,241,0.08),0 8px 40px rgba(99,102,241,0.6)}
+        }
       `}</style>
 
       {/* Overlay */}
@@ -1065,7 +1192,10 @@ export default function TutorialModal({ open, onClose }) {
           {/* Gauche — animation */}
           <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRight: '1px solid rgba(255,255,255,0.07)' }}>
             <div key={slide.id} style={{ width: '100%', height: '100%', animation: 'slideIn 0.4s ease' }}>
-              <slide.Component active={open} />
+              {slide.id === 'welcome'
+                ? <SlideWelcome active={open} userName={user?.nom} />
+                : <slide.Component active={open} />
+              }
             </div>
           </div>
 
@@ -1080,7 +1210,9 @@ export default function TutorialModal({ open, onClose }) {
                 borderRadius: '20px', padding: '4px 12px', marginBottom: '18px',
               }}>
                 <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: slide.color }} />
-                <span style={{ color: slide.color, fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em' }}>ÉTAPE {slide.num}</span>
+                <span style={{ color: slide.color, fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em' }}>
+                  {slide.id === 'welcome' ? 'INTRODUCTION' : `ÉTAPE ${slide.num}`}
+                </span>
               </div>
 
               <h2 style={{ color: 'white', fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.25, marginBottom: '12px' }}>

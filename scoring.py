@@ -217,6 +217,26 @@ def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif):
         for k, v in detail_objectif.items()
     ])
 
+    destination = (prospect.get("destination") or "").strip().lower()
+    if "invest" in destination:
+        focus_destination = """DESTINATION : INVESTISSEMENT LOCATIF
+- Critères prioritaires : rentabilité locative, DPE (A/B = loyer majoré, E/F/G = risque de travaux obligatoires), quartier demandé à la location, charges de copropriété
+- Les défauts mineurs (vis-à-vis, petit extérieur) sont moins rédhibitoires qu'en résidence principale
+- Pénalise fortement si DPE mauvais (E/F/G), charges élevées ou localisation peu locative
+- Valorise : emplacement central, DPE performant, faibles charges, potentiel de plus-value"""
+    elif "réno" in destination or "rénov" in destination or "travaux" in destination:
+        focus_destination = """DESTINATION : RÉNOVATION / PROJET
+- Critères prioritaires : potentiel du bien, structure saine, surface, prix bas justifié par l'état
+- L'état dégradé n'est PAS un défaut si le prospect l'assume — évalue le potentiel après travaux
+- Valorise : cachet, surface, emplacement, structure solide
+- Pénalise : travaux structurels lourds ou coûts cachés non mentionnés"""
+    else:
+        focus_destination = """DESTINATION : RÉSIDENCE PRINCIPALE
+- Critères prioritaires : confort de vie quotidien, calme, luminosité, stationnement, commodités proches
+- Les défauts de confort (vis-à-vis, bruit, sans extérieur) ont un impact fort sur la qualité de vie
+- Valorise : exposition, calme, extérieur, stationnement, état du bien
+- Pénalise : nuisances sonores, manque de lumière, absence de parking si demandé"""
+
     prompt = f"""Tu es un agent immobilier expert sur la Côte d'Azur (Fréjus, Saint-Raphaël).
 
 Un système automatique a déjà calculé un score objectif pour ce bien :
@@ -224,18 +244,23 @@ SCORE OBJECTIF : {score_objectif}/60
 Détail :
 {detail_str}
 
-Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne peut pas évaluer :
-- La pertinence du bien par rapport à la destination du client (résidence principale, investissement, rénovation)
-- L'adéquation entre la description du bien et les attentes implicites du client
-- Les critères de confort si renseignés (stationnement, extérieur, exposition, étage)
-- Le potentiel de "coup de cœur" ou les signaux d'incompatibilité subtils
+Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne peut pas évaluer.
+
+{focus_destination}
+
+BARÈME DE RÉFÉRENCE (à respecter strictement) :
+- 35-40 : Adéquation qualitative excellente — bien qui correspond parfaitement au profil et à la destination, aucun signal d'incompatibilité
+- 26-34 : Bonne adéquation — bien solide avec des réserves mineures sans impact réel
+- 16-25 : Adéquation partielle — points d'attention notables qui justifient une discussion avec le prospect
+- 6-15  : Adéquation faible — incompatibilités qualitatives significatives avec le profil ou la destination
+- 0-5   : Bien inadapté — signal fort d'incompatibilité qualitative (ne pas proposer sauf urgence)
 
 RÈGLES IMPORTANTES :
 - Un champ vide côté prospect = client flexible sur ce point → jamais de pénalité
 - Ne recalcule pas le budget, le type ou la ville (déjà dans le score objectif)
-- Sois honnête : un bien moyen ne mérite pas 35/40
+- Sois honnête : un bien moyen ne mérite pas 35/40 — utilise toute l'échelle
 - Raisonne sur l'ensemble, pas critère par critère
-- Si le bien a des "Points négatifs" renseignés : évalue leur impact réel sur CE prospect (un vis-à-vis peut être rédhibitoire pour l'un, sans importance pour l'autre). Pénalise le score qualitatif en conséquence et mentionne le point négatif pertinent dans points_attention
+- Si le bien a des "Points négatifs" renseignés : évalue leur impact réel sur CE prospect selon sa destination. Pénalise le score qualitatif en conséquence et mentionne le point négatif pertinent dans points_attention
 
 === PROSPECT : {prospect.get('nom', 'N/A')} ===
 {construire_contexte_prospect(prospect)}
