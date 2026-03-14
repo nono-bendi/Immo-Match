@@ -50,6 +50,7 @@ AUTH_CONFIG = {
 
 # Schéma de sécurité pour extraire le token
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
 # 3. AJOUTE CE MODÈLE PYDANTIC (après la config SMTP)
@@ -597,8 +598,10 @@ def require_not_demo(current_user: dict = Depends(get_current_user)):
         )
     return current_user
 
-def require_not_demo_optional(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def require_not_demo_optional(credentials: HTTPAuthorizationCredentials = Depends(security_optional)):
     """Comme require_not_demo mais sans exiger d'être connecté (routes sans auth obligatoire)."""
+    if credentials is None:
+        return  # Pas de token = ok
     try:
         user = get_current_user(credentials)
         if user.get("role") == "demo":
@@ -609,7 +612,7 @@ def require_not_demo_optional(credentials: HTTPAuthorizationCredentials = Depend
     except HTTPException:
         raise
     except Exception:
-        pass  # Pas de token = ok, on laisse passer
+        pass
 
 
 app = FastAPI()
