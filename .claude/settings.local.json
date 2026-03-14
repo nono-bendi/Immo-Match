@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls d:/code/projet-immo/requirements*.txt)"
+      "Bash(ls d:/code/projet-immo/requirements*.txt)",
+      "Bash(python -c \":*)"
     ]
   }
 }

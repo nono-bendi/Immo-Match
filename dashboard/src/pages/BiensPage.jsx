@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, Euro, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, AlertCircle, Save, Loader2 } from 'lucide-react'
+import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 
 import { API_URL } from '../config'
 import Pagination from '../components/Pagination'
+import BienModal from '../components/BienModal'
 
 // Skeleton pour le chargement
 function SkeletonRow() {
@@ -34,12 +35,21 @@ function BiensPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [importing, setImporting] = useState(false)
   const [selectedBien, setSelectedBien] = useState(null)
-  const [currentPhoto, setCurrentPhoto] = useState(0)
   const [editBien, setEditBien] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [editSaving, setEditSaving] = useState(false)
   const [editError, setEditError] = useState("")
+  const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' })
   const itemsPerPage = 10
+
+  const handleSort = (field) => {
+    setSortConfig(prev =>
+      prev.field === field
+        ? { field, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+        : { field, direction: 'asc' }
+    )
+    setCurrentPage(1)
+  }
 
   const handleSearch = (value) => {
     setSearch(value)
@@ -96,7 +106,7 @@ function BiensPage() {
     try {
       await fetch(`${API_URL}/biens/${confirmDelete.id}`, { method: 'DELETE' })
       fetchBiens()
-    } catch (error) {
+    } catch {
       console.error('Erreur lors de la suppression')
     } finally {
       setConfirmDelete(null)
@@ -112,30 +122,34 @@ function BiensPage() {
   const agencesUniques = [...new Set(biens.map(b => b.nom_agence || 'SAINT FRANCOIS IMMOBILIER').filter(Boolean))]
   const hasPrimmo = agencesUniques.length > 1
 
-  const filteredBiens = biens.filter(b => {
-    const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
-      b.ville?.toLowerCase().includes(search.toLowerCase()) ||
-      b.type?.toLowerCase().includes(search.toLowerCase())
-    const agence = b.nom_agence || 'SAINT FRANCOIS IMMOBILIER'
-    const matchAgence = filterAgence === 'tous' ||
-      (filterAgence === 'moi' && agence.toUpperCase().includes('SAINT FRANCOIS')) ||
-      (filterAgence === 'partenaires' && !agence.toUpperCase().includes('SAINT FRANCOIS'))
-    return matchSearch && matchAgence
-  })
+  const filteredBiens = biens
+    .filter(b => {
+      const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
+        b.ville?.toLowerCase().includes(search.toLowerCase()) ||
+        b.type?.toLowerCase().includes(search.toLowerCase())
+      const agence = b.nom_agence || 'SAINT FRANCOIS IMMOBILIER'
+      const matchAgence = filterAgence === 'tous' ||
+        (filterAgence === 'moi' && agence.toUpperCase().includes('SAINT FRANCOIS')) ||
+        (filterAgence === 'partenaires' && !agence.toUpperCase().includes('SAINT FRANCOIS'))
+      return matchSearch && matchAgence
+    })
+    .sort((a, b) => {
+      if (!sortConfig.field) return 0
+      const valA = a[sortConfig.field] ?? ''
+      const valB = b[sortConfig.field] ?? ''
+      const cmp = typeof valA === 'number'
+        ? valA - valB
+        : String(valA).localeCompare(String(valB), 'fr')
+      return sortConfig.direction === 'asc' ? cmp : -cmp
+    })
 
   const totalPages = Math.ceil(filteredBiens.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedBiens = filteredBiens.slice(startIndex, startIndex + itemsPerPage)
 
-  // Photos du bien sélectionné
-  const photos = selectedBien?.photos ? selectedBien.photos.split('|').filter(p => p.trim()) : []
-
-  const nextPhoto = () => setCurrentPhoto((prev) => (prev + 1) % photos.length)
-  const prevPhoto = () => setCurrentPhoto((prev) => (prev - 1 + photos.length) % photos.length)
 
   const openModal = (bien) => {
     setSelectedBien(bien)
-    setCurrentPhoto(0)
   }
 
 
@@ -315,6 +329,7 @@ function BiensPage() {
             <tbody>
               {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
             </tbody>
+
           </table>
         </div>
       ) : biens.length === 0 ? (
@@ -344,8 +359,25 @@ function BiensPage() {
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Bien</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Localisation</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Surface</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Prix</th>
+                {[
+                  { label: 'Surface', field: 'surface' },
+                  { label: 'Prix', field: 'prix' },
+                ].map(({ label, field }) => {
+                  const active = sortConfig.field === field
+                  const Icon = active ? (sortConfig.direction === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown
+                  return (
+                    <th
+                      key={field}
+                      className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none group"
+                      onClick={() => handleSort(field)}
+                    >
+                      <span className={`inline-flex items-center gap-1 hover:text-[#1E3A5F] transition-colors ${active ? 'text-[#1E3A5F]' : ''}`}>
+                        {label}
+                        <Icon size={13} className={active ? 'text-[#1E3A5F]' : 'text-gray-300 group-hover:text-gray-400'} />
+                      </span>
+                    </th>
+                  )
+                })}
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">État</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
@@ -473,305 +505,7 @@ function BiensPage() {
       )}
 
       {/* Modal Détail Bien */}
-      {selectedBien && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setSelectedBien(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-bounce-in" onClick={e => e.stopPropagation()}>
-            
-            {/* Header avec photo */}
-            <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700">
-              {photos.length > 0 ? (
-                <div className="relative h-64">
-                  <img 
-                    src={photos[currentPhoto]} 
-                    alt={`Photo ${currentPhoto + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  
-                  {photos.length > 1 && (
-                    <>
-                      <button 
-                        onClick={prevPhoto}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 rounded-full transition-all hover:scale-110"
-                      >
-                        <ChevronLeft size={20} className="text-white" />
-                      </button>
-                      <button 
-                        onClick={nextPhoto}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 rounded-full transition-all hover:scale-110"
-                      >
-                        <ChevronRight size={20} className="text-white" />
-                      </button>
-                      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1">
-                        {photos.map((_, idx) => (
-                          <div 
-                            key={idx} 
-                            className={`w-2 h-2 rounded-full transition-all ${idx === currentPhoto ? 'bg-white scale-125' : 'bg-white/40'}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                  
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                    <h2 className="text-xl font-bold">{selectedBien.type} à {selectedBien.ville}</h2>
-                    {selectedBien.reference && <p className="text-white/70 text-sm">Réf. {selectedBien.reference}</p>}
-                  </div>
-                </div>
-              ) : (
-                <div className="p-6 text-white">
-                  <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                    <Building2 size={28} />
-                  </div>
-                  <h2 className="text-xl font-bold">{selectedBien.type} à {selectedBien.ville}</h2>
-                  {selectedBien.reference && <p className="text-white/70 text-sm">Réf. {selectedBien.reference}</p>}
-                </div>
-              )}
-              
-              <button 
-                onClick={() => setSelectedBien(null)} 
-                className="absolute top-3 right-3 p-2 bg-black/20 hover:bg-black/40 rounded-full transition-all hover:scale-110"
-              >
-                <X size={20} className="text-white" />
-              </button>
-            </div>
-
-            {/* Contenu scrollable */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {/* Stats principales */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                  <Euro size={20} className="mx-auto text-emerald-600 mb-1" />
-                  <p className="text-lg font-bold text-[#1E3A5F]">{formatPrix(selectedBien.prix)}</p>
-                  <p className="text-xs text-gray-400">Prix</p>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                  <Maximize size={20} className="mx-auto text-blue-600 mb-1" />
-                  <p className="text-lg font-bold text-[#1E3A5F]">{selectedBien.surface || '-'} m²</p>
-                  <p className="text-xs text-gray-400">Surface</p>
-                </div>
-                <div className="text-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                  <Home size={20} className="mx-auto text-violet-600 mb-1" />
-                  <p className="text-lg font-bold text-[#1E3A5F]">{selectedBien.pieces || '-'} pièces</p>
-                  <p className="text-xs text-gray-400">{selectedBien.chambres ? `${selectedBien.chambres} ch.` : ''}</p>
-                </div>
-              </div>
-
-              {/* Détails */}
-              <div className="grid grid-cols-2 gap-3">
-                {selectedBien.quartier && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.quartier}</span>
-                  </div>
-                )}
-                {selectedBien.etat && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Building2 size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.etat}</span>
-                  </div>
-                )}
-                {selectedBien.exposition && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Compass size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.exposition}</span>
-                  </div>
-                )}
-                {selectedBien.stationnement && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Car size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.stationnement}</span>
-                  </div>
-                )}
-                {selectedBien.exterieur && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <TreePine size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.exterieur}</span>
-                  </div>
-                )}
-                {selectedBien.etage && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Layers size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{selectedBien.etage}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Caractéristiques Hektor */}
-              {(selectedBien.etage_bien != null || selectedBien.ascenseur === 1 || selectedBien.cave === 1 || 
-                selectedBien.nb_parkings > 0 || selectedBien.nb_boxes > 0 || 
-                selectedBien.terrasse === 1 || selectedBien.nb_balcons > 0 ||
-                selectedBien.orientation_sud === 1 || selectedBien.orientation_est === 1 ||
-                selectedBien.orientation_ouest === 1 || selectedBien.orientation_nord === 1) && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Caractéristiques</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedBien.etage_bien != null && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                        <Layers size={12} />
-                        Étage {selectedBien.etage_bien}
-                        {selectedBien.nb_etages_immeuble ? `/${selectedBien.nb_etages_immeuble}` : ''}
-                      </span>
-                    )}
-                    {selectedBien.ascenseur === 1 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">
-                        ↑ Ascenseur
-                      </span>
-                    )}
-                    {selectedBien.cave === 1 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                        Cave
-                      </span>
-                    )}
-                    {selectedBien.nb_parkings > 0 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                        <Car size={12} />
-                        {selectedBien.nb_parkings} parking{selectedBien.nb_parkings > 1 ? 's' : ''}
-                      </span>
-                    )}
-                    {selectedBien.nb_boxes > 0 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
-                        <Car size={12} />
-                        {selectedBien.nb_boxes} box{selectedBien.nb_boxes > 1 ? 'es' : ''}
-                      </span>
-                    )}
-                    {selectedBien.terrasse === 1 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium">
-                        <TreePine size={12} />
-                        Terrasse
-                      </span>
-                    )}
-                    {selectedBien.nb_balcons > 0 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-medium">
-                        {selectedBien.nb_balcons} balcon{selectedBien.nb_balcons > 1 ? 's' : ''}
-                      </span>
-                    )}
-                    {/* Orientations */}
-                    {[
-                      { key: 'orientation_sud', label: 'Sud' },
-                      { key: 'orientation_est', label: 'Est' },
-                      { key: 'orientation_ouest', label: 'Ouest' },
-                      { key: 'orientation_nord', label: 'Nord' },
-                    ].filter(o => selectedBien[o.key] === 1).length > 0 && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-xs font-medium">
-                        <Compass size={12} />
-                        {['orientation_sud','orientation_est','orientation_ouest','orientation_nord']
-                          .filter(k => selectedBien[k] === 1)
-                          .map(k => k.replace('orientation_', '').charAt(0).toUpperCase() + k.replace('orientation_', '').slice(1))
-                          .join(' / ')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* DPE / GES */}
-              {(selectedBien.dpe_lettre != null || selectedBien.ges_lettre != null) && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Performance énergétique</p>
-                  <div className="flex gap-3">
-                    {selectedBien.dpe_lettre && (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl">
-                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-                          selectedBien.dpe_lettre === 'A' ? 'bg-green-500' :
-                          selectedBien.dpe_lettre === 'B' ? 'bg-green-400' :
-                          selectedBien.dpe_lettre === 'C' ? 'bg-lime-400' :
-                          selectedBien.dpe_lettre === 'D' ? 'bg-yellow-400' :
-                          selectedBien.dpe_lettre === 'E' ? 'bg-orange-400' :
-                          selectedBien.dpe_lettre === 'F' ? 'bg-orange-600' :
-                          'bg-red-600'
-                        }`}>
-                          {selectedBien.dpe_lettre}
-                        </span>
-                        <div>
-                          <p className="text-xs text-gray-400">DPE</p>
-                          {selectedBien.dpe_kwh && <p className="text-xs font-medium text-gray-700">{selectedBien.dpe_kwh} kWh/m²/an</p>}
-                        </div>
-                      </div>
-                    )}
-                    {selectedBien.ges_lettre && (
-                      <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl">
-                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${
-                          selectedBien.ges_lettre === 'A' ? 'bg-green-500' :
-                          selectedBien.ges_lettre === 'B' ? 'bg-green-400' :
-                          selectedBien.ges_lettre === 'C' ? 'bg-lime-400' :
-                          selectedBien.ges_lettre === 'D' ? 'bg-yellow-400' :
-                          selectedBien.ges_lettre === 'E' ? 'bg-orange-400' :
-                          selectedBien.ges_lettre === 'F' ? 'bg-orange-600' :
-                          'bg-red-600'
-                        }`}>
-                          {selectedBien.ges_lettre}
-                        </span>
-                        <div>
-                          <p className="text-xs text-gray-400">GES</p>
-                          {selectedBien.ges_co2 && <p className="text-xs font-medium text-gray-700">{selectedBien.ges_co2} kg CO₂/m²/an</p>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Vendeur et lien */}
-              <div className="flex items-center gap-4">
-                {selectedBien.vendeur && (
-                  <div className="flex-1 p-3 bg-blue-50 rounded-xl">
-                    <p className="text-xs text-blue-400 mb-1">Vendeur</p>
-                    <p className="text-sm font-medium text-blue-700">{selectedBien.vendeur}</p>
-                  </div>
-                )}
-                {selectedBien.lien_annonce && (
-                  <a 
-                    href={selectedBien.lien_annonce} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex-1 p-3 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors"
-                  >
-                    <p className="text-xs text-emerald-400 mb-1">Annonce</p>
-                    <p className="text-sm font-medium text-emerald-700">Voir sur le site →</p>
-                  </a>
-                )}
-              </div>
-
-              {/* Description */}
-              {selectedBien.description && (
-                <div className="p-4 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-gray-400 mb-2 font-medium">Description</p>
-                  <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{selectedBien.description}</p>
-                </div>
-              )}
-
-              {/* Défauts */}
-              {selectedBien.defauts && (
-                <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                  <p className="text-xs text-amber-600 mb-2 font-semibold flex items-center gap-1">⚠️ Points négatifs (usage interne)</p>
-                  <p className="text-sm text-amber-800 whitespace-pre-line leading-relaxed">{selectedBien.defauts}</p>
-                </div>
-              )}
-
-              {/* Miniatures photos */}
-              {photos.length > 1 && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-2 font-medium">Photos ({photos.length})</p>
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {photos.map((photo, idx) => (
-                      <img 
-                        key={idx}
-                        src={photo}
-                        alt={`Photo ${idx + 1}`}
-                        className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all hover:scale-105 ${
-                          idx === currentPhoto ? 'border-[#1E3A5F]' : 'border-transparent hover:border-gray-300'
-                        }`}
-                        onClick={() => setCurrentPhoto(idx)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <BienModal bien={selectedBien} onClose={() => setSelectedBien(null)} />
       {/* Modal Edition Bien */}
       {editBien && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setEditBien(null)}>

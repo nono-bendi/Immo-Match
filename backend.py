@@ -167,14 +167,13 @@ def normalize_points(text):
     """Normalise les points en liste et nettoie le contenu IA"""
     if not text:
         return []
-    # Nettoyer d'abord le contenu
-    cleaned_text = clean_ai_content(text)
-    # Séparer en points
-    points = [p.strip().lstrip('- â€¢') for p in cleaned_text.split('\n') if p.strip()]
-    # Nettoyer chaque point individuellement
-    points = [clean_ai_content(p) for p in points if p.strip()]
-    # Filtrer les points vides après nettoyage
-    points = [p for p in points if len(p) > 3]
+    # Découper par \n AVANT clean_ai_content (qui écrase les sauts de ligne)
+    raw_points = [p.strip() for p in text.split('\n') if p.strip()]
+    points = []
+    for p in raw_points:
+        cleaned = clean_ai_content(p).lstrip('-•● ').strip()
+        if len(cleaned) > 3:
+            points.append(cleaned)
     return points
 
 def format_salutation(full_name):
@@ -230,7 +229,7 @@ def generate_email_html(data: EmailRequest) -> str:
     points_forts = normalize_points(data.points_forts)
     if points_forts:
         items = "".join(f'''<tr>
-          <td style="padding:5px 0;vertical-align:top;width:20px;"><span style="color:#10B981;font-size:10px;">●</span></td>
+          <td style="padding:5px 0;vertical-align:top;width:20px;"><div style="width:8px;height:8px;border-radius:50%;background:#10B981;margin-top:5px;"></div></td>
           <td style="padding:5px 0 5px 8px;color:#374151;font-size:14px;line-height:1.5;">{safe_html_text(point)}</td>
         </tr>''' for point in points_forts)
         points_forts_block = f"""
@@ -597,6 +596,20 @@ def require_not_demo(current_user: dict = Depends(get_current_user)):
             detail="Action désactivée en mode démo"
         )
     return current_user
+
+def require_not_demo_optional(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Comme require_not_demo mais sans exiger d'être connecté (routes sans auth obligatoire)."""
+    try:
+        user = get_current_user(credentials)
+        if user.get("role") == "demo":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Action désactivée en mode démo"
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        pass  # Pas de token = ok, on laisse passer
 
 
 app = FastAPI()
@@ -2131,7 +2144,7 @@ def get_historique():
     return [dict(row) for row in historique]
 
 @app.post("/matching/run/{prospect_id}")
-def run_matching(prospect_id: int, _user: dict = Depends(require_not_demo)):
+def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
     settings = get_settings_values()
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']
@@ -2256,7 +2269,7 @@ def run_matching(prospect_id: int, _user: dict = Depends(require_not_demo)):
         return {"error": str(e)}
 
 @app.post("/matching/run-all")
-def run_all_matchings(_user: dict = Depends(require_not_demo)):
+def run_all_matchings(_user = Depends(require_not_demo_optional)):
     settings = get_settings_values()
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']

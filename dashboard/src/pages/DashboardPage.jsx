@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
+import BienModal from '../components/BienModal'
 import { API_URL } from '../config'
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -118,7 +119,15 @@ export default function DashboardPage() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [selectedBien, setSelectedBien] = useState(null)
   const navigate = useNavigate()
+
+  const openBien = (id) => {
+    fetch(`${API_URL}/biens/${id}`)
+      .then(r => r.json())
+      .then(d => setSelectedBien(d))
+      .catch(() => {})
+  }
 
   useEffect(() => {
     fetch(`${API_URL}/stats`)
@@ -419,7 +428,7 @@ export default function DashboardPage() {
                       borderBottom: i < 3 ? '1px solid #f8fafc' : 'none',
                       transition: 'background 0.2s', cursor: 'pointer'
                     }}
-                    onClick={() => navigate('/biens', { state: { highlightBienId: b.id } })}>
+                    onClick={() => openBien(b.id)}>
                     <span style={{
                       fontSize: 11, fontWeight: 800, width: 20, flexShrink: 0,
                       color: i === 0 ? '#F5C518' : i === 1 ? '#A8A9AD' : i === 2 ? '#CD7F32' : '#cbd5e1'
@@ -507,6 +516,7 @@ export default function DashboardPage() {
         )}
       </div>
 
+      <BienModal bien={selectedBien} onClose={() => setSelectedBien(null)} />
     </div>
   )
 }
