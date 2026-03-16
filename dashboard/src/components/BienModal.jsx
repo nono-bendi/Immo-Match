@@ -1,11 +1,42 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Building2, MapPin, Maximize, Home, X, Euro,
-  Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight
+  Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight,
+  Sparkles, Loader2, CheckCircle2, AlertCircle, ArrowRight
 } from 'lucide-react'
+import { API_URL } from '../config'
 
 function BienModal({ bien, onClose }) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
+  const [analyseState, setAnalyseState] = useState('idle') // idle | loading | done | error
+  const [analyseResult, setAnalyseResult] = useState(null)
+  const [matchingsCount, setMatchingsCount] = useState(0)
+  const navigate = useNavigate()
+
+  const lancerAnalyse = async () => {
+    setAnalyseState('loading')
+    setAnalyseResult(null)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${API_URL}/matching/run-by-bien/${bien.id}`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      })
+      const data = await res.json()
+      if (data.error) {
+        setAnalyseState('error')
+        setAnalyseResult(data.error)
+      } else {
+        setAnalyseState('done')
+        setMatchingsCount(data.matchings_count || 0)
+        setAnalyseResult(data.message || `${data.matchings_count} matching(s) trouvé(s)`)
+      }
+    } catch {
+      setAnalyseState('error')
+      setAnalyseResult('Erreur réseau')
+    }
+  }
 
   if (!bien) return null
 
@@ -181,6 +212,41 @@ function BienModal({ bien, onClose }) {
               <p className="text-sm text-amber-800 whitespace-pre-line leading-relaxed">{bien.defauts}</p>
             </div>
           )}
+
+          {/* Analyse par bien */}
+          <div className="pt-2 border-t border-gray-100">
+            <button
+              onClick={lancerAnalyse}
+              disabled={analyseState === 'loading'}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl font-medium text-sm transition-all"
+            >
+              {analyseState === 'loading' ? (
+                <><Loader2 size={16} className="animate-spin" />Analyse en cours...</>
+              ) : (
+                <><Sparkles size={16} />Analyser pour mes prospects</>
+              )}
+            </button>
+            {analyseState === 'done' && (
+              <div className="mt-2 p-3 bg-emerald-50 rounded-xl text-sm">
+                <div className="flex items-center gap-2 text-emerald-700">
+                  <CheckCircle2 size={16} className="shrink-0" />{analyseResult}
+                </div>
+                {matchingsCount > 0 && (
+                  <button
+                    onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}`) }}
+                    className="mt-2 flex items-center gap-1 text-emerald-600 hover:text-emerald-800 font-medium"
+                  >
+                    Voir les {matchingsCount} matching{matchingsCount > 1 ? 's' : ''} <ArrowRight size={14} />
+                  </button>
+                )}
+              </div>
+            )}
+            {analyseState === 'error' && (
+              <div className="mt-2 flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
+                <AlertCircle size={16} className="shrink-0" />{analyseResult}
+              </div>
+            )}
+          </div>
 
           {/* Miniatures */}
           {photos.length > 1 && (

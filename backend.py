@@ -1043,6 +1043,7 @@ def sync_hektor_ftp():
         imported = 0
         updated = 0
         skipped = 0
+        nouveaux_bien_ids = []
         
         for line in lines:
             cols = line.split('!#')
@@ -1107,6 +1108,7 @@ def sync_hektor_ftp():
                     d["nom_agence"]
                 ))
                 imported += 1
+                nouveaux_bien_ids.append(cursor.lastrowid)
         
         conn.commit()
         
@@ -1131,6 +1133,18 @@ def sync_hektor_ftp():
         
         conn.close()
         
+        # Lancer l'analyse des nouveaux biens en arrière-plan
+        if nouveaux_bien_ids and os.getenv("ANTHROPIC_API_KEY"):
+            import threading
+            def analyser_nouveaux_biens(ids):
+                for bid in ids:
+                    try:
+                        print(f"Analyse auto bien #{bid}...")
+                        _core_analyser_bien(bid)
+                    except Exception as e:
+                        print(f"Erreur analyse bien #{bid}: {e}")
+            threading.Thread(target=analyser_nouveaux_biens, args=(nouveaux_bien_ids,), daemon=True).start()
+
         print(f"ðŸ“Š Import : {imported} nouveaux, {updated} mis à jour, {skipped} ignorés")
         return {"success": True, "imported": imported, "updated": updated, "skipped": skipped}
         
@@ -2383,6 +2397,135 @@ def run_all_matchings(_user = Depends(require_not_demo_optional)):
             "total_matchings": total_matchings
         }
     }
+
+
+def prefiltre_prospects_pour_bien(bien, prospects, budget_min_pct=70, budget_max_pct=130):
+    """Filtre inverse : trouve les prospects potentiellement compatibles avec un bien."""
+    compatibles = []
+    prix_bien = bien.get("prix") or 0
+    type_bien = (bien.get("type") or "").lower()
+    ville_bien = (bien.get("ville") or "").lower()
+
+    for prospect in prospects:
+        budget_max = prospect.get("budget_max") or 0
+        if budget_max and prix_bien:
+            seuil_min = budget_max * budget_min_pct / 100
+            seuil_max = budget_max * budget_max_pct / 100
+            if prix_bien < seuil_min or prix_bien > seuil_max:
+                continue
+
+        types_prospect = (prospect.get("bien") or "").lower()
+        if types_prospect and types_prospect not in ("tous", "tous biens", "tous types", ""):
+            types_list = [t.strip() for t in types_prospect.replace(";", ",").split(",")]
+            if not any(t in type_bien or type_bien in t for t in types_list if t):
+                continue
+
+        villes_prospect = (prospect.get("villes") or "").lower()
+        if villes_prospect:
+            villes_list = [v.strip() for v in villes_prospect.replace(";", ",").split(",")]
+            if not any(v in ville_bien or ville_bien in v for v in villes_list if v):
+                continue
+
+        compatibles.append(prospect)
+    return compatibles
+
+
+def _core_analyser_bien(bien_id: int) -> dict:
+    """
+    Logique pure d'analyse d'un bien contre tous les prospects compatibles.
+    Appelable depuis une route FastAPI ou un thread background.
+    """
+    settings = get_settings_values()
+    budget_min = settings["budget_tolerance_min"]
+    budget_max = settings["budget_tolerance_max"]
+    score_minimum = int(settings.get("score_minimum", 0))
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
+    if not bien:
+        conn.close()
+        return {"error": "Bien non trouve"}
+    bien = dict(bien)
+    prospects = [dict(r) for r in conn.execute("SELECT * FROM prospects").fetchall()]
+    conn.close()
+
+    if not prospects:
+        return {"error": "Aucun prospect en base"}
+
+    compatibles = prefiltre_prospects_pour_bien(bien, prospects, budget_min, budget_max)
+    if not compatibles:
+        return {"message": "Aucun prospect compatible avec ce bien", "matchings_count": 0}
+
+    nb_matchings = 0
+    try:
+        for prospect in compatibles:
+            conn = sqlite3.connect(DB_PATH)
+            existing = conn.execute(
+                "SELECT id FROM matchings WHERE prospect_id = ? AND bien_id = ?",
+                (prospect["id"], bien_id)
+            ).fetchone()
+            conn.close()
+            if existing:
+                continue
+
+            try:
+                resultats = scorer_biens_hybride(prospect, [bien], model=settings["model"])
+            except Exception as e:
+                print(f"Erreur Claude prospect #{prospect.get('id')}: {e}")
+                continue
+
+            if not resultats:
+                continue
+
+            r = resultats[0]
+            if r["score"] < score_minimum:
+                continue
+
+            conn = sqlite3.connect(DB_PATH)
+            conn.execute("""
+                INSERT INTO matchings
+                    (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                prospect["id"], bien_id, r["score"],
+                "\n".join(r["points_forts"]),
+                "\n".join(r["points_attention"]),
+                r["recommandation"],
+                datetime.now().isoformat()
+            ))
+            conn.commit()
+            conn.close()
+            nb_matchings += 1
+
+        if nb_matchings > 0:
+            conn = sqlite3.connect(DB_PATH)
+            conn.execute("""
+                INSERT INTO notifications (type, title, message, link, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                "matching",
+                f"Nouveau bien - {nb_matchings} prospect(s) compatibles",
+                f'{bien.get("type", "Bien")} a {bien.get("ville", "?")} - {nb_matchings} matching(s)',
+                f"/matchings?bien={bien_id}",
+                datetime.now().isoformat()
+            ))
+            conn.commit()
+            conn.close()
+
+        return {
+            "message": f"{nb_matchings} matching(s) trouve(s) sur {len(compatibles)} prospect(s) compatible(s)",
+            "prospects_compatibles": len(compatibles),
+            "matchings_count": nb_matchings
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/matching/run-by-bien/{bien_id}")
+def run_matching_by_bien(bien_id: int, _user: dict = Depends(require_not_demo_optional)):
+    """Analyse un bien contre tous les prospects compatibles."""
+    return _core_analyser_bien(bien_id)
 
 
 # ==================== PROSPECTS CRUD ====================

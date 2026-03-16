@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Clock, ChevronDown, ChevronUp, Home, CheckCircle, AlertTriangle, Lightbulb, TrendingUp, XCircle } from 'lucide-react'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
@@ -55,6 +55,9 @@ function MatchingsPage() {
   const [filterScore, setFilterScore] = useState('all')
   const [expandedProspect, setExpandedProspect] = useState(null)
   const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const filterBienId = searchParams.get('bien') ? parseInt(searchParams.get('bien')) : null
 
   // Auto-expand prospect si on arrive depuis le dashboard
   useEffect(() => {
@@ -456,7 +459,8 @@ function MatchingsPage() {
                         (filterScore === 'high' && m.score >= 75) ||
                         (filterScore === 'medium' && m.score >= 50 && m.score < 75) ||
                         (filterScore === 'low' && m.score < 50)
-    return matchesSearch && matchesScore
+    const matchesBien = !filterBienId || m.bien_id === filterBienId
+    return matchesSearch && matchesScore && matchesBien
   })
 
   const handleRefuse = async (e, match) => {
@@ -564,6 +568,21 @@ function MatchingsPage() {
           </SparkleButton>
         </div>
       </div>
+
+      {/* Bandeau filtre par bien */}
+      {filterBienId && (
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-4">
+          <span className="text-sm text-blue-700 font-medium">
+            Affichage filtré — matchings du bien #{filterBienId} ({filteredMatchings.length} résultat{filteredMatchings.length > 1 ? 's' : ''})
+          </span>
+          <button
+            onClick={() => navigate('/matchings')}
+            className="text-sm text-blue-500 hover:text-blue-700 underline"
+          >
+            Voir tous les matchings
+          </button>
+        </div>
+      )}
 
       {/* Filtres */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
