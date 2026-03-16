@@ -1,4 +1,5 @@
-import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp } from 'lucide-react'
+import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
+import { API_URL } from '../config'
 
 function ProspectModal({ prospect, onClose }) {
   if (!prospect) return null
@@ -238,6 +239,20 @@ function ProspectModal({ prospect, onClose }) {
               <p className="text-sm text-amber-900">{prospect.observation}</p>
             </div>
           )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
+          <button
+            onClick={() => window.open(`${API_URL}/rapport/prospect/${prospect.id}`, '_blank')}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1E3A5F] bg-white border border-gray-200 rounded-xl hover:bg-[#1E3A5F] hover:text-white hover:border-[#1E3A5F] transition-all"
+          >
+            <FileBarChart size={15} />
+            Rapport prospect
+          </button>
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 font-medium">
+            Fermer
+          </button>
         </div>
       </div>
     </div>

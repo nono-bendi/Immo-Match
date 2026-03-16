@@ -968,7 +968,14 @@ function SettingsPage() {
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Mes données</h2>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+            <button
+              onClick={() => window.open(`${API_URL}/rapport/mensuel`, '_blank')}
+              className="flex items-center gap-2 px-5 py-3 bg-[#1E3A5F] text-white font-medium rounded-xl hover:bg-[#2a4f7c] transition-colors"
+            >
+              <FileText size={18} />
+              Rapport mensuel
+            </button>
             <button
               onClick={handleExport}
               className="flex items-center gap-2 px-5 py-3 bg-[#DCE7F3] text-[#1E3A5F] font-medium rounded-xl hover:bg-[#c5d9ed] transition-colors"
