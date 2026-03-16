@@ -56,7 +56,12 @@ function NotificationBell() {
   }
 
   const handleNotificationClick = (notif) => {
-    if (notif.link) {
+    if (notif.type === 'new_bien') {
+      const match = notif.link?.match(/\/nouveau-bien\/(\d+)/)
+      if (match) {
+        window.dispatchEvent(new CustomEvent('openNewBienModal', { detail: { bienId: parseInt(match[1]) } }))
+      }
+    } else if (notif.link) {
       navigate(notif.link)
     }
     setIsOpen(false)
@@ -76,8 +81,10 @@ function NotificationBell() {
   const getIcon = (type) => {
     switch (type) {
       case 'sync': return <RefreshCw size={16} className="text-emerald-500" />
-      case 'match': return <Star size={16} className="text-amber-500" />
+      case 'match':
+      case 'matching': return <Star size={16} className="text-amber-500" />
       case 'prospect': return <Users size={16} className="text-blue-500" />
+      case 'new_bien': return <Home size={16} className="text-emerald-600" />
       default: return <Home size={16} className="text-gray-500" />
     }
   }

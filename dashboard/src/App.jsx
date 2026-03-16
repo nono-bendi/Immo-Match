@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
+import NewBienModal from './components/NewBienModal'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ClientsPage from './pages/ClientsPage'
@@ -38,6 +39,13 @@ function AppRoutes() {
     if (typeof window === 'undefined') return false
     return !window.localStorage.getItem('immoMatch_tuto_done')
   })
+  const [newBienId, setNewBienId] = useState(null)
+
+  useEffect(() => {
+    const handler = (e) => setNewBienId(e.detail.bienId)
+    window.addEventListener('openNewBienModal', handler)
+    return () => window.removeEventListener('openNewBienModal', handler)
+  }, [])
 
   const closeTuto = () => {
     if (typeof window !== 'undefined') {
@@ -81,6 +89,7 @@ function AppRoutes() {
       </Routes>
 
       <TutorialModal open={isAuthenticated && showTuto} onClose={closeTuto} />
+      {newBienId && <NewBienModal bienId={newBienId} onClose={() => setNewBienId(null)} />}
     </>
   )
 }

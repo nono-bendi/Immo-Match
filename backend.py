@@ -1059,7 +1059,11 @@ def sync_hektor_ftp():
                 skipped += 1
                 continue
             
-            existing = cursor.execute("SELECT id FROM biens WHERE reference = ?", (d["reference"],)).fetchone()
+            ref_norm = re.sub(r'^\d+_', '', d["reference"])
+            existing = cursor.execute(
+                "SELECT id FROM biens WHERE reference = ? OR reference = ?",
+                (d["reference"], ref_norm)
+            ).fetchone()
             
             if existing:
                 cursor.execute('''
@@ -1107,8 +1111,19 @@ def sync_hektor_ftp():
                     d["latitude"], d["longitude"], datetime.now().isoformat(),
                     d["nom_agence"]
                 ))
+                nouveau_id = cursor.lastrowid
+                nouveaux_bien_ids.append(nouveau_id)
+                cursor.execute("""
+                    INSERT INTO notifications (type, title, message, link, created_at)
+                    VALUES (?, ?, ?, ?, ?)
+                """, (
+                    'new_bien',
+                    f'Nouveau bien — {d["type_bien"]} a {d["ville"]}',
+                    f'{d["prix"]}EUR - Ajoutez des notes avant analyse',
+                    f'/nouveau-bien/{nouveau_id}',
+                    datetime.now().isoformat()
+                ))
                 imported += 1
-                nouveaux_bien_ids.append(cursor.lastrowid)
         
         conn.commit()
         
@@ -1852,7 +1867,11 @@ async def import_hektor(file: UploadFile = File(...)):
                 skipped += 1
                 continue
             
-            existing = cursor.execute("SELECT id FROM biens WHERE reference = ?", (d["reference"],)).fetchone()
+            ref_norm = re.sub(r'^\d+_', '', d["reference"])
+            existing = cursor.execute(
+                "SELECT id FROM biens WHERE reference = ? OR reference = ?",
+                (d["reference"], ref_norm)
+            ).fetchone()
             
             if existing:
                 cursor.execute('''
@@ -1983,6 +2002,14 @@ def update_bien(bien_id: int, bien: dict):
     conn.close()
     return {"message": "Bien mis à jour"}
 
+@app.patch("/biens/{bien_id}/defauts")
+def patch_bien_defauts(bien_id: int, data: dict):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE biens SET defauts = ? WHERE id = ?", (data.get("defauts"), bien_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Defauts mis a jour"}
+
 @app.delete("/biens/{bien_id}")
 def delete_bien(bien_id: int):
     conn = sqlite3.connect(DB_PATH)
@@ -2013,6 +2040,21 @@ def get_matchings():
     matchings = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return matchings
+
+@app.get("/matchings/by-bien/{bien_id}")
+def get_matchings_by_bien(bien_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute('''
+        SELECT m.score, m.points_forts, m.points_attention, m.recommandation,
+               p.nom as prospect_nom, p.budget_max as prospect_budget
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        WHERE m.bien_id = ?
+        ORDER BY m.score DESC
+    ''', (bien_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 @app.get("/stats")
 def get_stats():
@@ -2224,7 +2266,21 @@ def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
             "SELECT bien_id FROM matchings WHERE prospect_id = ? AND statut_prospect = 'refused'",
             (prospect_id,)
         ).fetchall()}
-        conn.execute("DELETE FROM matchings WHERE prospect_id = ?", (prospect_id,))
+        # Supprimer uniquement les matchings des biens qui vont être re-analysés
+        biens_a_analyser_ids = [b["id"] for b in biens_filtres]
+        placeholders = ",".join("?" * len(biens_a_analyser_ids))
+        conn.execute(
+            f"DELETE FROM matchings WHERE prospect_id = ? AND bien_id IN ({placeholders})",
+            [prospect_id] + biens_a_analyser_ids
+        )
+
+        # Dédoublonner par bien_id (garder le meilleur score)
+        seen_biens = {}
+        for r in resultats:
+            bid = r["bien_id"]
+            if bid not in seen_biens or r["score"] > seen_biens[bid]["score"]:
+                seen_biens[bid] = r
+        resultats = list(seen_biens.values())
 
         nb_matchings = 0
         for r in resultats:
