@@ -2201,7 +2201,7 @@ def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
             return {"error": "Clé API Anthropic non configurée"}
 
         # Scoring hybride (objectif Python + qualitatif Claude)
-        resultats = scorer_biens_hybride(prospect, biens_filtres)
+        resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
         resultat_brut = formater_pour_affichage(resultats)
 
         conn = sqlite3.connect(DB_PATH)
@@ -2331,7 +2331,7 @@ def run_all_matchings(_user = Depends(require_not_demo_optional)):
         biens_filtres = sorted(biens_filtres, key=lambda b: abs((b.get("prix") or 0) - budget_client))[:max_biens]
 
         try:
-            resultats = scorer_biens_hybride(prospect, biens_filtres)
+            resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
 
             conn = sqlite3.connect(DB_PATH)
             for r in resultats:

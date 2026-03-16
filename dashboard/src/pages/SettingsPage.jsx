@@ -92,27 +92,22 @@ function SettingsPage() {
   })
 
   const models = [
-    { 
-      id: 'claude-3-5-haiku-20241022', 
-      name: 'Haiku 3.5', 
+    {
+      id: 'claude-haiku-4-5-20251001',
+      name: 'Haiku 4.5',
       description: 'Rapide & économique',
-      price: '~0.001€/analyse',
-      icon: Zap
+      price: '~0.002€/analyse',
+      icon: Zap,
+      recommended: false
     },
-    { 
-      id: 'claude-sonnet-4-20250514', 
-      name: 'Sonnet 4', 
-      description: 'Équilibré (recommandé)',
-      price: '~0.015€/analyse',
-      icon: Star
+    {
+      id: 'claude-sonnet-4-20250514',
+      name: 'Sonnet 4',
+      description: 'Meilleur rapport qualité/prix',
+      price: '~0.006€/analyse',
+      icon: Star,
+      recommended: true
     },
-    { 
-      id: 'claude-opus-4-5-20251101', 
-      name: 'Opus 4.5', 
-      description: 'Plus précis mais coûteux',
-      price: '~0.15€/analyse',
-      icon: TrendingUp
-    }
   ]
 
   // Guide rapide - étapes
@@ -619,7 +614,12 @@ function SettingsPage() {
                         </div>
                       )}
                     </div>
-                    <p className="font-semibold text-[#1E3A5F]">{model.name}</p>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-semibold text-[#1E3A5F]">{model.name}</p>
+                      {model.recommended && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Recommandé</span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600 mb-1">{model.description}</p>
                     <p className="text-xs text-gray-400">{model.price}</p>
                   </button>

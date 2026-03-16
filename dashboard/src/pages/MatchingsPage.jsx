@@ -96,25 +96,28 @@ function MatchingsPage() {
 
   // États pour l'overlay
   const [showOverlay, setShowOverlay] = useState(false)
+  const [overlayCompleted, setOverlayCompleted] = useState(false)
   const [totalProspects, setTotalProspects] = useState(0)
   const [currentProspectIndex, setCurrentProspectIndex] = useState(0)
   const [currentProspectName, setCurrentProspectName] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
+  const [pendingScrollTo, setPendingScrollTo] = useState(null)
 
   const fetchData = () => {
     setLoading(true)
-    fetch(`${API_URL}/matchings`)
+    return fetch(`${API_URL}/matchings`)
       .then(res => res.json())
       .then(matchingsData => {
-        setMatchings(Array.isArray(matchingsData) ? matchingsData : [])
-        if (matchingsData.length > 0) {
-          setLastAnalysis(matchingsData[0].date_analyse)
-        }
+        const data = Array.isArray(matchingsData) ? matchingsData : []
+        setMatchings(data)
+        if (data.length > 0) setLastAnalysis(data[0].date_analyse)
         setLoading(false)
+        return data
       })
       .catch(error => {
         console.error('Erreur:', error)
         setLoading(false)
+        return []
       })
   }
 
@@ -122,6 +125,22 @@ function MatchingsPage() {
     fetchData()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Après analyse individuelle : naviguer vers la bonne page et scroller vers le prospect
+  useEffect(() => {
+    if (!pendingScrollTo || prospectGroups.length === 0) return
+    const id = pendingScrollTo
+    const idx = prospectGroups.findIndex(g => g.prospect_id === id)
+    if (idx === -1) return
+    setCurrentPage(Math.floor(idx / itemsPerPage) + 1)
+    setExpandedProspect(id)
+    setPendingScrollTo(null)
+    setTimeout(() => {
+      const el = document.getElementById(`prospect-${id}`)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 150)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingScrollTo, matchings])
 
   const runGlobalAnalysis = async () => {
     setAnalyzing(true)
@@ -185,6 +204,7 @@ function MatchingsPage() {
     e.stopPropagation()
     setAnalyzing(true)
     setShowOverlay(true)
+    setOverlayCompleted(false)
     setTotalProspects(1)
     setCurrentProspectIndex(1)
     setCurrentProspectName(prospectName || 'Prospect')
@@ -195,12 +215,13 @@ function MatchingsPage() {
       if (data.error) {
         alert('Erreur: ' + data.error)
       } else {
-        fetchData()
-        
+        const updatedMatchings = await fetchData()
+        setPendingScrollTo(prospectId)
+
         if (data.matchings_count > 0) {
-          const hasExcellent = await fetch(`${API_URL}/matchings`).then(r => r.json()).then(matches => 
-            matches.filter(m => m.prospect_id === prospectId).some(m => m.score >= 80)
-          )
+          const hasExcellent = updatedMatchings
+            .filter(m => m.prospect_id === prospectId)
+            .some(m => m.score >= 80)
           if (hasExcellent) {
             setShowConfetti(true)
             setTimeout(() => setShowConfetti(false), 3000)
@@ -211,8 +232,12 @@ function MatchingsPage() {
       alert('Erreur lors de l\'analyse')
     }
 
-    setShowOverlay(false)
-    setAnalyzing(false)
+    setOverlayCompleted(true)
+    setTimeout(() => {
+      setShowOverlay(false)
+      setOverlayCompleted(false)
+      setAnalyzing(false)
+    }, 700)
   }
 
   const formatBudget = (budget) => {
@@ -496,11 +521,12 @@ function MatchingsPage() {
         onRegeneratePreview={regeneratePreview}
       />
       
-      <AnalysisOverlay 
+      <AnalysisOverlay
         isVisible={showOverlay}
         totalProspects={totalProspects}
         currentProspect={currentProspectIndex}
         currentProspectName={currentProspectName}
+        isCompleted={overlayCompleted}
       />
 
       {/* Header */}

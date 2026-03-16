@@ -206,7 +206,7 @@ def construire_contexte_prospect(prospect):
     return "\n".join(lignes)
 
 
-def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif):
+def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='claude-sonnet-4-20250514'):
     """
     Demande à Claude uniquement le score qualitatif /40.
     Retourne un dict avec score_qualitatif, points_forts, points_attention, recommandation.
@@ -277,7 +277,7 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
 }}"""
 
     message = client.messages.create(
-        model="claude-opus-4-20250514",
+        model=model,
         max_tokens=600,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -298,7 +298,7 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
 # PARTIE 3 — ORCHESTRATEUR PRINCIPAL
 # ============================================================
 
-def scorer_biens(prospect, biens_candidats):
+def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514'):
     """
     Point d'entrée principal. Remplace scorer_biens() de prompt_scoring.py.
     Retourne une liste de résultats triés par score final décroissant.
@@ -311,7 +311,7 @@ def scorer_biens(prospect, biens_candidats):
 
         # 2. Score qualitatif (Claude)
         try:
-            qualitatif = scorer_bien_claude(prospect, bien, score_obj, detail_obj)
+            qualitatif = scorer_bien_claude(prospect, bien, score_obj, detail_obj, model=model)
         except Exception as e:
             print(f"Erreur Claude pour bien #{bien.get('id')}: {e}")
             qualitatif = {

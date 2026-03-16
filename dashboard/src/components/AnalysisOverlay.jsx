@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName }) {
+function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted }) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [estimatedTimePerProspect, setEstimatedTimePerProspect] = useState(0)
   
@@ -28,11 +28,12 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
 
   // Pour un seul prospect, on simule une progression basée sur le temps (environ 15s par analyse)
   const isSingleProspect = totalProspects === 1
-  const estimatedSingleTime = 15 // secondes estimées pour un prospect
-  
   let progress
-  if (isSingleProspect) {
-    progress = Math.min(95, (elapsedTime / estimatedSingleTime) * 100)
+  if (isCompleted) {
+    progress = 100
+  } else if (isSingleProspect) {
+    // Courbe asymptotique : avance toujours, de plus en plus lentement, ne bloque jamais
+    progress = 98 * (1 - Math.exp(-elapsedTime / 18))
   } else {
     progress = totalProspects > 0 ? ((currentProspect - 1) / totalProspects) * 100 : 0
   }
