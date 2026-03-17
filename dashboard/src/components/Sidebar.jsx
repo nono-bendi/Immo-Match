@@ -34,16 +34,11 @@ function Sidebar({ isOpen, onClose }) {
 
       {/* Logo + bouton fermer sur mobile */}
       <div className="flex items-center gap-3 px-2 mb-10">
-        <div className="flex-shrink-0 flex items-center justify-center">
-<img 
-  src="/icon2.png" 
-  alt="ImmoMatch" 
-  style={{ height: 36, width: 'auto', filter: 'brightness(0) invert(1)' }} 
-/>
-</div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-white font-bold text-base tracking-tight">ImmoMatch</h1>
-          <p className="text-white/50 text-xs truncate">Saint François Immo</p>
+          <h1 className="font-extrabold text-xl leading-none" style={{ letterSpacing: '-0.04em' }}>
+            <span className="text-white">Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
+          </h1>
+          <p className="text-white/50 text-xs mt-1 truncate">Saint François Immo</p>
         </div>
         {/* Bouton fermer visible seulement sur mobile */}
         <button

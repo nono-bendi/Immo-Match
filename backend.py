@@ -853,6 +853,16 @@ def init_db():
     except Exception:
         pass
 
+    # Migration : date_creation matchings (date du premier calcul, jamais modifiée)
+    try:
+        conn.execute("ALTER TABLE matchings ADD COLUMN date_creation TEXT")
+        conn.commit()
+    except Exception:
+        pass
+    # Initialiser date_creation depuis date_analyse pour les matchings existants
+    conn.execute("UPDATE matchings SET date_creation = date_analyse WHERE date_creation IS NULL")
+    conn.commit()
+
     conn.close()
 
 init_db()
@@ -2421,8 +2431,8 @@ def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
             recommandation = r.get("recommandation", "")
 
             conn.execute("""
-                INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 prospect_id,
                 r["bien_id"],
@@ -2430,6 +2440,7 @@ def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
                 points_forts,
                 points_attention,
                 recommandation,
+                datetime.now().isoformat(),
                 datetime.now().isoformat()
             ))
             nb_matchings += 1
@@ -2550,8 +2561,8 @@ def run_all_matchings(_user = Depends(require_not_demo_optional)):
                     continue
 
                 conn.execute("""
-                    INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     prospect["id"],
                     r["bien_id"],
@@ -2559,6 +2570,7 @@ def run_all_matchings(_user = Depends(require_not_demo_optional)):
                     points_forts,
                     points_attention,
                     recommandation,
+                    datetime.now().isoformat(),
                     datetime.now().isoformat()
                 ))
                 total_matchings += 1
@@ -2675,13 +2687,14 @@ def _core_analyser_bien(bien_id: int) -> dict:
             conn = sqlite3.connect(DB_PATH)
             conn.execute("""
                 INSERT INTO matchings
-                    (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 prospect["id"], bien_id, r["score"],
                 "\n".join(r["points_forts"]),
                 "\n".join(r["points_attention"]),
                 r["recommandation"],
+                datetime.now().isoformat(),
                 datetime.now().isoformat()
             ))
             conn.commit()
@@ -3088,27 +3101,57 @@ def guide_utilisateur():
 
 
 @app.get("/rapport/mensuel", response_class=HTMLResponse)
-def rapport_mensuel():
+def rapport_mensuel(mois: Optional[str] = None):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
-    now = datetime.now()
-    debut_mois = now.replace(day=1, hour=0, minute=0, second=0).isoformat()
-    debut_mois_prec = (now.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0).isoformat()
-    fin_mois_prec = now.replace(day=1, hour=0, minute=0, second=0).isoformat()
-    mois_label = now.strftime('%B %Y').capitalize()
+    aujourd_hui = datetime.now()
+
+    # Parsing du mois demandé (format YYYY-MM) ou mois courant
+    if mois:
+        try:
+            ref = datetime.strptime(mois, "%Y-%m")
+        except ValueError:
+            ref = aujourd_hui
+    else:
+        ref = aujourd_hui
+
+    debut_mois = ref.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Fin du mois = 1er du mois suivant
+    if debut_mois.month == 12:
+        fin_mois = debut_mois.replace(year=debut_mois.year + 1, month=1)
+    else:
+        fin_mois = debut_mois.replace(month=debut_mois.month + 1)
+
+    debut_mois_prec = (debut_mois - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    fin_mois_prec = debut_mois
+
+    mois_label = debut_mois.strftime('%B %Y').capitalize()
+
+    # Navigation : mois précédent / suivant
+    mois_prec = debut_mois_prec.strftime('%Y-%m')
+    mois_suiv_dt = fin_mois
+    mois_suiv = mois_suiv_dt.strftime('%Y-%m')
+    est_mois_courant = debut_mois.year == aujourd_hui.year and debut_mois.month == aujourd_hui.month
+
+    now = debut_mois  # pour compatibilité avec le reste du code (strftime génération)
+
+    debut_mois_iso = debut_mois.isoformat()
+    fin_mois_iso = fin_mois.isoformat()
+    debut_mois_prec_iso = debut_mois_prec.isoformat()
+    fin_mois_prec_iso = fin_mois_prec.isoformat()
 
     # KPIs mois courant
-    nb_prospects = conn.execute("SELECT COUNT(*) FROM prospects WHERE date >= ?", (debut_mois,)).fetchone()[0]
-    nb_biens = conn.execute("SELECT COUNT(*) FROM biens WHERE date_ajout >= ?", (debut_mois,)).fetchone()[0]
-    nb_matchings = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_analyse >= ?", (debut_mois,)).fetchone()[0]
-    score_moy = conn.execute("SELECT ROUND(AVG(score),1) FROM matchings WHERE date_analyse >= ?", (debut_mois,)).fetchone()[0] or 0
-    excellents = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_analyse >= ? AND score >= 75", (debut_mois,)).fetchone()[0]
+    nb_prospects = conn.execute("SELECT COUNT(*) FROM prospects WHERE date >= ? AND date < ?", (debut_mois_iso, fin_mois_iso)).fetchone()[0]
+    nb_biens = conn.execute("SELECT COUNT(*) FROM biens WHERE date_ajout >= ? AND date_ajout < ?", (debut_mois_iso, fin_mois_iso)).fetchone()[0]
+    nb_matchings = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_creation >= ? AND date_creation < ?", (debut_mois_iso, fin_mois_iso)).fetchone()[0]
+    score_moy = conn.execute("SELECT ROUND(AVG(score),1) FROM matchings WHERE date_creation >= ? AND date_creation < ?", (debut_mois_iso, fin_mois_iso)).fetchone()[0] or 0
+    excellents = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_creation >= ? AND date_creation < ? AND score >= 75", (debut_mois_iso, fin_mois_iso)).fetchone()[0]
 
     # KPIs mois précédent (pour delta)
-    nb_prospects_prec = conn.execute("SELECT COUNT(*) FROM prospects WHERE date >= ? AND date < ?", (debut_mois_prec, fin_mois_prec)).fetchone()[0]
-    nb_biens_prec = conn.execute("SELECT COUNT(*) FROM biens WHERE date_ajout >= ? AND date_ajout < ?", (debut_mois_prec, fin_mois_prec)).fetchone()[0]
-    nb_matchings_prec = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_analyse >= ? AND date_analyse < ?", (debut_mois_prec, fin_mois_prec)).fetchone()[0]
+    nb_prospects_prec = conn.execute("SELECT COUNT(*) FROM prospects WHERE date >= ? AND date < ?", (debut_mois_prec_iso, fin_mois_prec_iso)).fetchone()[0]
+    nb_biens_prec = conn.execute("SELECT COUNT(*) FROM biens WHERE date_ajout >= ? AND date_ajout < ?", (debut_mois_prec_iso, fin_mois_prec_iso)).fetchone()[0]
+    nb_matchings_prec = conn.execute("SELECT COUNT(*) FROM matchings WHERE date_creation >= ? AND date_creation < ?", (debut_mois_prec_iso, fin_mois_prec_iso)).fetchone()[0]
 
     # Top matchings du mois
     top_matchings = conn.execute('''
@@ -3117,9 +3160,9 @@ def rapport_mensuel():
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
-        WHERE m.date_analyse >= ? AND (p.archive = 0 OR p.archive IS NULL)
+        WHERE m.date_creation >= ? AND m.date_creation < ? AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC LIMIT 10
-    ''', (debut_mois,)).fetchall()
+    ''', (debut_mois_iso, fin_mois_iso)).fetchall()
 
     # Nouveaux biens ce mois
     nouveaux_biens = conn.execute('''
@@ -3127,9 +3170,9 @@ def rapport_mensuel():
                COUNT(m.id) as nb_matchings
         FROM biens b
         LEFT JOIN matchings m ON b.id = m.bien_id
-        WHERE b.date_ajout >= ?
+        WHERE b.date_ajout >= ? AND b.date_ajout < ?
         GROUP BY b.id ORDER BY nb_matchings DESC LIMIT 8
-    ''', (debut_mois,)).fetchall()
+    ''', (debut_mois_iso, fin_mois_iso)).fetchall()
 
     # Totaux globaux
     total_prospects = conn.execute("SELECT COUNT(*) FROM prospects").fetchone()[0]
@@ -3208,6 +3251,11 @@ def rapport_mensuel():
     .badge {{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; }}
     .header h1 {{ font-size:32px; font-weight:800; margin-bottom:6px; }}
     .header p {{ opacity:.75; font-size:14px; }}
+    .nav-mois {{ display:flex; align-items:center; gap:12px; margin-top:20px; }}
+    .nav-btn {{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); color:white; padding:7px 16px; border-radius:10px; font-size:13px; font-weight:600; text-decoration:none; transition:.15s; }}
+    .nav-btn:hover {{ background:rgba(255,255,255,.28); }}
+    .nav-btn.disabled {{ opacity:.3; pointer-events:none; }}
+    .nav-label {{ font-size:15px; font-weight:600; opacity:.85; min-width:120px; text-align:center; }}
     .kpi-grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px; padding:40px 56px; background:#f8fafc; border-bottom:1px solid #e2e8f0; }}
     .kpi {{ background:white; border-radius:16px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,.06); }}
     .kpi-value {{ font-size:36px; font-weight:800; color:#1E3A5F; line-height:1; }}
@@ -3235,11 +3283,27 @@ def rapport_mensuel():
     .total-value {{ font-size:28px; font-weight:800; color:#1E3A5F; }}
     .total-label {{ font-size:11px; color:#64748b; margin-top:4px; font-weight:500; }}
     .footer {{ background:#f8fafc; padding:24px 56px; text-align:center; color:#94a3b8; font-size:12px; border-top:1px solid #e2e8f0; }}
-    @media print {{ body {{ background:white; padding:0; }} .page {{ box-shadow:none; border-radius:0; }} }}
+    .toolbar {{ max-width:960px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center; }}
+    .toolbar-btn {{ display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:.15s; }}
+    .btn-back {{ background:white; color:#1E3A5F; box-shadow:0 1px 4px rgba(0,0,0,.1); transition:all .2s ease; }}
+    .btn-back:hover {{ background:#f1f5f9; box-shadow:0 3px 10px rgba(0,0,0,.15); transform:translateX(-3px); }}
+    .btn-back:active {{ transform:translateX(-1px); box-shadow:0 1px 4px rgba(0,0,0,.1); }}
+    .btn-pdf {{ background:#1E3A5F; color:white; box-shadow:0 2px 8px rgba(30,58,95,.3); }}
+    .btn-pdf:hover {{ background:#2D5A8A; }}
+    @media print {{
+      * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }}
+      body {{ background:white; padding:0; }}
+      .page {{ box-shadow:none; border-radius:0; }}
+      .no-print {{ display:none !important; }}
+    }}
     @media(max-width:700px) {{ .kpi-grid,.totals-grid {{ grid-template-columns:repeat(2,1fr); }} .section {{ padding:24px 20px; }} .header {{ padding:32px 24px 28px; }} .kpi-grid {{ padding:24px 20px; }} }}
   </style>
 </head>
 <body>
+<div class="toolbar no-print">
+  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back">&#8592; Retour</button>
+  <button onclick="window.print()" class="toolbar-btn btn-pdf">&#8615; T&eacute;l&eacute;charger PDF</button>
+</div>
 <div class="page">
   <div class="header">
     <div class="header-top">
@@ -3247,7 +3311,12 @@ def rapport_mensuel():
       <span class="badge">Rapport mensuel</span>
     </div>
     <h1>Activité de {mois_label}</h1>
-    <p>Généré le {now.strftime('%d/%m/%Y à %H:%M')} · Saint François Immobilier</p>
+    <p>Saint François Immobilier</p>
+    <div class="nav-mois no-print">
+      <a href="/rapport/mensuel?mois={mois_prec}" class="nav-btn">&#8592; {debut_mois_prec.strftime('%b %Y').capitalize()}</a>
+      <span class="nav-label">{mois_label}</span>
+      {'<a class="nav-btn disabled">&#8594; ' + mois_suiv_dt.strftime('%b %Y').capitalize() + '</a>' if est_mois_courant else '<a href="/rapport/mensuel?mois=' + mois_suiv + '" class="nav-btn">&#8594; ' + mois_suiv_dt.strftime('%b %Y').capitalize() + '</a>'}
+    </div>
   </div>
 
   <div class="kpi-grid">

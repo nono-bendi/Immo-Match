@@ -7,7 +7,7 @@ import {
   X, ChevronRight, ChevronLeft, Sparkles,
   User, Save, Send, Eye, Edit3, Mail,
   CheckCircle2, ArrowRight, Plus,
-  Home, Target, BarChart2, BookOpen
+  Target, BarChart2, BookOpen
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { API_URL } from '../config'
@@ -83,14 +83,18 @@ function SlideWelcome({ active, userName }) {
         opacity: step >= 1 ? 1 : 0,
         transform: step >= 1 ? 'scale(1) translateY(0)' : 'scale(0.4) translateY(24px)',
         transition: 'opacity 0.55s cubic-bezier(.34,1.6,.64,1), transform 0.55s cubic-bezier(.34,1.6,.64,1)',
-        width: '68px', height: '68px', borderRadius: '20px',
-        background: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)',
+        padding: '12px 20px', borderRadius: '20px',
+        background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: step >= 1
-          ? '0 0 0 8px rgba(99,102,241,0.12), 0 0 0 16px rgba(99,102,241,0.06), 0 8px 32px rgba(99,102,241,0.5)'
+          ? '0 0 0 8px rgba(30,58,95,0.15), 0 0 0 16px rgba(30,58,95,0.07), 0 8px 32px rgba(30,58,95,0.5)'
           : 'none',
         animation: step >= 1 ? 'logoPulse 2.5s ease-in-out infinite' : 'none',
-      }}><Home size={28} color="white" strokeWidth={1.8} /></div>
+      }}>
+        <span style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>
+          <span style={{ color: 'white' }}>Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
+        </span>
+      </div>
 
       {/* Bonjour + nom */}
       <div style={{
