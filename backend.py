@@ -821,6 +821,38 @@ def init_db():
         except Exception:
             pass  # La colonne existe déjà, on ignore
 
+    # Migration : statut bien (actif / vendu)
+    try:
+        conn.execute("ALTER TABLE biens ADD COLUMN statut TEXT DEFAULT 'actif'")
+        conn.commit()
+    except Exception:
+        pass
+
+    # Migration : source (ftp / manual) et date_vendu
+    try:
+        conn.execute("ALTER TABLE biens ADD COLUMN source TEXT DEFAULT 'manual'")
+        conn.commit()
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE biens ADD COLUMN date_vendu TEXT")
+        conn.commit()
+    except Exception:
+        pass
+    # Initialiser date_vendu pour les biens déjà marqués vendus (seront supprimés dans 2 jours)
+    conn.execute(
+        "UPDATE biens SET date_vendu = ? WHERE statut = 'vendu' AND date_vendu IS NULL",
+        (datetime.now().isoformat(),)
+    )
+    conn.commit()
+
+    # Migration : archivage des prospects
+    try:
+        conn.execute("ALTER TABLE prospects ADD COLUMN archive INTEGER DEFAULT 0")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.close()
 
 init_db()
@@ -1043,28 +1075,33 @@ def sync_hektor_ftp():
         imported = 0
         updated = 0
         skipped = 0
+        vendu = 0
         nouveaux_bien_ids = []
-        
+        csv_references = set()
+
         for line in lines:
             cols = line.split('!#')
             cols = [c.strip().strip('"') for c in cols]
-            
+
             if len(cols) < 25:
                 skipped += 1
                 continue
-            
+
             d = parse_hektor_cols(cols)
-            
+
             if d["transaction"].lower() != "vente":
                 skipped += 1
                 continue
-            
+
             ref_norm = re.sub(r'^\d+_', '', d["reference"])
+            csv_references.add(d["reference"])
+            csv_references.add(ref_norm)
+
             existing = cursor.execute(
                 "SELECT id FROM biens WHERE reference = ? OR reference = ?",
                 (d["reference"], ref_norm)
             ).fetchone()
-            
+
             if existing:
                 cursor.execute('''
                     UPDATE biens SET
@@ -1074,7 +1111,7 @@ def sync_hektor_ftp():
                         nb_parkings=?, nb_boxes=?, terrasse=?, nb_balcons=?,
                         orientation_sud=?, orientation_est=?, orientation_ouest=?, orientation_nord=?,
                         dpe_lettre=?, dpe_kwh=?, ges_lettre=?, ges_co2=?,
-                        latitude=?, longitude=?, date_ajout=?, nom_agence=?
+                        latitude=?, longitude=?, date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
                     WHERE reference=?
                 ''', (
                     d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
@@ -1085,7 +1122,7 @@ def sync_hektor_ftp():
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"],
+                    d["nom_agence"], "actif", "ftp",
                     d["reference"]
                 ))
                 updated += 1
@@ -1098,8 +1135,8 @@ def sync_hektor_ftp():
                         nb_parkings, nb_boxes, terrasse, nb_balcons,
                         orientation_sud, orientation_est, orientation_ouest, orientation_nord,
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
-                        latitude, longitude, date_ajout, nom_agence
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        latitude, longitude, date_ajout, nom_agence, source
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -1109,7 +1146,7 @@ def sync_hektor_ftp():
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"]
+                    d["nom_agence"], "ftp"
                 ))
                 nouveau_id = cursor.lastrowid
                 nouveaux_bien_ids.append(nouveau_id)
@@ -1124,23 +1161,54 @@ def sync_hektor_ftp():
                     datetime.now().isoformat()
                 ))
                 imported += 1
-        
+
+        # Marquer les biens FTP absents du CSV comme vendus (Annule et Remplace)
+        # Seuls les biens avec source='ftp' sont concernés — les biens importés manuellement sont ignorés
+        now_iso = datetime.now().isoformat()
+        if csv_references:
+            all_ftp_actif = cursor.execute(
+                "SELECT id, reference FROM biens WHERE source = 'ftp' AND (statut IS NULL OR statut = 'actif')"
+            ).fetchall()
+            vendu_ids = [
+                bid for bid, bref in all_ftp_actif
+                if bref not in csv_references
+                and re.sub(r'^\d+_', '', bref or '') not in csv_references
+            ]
+            if vendu_ids:
+                cursor.executemany(
+                    "UPDATE biens SET statut = 'vendu', date_vendu = ? WHERE id = ?",
+                    [(now_iso, vid) for vid in vendu_ids]
+                )
+                vendu = len(vendu_ids)
+
+        # Supprimer les biens vendus depuis plus de 2 jours
+        limite_2j = (datetime.now() - timedelta(days=2)).isoformat()
+        cursor.execute(
+            "DELETE FROM biens WHERE statut = 'vendu' AND date_vendu IS NOT NULL AND date_vendu <= ?",
+            (limite_2j,)
+        )
+
         conn.commit()
-        
+
         # Sauvegarder la date de dernière sync
-        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", 
+        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
                       ("last_hektor_sync", datetime.now().isoformat()))
         conn.commit()
-        
-        # Créer une notification si nouveaux biens
-        if imported > 0:
+
+        # Créer une notification si nouveaux biens ou vendus
+        if imported > 0 or vendu > 0:
+            parts = []
+            if imported > 0:
+                parts.append(f"{imported} nouveau(x) bien(s)")
+            if vendu > 0:
+                parts.append(f"{vendu} vendu(s) / retiré(s)")
             conn.execute('''
                 INSERT INTO notifications (type, title, message, link, created_at)
                 VALUES (?, ?, ?, ?, ?)
             ''', (
                 'sync',
                 'Sync Hektor terminée',
-                f'{imported} nouveau(x) bien(s) importé(s), {updated} mis à jour',
+                f'{", ".join(parts)}, {updated} mis à jour',
                 '/biens',
                 datetime.now().isoformat()
             ))
@@ -1160,8 +1228,8 @@ def sync_hektor_ftp():
                         print(f"Erreur analyse bien #{bid}: {e}")
             threading.Thread(target=analyser_nouveaux_biens, args=(nouveaux_bien_ids,), daemon=True).start()
 
-        print(f"ðŸ“Š Import : {imported} nouveaux, {updated} mis à jour, {skipped} ignorés")
-        return {"success": True, "imported": imported, "updated": updated, "skipped": skipped}
+        print(f"Import : {imported} nouveaux, {updated} mis à jour, {vendu} vendus, {skipped} ignorés")
+        return {"success": True, "imported": imported, "updated": updated, "vendu": vendu, "skipped": skipped}
         
     except Exception as e:
         print(f"âŒ Erreur sync : {e}")
@@ -1581,6 +1649,22 @@ def delete_prospect(prospect_id: int):
     conn.close()
     return {"message": "Prospect supprimé"}
 
+@app.patch("/prospects/{prospect_id}/archiver")
+def archiver_prospect(prospect_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE prospects SET archive = 1 WHERE id = ?", (prospect_id,))
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
+@app.patch("/prospects/{prospect_id}/desarchiver")
+def desarchiver_prospect(prospect_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE prospects SET archive = 0 WHERE id = ?", (prospect_id,))
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
 @app.get("/settings")
 def get_settings():
     conn = sqlite3.connect(DB_PATH)
@@ -1635,6 +1719,7 @@ def export_all():
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
+        WHERE (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
     ''', conn)
     conn.close()
@@ -1852,27 +1937,32 @@ async def import_hektor(file: UploadFile = File(...)):
         imported = 0
         updated = 0
         skipped = 0
-        
+        vendu = 0
+        csv_references = set()
+
         for line in lines:
             cols = line.split('!#')
             cols = [c.strip().strip('"') for c in cols]
-            
+
             if len(cols) < 25:
                 skipped += 1
                 continue
-            
+
             d = parse_hektor_cols(cols)
-            
+
             if d["transaction"].lower() != "vente":
                 skipped += 1
                 continue
-            
+
             ref_norm = re.sub(r'^\d+_', '', d["reference"])
+            csv_references.add(d["reference"])
+            csv_references.add(ref_norm)
+
             existing = cursor.execute(
                 "SELECT id FROM biens WHERE reference = ? OR reference = ?",
                 (d["reference"], ref_norm)
             ).fetchone()
-            
+
             if existing:
                 cursor.execute('''
                     UPDATE biens SET
@@ -1882,7 +1972,7 @@ async def import_hektor(file: UploadFile = File(...)):
                         nb_parkings=?, nb_boxes=?, terrasse=?, nb_balcons=?,
                         orientation_sud=?, orientation_est=?, orientation_ouest=?, orientation_nord=?,
                         dpe_lettre=?, dpe_kwh=?, ges_lettre=?, ges_co2=?,
-                        latitude=?, longitude=?, date_ajout=?, nom_agence=?
+                        latitude=?, longitude=?, date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
                     WHERE reference=?
                 ''', (
                     d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
@@ -1893,7 +1983,7 @@ async def import_hektor(file: UploadFile = File(...)):
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"],
+                    d["nom_agence"], "actif", "ftp",
                     d["reference"]
                 ))
                 updated += 1
@@ -1906,8 +1996,8 @@ async def import_hektor(file: UploadFile = File(...)):
                         nb_parkings, nb_boxes, terrasse, nb_balcons,
                         orientation_sud, orientation_est, orientation_ouest, orientation_nord,
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
-                        latitude, longitude, date_ajout, nom_agence
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        latitude, longitude, date_ajout, nom_agence, source
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -1917,16 +2007,42 @@ async def import_hektor(file: UploadFile = File(...)):
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"]
+                    d["nom_agence"], "ftp"
                 ))
                 imported += 1
-        
+
+        # Marquer les biens FTP absents du CSV comme vendus (Annule et Remplace)
+        now_iso = datetime.now().isoformat()
+        if csv_references:
+            all_ftp_actif = cursor.execute(
+                "SELECT id, reference FROM biens WHERE source = 'ftp' AND (statut IS NULL OR statut = 'actif')"
+            ).fetchall()
+            vendu_ids = [
+                bid for bid, bref in all_ftp_actif
+                if bref not in csv_references
+                and re.sub(r'^\d+_', '', bref or '') not in csv_references
+            ]
+            if vendu_ids:
+                cursor.executemany(
+                    "UPDATE biens SET statut = 'vendu', date_vendu = ? WHERE id = ?",
+                    [(now_iso, vid) for vid in vendu_ids]
+                )
+                vendu = len(vendu_ids)
+
+        # Supprimer les biens vendus depuis plus de 2 jours
+        limite_2j = (datetime.now() - timedelta(days=2)).isoformat()
+        cursor.execute(
+            "DELETE FROM biens WHERE statut = 'vendu' AND date_vendu IS NOT NULL AND date_vendu <= ?",
+            (limite_2j,)
+        )
+
         conn.commit()
         conn.close()
-        
+
+        vendu_msg = f", {vendu} vendu(s) / retiré(s)" if vendu > 0 else ""
         return {
             "success": True,
-            "message": f"Import terminé : {imported} nouveaux biens, {updated} mis à jour, {skipped} ignorés (locations)"
+            "message": f"Import terminé : {imported} nouveaux biens, {updated} mis à jour{vendu_msg}, {skipped} ignorés (locations)"
         }
         
     except Exception as e:
@@ -2010,6 +2126,14 @@ def patch_bien_defauts(bien_id: int, data: dict):
     conn.close()
     return {"message": "Defauts mis a jour"}
 
+@app.patch("/biens/{bien_id}/restaurer")
+def restaurer_bien(bien_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("UPDATE biens SET statut = 'actif', date_vendu = NULL WHERE id = ?", (bien_id,))
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
 @app.delete("/biens/{bien_id}")
 def delete_bien(bien_id: int):
     conn = sqlite3.connect(DB_PATH)
@@ -2035,6 +2159,7 @@ def get_matchings():
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
+        WHERE (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
     ''')
     matchings = [dict(row) for row in cursor.fetchall()]
@@ -2050,7 +2175,7 @@ def get_matchings_by_bien(bien_id: int):
                p.nom as prospect_nom, p.budget_max as prospect_budget
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
-        WHERE m.bien_id = ?
+        WHERE m.bien_id = ? AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
     ''', (bien_id,)).fetchall()
     conn.close()
@@ -2083,6 +2208,7 @@ def get_stats():
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
+        WHERE (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
         LIMIT 5
     ''').fetchall()
@@ -2218,7 +2344,9 @@ def run_matching(prospect_id: int, _user = Depends(require_not_demo_optional)):
         return {"error": "Prospect non trouvé"}
 
     prospect = dict(prospect)
-    biens = [dict(row) for row in conn.execute("SELECT * FROM biens").fetchall()]
+    biens = [dict(row) for row in conn.execute(
+        "SELECT * FROM biens WHERE statut IS NULL OR statut = 'actif'"
+    ).fetchall()]
 
     # Exclure les biens que le prospect a refusés
     refused_ids = {row[0] for row in conn.execute(
@@ -2352,8 +2480,12 @@ def run_all_matchings(_user = Depends(require_not_demo_optional)):
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    prospects = [dict(row) for row in conn.execute("SELECT * FROM prospects").fetchall()]
-    biens = [dict(row) for row in conn.execute("SELECT * FROM biens").fetchall()]
+    prospects = [dict(row) for row in conn.execute(
+        "SELECT * FROM prospects WHERE archive = 0 OR archive IS NULL"
+    ).fetchall()]
+    biens = [dict(row) for row in conn.execute(
+        "SELECT * FROM biens WHERE statut IS NULL OR statut = 'actif'"
+    ).fetchall()]
 
     # Lire le score minimum depuis les settings
     row_score = conn.execute("SELECT value FROM settings WHERE key = 'score_minimum'").fetchone()
@@ -2503,7 +2635,9 @@ def _core_analyser_bien(bien_id: int) -> dict:
         conn.close()
         return {"error": "Bien non trouve"}
     bien = dict(bien)
-    prospects = [dict(r) for r in conn.execute("SELECT * FROM prospects").fetchall()]
+    prospects = [dict(r) for r in conn.execute(
+        "SELECT * FROM prospects WHERE archive = 0 OR archive IS NULL"
+    ).fetchall()]
     conn.close()
 
     if not prospects:
@@ -2735,9 +2869,11 @@ def debug_prefiltre(prospect_id: int):
         return {"error": "Prospect non trouvé"}
     
     prospect = dict(prospect)
-    biens = [dict(row) for row in conn.execute("SELECT * FROM biens").fetchall()]
+    biens = [dict(row) for row in conn.execute(
+        "SELECT * FROM biens WHERE statut IS NULL OR statut = 'actif'"
+    ).fetchall()]
     conn.close()
-    
+
     client_data = {
         "nom": prospect.get('nom'),
         "bien": prospect.get('bien'),
@@ -2789,7 +2925,7 @@ def get_matchings_by_date(date_analyse: str):
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
-        WHERE m.date_analyse LIKE ?
+        WHERE m.date_analyse LIKE ? AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY p.nom, m.score DESC
     ''', (f"{date_minute}%",)).fetchall()
     
@@ -2872,6 +3008,7 @@ def get_matchings_for_calibration():
         JOIN biens b ON m.bien_id = b.id
         LEFT JOIN calibration_feedback cf ON cf.matching_id = m.id
         WHERE (m.statut_prospect IS NULL OR m.statut_prospect != 'refused')
+          AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
     """).fetchall()
     conn.close()
@@ -2980,7 +3117,7 @@ def rapport_mensuel():
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
-        WHERE m.date_analyse >= ?
+        WHERE m.date_analyse >= ? AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC LIMIT 10
     ''', (debut_mois,)).fetchall()
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
 import { API_URL } from '../config'
 import Pagination from '../components/Pagination'
@@ -263,7 +263,12 @@ function BiensPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Biens</h1>
-          <p className="text-sm text-gray-400">{biens.length} biens en catalogue</p>
+          <p className="text-sm text-gray-400">
+            {biens.filter(b => b.statut !== 'vendu').length} actifs
+            {biens.some(b => b.statut === 'vendu') && (
+              <span className="ml-1 text-red-400"> · {biens.filter(b => b.statut === 'vendu').length} vendus</span>
+            )}
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -387,9 +392,9 @@ function BiensPage() {
                 const firstPhoto = bien.photos ? bien.photos.split('|')[0] : null
                 
                 return (
-                  <tr 
-                    key={bien.id} 
-                    className="row-hover group animate-fade-in-up"
+                  <tr
+                    key={bien.id}
+                    className={`row-hover group animate-fade-in-up ${bien.statut === 'vendu' ? 'opacity-50' : ''}`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <td className="p-4">
@@ -423,6 +428,11 @@ function BiensPage() {
                             {bien.type || 'Bien'}
                           </button>
                           <p className="text-[10px] text-gray-300 font-mono tracking-wide">{bien.reference || ''}</p>
+                          {bien.statut === 'vendu' && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-red-50 text-red-600 border border-red-100 mt-0.5">
+                              Vendu / Retiré
+                            </span>
+                          )}
                           {bien.nom_agence && !bien.nom_agence.toUpperCase().includes('SAINT FRANCOIS') && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-violet-50 text-violet-700 border border-violet-100 mt-0.5">
                               {bien.nom_agence}
@@ -477,6 +487,19 @@ function BiensPage() {
                         >
                           <Pencil size={16} className="icon-pop" />
                         </button>
+                        {bien.statut === 'vendu' && (
+                          <button
+                            onClick={async e => {
+                              e.stopPropagation()
+                              await fetch(`${API_URL}/biens/${bien.id}/restaurer`, { method: 'PATCH' })
+                              fetchBiens()
+                            }}
+                            className="p-2 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-all"
+                            title="Restaurer — ce bien n'est pas vendu"
+                          >
+                            <RotateCcw size={16} />
+                          </button>
+                        )}
                         <button
                           onClick={e => { e.stopPropagation(); setConfirmDelete({ id: bien.id, type: bien.type, ville: bien.ville }) }}
                           className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all group/del"

@@ -430,6 +430,15 @@ function NewProspectPage() {
               </div>
 
               <div className="flex flex-wrap gap-2">
+                {!formData.villes.includes('Tout secteur') && (
+                  <button
+                    type="button"
+                    onClick={() => addVille('Tout secteur')}
+                    className="px-3 py-1.5 bg-[#1E3A5F]/10 text-[#1E3A5F] text-sm font-medium rounded-lg hover:bg-[#1E3A5F]/20 transition-colors border border-[#1E3A5F]/20"
+                  >
+                    + Tout secteur
+                  </button>
+                )}
                 {villesSuggestions.filter(v => !formData.villes.includes(v)).map(ville => (
                   <button
                     key={ville}
