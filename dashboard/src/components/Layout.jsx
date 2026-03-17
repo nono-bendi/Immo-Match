@@ -46,7 +46,7 @@ function Layout({ children }) {
         </main>
 
         <footer className="px-6 py-2.5 text-center text-xs text-gray-400 border-t border-gray-200 bg-white flex-shrink-0">
-          ImmoMatch v1.0 &nbsp;•&nbsp; Développé par <span className="font-semibold text-[#1E3A5F]">NOWA</span> &nbsp;•&nbsp; © 2026
+          ImmoMatch v1.0 &nbsp;•&nbsp; Développé par <span className="text-gray-500">Nowa</span> &nbsp;•&nbsp; © 2026
         </footer>
       </div>
 
