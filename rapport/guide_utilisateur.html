@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guide utilisateur — ImmoMatch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #1E3A5F;
+      --navy-light: #2D5A8A;
+      --blue: #60a5fa;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-400: #94a3b8;
+      --gray-600: #475569;
+      --gray-800: #1e293b;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      padding: 40px 20px;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      max-width: 960px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Cover ── */
+    .cover {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 60%, #3a6ea0 100%);
+      border-radius: 24px 24px 0 0;
+      padding: 64px 64px 56px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 320px; height: 320px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 240px; height: 240px;
+      background: rgba(255,255,255,.04);
+      border-radius: 50%;
+    }
+    .cover-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 48px;
+    }
+    .logo { font-size: 24px; font-weight: 800; letter-spacing: -.04em; }
+    .logo span { color: var(--blue); }
+    .version-badge {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .cover h1 {
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cover h1 span { color: var(--blue); }
+    .cover-sub {
+      font-size: 16px;
+      opacity: .75;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .cover-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .pill-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ── Table des matières ── */
+    .toc {
+      background: white;
+      padding: 40px 64px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .toc-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gray-400);
+      margin-bottom: 20px;
+    }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--gray-50);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all .15s;
+      border: 1px solid transparent;
+    }
+    .toc-item:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .toc-num {
+      width: 24px; height: 24px;
+      background: var(--navy);
+      color: white;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Sections ── */
+    .section {
+      background: white;
+      padding: 48px 64px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .section:last-child {
+      border-radius: 0 0 24px 24px;
+      border-bottom: none;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--gray-100);
+    }
+    .section-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .section-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gray-400);
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    /* ── Steps ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 32px; height: 32px;
+      background: var(--navy);
+      color: white;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    /* ── Cards ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .card {
+      border: 1px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .card-icon { font-size: 24px; margin-bottom: 10px; }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    /* ── Callouts ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .callout.tip { background: #f0fdf4; border-left: 4px solid var(--emerald); }
+    .callout.info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .callout.warn { background: #fffbeb; border-left: 4px solid var(--amber); }
+    .callout-icon { font-size: 18px; flex-shrink: 0; }
+    .callout strong { color: var(--navy); }
+
+    /* ── Score indicators ── */
+    .score-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+    }
+    .score-item.excellent { background: #f0fdf4; }
+    .score-item.bon { background: #fffbeb; }
+    .score-item.partiel { background: #fef2f2; }
+    .score-badge {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+    .score-badge.excellent { background: var(--emerald); }
+    .score-badge.bon { background: var(--amber); }
+    .score-badge.partiel { background: var(--red); }
+    .score-info { flex: 1; }
+    .score-label { font-size: 14px; font-weight: 700; }
+    .score-label.excellent { color: #065f46; }
+    .score-label.bon { color: #92400e; }
+    .score-label.partiel { color: #991b1b; }
+    .score-desc { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+    /* ── Feature list ── */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--gray-50);
+      border-radius: 10px;
+    }
+    .feature-emoji { font-size: 20px; flex-shrink: 0; }
+    .feature-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .feature-desc { font-size: 12px; color: var(--gray-600); margin-top: 3px; line-height: 1.5; }
+
+    /* ── Workflow ── */
+    .workflow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 24px 0;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .wf-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .wf-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: white;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(30,58,95,.25);
+    }
+    .wf-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--navy);
+      text-align: center;
+      max-width: 72px;
+    }
+    .wf-arrow {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(to right, var(--navy), var(--blue));
+      margin: 0 4px;
+      margin-bottom: 28px;
+      min-width: 24px;
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--gray-50);
+      color: var(--gray-400);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-600);
+    }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: var(--navy); }
+
+    /* ── Tags ── */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag.green { background: #d1fae5; color: #065f46; }
+    .tag.amber { background: #fef3c7; color: #92400e; }
+    .tag.blue { background: #dbeafe; color: #1e40af; }
+
+    /* ── Footer ── */
+    .footer {
+      background: var(--gray-50);
+      padding: 28px 64px;
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 12px;
+      border-top: 1px solid var(--gray-200);
+      border-radius: 0 0 24px 24px;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .wrapper > * { border-radius: 0 !important; }
+      .cover { border-radius: 0 !important; }
+    }
+    @media (max-width: 700px) {
+      .cover, .toc, .section { padding: 32px 24px; }
+      .toc-grid { grid-template-columns: 1fr 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .cover h1 { font-size: 28px; }
+      .workflow { gap: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="logo">Immo<span>Match</span></div>
+      <span class="version-badge">Guide utilisateur</span>
+    </div>
+    <h1>Votre assistant<br>de <span>matching</span> immobilier</h1>
+    <p class="cover-sub">
+      ImmoMatch analyse automatiquement vos prospects et vos biens pour vous indiquer
+      les meilleures correspondances — avec un score et une recommandation rédigée par l'IA.
+    </p>
+    <div class="cover-pills">
+      <div class="pill"><div class="pill-dot" style="background:#10b981"></div>Matching automatique</div>
+      <div class="pill"><div class="pill-dot" style="background:#60a5fa"></div>Synchronisation Hektor</div>
+      <div class="pill"><div class="pill-dot" style="background:#f59e0b"></div>Envoi d'emails personnalisés</div>
+      <div class="pill"><div class="pill-dot" style="background:#a78bfa"></div>Notifications en temps réel</div>
+    </div>
+  </div>
+
+  <!-- TABLE DES MATIÈRES -->
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <div class="toc-grid">
+      <a href="#workflow" class="toc-item"><div class="toc-num">1</div>Comment ça marche</a>
+      <a href="#dashboard" class="toc-item"><div class="toc-num">2</div>Tableau de bord</a>
+      <a href="#prospects" class="toc-item"><div class="toc-num">3</div>Gérer les prospects</a>
+      <a href="#biens" class="toc-item"><div class="toc-num">4</div>Les biens</a>
+      <a href="#matchings" class="toc-item"><div class="toc-num">5</div>Les matchings</a>
+      <a href="#email" class="toc-item"><div class="toc-num">6</div>Envoyer un email</a>
+      <a href="#notifs" class="toc-item"><div class="toc-num">7</div>Notifications</div></a>
+      <a href="#calibration" class="toc-item"><div class="toc-num">8</div>Calibration</a>
+      <a href="#rapports" class="toc-item"><div class="toc-num">9</div>Rapports</a>
+    </div>
+  </div>
+
+  <!-- 1. WORKFLOW -->
+  <div class="section" id="workflow">
+    <div class="section-header">
+      <div class="section-icon" style="background:#eff6ff">🔄</div>
+      <div>
+        <div class="section-num">Section 1</div>
+        <div class="section-title">Comment ça marche</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:28px;">
+      ImmoMatch fonctionne en 4 étapes. Une fois vos prospects et vos biens renseignés,
+      l'IA s'occupe du reste — vous n'avez plus qu'à agir sur les résultats.
+    </p>
+
+    <div class="workflow">
+      <div class="wf-step">
+        <div class="wf-circle">👤</div>
+        <div class="wf-label">Ajout prospect</div>
+      </div>
+      <div class="wf-arrow"></div>
+      <div class="wf-step">
+        <div class="wf-circle">🏠</div>
+        <div class="wf-label">Biens Hektor</div>
+      </div>
+      <div class="wf-arrow"></div>
+      <div class="wf-step">
+        <div class="wf-circle">✨</div>
+        <div class="wf-label">Analyse IA</div>
+      </div>
+      <div class="wf-arrow"></div>
+      <div class="wf-step">
+        <div class="wf-circle">📊</div>
+        <div class="wf-label">Score + reco</div>
+      </div>
+      <div class="wf-arrow"></div>
+      <div class="wf-step">
+        <div class="wf-circle">✉️</div>
+        <div class="wf-label">Email prospect</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div>
+        <strong>Synchronisation automatique.</strong> Vos biens sont récupérés automatiquement depuis Hektor toutes les 2 heures.
+        Dès qu'un nouveau bien arrive, ImmoMatch l'analyse et vous notifie immédiatement.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TABLEAU DE BORD -->
+  <div class="section" id="dashboard">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4">📊</div>
+      <div>
+        <div class="section-num">Section 2</div>
+        <div class="section-title">Tableau de bord</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      Le tableau de bord vous donne une vue d'ensemble de votre activité en un coup d'œil.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">👥</div>
+        <div class="card-title">Prospects actifs</div>
+        <div class="card-desc">Nombre total de prospects dans votre base. Cliquez pour accéder à la liste complète.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏠</div>
+        <div class="card-title">Biens en stock</div>
+        <div class="card-desc">Biens actuellement disponibles, synchronisés depuis Hektor.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⭐</div>
+        <div class="card-title">Matchings générés</div>
+        <div class="card-desc">Nombre de correspondances analysées. Inclut les scores de toutes les combinaisons prospect/bien.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">Top matchings</div>
+        <div class="card-desc">Les meilleures correspondances du moment, triées par score. Ce sont les contacts à prioriser.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div>
+        Les <strong>matchings en vert (score ≥ 75)</strong> sont à traiter en priorité —
+        ces prospects ont une forte probabilité d'être intéressés par le bien.
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. PROSPECTS -->
+  <div class="section" id="prospects">
+    <div class="section-header">
+      <div class="section-icon" style="background:#faf5ff">👤</div>
+      <div>
+        <div class="section-num">Section 3</div>
+        <div class="section-title">Gérer les prospects</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      Un prospect bien renseigné = une analyse plus précise. Plus vous fournissez de critères,
+      plus les matchings seront pertinents.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Ajouter un prospect</div>
+          <div class="step-desc">Cliquez sur <strong>Nouveau prospect</strong> dans la barre de navigation ou depuis la page Prospects. Renseignez les coordonnées, le type de bien recherché, les villes, le budget et les critères spécifiques.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Renseigner les critères clés</div>
+          <div class="step-desc">Les champs les plus importants pour l'analyse : <strong>type de bien, villes, budget max, exposition, stationnement, extérieur</strong>. Utilisez le champ "Observations" pour des précisions particulières ("souhaite proche école", "investissement locatif", etc.).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Lancer l'analyse</div>
+          <div class="step-desc">Depuis la liste des prospects, cliquez sur l'icône ✨ pour lancer une analyse IA. ImmoMatch compare ce prospect avec tous les biens disponibles et génère des scores en quelques secondes.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Consulter la fiche prospect</div>
+          <div class="step-desc">Cliquez sur le nom d'un prospect pour voir sa fiche complète avec tous ses critères. Un bouton <strong>Rapport prospect</strong> génère une fiche PDF imprimable avec tous ses matchings.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div>
+        <strong>Import CSV disponible.</strong> Vous pouvez importer un fichier Excel/CSV exporté depuis votre logiciel.
+        Contactez votre administrateur pour le format attendu.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. BIENS -->
+  <div class="section" id="biens">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff7ed">🏠</div>
+      <div>
+        <div class="section-num">Section 4</div>
+        <div class="section-title">Les biens immobiliers</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      Les biens sont synchronisés automatiquement depuis Hektor. Vous n'avez pas à les saisir manuellement.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-emoji">🔄</div>
+        <div>
+          <div class="feature-title">Synchronisation automatique</div>
+          <div class="feature-desc">ImmoMatch récupère vos annonces Hektor toutes les 2 heures. Vous pouvez aussi forcer une synchronisation depuis <strong>Paramètres → Synchronisation Hektor</strong>.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">⚠️</div>
+        <div>
+          <div class="feature-title">Renseigner les défauts (important)</div>
+          <div class="feature-desc">Depuis la fiche d'un bien (icône crayon), vous pouvez noter les <strong>défauts internes</strong> : vis-à-vis, bruit de rue, pas de parking… Ces informations restent confidentielles et permettent à l'IA d'affiner l'analyse. Elles ne sont jamais transmises aux clients.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">✨</div>
+        <div>
+          <div class="feature-title">Analyser un bien</div>
+          <div class="feature-desc">Depuis la fiche d'un bien, cliquez sur <strong>"Analyser pour mes prospects"</strong> pour lancer une analyse ciblée sur ce bien. ImmoMatch identifie automatiquement les prospects compatibles.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">🔔</div>
+        <div>
+          <div class="feature-title">Nouveau bien — modal automatique</div>
+          <div class="feature-desc">Dès qu'un nouveau bien arrive depuis Hektor, une notification apparaît. En cliquant dessus, une fenêtre s'ouvre avec les résultats de l'analyse automatique et la possibilité de renseigner les défauts immédiatement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MATCHINGS -->
+  <div class="section" id="matchings">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4">⭐</div>
+      <div>
+        <div class="section-num">Section 5</div>
+        <div class="section-title">Lire et utiliser les matchings</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      Chaque matching est noté de 0 à 100. Voici comment interpréter les scores :
+    </p>
+
+    <div class="score-row">
+      <div class="score-item excellent">
+        <div class="score-badge excellent">85</div>
+        <div class="score-info">
+          <div class="score-label excellent">Excellent — Score ≥ 75</div>
+          <div class="score-desc">Forte compatibilité. Le bien correspond très bien aux critères du prospect. À contacter en priorité.</div>
+        </div>
+      </div>
+      <div class="score-item bon">
+        <div class="score-badge bon">62</div>
+        <div class="score-info">
+          <div class="score-label bon">Compatible — Score 50 à 74</div>
+          <div class="score-desc">Correspondance partielle. Des critères secondaires ne sont pas remplis mais le bien mérite d'être présenté.</div>
+        </div>
+      </div>
+      <div class="score-item partiel">
+        <div class="score-badge partiel">38</div>
+        <div class="score-info">
+          <div class="score-label partiel">Partiel — Score &lt; 50</div>
+          <div class="score-desc">Peu compatible. Des critères importants ne correspondent pas. À utiliser avec précaution.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-top:28px;margin-bottom:20px;">
+      Pour chaque matching, l'IA fournit :
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Information</th>
+          <th>Description</th>
+          <th>Utilisation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Points forts</strong></td>
+          <td>Ce qui correspond bien entre le bien et le prospect</td>
+          <td>Arguments à mettre en avant lors de l'appel</td>
+        </tr>
+        <tr>
+          <td><strong>Points d'attention</strong></td>
+          <td>Critères partiellement ou non remplis</td>
+          <td>Préparer les objections, adapter votre discours</td>
+        </tr>
+        <tr>
+          <td><strong>Recommandation</strong></td>
+          <td>Conseil de l'IA sur la démarche à adopter</td>
+          <td>Savoir si proposer, attendre ou passer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div>
+        Utilisez le filtre <strong>"Voir par bien"</strong> ou <strong>"Voir par prospect"</strong>
+        pour trouver rapidement les matchings d'un bien ou d'un prospect spécifique.
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. EMAIL -->
+  <div class="section" id="email">
+    <div class="section-header">
+      <div class="section-icon" style="background:#eff6ff">✉️</div>
+      <div>
+        <div class="section-num">Section 6</div>
+        <div class="section-title">Envoyer un email à un prospect</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      ImmoMatch génère automatiquement un email personnalisé à partir du matching. Il est pré-rempli
+      avec les points forts et une introduction adaptée au profil du prospect.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Ouvrir un matching</div>
+          <div class="step-desc">Depuis la page Matchings, cliquez sur l'icône ✉️ à droite d'un matching pour ouvrir le formulaire d'envoi.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Vérifier le contenu</div>
+          <div class="step-desc">L'email est pré-rempli avec les informations du bien et du prospect. Vous pouvez modifier l'introduction et la conclusion pour personnaliser le message.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Prévisualiser et envoyer</div>
+          <div class="step-desc">Cliquez sur <strong>Prévisualiser</strong> pour voir le rendu final, puis <strong>Envoyer</strong>. L'email part depuis l'adresse de l'agence. Une confirmation s'affiche et le matching est marqué "email envoyé".</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div>
+        <strong>Configuration SMTP requise.</strong> L'envoi d'emails nécessite que votre adresse email d'agence soit configurée dans les Paramètres. Contactez votre administrateur si l'envoi ne fonctionne pas.
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. NOTIFICATIONS -->
+  <div class="section" id="notifs">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef2f2">🔔</div>
+      <div>
+        <div class="section-num">Section 7</div>
+        <div class="section-title">Notifications</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      La cloche en haut à droite vous informe en temps réel des événements importants.
+      Un badge rouge indique le nombre de notifications non lues.
+    </p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-emoji">🏠</div>
+        <div>
+          <div class="feature-title">Nouveau bien</div>
+          <div class="feature-desc">Un bien vient d'être importé depuis Hektor. Cliquez sur la notification pour ouvrir la fenêtre d'analyse avec les résultats et le formulaire de défauts.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">⭐</div>
+        <div>
+          <div class="feature-title">Nouveaux matchings</div>
+          <div class="feature-desc">Une analyse vient de se terminer. Cliquez pour accéder directement aux résultats filtrés par bien.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-emoji">🔄</div>
+        <div>
+          <div class="feature-title">Synchronisation</div>
+          <div class="feature-desc">La synchronisation Hektor vient de se terminer. Indique le nombre de biens récupérés.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. CALIBRATION -->
+  <div class="section" id="calibration">
+    <div class="section-header">
+      <div class="section-icon" style="background:#faf5ff">🎛️</div>
+      <div>
+        <div class="section-num">Section 8</div>
+        <div class="section-title">Calibration — améliorer l'IA</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      La page Calibration vous permet de donner votre avis sur les matchings pour améliorer
+      la précision de l'IA au fil du temps.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Accéder à la calibration</div>
+          <div class="step-desc">Menu de navigation → <strong>Calibration</strong>. ImmoMatch vous présente des matchings récents un par un.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Évaluer la pertinence</div>
+          <div class="step-desc">Pour chaque matching, indiquez s'il est <strong>Pertinent</strong> (le bien correspond vraiment au prospect) ou <strong>Non pertinent</strong>. Vous pouvez ajouter un commentaire pour préciser.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Impact sur les analyses</div>
+          <div class="step-desc">Vos retours sont utilisés pour ajuster les critères de l'IA. Plus vous calibrez, plus les scores deviennent précis pour votre portefeuille spécifique.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-icon">💡</div>
+      <div>
+        <strong>5 minutes par semaine suffisent.</strong> Évaluez 5 à 10 matchings régulièrement
+        plutôt que de tout faire en une fois — l'amélioration sera plus progressive et stable.
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. RAPPORTS -->
+  <div class="section" id="rapports">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff7ed">📄</div>
+      <div>
+        <div class="section-num">Section 9</div>
+        <div class="section-title">Rapports</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);line-height:1.7;margin-bottom:24px;">
+      ImmoMatch génère deux types de rapports accessibles directement depuis l'application.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <div class="card-title">Rapport mensuel</div>
+        <div class="card-desc">
+          Accessible depuis <strong>Paramètres → Mes données → Rapport mensuel</strong>.
+          Affiche les KPIs du mois en cours (prospects, biens, matchings), les top matchings
+          et les nouveaux biens analysés.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon">👤</div>
+        <div class="card-title">Rapport prospect</div>
+        <div class="card-desc">
+          Accessible depuis la <strong>fiche d'un prospect → bouton "Rapport prospect"</strong>.
+          Génère une fiche complète avec tous ses critères et l'ensemble de ses matchings annotés.
+          Idéal à imprimer pour un rendez-vous.
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div>
+        Les rapports s'ouvrent dans un nouvel onglet et peuvent être <strong>imprimés ou sauvegardés en PDF</strong>
+        via Ctrl+P (ou Cmd+P sur Mac) → "Enregistrer en PDF".
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    ImmoMatch · Guide utilisateur · Saint François Immobilier · Confidentiel
+  </div>
+
+</div>
+</body>
+</html>
