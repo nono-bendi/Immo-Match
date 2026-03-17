@@ -2943,6 +2943,13 @@ def mark_email_sent(matching_id: int):
     
     return {"success": True, "date_email_envoye": now}
 
+@app.get("/guide", response_class=HTMLResponse)
+def guide_utilisateur():
+    guide_path = os.path.join(os.path.dirname(__file__), "rapport", "guide_utilisateur.html")
+    with open(guide_path, encoding="utf-8") as f:
+        return HTMLResponse(content=f.read())
+
+
 @app.get("/rapport/mensuel", response_class=HTMLResponse)
 def rapport_mensuel():
     conn = sqlite3.connect(DB_PATH)

@@ -7,9 +7,10 @@ import {
   X, ChevronRight, ChevronLeft, Sparkles,
   User, Save, Send, Eye, Edit3, Mail,
   CheckCircle2, ArrowRight, Plus,
-  Home, Target, BarChart2
+  Home, Target, BarChart2, BookOpen
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { API_URL } from '../config'
 
 // ─── Typewriter ───────────────────────────────────────
 function TypewriterText({ text, speed = 55, active }) {
@@ -1277,19 +1278,37 @@ export default function TutorialModal({ open, onClose }) {
                 Suivant <ChevronRight size={14} />
               </button>
             ) : (
-              <button onClick={onClose} style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '8px 20px', borderRadius: '10px',
-                border: 'none', background: slide.color,
-                color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                boxShadow: `0 4px 16px ${slide.color}55`,
-                transition: 'all 0.18s',
-              }}
-                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-                onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
-              >
-                <CheckCircle2 size={14} /> Commencer !
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => window.open(`${API_URL}/guide`, '_blank')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '8px 14px', borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.75)',
+                    fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+                    transition: 'all 0.18s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)' }}
+                >
+                  <BookOpen size={13} /> Guide complet
+                </button>
+                <button onClick={onClose} style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 20px', borderRadius: '10px',
+                  border: 'none', background: slide.color,
+                  color: 'white', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                  boxShadow: `0 4px 16px ${slide.color}55`,
+                  transition: 'all 0.18s',
+                }}
+                  onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+                  onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
+                >
+                  <CheckCircle2 size={14} /> Commencer !
+                </button>
+              </div>
             )}
           </div>
         </div>
