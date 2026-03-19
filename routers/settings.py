@@ -1,4 +1,6 @@
 import sqlite3
+from logger import get_logger
+log = get_logger('settings')
 import json
 from datetime import datetime
 from fastapi import APIRouter, Depends
@@ -47,9 +49,9 @@ def save_settings(settings: dict, _user: dict = Depends(require_not_demo)):
         try:
             new_interval = int(settings['sync_interval_hours'])
             sync_module.scheduler.reschedule_job('hektor_sync', trigger='interval', hours=new_interval)
-            print(f'Scheduler mis a jour : sync toutes les {new_interval}h')
+            log.info(f'Scheduler mis a jour : sync toutes les {new_interval}h')
         except Exception as e:
-            print(f'Erreur mise a jour scheduler : {e}')
+            log.error(f'Erreur mise a jour scheduler : {e}')
 
     return {"message": "Paramètres sauvegardés"}
 

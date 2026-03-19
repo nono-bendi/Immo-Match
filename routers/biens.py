@@ -354,7 +354,8 @@ def update_bien(bien_id: int, bien: dict):
     existing = conn.execute("SELECT id FROM biens WHERE id = ?", (bien_id,)).fetchone()
     if not existing:
         conn.close()
-        return {"error": "Bien non trouvé"}
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Bien non trouvé")
 
     conn.execute('''
         UPDATE biens SET
@@ -426,5 +427,6 @@ def get_bien(bien_id: int):
     bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
     conn.close()
     if not bien:
-        return {"error": "Bien non trouvé"}
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Bien non trouvé")
     return dict(bien)

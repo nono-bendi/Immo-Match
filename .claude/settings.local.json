@@ -3,7 +3,8 @@
     "allow": [
       "Bash(ls d:/code/projet-immo/requirements*.txt)",
       "Bash(python -c \":*)",
-      "Bash(python -m py_compile d:/code/projet-immo/backend.py)"
+      "Bash(python -m py_compile d:/code/projet-immo/backend.py)",
+      "Bash(sqlite3 immomatch.db \".schema\")"
     ]
   }
 }

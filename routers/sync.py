@@ -1,4 +1,6 @@
 import sqlite3
+from logger import get_logger
+log = get_logger('sync')
 import os
 import re
 import zipfile
@@ -30,17 +32,17 @@ def sync_hektor_ftp():
     ftp_path = settings.get('ftp_path', '')
 
     if not all([ftp_host, ftp_user, ftp_pass, ftp_path]):
-        print("Sync FTP : Configuration incomplète")
+        log.warning("Sync FTP : Configuration incomplète")
         return {"error": "Configuration FTP incomplète"}
 
-    print(f"Sync Hektor : Connexion à {ftp_host}...")
+    log.info(f"Sync Hektor : Connexion à {ftp_host}...")
 
     try:
         # Connexion FTP
         ftp = ftplib.FTP()
         ftp.connect(ftp_host, ftp_port, timeout=30)
         ftp.login(ftp_user, ftp_pass)
-        print("Connecté au FTP")
+        log.info("Connecté au FTP")
 
         # Télécharger le fichier
         is_zip = ftp_path.lower().endswith('.zip')
@@ -50,12 +52,12 @@ def sync_hektor_ftp():
             ftp.retrbinary(f"RETR {ftp_path}", f.write)
 
         ftp.quit()
-        print(f"Fichier téléchargé : {local_file}")
+        log.info(f"Fichier téléchargé : {local_file}")
 
         # Si c'est un ZIP, extraire Annonces.csv
         csv_file = "Annonces_hektor.csv"
         if is_zip:
-            print("Extraction du ZIP...")
+            log.info("Extraction du ZIP...")
             with zipfile.ZipFile(local_file, 'r') as zip_ref:
                 # Chercher Annonces.csv dans le ZIP
                 csv_found = None
@@ -67,14 +69,14 @@ def sync_hektor_ftp():
                 if not csv_found:
                     # Lister les fichiers disponibles
                     files = zip_ref.namelist()
-                    print(f"Fichiers dans le ZIP : {files}")
+                    log.debug(f"Fichiers dans le ZIP : {files}")
                     return {"error": f"Annonces.csv non trouvé dans le ZIP. Fichiers disponibles: {files}"}
 
                 # Extraire le fichier CSV
                 with zip_ref.open(csv_found) as zf:
                     with open(csv_file, 'wb') as f:
                         f.write(zf.read())
-                print(f"Extrait : {csv_found}")
+                log.info(f"Extrait : {csv_found}")
 
         # Lire et importer le CSV
         with open(csv_file, "r", encoding="latin-1") as f:
@@ -233,17 +235,17 @@ def sync_hektor_ftp():
             def analyser_nouveaux_biens(ids):
                 for bid in ids:
                     try:
-                        print(f"Analyse auto bien #{bid}...")
+                        log.info(f"Analyse auto bien #{bid}...")
                         _core_analyser_bien(bid)
                     except Exception as e:
-                        print(f"Erreur analyse bien #{bid}: {e}")
+                        log.error(f"Erreur analyse bien #{bid}: {e}")
             threading.Thread(target=analyser_nouveaux_biens, args=(nouveaux_bien_ids,), daemon=True).start()
 
-        print(f"Import : {imported} nouveaux, {updated} mis à jour, {vendu} vendus, {skipped} ignorés")
+        log.info(f"Import : {imported} nouveaux, {updated} mis à jour, {vendu} vendus, {skipped} ignorés")
         return {"success": True, "imported": imported, "updated": updated, "vendu": vendu, "skipped": skipped}
 
     except Exception as e:
-        print(f"Erreur sync : {e}")
+        log.error(f"Erreur sync : {e}")
         return {"error": "Une erreur interne est survenue"}
 
 
@@ -257,7 +259,7 @@ def start_scheduler():
         scheduler.add_job(sync_hektor_ftp, 'interval', hours=interval, id='hektor_sync', replace_existing=True, next_run_time=datetime.now())
         scheduler.start()
         scheduler_started = True
-        print(f"Scheduler démarré (sync toutes les {interval}h)")
+        log.info(f"Scheduler démarré (sync toutes les {interval}h)")
 
 
 # ============================================================

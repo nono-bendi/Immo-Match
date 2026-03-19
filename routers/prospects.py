@@ -103,7 +103,8 @@ def update_prospect(prospect_id: int, prospect: dict):
     existing = conn.execute("SELECT id FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
     if not existing:
         conn.close()
-        return {"error": "Prospect non trouvé"}
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Prospect non trouvé")
 
     conn.execute('''
         UPDATE prospects SET
@@ -176,5 +177,6 @@ def get_prospect(prospect_id: int):
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
     conn.close()
     if not prospect:
-        return {"error": "Prospect non trouvé"}
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Prospect non trouvé")
     return dict(prospect)

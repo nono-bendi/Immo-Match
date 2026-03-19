@@ -1,4 +1,6 @@
 import sqlite3
+from logger import get_logger
+log = get_logger('matchings')
 import os
 import json
 from datetime import datetime
@@ -24,6 +26,8 @@ def get_settings_values():
     settings = {
         'model': 'claude-sonnet-4-20250514',
         'max_biens_par_prospect': 5,
+        'max_matchings_par_prospect': 5,
+        'score_minimum': 0,
         'budget_tolerance_min': 70,
         'budget_tolerance_max': 120,
         'ftp_host': '',
@@ -48,7 +52,7 @@ def get_settings_values():
         except (json.JSONDecodeError, TypeError):
             settings[key] = value
 
-    print(f"Settings chargés: model={settings['model']}, max_biens={settings['max_biens_par_prospect']}, budget={settings['budget_tolerance_min']}-{settings['budget_tolerance_max']}%")
+    log.info(f"Settings chargés: model={settings['model']}, max_biens={settings['max_biens_par_prospect']}, budget={settings['budget_tolerance_min']}-{settings['budget_tolerance_max']}%")
 
     return settings
 
@@ -238,7 +242,7 @@ def _core_analyser_bien(bien_id: int) -> dict:
             try:
                 resultats = scorer_biens_hybride(prospect, [bien], model=settings["model"])
             except Exception as e:
-                print(f"Erreur Claude prospect #{prospect.get('id')}: {e}")
+                log.error(f"Erreur Claude prospect #{prospect.get('id')}: {e}")
                 continue
 
             if not resultats:
@@ -295,6 +299,10 @@ def _core_analyser_bien(bien_id: int) -> dict:
 
 @router.get("/matchings")
 def get_matchings():
+    settings = get_settings_values()
+    score_minimum = int(settings.get('score_minimum', 0))
+    max_matchings = int(settings.get('max_matchings_par_prospect', 5))
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute('''
@@ -306,11 +314,23 @@ def get_matchings():
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
         WHERE (p.archive = 0 OR p.archive IS NULL)
-        ORDER BY m.score DESC
-    ''')
-    matchings = [dict(row) for row in cursor.fetchall()]
+          AND m.score >= ?
+        ORDER BY m.prospect_id, m.score DESC
+    ''', (score_minimum,))
+    all_matchings = [dict(row) for row in cursor.fetchall()]
     conn.close()
-    return matchings
+
+    # Limiter à max_matchings par prospect (déjà triés score DESC)
+    seen = {}
+    result = []
+    for m in all_matchings:
+        pid = m['prospect_id']
+        if seen.get(pid, 0) < max_matchings:
+            result.append(m)
+            seen[pid] = seen.get(pid, 0) + 1
+
+    result.sort(key=lambda m: m['score'], reverse=True)
+    return result
 
 
 @router.get("/matchings/by-bien/{bien_id}")
@@ -587,6 +607,14 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo)):
                 seen_biens[bid] = r
         resultats = list(seen_biens.values())
 
+        # Limiter le nombre de matchings par prospect (triés par score desc)
+        score_minimum = int(settings.get('score_minimum', 0))
+        max_matchings = int(settings.get('max_matchings_par_prospect', 5))
+        resultats = sorted(
+            [r for r in resultats if r["score"] >= score_minimum],
+            key=lambda r: r["score"], reverse=True
+        )[:max_matchings]
+
         # Transaction atomique : si une INSERT échoue, le DELETE est annulé
         biens_a_analyser_ids = [b["id"] for b in biens_filtres]
         placeholders = ",".join("?" * len(biens_a_analyser_ids))
@@ -660,7 +688,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
     score_minimum = int(settings.get('score_minimum', 0))
-    print(f"Score minimum configuré : {score_minimum}")
+    log.info(f"Score minimum configuré : {score_minimum}")
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -674,7 +702,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
     # Lire le score minimum depuis les settings
     row_score = conn.execute("SELECT value FROM settings WHERE key = 'score_minimum'").fetchone()
     score_minimum = int(row_score['value']) if row_score else 0
-    print(f"Score minimum configuré : {score_minimum}")
+    log.info(f"Score minimum configuré : {score_minimum}")
 
     conn.close()
 
@@ -711,7 +739,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
 
             if not biens_filtres:
                 prospects_sans_biens += 1
-                print(f"Pas de biens compatibles : {prospect.get('nom')}")
+                log.debug(f"Pas de biens compatibles : {prospect.get('nom')}")
                 continue
 
             budget_client = prospect.get("budget_max") or 200000
@@ -720,7 +748,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
             try:
                 resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
             except Exception as e:
-                print(f"Erreur Claude pour {prospect.get('nom')}: {e}")
+                log.error(f"Erreur Claude pour {prospect.get('nom')}: {e}")
                 continue  # On garde les anciens matchings, on ne touche pas à la DB
 
             # Transaction par prospect : DELETE + INSERT atomiques
@@ -734,9 +762,12 @@ def run_all_matchings(_user=Depends(require_not_demo)):
                     f"DELETE FROM matchings WHERE prospect_id = ? AND bien_id IN ({placeholders})",
                     [prospect["id"]] + biens_ids
                 )
-                for r in resultats:
-                    if r["score"] < score_minimum:
-                        continue
+                max_matchings = int(settings.get('max_matchings_par_prospect', 5))
+                resultats_filtres = sorted(
+                    [r for r in resultats if r["score"] >= score_minimum],
+                    key=lambda r: r["score"], reverse=True
+                )[:max_matchings]
+                for r in resultats_filtres:
                     conn.execute("""
                         INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -754,12 +785,12 @@ def run_all_matchings(_user=Depends(require_not_demo)):
                 conn.commit()
             except Exception as e:
                 conn.rollback()
-                print(f"Erreur DB pour {prospect.get('nom')}: {e}")
+                log.error(f"Erreur DB pour {prospect.get('nom')}: {e}")
             finally:
                 conn.close()
 
             prospects_analyses += 1
-            print(f"OK {prospect.get('nom')} - {len(resultats)} matchings")
+            log.info(f"OK {prospect.get('nom')} - {len(resultats)} matchings")
 
     finally:
         _analyse_all_lock.release()

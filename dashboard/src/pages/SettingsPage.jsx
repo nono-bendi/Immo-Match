@@ -5,9 +5,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { API_URL } from '../config'
 
 // Composant Accordéon réutilisable
-function Accordion({ title, children, defaultOpen = false }) {
+function Accordion({ title, icon: Icon, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
-  
+
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
       <button
@@ -15,7 +15,7 @@ function Accordion({ title, children, defaultOpen = false }) {
         className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <Icon size={20} className="text-[#1E3A5F]" />
+          {Icon && <Icon size={20} className="text-[#1E3A5F]" />}
           <span className="font-medium text-[#1E3A5F]">{title}</span>
         </div>
         <ChevronDown 
@@ -62,6 +62,7 @@ function SettingsPage() {
     api_key: '',
     model: 'claude-sonnet-4-20250514',
     score_minimum: 0,
+    max_matchings_par_prospect: 5,
     
     // Informations agence
     agence_nom: 'Saint François Immo',
@@ -640,23 +641,6 @@ function SettingsPage() {
           </div>
 
           <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Biens analysés par prospect : <span className="font-bold text-[#1E3A5F] text-lg">{settings.max_biens_par_prospect}</span>
-              </label>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={settings.max_biens_par_prospect}
-                onChange={(e) => handleChange('max_biens_par_prospect', parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#1E3A5F]"
-              />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>1 (économique)</span>
-                <span>10 (complet)</span>
-              </div>
-            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Tolérance budget</label>
@@ -702,38 +686,50 @@ function SettingsPage() {
           </div>
 
             {/* Score minimum */}
-            <div className="score-min-block p-4 rounded-xl border" style={{ background: 'rgba(124,58,237,0.08)', borderColor: 'rgba(124,58,237,0.2)' }}>
+            <div className="p-4 rounded-xl border" style={{ background: 'rgba(124,58,237,0.08)', borderColor: 'rgba(124,58,237,0.2)' }}>
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#7c3aed' }}>Score minimum à afficher</p>
-                  <p className="text-xs mt-0.5" style={{ color: 'rgba(124,58,237,0.6)' }}>Les matchings en dessous de ce seuil ne sont pas sauvegardés lors de l'analyse</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(124,58,237,0.6)' }}>Les matchings en dessous de ce seuil sont masqués immédiatement</p>
                 </div>
-                <div style={{
-                  minWidth: 52, height: 36, borderRadius: 10,
-                  background: 'rgba(124,58,237,0.15)',
-                  border: '1.5px solid rgba(124,58,237,0.3)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
+                <div style={{ minWidth: 52, height: 36, borderRadius: 10, background: 'rgba(124,58,237,0.15)', border: '1.5px solid rgba(124,58,237,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 16, fontWeight: 800, color: '#7c3aed' }}>
                     {settings.score_minimum === 0 ? 'Tous' : settings.score_minimum + '+'}
                   </span>
                 </div>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="80"
-                step="5"
+              <input type="range" min="0" max="80" step="5"
                 value={settings.score_minimum}
                 onChange={(e) => handleChange('score_minimum', parseInt(e.target.value))}
                 className="w-full h-2 rounded-lg appearance-none cursor-pointer"
                 style={{ accentColor: '#7c3aed', background: 'rgba(124,58,237,0.2)' }}
               />
               <div className="flex justify-between text-xs mt-2" style={{ color: 'rgba(124,58,237,0.5)' }}>
-                <span>Tout afficher</span>
-                <span>Score 40</span>
-                <span>Score 60</span>
-                <span>Score 80</span>
+                <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span>
+              </div>
+            </div>
+
+            {/* Max matchings par prospect */}
+            <div className="mt-4 p-4 rounded-xl border" style={{ background: 'rgba(30,58,95,0.08)', borderColor: 'rgba(30,58,95,0.25)' }}>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: '#1E3A5F' }}>Matchings max par prospect</p>
+                  <p className="text-xs mt-0.5" style={{ color: 'rgba(30,58,95,0.6)' }}>Seuls les N meilleurs scores sont affichés par prospect</p>
+                </div>
+                <div style={{ minWidth: 52, height: 36, borderRadius: 10, background: 'rgba(30,58,95,0.15)', border: '1.5px solid rgba(30,58,95,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: '#1E3A5F' }}>
+                    {settings.max_matchings_par_prospect}
+                  </span>
+                </div>
+              </div>
+              <input type="range" min="1" max="9" step="1"
+                value={settings.max_matchings_par_prospect}
+                onChange={(e) => handleChange('max_matchings_par_prospect', parseInt(e.target.value))}
+                className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                style={{ accentColor: '#1E3A5F', background: 'rgba(30,58,95,0.25)' }}
+              />
+              <div className="flex justify-between text-xs mt-2" style={{ color: 'rgba(30,58,95,0.5)' }}>
+                <span>1</span><span>3</span><span>5</span><span>7</span><span>9</span>
               </div>
             </div>
         </div>
