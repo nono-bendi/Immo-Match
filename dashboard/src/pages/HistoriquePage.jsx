@@ -70,6 +70,7 @@ function HistoriquePage() {
       const hasExcellent = await fetch(`${API_URL}/matchings`).then(r => r.json()).then(d => d.some(m => m.score >= 80))
       if (hasExcellent) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 3000) }
       alert(`Analyse terminée ! ${totalMatchings} matchings trouvés.`)
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       alert('Erreur lors de l\'analyse')
       setShowOverlay(false)

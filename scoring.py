@@ -177,6 +177,13 @@ def construire_contexte_bien(bien):
 - Points négatifs (usage interne) : {(bien.get('defauts') or 'Aucun renseigné')}"""
 
 
+def _safe_field(text, max_length=300):
+    """Tronque les champs libres pour limiter les injections de prompt."""
+    if not text:
+        return None
+    return str(text)[:max_length]
+
+
 def construire_contexte_prospect(prospect):
     """Formate le profil d'un prospect pour le prompt Claude."""
 
@@ -186,14 +193,14 @@ def construire_contexte_prospect(prospect):
         ("Quartier souhaité", prospect.get("quartiers")),
         ("Budget maximum", f"{prospect.get('budget_max'):,.0f}€" if prospect.get("budget_max") else None),
         ("État accepté", prospect.get("etat")),
-        ("Critères spécifiques", prospect.get("criteres")),
+        ("Critères spécifiques", _safe_field(prospect.get("criteres"))),
         ("Exposition souhaitée", prospect.get("expo")),
         ("Stationnement", prospect.get("stationnement")),
         ("Copropriété", prospect.get("copro")),
         ("Extérieur", prospect.get("exterieur")),
         ("Étage préféré", prospect.get("etage")),
         ("Destination", prospect.get("destination")),
-        ("Observations", prospect.get("observation")),
+        ("Observations", _safe_field(prospect.get("observation"))),
     ]
 
     lignes = []

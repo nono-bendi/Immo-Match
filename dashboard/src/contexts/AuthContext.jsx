@@ -3,7 +3,8 @@
 // Crée ce fichier dans dashboard/src/contexts/
 // =====================================================
 
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+
 import { API_URL } from '../config'
 
 const AuthContext = createContext(null)
@@ -149,6 +150,7 @@ export function AuthProvider({ children }) {
 }
 
 // Hook pour utiliser l'auth
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {

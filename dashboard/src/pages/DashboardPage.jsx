@@ -27,7 +27,7 @@ function Counter({ to, duration = 1100 }) {
       if (p < 1) requestAnimationFrame(f)
     }
     requestAnimationFrame(f)
-  }, [to])
+  }, [duration, to])
   return <>{val.toLocaleString('fr-FR')}</>
 }
 
@@ -141,6 +141,7 @@ export default function DashboardPage() {
     : '—'
   const fmtDate = s => {
     if (!s) return 'Jamais'
+    // eslint-disable-next-line react-hooks/purity
     const d = new Date(s), diff = Date.now() - d
     const h = Math.floor(diff / 3600000), j = Math.floor(h / 24)
     if (h < 1) return "À l'instant"

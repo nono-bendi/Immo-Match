@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { API_URL } from '../config'
 
 // Composant Accordéon réutilisable
-function Accordion({ title, icon: Icon, children, defaultOpen = false }) {
+function Accordion({ title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
   
   return (
@@ -81,6 +81,7 @@ function SettingsPage() {
     ftp_port: '21',
     ftp_path: '',
     sync_interval_hours: '12',
+    analyse_auto_import: true,
     
     // SMTP Email
     smtp_server: 'smtp.gmail.com',
@@ -957,6 +958,20 @@ function SettingsPage() {
                 <span>1h (temps réel)</span>
                 <span>24h (1x/jour)</span>
               </div>
+            </div>
+
+            {/* Toggle analyse auto */}
+            <div className="col-span-2 flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
+              <div>
+                <p className="text-sm font-medium text-gray-800">Analyse IA automatique à l'import</p>
+                <p className="text-xs text-gray-500 mt-0.5">Désactiver lors de gros imports pour éviter une consommation excessive de tokens</p>
+              </div>
+              <button
+                onClick={() => handleChange('analyse_auto_import', !settings.analyse_auto_import)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.analyse_auto_import ? 'bg-[#1E3A5F]' : 'bg-gray-300'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${settings.analyse_auto_import ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
             </div>
           </div>
         </div>
