@@ -269,21 +269,6 @@ def _core_analyser_bien(bien_id: int) -> dict:
             conn.close()
             nb_matchings += 1
 
-        if nb_matchings > 0:
-            conn = sqlite3.connect(DB_PATH)
-            conn.execute("""
-                INSERT INTO notifications (type, title, message, link, created_at)
-                VALUES (?, ?, ?, ?, ?)
-            """, (
-                "matching",
-                f"Nouveau bien - {nb_matchings} prospect(s) compatibles",
-                f'{bien.get("type", "Bien")} a {bien.get("ville", "?")} - {nb_matchings} matching(s)',
-                f"/matchings?bien={bien_id}",
-                datetime.now().isoformat()
-            ))
-            conn.commit()
-            conn.close()
-
         return {
             "message": f"{nb_matchings} matching(s) trouve(s) sur {len(compatibles)} prospect(s) compatible(s)",
             "prospects_compatibles": len(compatibles),
