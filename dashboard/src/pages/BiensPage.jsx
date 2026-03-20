@@ -43,6 +43,7 @@ function BiensPage() {
   const [editSaving, setEditSaving] = useState(false)
   const [editError, setEditError] = useState("")
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' })
+  const [showVendus, setShowVendus] = useState(false)
   const itemsPerPage = 10
 
   const handleSort = (field) => {
@@ -127,6 +128,7 @@ function BiensPage() {
 
   const filteredBiens = biens
     .filter(b => {
+      if (!showVendus && b.statut === 'vendu') return false
       const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
         b.ville?.toLowerCase().includes(search.toLowerCase()) ||
         b.type?.toLowerCase().includes(search.toLowerCase())
@@ -137,6 +139,10 @@ function BiensPage() {
       return matchSearch && matchAgence
     })
     .sort((a, b) => {
+      if (showVendus) {
+        if (a.statut === 'vendu' && b.statut !== 'vendu') return -1
+        if (b.statut === 'vendu' && a.statut !== 'vendu') return 1
+      }
       if (!sortConfig.field) return 0
       const valA = a[sortConfig.field] ?? ''
       const valB = b[sortConfig.field] ?? ''
@@ -269,7 +275,12 @@ function BiensPage() {
           <p className="text-sm text-gray-400">
             {biens.filter(b => b.statut !== 'vendu').length} actifs
             {biens.some(b => b.statut === 'vendu') && (
-              <span className="ml-1 text-red-400"> · {biens.filter(b => b.statut === 'vendu').length} vendus</span>
+              <button
+                onClick={() => { setShowVendus(v => !v); setCurrentPage(1) }}
+                className={`ml-1 transition-colors ${showVendus ? 'text-red-500 font-medium' : 'text-red-300 hover:text-red-400'}`}
+              >
+                · {biens.filter(b => b.statut === 'vendu').length} vendu{biens.filter(b => b.statut === 'vendu').length > 1 ? 's' : ''}
+              </button>
             )}
           </p>
         </div>
