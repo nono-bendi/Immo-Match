@@ -3,7 +3,7 @@ import { Clock, Calendar, Users, Building2, TrendingUp, ChevronDown, ChevronUp, 
 import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 import Pagination from '../components/Pagination'
 import SparkleButton from '../components/SparkleButton'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -29,7 +29,7 @@ function HistoriquePage() {
   const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
-    fetch(`${API_URL}/historique`)
+    apiFetch('/historique')
       .then(res => res.json())
       .then(data => {
         setHistorique(Array.isArray(data) ? data : [])
@@ -46,7 +46,7 @@ function HistoriquePage() {
     setCurrentProspectName('')
 
     try {
-      const prospects = await fetch(`${API_URL}/prospects`).then(r => r.json())
+      const prospects = await apiFetch('/prospects').then(r => r.json())
       if (!Array.isArray(prospects) || prospects.length === 0) {
         alert('Aucun prospect à analyser')
         setShowOverlay(false)
@@ -59,15 +59,15 @@ function HistoriquePage() {
         setCurrentProspectIndex(i + 1)
         setCurrentProspectName(prospects[i].nom || `Prospect ${prospects[i].id}`)
         try {
-          const data = await fetch(`${API_URL}/matching/run/${prospects[i].id}`, { method: 'POST' }).then(r => r.json())
+          const data = await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' }).then(r => r.json())
           if (data.matchings_count) totalMatchings += data.matchings_count
         } catch (err) { console.error(err) }
       }
       setShowOverlay(false)
       // Recharger l'historique
-      const data = await fetch(`${API_URL}/historique`).then(r => r.json())
+      const data = await apiFetch('/historique').then(r => r.json())
       setHistorique(Array.isArray(data) ? data : [])
-      const hasExcellent = await fetch(`${API_URL}/matchings`).then(r => r.json()).then(d => d.some(m => m.score >= 80))
+      const hasExcellent = await apiFetch('/matchings').then(r => r.json()).then(d => d.some(m => m.score >= 80))
       if (hasExcellent) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 3000) }
       alert(`Analyse terminée ! ${totalMatchings} matchings trouvés.`)
     // eslint-disable-next-line no-unused-vars
@@ -126,7 +126,7 @@ function HistoriquePage() {
     if (analyseDetails[dateComplete]) return
     setLoadingDetails(true)
     try {
-      const res = await fetch(`${API_URL}/matchings/by-date?date_analyse=${encodeURIComponent(dateComplete)}`)
+      const res = await apiFetch(`/matchings/by-date?date_analyse=${encodeURIComponent(dateComplete)}`)
       const data = await res.json()
       setAnalyseDetails(prev => ({ ...prev, [dateComplete]: data }))
     } catch (err) {

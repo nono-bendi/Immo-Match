@@ -7,9 +7,10 @@ import zipfile
 import ftplib
 import threading
 from datetime import datetime, timedelta
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from config import DB_PATH
+from agencies_db import get_db_path, all_agencies
+from routers.auth import get_current_user
 from routers.matchings import get_settings_values, _core_analyser_bien
 from routers.biens import parse_hektor_cols
 
@@ -21,9 +22,10 @@ scheduler = BackgroundScheduler()
 scheduler_started = False
 
 
-def sync_hektor_ftp():
+def sync_hektor_ftp(db_path: str = None):
     """Synchronise les biens depuis le FTP Hektor (supporte ZIP)"""
-    settings = get_settings_values()
+    db_path = db_path or get_db_path("saint_francois")
+    settings = get_settings_values(db_path)
 
     ftp_host = settings.get('ftp_host', '')
     ftp_user = settings.get('ftp_user', '')
@@ -84,7 +86,7 @@ def sync_hektor_ftp():
 
         lines = text.strip().split("\n")
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         imported = 0
@@ -232,14 +234,14 @@ def sync_hektor_ftp():
 
         # Lancer l'analyse des nouveaux biens en arrière-plan
         if nouveaux_bien_ids and os.getenv("ANTHROPIC_API_KEY") and settings.get('analyse_auto_import', True):
-            def analyser_nouveaux_biens(ids):
+            def analyser_nouveaux_biens(ids, _db_path):
                 for bid in ids:
                     try:
                         log.info(f"Analyse auto bien #{bid}...")
-                        _core_analyser_bien(bid)
+                        _core_analyser_bien(bid, db_path=_db_path)
                     except Exception as e:
                         log.error(f"Erreur analyse bien #{bid}: {e}")
-            threading.Thread(target=analyser_nouveaux_biens, args=(nouveaux_bien_ids,), daemon=True).start()
+            threading.Thread(target=analyser_nouveaux_biens, args=(nouveaux_bien_ids, db_path), daemon=True).start()
 
         log.info(f"Import : {imported} nouveaux, {updated} mis à jour, {vendu} vendus, {skipped} ignorés")
         return {"success": True, "imported": imported, "updated": updated, "vendu": vendu, "skipped": skipped}
@@ -249,14 +251,24 @@ def sync_hektor_ftp():
         return {"error": "Une erreur interne est survenue"}
 
 
+def sync_all_agencies():
+    """Synchronise le FTP pour toutes les agences."""
+    agencies = all_agencies()
+    for agency in agencies:
+        try:
+            sync_hektor_ftp(db_path=get_db_path(agency["slug"]))
+        except Exception as e:
+            log.error(f"Erreur sync agence {agency['slug']}: {e}")
+
+
 def start_scheduler():
     global scheduler_started
     if not scheduler_started:
         settings = get_settings_values()
         interval = int(settings.get('sync_interval_hours', 12))
 
-        # Ajouter la tâche de sync
-        scheduler.add_job(sync_hektor_ftp, 'interval', hours=interval, id='hektor_sync', replace_existing=True, next_run_time=datetime.now())
+        # Ajouter la tâche de sync pour toutes les agences
+        scheduler.add_job(sync_all_agencies, 'interval', hours=interval, id='hektor_sync', replace_existing=True, next_run_time=datetime.now())
         scheduler.start()
         scheduler_started = True
         log.info(f"Scheduler démarré (sync toutes les {interval}h)")
@@ -267,16 +279,16 @@ def start_scheduler():
 # ============================================================
 
 @router.post("/sync-hektor")
-def trigger_sync():
+def trigger_sync(current_user: dict = Depends(get_current_user)):
     """Déclenche une synchronisation manuelle"""
-    result = sync_hektor_ftp()
+    result = sync_hektor_ftp(db_path=get_db_path(current_user["agency_slug"]))
     return result
 
 
 @router.get("/sync-status")
-def sync_status():
+def sync_status(current_user: dict = Depends(get_current_user)):
     """Retourne le statut de la dernière synchronisation"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     cursor = conn.cursor()
     last_sync = cursor.execute("SELECT value FROM settings WHERE key = 'last_hektor_sync'").fetchone()
     interval = cursor.execute("SELECT value FROM settings WHERE key = 'sync_interval_hours'").fetchone()
@@ -300,9 +312,9 @@ def sync_status():
 
 
 @router.get("/ftp-browse")
-def ftp_browse(path: str = "/"):
+def ftp_browse(path: str = "/", current_user: dict = Depends(get_current_user)):
     """Explore le contenu d'un dossier FTP"""
-    settings = get_settings_values()
+    settings = get_settings_values(get_db_path(current_user["agency_slug"]))
 
     ftp_host = settings.get('ftp_host', '')
     ftp_user = settings.get('ftp_user', '')

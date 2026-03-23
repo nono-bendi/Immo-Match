@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, Settings, SlidersHorizontal, Menu } from 'lucide-react'
+import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, Settings, SlidersHorizontal, Menu, ShieldCheck } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 import UserMenu from './UserMenu'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 import { useAuth } from '../contexts/AuthContext'
 
 const PAGES = {
@@ -14,6 +14,7 @@ const PAGES = {
   '/biens':           { title: 'Biens',              subtitle: 'Catalogue des propriétés',            icon: Building2 },
   '/historique':      { title: 'Historique',         subtitle: 'Historique des actions',              icon: History },
   '/parametres':      { title: 'Paramètres',         subtitle: "Configuration de l'application",     icon: Settings },
+  '/administration':  { title: 'Administration',     subtitle: "Configuration de l'agence",           icon: ShieldCheck },
   '/calibration':     { title: 'Calibration',        subtitle: 'Évaluez la pertinence des matchings', icon: SlidersHorizontal },
 }
 
@@ -34,16 +35,10 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
   const { user } = useAuth()
   const isDemo = user?.role === 'demo'
   const [derniereAnalyse, setDerniereAnalyse] = useState(null)
-  const [titleKey, setTitleKey] = useState(0)
-
   const page = PAGES[location.pathname] || { title: 'ImmoMatch', subtitle: '' }
 
   useEffect(() => {
-    setTitleKey(k => k + 1)
-  }, [location.pathname])
-
-  useEffect(() => {
-    fetch(`${API_URL}/stats`)
+    apiFetch(`/stats`)
       .then(r => r.json())
       .then(d => setDerniereAnalyse(d.derniere_analyse || null))
       .catch(() => {})
@@ -109,7 +104,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           )}
 
           {/* Titre + sous-titre */}
-          <div key={titleKey} className="hdr-title min-w-0">
+          <div key={location.pathname} className="hdr-title min-w-0">
             <h1 className="text-lg md:text-2xl font-extrabold text-[#1E3A5F] leading-none tracking-tight truncate" style={{ letterSpacing: '-0.04em' }}>
               {page.title}
             </h1>

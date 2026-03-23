@@ -7,7 +7,7 @@ import AnalysisOverlay from '../components/AnalysisOverlay'
 import Modal from '../components/Modal'
 import Pagination from '../components/Pagination'
 
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 // Skeleton pour le chargement
 function SkeletonRow() {
@@ -55,7 +55,7 @@ function ClientsPage() {
   const itemsPerPage = 10
 
   const fetchProspects = () => {
-    fetch(`${API_URL}/prospects`)
+    apiFetch('/prospects')
       .then(response => response.json())
       .then(data => {
         setProspects(data)
@@ -88,7 +88,7 @@ function ClientsPage() {
   const handleSaveEdit = async () => {
     setSaving(true)
     try {
-      const response = await fetch(`${API_URL}/prospects/${editingProspect.id}`, {
+      const response = await apiFetch(`/prospects/${editingProspect.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingProspect)
@@ -108,7 +108,7 @@ function ClientsPage() {
 
   const handleDelete = async (prospectId) => {
     try {
-      const response = await fetch(`${API_URL}/prospects/${prospectId}`, { method: 'DELETE' })
+      const response = await apiFetch(`/prospects/${prospectId}`, { method: 'DELETE' })
       const data = await response.json()
       if (data.error) {
         alert('Erreur: ' + data.error)
@@ -122,12 +122,12 @@ function ClientsPage() {
   }
 
   const handleArchive = async (prospect) => {
-    await fetch(`${API_URL}/prospects/${prospect.id}/archiver`, { method: 'PATCH' })
+    await apiFetch(`/prospects/${prospect.id}/archiver`, { method: 'PATCH' })
     fetchProspects()
   }
 
   const handleDesarchiver = async (prospect) => {
-    await fetch(`${API_URL}/prospects/${prospect.id}/desarchiver`, { method: 'PATCH' })
+    await apiFetch(`/prospects/${prospect.id}/desarchiver`, { method: 'PATCH' })
     fetchProspects()
   }
 
@@ -139,7 +139,7 @@ function ClientsPage() {
     const MIN_DISPLAY_TIME = 5000
 
     try {
-      const response = await fetch(`${API_URL}/matching/run/${prospect.id}`, { method: 'POST' })
+      const response = await apiFetch(`/matching/run/${prospect.id}`, { method: 'POST' })
       const data = await response.json()
 
       const elapsed = Date.now() - startTime

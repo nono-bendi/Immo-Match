@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from config import DB_PATH, SMTP_CONFIG, EmailRequest, _email_rate
-from routers.auth import require_not_demo
+from config import SMTP_BASE, EmailRequest, _email_rate, APP_BASE_URL
+from routers.auth import require_not_demo, get_current_user
 
 router = APIRouter()
 
@@ -130,8 +130,11 @@ def format_salutation(full_name):
         return f"M./Mme {nom_famille}"
 
 
-def generate_email_html(data: EmailRequest) -> str:
+def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict = None) -> str:
     """Génère un email HTML professionnel et personnalisé."""
+    agency = agency or {}
+    color = escape((agency.get("agency_couleur") or agency.get("couleur_primaire") or "#1E3A5F").strip())
+    agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
 
     raw_name = (data.to_name or "").strip()
     salutation = format_salutation(raw_name)
@@ -141,7 +144,9 @@ def generate_email_html(data: EmailRequest) -> str:
     bien_surface = safe_html_text(data.bien_surface, "Non précisée")
     bien_pieces = safe_html_text(data.bien_pieces, "")
 
-    logo_url = os.getenv("EMAIL_LOGO_URL", "").strip()
+    logo_url = (agency.get("agency_logo_url") or "").strip()
+    if logo_url.startswith("/"):
+        logo_url = APP_BASE_URL.rstrip("/") + logo_url
     has_logo = is_valid_http_url(logo_url)
     safe_logo_url = escape(logo_url) if has_logo else ""
 
@@ -181,7 +186,7 @@ def generate_email_html(data: EmailRequest) -> str:
         <tr>
           <td style="padding:0 40px 24px 40px;">
             <div style="background:#FAFAFA;border-radius:12px;padding:20px;border:1px solid #E5E7EB;">
-              <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:#1E3A5F;">Pourquoi ce bien pour vous ?</p>
+              <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:{color};">Pourquoi ce bien pour vous ?</p>
               {points_forts_block}
 
 
@@ -193,20 +198,23 @@ def generate_email_html(data: EmailRequest) -> str:
         analyse_block = ""
 
     # Logo block
+    logo_fond_colore = bool(agency.get("agency_logo_fond_colore") or agency.get("logo_fond_colore"))
     if has_logo:
+        logo_bg = color if logo_fond_colore else "#FFFFFF"
+        logo_border = "" if logo_fond_colore else "border-bottom:1px solid #E5E7EB;"
         logo_block = f"""
         <tr>
-          <td style="padding:28px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
-            <img src="{safe_logo_url}" alt="Saint François Immobilier" height="45"
-                 style="display:block;border:0;height:45px;width:auto;" />
+          <td style="padding:24px 40px;background:{logo_bg};{logo_border}">
+            <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}" height="70"
+                 style="display:block;border:0;height:70px;width:auto;" />
           </td>
         </tr>
         """
     else:
-        logo_block = """
+        logo_block = f"""
         <tr>
           <td style="padding:28px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
-            <p style="margin:0;font-size:20px;font-weight:700;color:#1E3A5F;">Saint François Immobilier</p>
+            <p style="margin:0;font-size:20px;font-weight:700;color:{color};">{escape(agency.get('agency_nom', 'Agence Immobilière'))}</p>
           </td>
         </tr>
         """
@@ -231,7 +239,7 @@ def generate_email_html(data: EmailRequest) -> str:
           <td align="center" style="padding:8px 40px 32px 40px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="background:#1E3A5F;border-radius:8px;">
+                <td style="background:{color};border-radius:8px;">
                   <a href="{safe_annonce_url}" target="_blank" rel="noopener noreferrer"
                      style="display:inline-block;padding:14px 36px;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:600;">
                     Découvrir ce bien
@@ -282,7 +290,7 @@ def generate_email_html(data: EmailRequest) -> str:
 
           <!-- Header Band -->
           <tr>
-            <td style="background:linear-gradient(135deg,#1E3A5F 0%,#2D5A8A 100%);padding:22px 40px;">
+            <td style="background:{color};padding:22px 40px;">
               <p style="margin:0;color:#FFFFFF;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;">
                 Sélectionné pour vous
               </p>
@@ -307,7 +315,7 @@ def generate_email_html(data: EmailRequest) -> str:
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                      style="border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;">
                 <tr>
-                  <td style="background:#1E3A5F;padding:18px 24px;">
+                  <td style="background:{color};padding:18px 24px;">
                     <p style="margin:0;color:#FFFFFF;font-size:18px;font-weight:600;">
                       {bien_type} à {bien_ville}
                     </p>
@@ -321,7 +329,7 @@ def generate_email_html(data: EmailRequest) -> str:
                           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
                               <td style="color:#6B7280;font-size:14px;">Prix</td>
-                              <td align="right" style="color:#1E3A5F;font-size:20px;font-weight:700;">{bien_prix}</td>
+                              <td align="right" style="color:{color};font-size:20px;font-weight:700;">{bien_prix}</td>
                             </tr>
                           </table>
                         </td>
@@ -367,13 +375,13 @@ def generate_email_html(data: EmailRequest) -> str:
             <td style="padding:0 40px 32px 40px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="border-left:3px solid #1E3A5F;padding-left:16px;">
-                    <p style="margin:0 0 4px 0;font-size:15px;font-weight:600;color:#111827;">Patricia Philippot</p>
-                    <p style="margin:0 0 12px 0;font-size:13px;color:#6B7280;">Conseillère immobilier</p>
+                  <td style="border-left:3px solid {color};padding-left:16px;">
+                    <p style="margin:0 0 4px 0;font-size:15px;font-weight:600;color:#111827;">{escape(agent_nom or 'Votre conseiller')}</p>
+                    <p style="margin:0 0 12px 0;font-size:13px;color:#6B7280;">{agent_title}</p>
                     <p style="margin:0;font-size:13px;line-height:1.8;color:#374151;">
-                      140 rue Saint François de Paule, 83600 Fréjus<br />
-                      Tél. <a href="tel:0494537819" style="color:#1E3A5F;text-decoration:none;font-weight:500;">04 94 53 78 19</a><br />
-                      <a href="mailto:contact@saintfrancoisimmobilier.com" style="color:#1E3A5F;text-decoration:none;">contact@saintfrancoisimmobilier.com</a>
+                      {escape(agency.get('agency_adresse', ''))}<br />
+                      Tél. <a href="tel:{escape((agency.get('agency_telephone') or '').replace(' ', ''))}" style="color:{color};text-decoration:none;font-weight:500;">{escape(agency.get('agency_telephone', ''))}</a><br />
+                      <a href="mailto:{escape(agency.get('agency_email', ''))}" style="color:{color};text-decoration:none;">{escape(agency.get('agency_email', ''))}</a>
                     </p>
                   </td>
                 </tr>
@@ -402,8 +410,10 @@ def generate_email_html(data: EmailRequest) -> str:
     return fix_mojibake(html)
 
 
-def generate_email_text(data: EmailRequest) -> str:
+def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict = None) -> str:
     """Génère la version texte de l'email (fallback)"""
+    agency = agency or {}
+    agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
 
     salutation = format_salutation(data.to_name)
     default_intro = "Suite à notre échange concernant votre projet immobilier, j'ai le plaisir de vous présenter un bien susceptible de correspondre à vos critères de recherche."
@@ -441,13 +451,13 @@ Surface : {data.bien_surface or 'Non précisée'}
 
 À très bientôt,
 
-Patricia Philippot
-Conseillère immobilier
+{agent_nom or 'Votre conseiller'}
+{agent_title}
 
-SAINT FRANÇOIS IMMOBILIER
-140 rue Saint François de Paule, 83600 Fréjus
-Tél. 04 94 53 78 19
-contact@saintfrancoisimmobilier.com
+{(agency.get('agency_nom') or '').upper()}
+{agency.get('agency_adresse', '')}
+Tél. {agency.get('agency_telephone', '')}
+{agency.get('agency_email', '')}
 
 ──────────────────────────────────────────────────────
 Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.
@@ -471,25 +481,34 @@ async def send_email(data: EmailRequest, _user: dict = Depends(require_not_demo)
         return JSONResponse(status_code=429, content={"error": "Trop d'emails envoyés, attendez 1 minute"})
     _email_rate[uid].append(now)
 
+    # Construire la config SMTP depuis l'agence de l'utilisateur
+    smtp_cfg = {
+        **SMTP_BASE,
+        "user":      _user.get("smtp_user", ""),
+        "password":  _user.get("smtp_password", ""),
+        "from_name": _user.get("smtp_from_name", _user.get("agency_nom", "")),
+        "reply_to":  _user.get("smtp_reply_to", _user.get("agency_email", "")),
+    }
+
     try:
         # Créer le message
         msg = MIMEMultipart("alternative")
         msg["Subject"] = data.subject
-        msg["From"] = f"{SMTP_CONFIG['from_name']} <{SMTP_CONFIG['user']}>"
+        msg["From"] = f"{smtp_cfg['from_name']} <{smtp_cfg['user']}>"
         msg["To"] = data.to_email
-        msg["Reply-To"] = SMTP_CONFIG["reply_to"]
+        msg["Reply-To"] = smtp_cfg["reply_to"]
 
         # Ajouter les versions texte et HTML
-        text_content = generate_email_text(data)
-        html_content = generate_email_html(data)
+        text_content = generate_email_text(data, agent_nom=_user.get("nom"), agency=_user)
+        html_content = generate_email_html(data, agent_nom=_user.get("nom"), agency=_user)
 
         msg.attach(MIMEText(text_content, "plain", "utf-8"))
         msg.attach(MIMEText(html_content, "html", "utf-8"))
 
         # Connexion et envoi
-        with smtplib.SMTP(SMTP_CONFIG["server"], SMTP_CONFIG["port"]) as server:
+        with smtplib.SMTP(smtp_cfg["server"], smtp_cfg["port"]) as server:
             server.starttls()
-            server.login(SMTP_CONFIG["user"], SMTP_CONFIG["password"])
+            server.login(smtp_cfg["user"], smtp_cfg["password"])
             server.send_message(msg)
 
         return {"success": True, "message": f"Email envoyé à {data.to_email}"}
@@ -512,10 +531,10 @@ async def send_email(data: EmailRequest, _user: dict = Depends(require_not_demo)
 
 
 @router.post("/preview-email")
-async def preview_email(data: EmailRequest):
+async def preview_email(data: EmailRequest, current_user: dict = Depends(get_current_user)):
     """Génère un aperçu de l'email sans l'envoyer"""
     try:
-        html_content = generate_email_html(data)
+        html_content = generate_email_html(data, agent_nom=current_user.get("nom"), agency=current_user)
         return {"success": True, "html": html_content}
     except Exception as e:
         return JSONResponse(

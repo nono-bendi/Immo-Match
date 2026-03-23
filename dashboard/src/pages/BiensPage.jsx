@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 import { useAuth } from '../contexts/AuthContext'
+import { useAgency } from '../contexts/AgencyContext'
 import Pagination from '../components/Pagination'
 import BienModal from '../components/BienModal'
 
@@ -30,7 +31,9 @@ function SkeletonRow() {
 
 function BiensPage() {
   const { user } = useAuth()
+  const { agency } = useAgency()
   const isDemo = user?.role === 'demo'
+  const nomFiltre = agency?.nom_filtre || 'SAINT FRANCOIS'
   const [biens, setBiens] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -61,7 +64,7 @@ function BiensPage() {
   }
 
   const fetchBiens = () => {
-    fetch(`${API_URL}/biens`)
+    apiFetch('/biens')
       .then(response => response.json())
       .then(data => {
         setBiens(Array.isArray(data) ? data : [])
@@ -87,7 +90,7 @@ function BiensPage() {
     formData.append('file', file)
 
     try {
-      const response = await fetch(`${API_URL}/biens/import`, {
+      const response = await apiFetch('/biens/import', {
         method: 'POST',
         body: formData,
       })
@@ -108,7 +111,7 @@ function BiensPage() {
   const handleDelete = async () => {
     if (!confirmDelete) return
     try {
-      await fetch(`${API_URL}/biens/${confirmDelete.id}`, { method: 'DELETE' })
+      await apiFetch(`/biens/${confirmDelete.id}`, { method: 'DELETE' })
       fetchBiens()
     } catch {
       console.error('Erreur lors de la suppression')
@@ -123,7 +126,7 @@ function BiensPage() {
   }
 
   // Agences uniques présentes dans les biens
-  const agencesUniques = [...new Set(biens.map(b => b.nom_agence || 'SAINT FRANCOIS IMMOBILIER').filter(Boolean))]
+  const agencesUniques = [...new Set(biens.map(b => b.nom_agence || nomFiltre).filter(Boolean))]
   const hasPrimmo = agencesUniques.length > 1
 
   const filteredBiens = biens
@@ -132,10 +135,10 @@ function BiensPage() {
       const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
         b.ville?.toLowerCase().includes(search.toLowerCase()) ||
         b.type?.toLowerCase().includes(search.toLowerCase())
-      const agence = b.nom_agence || 'SAINT FRANCOIS IMMOBILIER'
+      const agence = b.nom_agence || nomFiltre
       const matchAgence = filterAgence === 'tous' ||
-        (filterAgence === 'moi' && agence.toUpperCase().includes('SAINT FRANCOIS')) ||
-        (filterAgence === 'partenaires' && !agence.toUpperCase().includes('SAINT FRANCOIS'))
+        (filterAgence === 'moi' && agence.toUpperCase().includes(nomFiltre.toUpperCase())) ||
+        (filterAgence === 'partenaires' && !agence.toUpperCase().includes(nomFiltre.toUpperCase()))
       return matchSearch && matchAgence
     })
     .sort((a, b) => {
@@ -180,7 +183,7 @@ function BiensPage() {
     setEditSaving(true)
     setEditError("")
     try {
-      const res = await fetch(`${API_URL}/biens/${editBien.id}`, {
+      const res = await apiFetch(`/biens/${editBien.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...editBien, ...editForm })
@@ -301,7 +304,7 @@ function BiensPage() {
             <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
               {[
                 { key: 'tous', label: 'Tous' },
-                { key: 'moi', label: 'Saint François' },
+                { key: 'moi', label: agency?.nom_court || nomFiltre },
                 { key: 'partenaires', label: 'Partenaires' }
               ].map(opt => (
                 <button
@@ -447,7 +450,7 @@ function BiensPage() {
                               Vendu / Retiré
                             </span>
                           )}
-                          {bien.nom_agence && !bien.nom_agence.toUpperCase().includes('SAINT FRANCOIS') && (
+                          {bien.nom_agence && !bien.nom_agence.toUpperCase().includes(nomFiltre.toUpperCase()) && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-violet-50 text-violet-700 border border-violet-100 mt-0.5">
                               {bien.nom_agence}
                             </span>
@@ -507,7 +510,7 @@ function BiensPage() {
                           <button
                             onClick={async e => {
                               e.stopPropagation()
-                              await fetch(`${API_URL}/biens/${bien.id}/restaurer`, { method: 'PATCH' })
+                              await apiFetch(`/biens/${bien.id}/restaurer`, { method: 'PATCH' })
                               fetchBiens()
                             }}
                             className="p-2 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-all"

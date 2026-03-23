@@ -244,7 +244,7 @@ function ProspectModal({ prospect, onClose }) {
         {/* Footer */}
         <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
           <button
-            onClick={() => window.open(`${API_URL}/rapport/prospect/${prospect.id}`, '_blank')}
+            onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
             className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1E3A5F] bg-white border border-gray-200 rounded-xl hover:bg-[#1E3A5F] hover:text-white hover:border-[#1E3A5F] transition-all"
           >
             <FileBarChart size={15} />

@@ -1,9 +1,17 @@
+import os
+from fastapi.staticfiles import StaticFiles
 from config import app
 from database import init_db
+from agencies_db import init_agencies_db, all_agencies, get_db_path
 from routers import auth, biens, prospects, matchings, emails, sync, rapport, settings, notifications, calibration
+from routers import admin
 
-# ── Initialisation de la base de données ─────────────────────────────────────
-init_db()
+# ── Initialisation de la DB centrale des agences ──────────────────────────────
+init_agencies_db()
+
+# ── Initialisation de la DB de chaque agence enregistrée ──────────────────────
+for _agency in all_agencies():
+    init_db(get_db_path(_agency["slug"]))
 
 # ── Enregistrement des routers ────────────────────────────────────────────────
 app.include_router(auth.router)
@@ -16,6 +24,11 @@ app.include_router(rapport.router)
 app.include_router(settings.router)
 app.include_router(notifications.router)
 app.include_router(calibration.router)
+app.include_router(admin.router)
+
+# ── Fichiers statiques (logos agences) ────────────────────────────────────────
+os.makedirs("static/logos", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # ── Route racine ──────────────────────────────────────────────────────────────

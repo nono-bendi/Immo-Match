@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, BarChart2, CheckCircle, AlertCircle, AlertTriangle, Target, Loader2, X, Home, Euro, Maximize2, BedDouble, MapPin } from 'lucide-react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function formatPrix(prix) {
   if (!prix) return '—'
@@ -125,7 +125,7 @@ export default function CalibrationPage() {
   const loadMatchings = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_URL}/calibration/matchings`)
+      const res = await apiFetch('/calibration/matchings')
       const data = await res.json()
       setMatchings(data)
       const first = data.findIndex(m => m.pertinent === null)
@@ -136,7 +136,7 @@ export default function CalibrationPage() {
 
   const loadStats = async () => {
     try {
-      const res = await fetch(`${API_URL}/calibration/stats`)
+      const res = await apiFetch('/calibration/stats')
       setStats(await res.json())
     } catch (e) { console.error(e) }
   }
@@ -155,7 +155,7 @@ export default function CalibrationPage() {
     if (!m || (pertinent === null && scoreAvis === null)) return
     setSaving(true)
     try {
-      await fetch(`${API_URL}/calibration/feedback`, {
+      await apiFetch('/calibration/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

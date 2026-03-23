@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, MapPin, Euro, Maximize, Home, Building2, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function BienLink({ bien, children, className = '' }) {
   const [showModal, setShowModal] = useState(false)
@@ -13,7 +13,7 @@ function BienLink({ bien, children, className = '' }) {
     if (showModal && bien?.id && !fullBien) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true)
-      fetch(`${API_URL}/biens/${bien.id}`)
+      apiFetch(`/biens/${bien.id}`)
         .then(res => res.json())
         .then(data => {
           setFullBien(data)

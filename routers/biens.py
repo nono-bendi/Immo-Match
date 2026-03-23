@@ -1,11 +1,12 @@
 import sqlite3
 import re
 from datetime import datetime, timedelta
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 import pandas as pd
 from io import BytesIO
 
-from config import DB_PATH
+from agencies_db import get_db_path
+from routers.auth import get_current_user
 
 router = APIRouter()
 
@@ -143,8 +144,8 @@ def parse_hektor_cols(cols):
 # ============================================================
 
 @router.get("/biens")
-def get_biens():
-    conn = sqlite3.connect(DB_PATH)
+def get_biens(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT * FROM biens")
     biens = [dict(row) for row in cursor.fetchall()]
@@ -153,12 +154,12 @@ def get_biens():
 
 
 @router.post("/biens/import")
-async def import_biens(file: UploadFile = File(...)):
+async def import_biens(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     contents = await file.read()
     df = pd.read_excel(BytesIO(contents))
     df.columns = df.columns.str.strip()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("DELETE FROM biens")
 
     for _, row in df.iterrows():
@@ -190,14 +191,14 @@ async def import_biens(file: UploadFile = File(...)):
 
 
 @router.post("/import-hektor")
-async def import_hektor(file: UploadFile = File(...)):
+async def import_hektor(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     """Import des biens depuis le fichier Hektor (format CSV avec séparateur !#)"""
     try:
         content = await file.read()
         text = content.decode('latin-1')
         lines = text.strip().split('\n')
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
         cursor = conn.cursor()
 
         imported = 0
@@ -316,8 +317,8 @@ async def import_hektor(file: UploadFile = File(...)):
 
 
 @router.post("/biens/add")
-def add_bien(bien: dict):
-    conn = sqlite3.connect(DB_PATH)
+def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
     conn.execute('''
         INSERT INTO biens (reference, type, ville, quartier, prix, surface, pieces, chambres, etat, exposition, stationnement, copropriete, exterieur, etage, description, date_ajout)
@@ -347,14 +348,12 @@ def add_bien(bien: dict):
 
 
 @router.put("/biens/{bien_id}")
-def update_bien(bien_id: int, bien: dict):
-    conn = sqlite3.connect(DB_PATH)
+def update_bien(bien_id: int, bien: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
-    # Vérifier si le bien existe
     existing = conn.execute("SELECT id FROM biens WHERE id = ?", (bien_id,)).fetchone()
     if not existing:
         conn.close()
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Bien non trouvé")
 
     conn.execute('''
@@ -389,8 +388,8 @@ def update_bien(bien_id: int, bien: dict):
 
 
 @router.patch("/biens/{bien_id}/defauts")
-def patch_bien_defauts(bien_id: int, data: dict):
-    conn = sqlite3.connect(DB_PATH)
+def patch_bien_defauts(bien_id: int, data: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("UPDATE biens SET defauts = ? WHERE id = ?", (data.get("defauts"), bien_id))
     conn.commit()
     conn.close()
@@ -398,8 +397,8 @@ def patch_bien_defauts(bien_id: int, data: dict):
 
 
 @router.patch("/biens/{bien_id}/restaurer")
-def restaurer_bien(bien_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def restaurer_bien(bien_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("UPDATE biens SET statut = 'actif', date_vendu = NULL WHERE id = ?", (bien_id,))
     conn.commit()
     conn.close()
@@ -407,8 +406,8 @@ def restaurer_bien(bien_id: int):
 
 
 @router.delete("/biens/{bien_id}")
-def delete_bien(bien_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def delete_bien(bien_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
     # Supprimer les matchings associés
     conn.execute("DELETE FROM matchings WHERE bien_id = ?", (bien_id,))
@@ -421,12 +420,11 @@ def delete_bien(bien_id: int):
 
 
 @router.get("/biens/{bien_id}")
-def get_bien(bien_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def get_bien(bien_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
     conn.close()
     if not bien:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Bien non trouvé")
     return dict(bien)

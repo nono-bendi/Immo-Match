@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { AgencyProvider } from './contexts/AgencyContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
@@ -12,8 +13,10 @@ import BiensPage from './pages/BiensPage'
 import MatchingsPage from './pages/MatchingsPage'
 import HistoriquePage from './pages/HistoriquePage'
 import SettingsPage from './pages/SettingsPage'
+import AdministrationPage from './pages/AdministrationPage'
 import NewProspectPage from './pages/NewProspectPage'
 import CalibrationPage from './pages/CalibrationPage'
+import LandingPage from './pages/LandingPage'
 
 function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
@@ -57,6 +60,8 @@ function AppRoutes() {
   return (
     <>
       <Routes>
+        <Route path="/landing" element={<LandingPage />} />
+
         <Route
           path="/login"
           element={
@@ -79,6 +84,7 @@ function AppRoutes() {
                   <Route path="/matchings" element={<MatchingsPage />} />
                   <Route path="/historique" element={<HistoriquePage />} />
                   <Route path="/parametres" element={<SettingsPage />} />
+                  <Route path="/administration" element={<AdministrationPage />} />
                   <Route path="/calibration" element={<CalibrationPage />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
@@ -98,7 +104,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <AgencyProvider>
+          <AppRoutes />
+        </AgencyProvider>
       </AuthProvider>
     </BrowserRouter>
   )

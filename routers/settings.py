@@ -7,16 +7,16 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 import pandas as pd
 
-from config import DB_PATH
-from routers.auth import require_not_demo
+from agencies_db import get_db_path
+from routers.auth import require_not_demo, get_current_user, require_admin
 import routers.sync as sync_module
 
 router = APIRouter()
 
 
 @router.get("/settings")
-def get_settings():
-    conn = sqlite3.connect(DB_PATH)
+def get_settings(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT key, value FROM settings")
     rows = cursor.fetchall()
@@ -33,8 +33,8 @@ def get_settings():
 
 
 @router.post("/settings")
-def save_settings(settings: dict, _user: dict = Depends(require_not_demo)):
-    conn = sqlite3.connect(DB_PATH)
+def save_settings(settings: dict, current_user: dict = Depends(require_not_demo)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
     for key, value in settings.items():
         value_str = json.dumps(value) if not isinstance(value, str) else value
@@ -57,8 +57,8 @@ def save_settings(settings: dict, _user: dict = Depends(require_not_demo)):
 
 
 @router.get("/export-all")
-def export_all():
-    conn = sqlite3.connect(DB_PATH)
+def export_all(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
     # Charger les données
     prospects_df = pd.read_sql_query("SELECT * FROM prospects", conn)
@@ -91,8 +91,8 @@ def export_all():
 
 
 @router.post("/reset-database")
-def reset_database(_user: dict = Depends(require_not_demo)):
-    conn = sqlite3.connect(DB_PATH)
+def reset_database(current_user: dict = Depends(require_admin)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("DELETE FROM matchings")
     conn.execute("DELETE FROM prospects")
     conn.execute("DELETE FROM biens")

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Bell, Home, Star, Users, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function NotificationBell() {
   const [notifications, setNotifications] = useState([])
@@ -12,7 +12,7 @@ function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch(`${API_URL}/notifications`)
+      const res = await apiFetch(`/notifications`)
       const data = await res.json()
       setNotifications(data.notifications || [])
       setUnreadCount(data.unread_count || 0)
@@ -43,7 +43,7 @@ function NotificationBell() {
       setIsOpen(true)
       if (unreadCount > 0) {
         try {
-          await fetch(`${API_URL}/notifications/mark-read`, { method: 'POST' })
+          await apiFetch(`/notifications/mark-read`, { method: 'POST' })
           setUnreadCount(0)
           setNotifications(prev => prev.map(n => ({ ...n, is_read: 1 })))
         } catch (err) {
@@ -70,7 +70,7 @@ function NotificationBell() {
   const handleClear = async (e) => {
     e.stopPropagation()
     try {
-      await fetch(`${API_URL}/notifications/clear`, { method: 'DELETE' })
+      await apiFetch(`/notifications/clear`, { method: 'DELETE' })
       setNotifications([])
       setUnreadCount(0)
     } catch (err) {

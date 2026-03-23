@@ -4,7 +4,7 @@ import {
   AlertCircle, Sparkles, Loader2, CheckCircle2, ChevronRight, Save
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 const DEFAUT_TAGS = [
   'Vis-à-vis', 'Pas de parking', 'Sans ascenseur', 'Bruit de rue',
@@ -32,12 +32,12 @@ function NewBienModal({ bienId, onClose }) {
     v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : null
 
   useEffect(() => {
-    fetch(`${API_URL}/biens/${bienId}`)
+    apiFetch(`/biens/${bienId}`)
       .then(r => r.json())
       .then(data => { setBien(data); setDefauts(data.defauts || ''); setLoadingBien(false) })
       .catch(() => setLoadingBien(false))
 
-    fetch(`${API_URL}/matchings/by-bien/${bienId}`)
+    apiFetch(`/matchings/by-bien/${bienId}`)
       .then(r => r.json())
       .then(data => { setMatchings(Array.isArray(data) ? data.filter(m => m.score >= 70) : []); setLoadingMatchings(false) })
       .catch(() => setLoadingMatchings(false))
@@ -54,25 +54,21 @@ function NewBienModal({ bienId, onClose }) {
 
   const handleAnalyser = async () => {
     setAnalyseState('loading')
-    const token = localStorage.getItem('token')
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    }
 
-    await fetch(`${API_URL}/biens/${bienId}/defauts`, {
-      method: 'PATCH', headers,
+    await apiFetch(`/biens/${bienId}/defauts`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ defauts })
     })
 
     try {
-      const res = await fetch(`${API_URL}/matching/run-by-bien/${bienId}`, { method: 'POST', headers })
+      const res = await apiFetch(`/matching/run-by-bien/${bienId}`, { method: 'POST' })
       const data = await res.json()
       if (data.error) {
         setAnalyseState('error')
       } else {
         // Recharger les matchings
-        const updated = await fetch(`${API_URL}/matchings/by-bien/${bienId}`).then(r => r.json())
+        const updated = await apiFetch(`/matchings/by-bien/${bienId}`).then(r => r.json())
         setMatchings(Array.isArray(updated) ? updated.filter(m => m.score >= 70) : [])
         setAnalyseState('done')
       }

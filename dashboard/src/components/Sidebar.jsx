@@ -1,9 +1,11 @@
-import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, SlidersHorizontal } from 'lucide-react'
+import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, SlidersHorizontal, ShieldCheck } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useAgency } from '../contexts/AgencyContext'
 
 function Sidebar({ isOpen, onClose }) {
   const { user } = useAuth()
+  const { agency } = useAgency()
 
   const menuItems = [
     { icon: Home,      label: 'Dashboard',        path: '/' },
@@ -38,7 +40,7 @@ function Sidebar({ isOpen, onClose }) {
           <h1 className="font-extrabold text-xl leading-none" style={{ letterSpacing: '-0.04em' }}>
             <span className="text-white">Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
           </h1>
-          <p className="text-white/50 text-xs mt-1 truncate">Saint François Immo</p>
+          <p className="text-white/50 text-xs mt-1 truncate">{agency?.nom_court || 'ImmoMatch'}</p>
         </div>
         {/* Bouton fermer visible seulement sur mobile */}
         <button
@@ -84,7 +86,7 @@ function Sidebar({ isOpen, onClose }) {
       {/* Footer */}
       <div className="border-t border-white/10 pt-4 shrink-0">
         <NavLink
-          to="/parametres"
+          to="/administration"
           onClick={onClose}
           className={({ isActive }) =>
             isActive
@@ -92,8 +94,8 @@ function Sidebar({ isOpen, onClose }) {
               : "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
           }
         >
-          <Settings size={19} />
-          <span className="text-sm">Paramètres</span>
+          {user?.role === 'admin' ? <ShieldCheck size={19} /> : <Settings size={19} />}
+          <span className="text-sm">{user?.role === 'admin' ? 'Administration' : 'Paramètres'}</span>
         </NavLink>
 
         <div className="flex items-center gap-3 px-3 py-3 mt-3 bg-white/5 rounded-xl">

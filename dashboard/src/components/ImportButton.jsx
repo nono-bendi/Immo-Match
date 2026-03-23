@@ -1,6 +1,6 @@
 ﻿import { Upload } from 'lucide-react'
 import { useState } from 'react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function ImportButton({ onImportSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -15,7 +15,7 @@ function ImportButton({ onImportSuccess }) {
     formData.append('file', file)
 
     try {
-      const response = await fetch(`${API_URL}/prospects/import`, {
+      const response = await apiFetch(`/prospects/import`, {
         method: 'POST',
         body: formData,
       })

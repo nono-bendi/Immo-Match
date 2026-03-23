@@ -9,7 +9,8 @@ import SparkleButton from '../components/SparkleButton'
 import EmailModal from '../components/EmailModal'
 import Pagination from '../components/Pagination'
 
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
+import { useAgency } from '../contexts/AgencyContext'
 
 const getInitials = (name) => {
   if (!name) return '??'
@@ -48,6 +49,8 @@ function SkeletonRow() {
 }
 
 function MatchingsPage() {
+  const { agency } = useAgency()
+  const agencyNom = agency?.nom || 'ImmoMatch'
   const [matchings, setMatchings] = useState([])
   const [loading, setLoading] = useState(true)
   const [analyzing, setAnalyzing] = useState(false)
@@ -108,7 +111,7 @@ function MatchingsPage() {
 
   const fetchData = () => {
     setLoading(true)
-    return fetch(`${API_URL}/matchings`)
+    return apiFetch('/matchings')
       .then(res => res.json())
       .then(matchingsData => {
         const data = Array.isArray(matchingsData) ? matchingsData : []
@@ -152,7 +155,7 @@ function MatchingsPage() {
     setCurrentProspectName('')
 
     try {
-      const prospectsRes = await fetch(`${API_URL}/prospects`)
+      const prospectsRes = await apiFetch('/prospects')
       const prospects = await prospectsRes.json()
       
       if (!Array.isArray(prospects) || prospects.length === 0) {
@@ -171,7 +174,7 @@ function MatchingsPage() {
         setCurrentProspectName(prospect.nom || `Prospect ${prospect.id}`)
 
         try {
-          const response = await fetch(`${API_URL}/matching/run/${prospect.id}`, { method: 'POST' })
+          const response = await apiFetch(`/matching/run/${prospect.id}`, { method: 'POST' })
           const data = await response.json()
           if (data.matchings_count) {
             totalMatchings += data.matchings_count
@@ -184,7 +187,7 @@ function MatchingsPage() {
       setShowOverlay(false)
       fetchData()
 
-      const hasExcellent = await fetch(`${API_URL}/matchings`).then(r => r.json()).then(data => 
+      const hasExcellent = await apiFetch('/matchings').then(r => r.json()).then(data =>
         data.some(m => m.score >= 80)
       )
       if (hasExcellent) {
@@ -213,7 +216,7 @@ function MatchingsPage() {
     setCurrentProspectName(prospectName || 'Prospect')
 
     try {
-      const response = await fetch(`${API_URL}/matching/run/${prospectId}`, { method: 'POST' })
+      const response = await apiFetch(`/matching/run/${prospectId}`, { method: 'POST' })
       const data = await response.json()
       if (data.error) {
         alert('Erreur: ' + data.error)
@@ -269,7 +272,7 @@ function MatchingsPage() {
   }
 
   const buildDefaultEmailContent = (match) => ({
-    subject: `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | Saint François Immobilier`,
+    subject: `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | ${agencyNom}`,
     intro: 'Suite à notre échange, j\'ai identifié un bien qui pourrait vous intéresser. Voici pourquoi je pense qu\'il mérite votre attention.',
     points_forts: match.points_forts || '',
     points_attention: match.points_attention || '',
@@ -285,7 +288,7 @@ function MatchingsPage() {
     const content = contentOverride || buildDefaultEmailContent(match)
 
     try {
-      const response = await fetch(`${API_URL}/preview-email`, {
+      const response = await apiFetch('/preview-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -369,7 +372,7 @@ function MatchingsPage() {
     setSendingEmail(match.id)
     
     try {
-      const response = await fetch(`${API_URL}/send-email`, {
+      const response = await apiFetch('/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -395,7 +398,7 @@ function MatchingsPage() {
       
       if (result.success) {
         // Marquer comme envoyé dans la BDD
-        await fetch(`${API_URL}/matchings/${match.id}/email-sent`, { method: 'PATCH' })
+        await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
         
         // Mettre à jour l'état local
         setMatchings(prev => prev.map(m => 
@@ -467,7 +470,7 @@ function MatchingsPage() {
     e.stopPropagation()
     const isRefused = match.statut_prospect === 'refused'
     try {
-      await fetch(`${API_URL}/matchings/${match.id}/statut-prospect`, {
+      await apiFetch(`/matchings/${match.id}/statut-prospect`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ statut: isRefused ? null : 'refused' })

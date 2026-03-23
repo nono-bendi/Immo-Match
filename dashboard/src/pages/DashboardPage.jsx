@@ -9,6 +9,7 @@ import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
 import BienModal from '../components/BienModal'
 import { API_URL } from '../config'
+import { apiFetch } from '../api'
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine
@@ -123,14 +124,14 @@ export default function DashboardPage() {
   const navigate = useNavigate()
 
   const openBien = (id) => {
-    fetch(`${API_URL}/biens/${id}`)
+    apiFetch(`/biens/${id}`)
       .then(r => r.json())
       .then(d => setSelectedBien(d))
       .catch(() => {})
   }
 
   useEffect(() => {
-    fetch(`${API_URL}/stats`)
+    apiFetch('/stats')
       .then(r => r.json())
       .then(d => { setStats(d); setLoading(false) })
       .catch(() => { setLoading(false); setError(true) })

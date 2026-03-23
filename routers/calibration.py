@@ -1,15 +1,16 @@
 import sqlite3
 from datetime import datetime
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from config import DB_PATH
+from agencies_db import get_db_path
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/calibration/matchings")
-def get_matchings_for_calibration():
-    conn = sqlite3.connect(DB_PATH)
+def get_matchings_for_calibration(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     rows = conn.execute("""
         SELECT m.id, m.prospect_id, m.bien_id, m.score, m.points_forts,
@@ -30,8 +31,8 @@ def get_matchings_for_calibration():
 
 
 @router.post("/calibration/feedback")
-def save_feedback(body: dict):
-    conn = sqlite3.connect(DB_PATH)
+def save_feedback(body: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     existing = conn.execute("SELECT id FROM calibration_feedback WHERE matching_id = ?", (body['matching_id'],)).fetchone()
     if existing:
         conn.execute("UPDATE calibration_feedback SET pertinent=?, score_avis=?, commentaire=?, created_at=? WHERE matching_id=?",
@@ -45,8 +46,8 @@ def save_feedback(body: dict):
 
 
 @router.get("/calibration/stats")
-def get_calibration_stats():
-    conn = sqlite3.connect(DB_PATH)
+def get_calibration_stats(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     rows = conn.execute("""
         SELECT m.score, cf.pertinent, cf.score_avis
         FROM calibration_feedback cf
@@ -73,27 +74,22 @@ def get_calibration_stats():
 
 
 @router.patch("/matchings/{matching_id}/statut-prospect")
-def set_statut_prospect(matching_id: int, body: dict):
+def set_statut_prospect(matching_id: int, body: dict, current_user: dict = Depends(get_current_user)):
     """Marque un matching comme refusé ou réinitialise"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    statut = body.get("statut")  # "refused" ou None
-    cursor.execute("UPDATE matchings SET statut_prospect = ? WHERE id = ?", (statut, matching_id))
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    statut = body.get("statut")
+    conn.execute("UPDATE matchings SET statut_prospect = ? WHERE id = ?", (statut, matching_id))
     conn.commit()
     conn.close()
     return {"success": True, "statut_prospect": statut}
 
 
 @router.patch("/matchings/{matching_id}/email-sent")
-def mark_email_sent(matching_id: int):
+def mark_email_sent(matching_id: int, current_user: dict = Depends(get_current_user)):
     """Marque un matching comme ayant reçu un email"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     now = datetime.now().isoformat()
-    cursor.execute('UPDATE matchings SET date_email_envoye = ? WHERE id = ?', (now, matching_id))
+    conn.execute('UPDATE matchings SET date_email_envoye = ? WHERE id = ?', (now, matching_id))
     conn.commit()
-
     conn.close()
-
     return {"success": True, "date_email_envoye": now}

@@ -10,17 +10,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── Chemin vers la base de données ────────────────────────────────────────────
-DB_PATH = os.getenv("DB_PATH", "immomatch.db")
+# ── URL publique du serveur (pour les logos dans les emails) ──────────────────
+APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
 
-# ── Configuration SMTP ────────────────────────────────────────────────────────
-SMTP_CONFIG = {
+# ── Configuration SMTP de base (surchargée par agence au runtime) ─────────────
+SMTP_BASE = {
     "server": "smtp.gmail.com",
     "port": 587,
-    "user": os.getenv("SMTP_USER", "stfrancoisgestion@gmail.com"),
-    "password": os.getenv("SMTP_PASSWORD", ""),
-    "from_name": "Saint François Immobilier",
-    "reply_to": "contact@saintfrancoisimmobilier.com"
 }
 
 # ── Configuration Auth ────────────────────────────────────────────────────────
@@ -79,8 +75,6 @@ class TokenResponse(BaseModel):
     token_type: str
     user: UserResponse
 
-# ── URL logo email ────────────────────────────────────────────────────────────
-os.environ["EMAIL_LOGO_URL"] = "https://www.saintfrancoisimmobilier.fr/images/logoSite.png"
 
 # ── Application FastAPI ───────────────────────────────────────────────────────
 app = FastAPI()

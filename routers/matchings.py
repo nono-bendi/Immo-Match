@@ -6,7 +6,8 @@ import json
 from datetime import datetime
 from fastapi import APIRouter, Depends
 
-from config import DB_PATH, _analyse_all_lock, COOLDOWN_SECONDS
+from config import _analyse_all_lock, COOLDOWN_SECONDS
+from agencies_db import get_db_path
 from routers.auth import get_current_user, require_not_demo
 from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage
 
@@ -17,9 +18,9 @@ router = APIRouter()
 # FONCTIONS PARTAGÉES
 # ============================================================
 
-def get_settings_values():
+def get_settings_values(db_path: str = None):
     """Charge les settings depuis la base de données"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path or get_db_path("saint_francois"))
     conn.row_factory = sqlite3.Row
 
     # Valeurs par défaut
@@ -198,17 +199,17 @@ def prefiltre_prospects_pour_bien(bien, prospects, budget_min_pct=70, budget_max
     return compatibles
 
 
-def _core_analyser_bien(bien_id: int) -> dict:
+def _core_analyser_bien(bien_id: int, db_path: str = None) -> dict:
     """
     Logique pure d'analyse d'un bien contre tous les prospects compatibles.
     Appelable depuis une route FastAPI ou un thread background.
     """
-    settings = get_settings_values()
+    settings = get_settings_values(db_path)
     budget_min = settings["budget_tolerance_min"]
     budget_max = settings["budget_tolerance_max"]
     score_minimum = int(settings.get("score_minimum", 0))
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path or get_db_path("saint_francois"))
     conn.row_factory = sqlite3.Row
     bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
     if not bien:
@@ -230,7 +231,7 @@ def _core_analyser_bien(bien_id: int) -> dict:
     nb_matchings = 0
     try:
         for prospect in compatibles:
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(db_path or get_db_path("saint_francois"))
             existing = conn.execute(
                 "SELECT id FROM matchings WHERE prospect_id = ? AND bien_id = ?",
                 (prospect["id"], bien_id)
@@ -252,7 +253,7 @@ def _core_analyser_bien(bien_id: int) -> dict:
             if r["score"] < score_minimum:
                 continue
 
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(db_path or get_db_path("saint_francois"))
             conn.execute("""
                 INSERT INTO matchings
                     (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
@@ -283,12 +284,13 @@ def _core_analyser_bien(bien_id: int) -> dict:
 # ============================================================
 
 @router.get("/matchings")
-def get_matchings():
-    settings = get_settings_values()
+def get_matchings(current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    settings = get_settings_values(db_path)
     score_minimum = int(settings.get('score_minimum', 0))
     max_matchings = int(settings.get('max_matchings_par_prospect', 5))
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     cursor = conn.execute('''
         SELECT m.*, p.nom as prospect_nom, p.budget_max as prospect_budget,
@@ -319,8 +321,8 @@ def get_matchings():
 
 
 @router.get("/matchings/by-bien/{bien_id}")
-def get_matchings_by_bien(bien_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def get_matchings_by_bien(bien_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     rows = conn.execute('''
         SELECT m.score, m.points_forts, m.points_attention, m.recommandation,
@@ -335,9 +337,9 @@ def get_matchings_by_bien(bien_id: int):
 
 
 @router.get("/matchings/by-date")
-def get_matchings_by_date(date_analyse: str):
+def get_matchings_by_date(date_analyse: str, current_user: dict = Depends(get_current_user)):
     """Récupère les matchings d'une analyse spécifique (par minute)"""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
     # Extraire la date jusqu'à la minute (sans secondes) pour grouper les analyses faites ensemble
@@ -359,8 +361,8 @@ def get_matchings_by_date(date_analyse: str):
 
 
 @router.get("/stats")
-def get_stats():
-    conn = sqlite3.connect(DB_PATH)
+def get_stats(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
     # Compteurs de base
@@ -479,8 +481,8 @@ def get_stats():
 
 
 @router.get("/historique")
-def get_historique():
-    conn = sqlite3.connect(DB_PATH)
+def get_historique(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
     # Grouper les matchings par date d'analyse
@@ -508,13 +510,14 @@ def get_historique():
 
 
 @router.post("/matching/run/{prospect_id}")
-def run_matching(prospect_id: int, _user=Depends(require_not_demo)):
-    settings = get_settings_values()
+def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    settings = get_settings_values(db_path)
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
 
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
@@ -578,7 +581,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo)):
         resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
         resultat_brut = formater_pour_affichage(resultats)
 
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(db_path)
         refused_biens = {row[0] for row in conn.execute(
             "SELECT bien_id FROM matchings WHERE prospect_id = ? AND statut_prospect = 'refused'",
             (prospect_id,)
@@ -665,17 +668,18 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo)):
 
 
 @router.post("/matching/run-all")
-def run_all_matchings(_user=Depends(require_not_demo)):
+def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
     if not _analyse_all_lock.acquire(blocking=False):
         return {"error": "Une analyse est déjà en cours, veuillez patienter"}
-    settings = get_settings_values()
+    db_path = get_db_path(current_user["agency_slug"])
+    settings = get_settings_values(db_path)
     max_biens = settings['max_biens_par_prospect']
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
     score_minimum = int(settings.get('score_minimum', 0))
     log.info(f"Score minimum configuré : {score_minimum}")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     prospects = [dict(row) for row in conn.execute(
         "SELECT * FROM prospects WHERE archive = 0 OR archive IS NULL"
@@ -699,7 +703,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
         return {"error": "Clé API Anthropic non configurée"}
 
     # Charger les refus une seule fois
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     refused_map = {(row[0], row[1]) for row in conn.execute(
         "SELECT prospect_id, bien_id FROM matchings WHERE statut_prospect = 'refused'"
     ).fetchall()}
@@ -740,7 +744,7 @@ def run_all_matchings(_user=Depends(require_not_demo)):
             biens_ids = [b["id"] for b in biens_filtres]
             placeholders = ",".join("?" * len(biens_ids))
             now_iso = datetime.now().isoformat()
-            conn = sqlite3.connect(DB_PATH)
+            conn = sqlite3.connect(db_path)
             try:
                 conn.execute("BEGIN")
                 conn.execute(
@@ -791,19 +795,20 @@ def run_all_matchings(_user=Depends(require_not_demo)):
 
 
 @router.post("/matching/run-by-bien/{bien_id}")
-def run_matching_by_bien(bien_id: int, _user: dict = Depends(require_not_demo)):
+def run_matching_by_bien(bien_id: int, _user: dict = Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
     """Analyse un bien contre tous les prospects compatibles."""
-    return _core_analyser_bien(bien_id)
+    return _core_analyser_bien(bien_id, db_path=get_db_path(current_user["agency_slug"]))
 
 
 @router.get("/debug/prefiltre/{prospect_id}")
-def debug_prefiltre(prospect_id: int):
+def debug_prefiltre(prospect_id: int, current_user: dict = Depends(get_current_user)):
     """Debug : voir quels biens passent le préfiltre pour un prospect"""
-    settings = get_settings_values()
+    db_path = get_db_path(current_user["agency_slug"])
+    settings = get_settings_values(db_path)
     budget_min = settings['budget_tolerance_min']
     budget_max = settings['budget_tolerance_max']
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
 
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()

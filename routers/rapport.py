@@ -2,10 +2,32 @@ import os
 import sqlite3
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import HTMLResponse
+from jose import jwt
 
-from config import DB_PATH
+from agencies_db import get_db_path
+from routers.auth import get_current_user
+from config import AUTH_CONFIG
+
+
+def get_user_from_token_param(token: str = Query(...)):
+    """Authentification via query param ?token=xxx (pour les rapports HTML)."""
+    try:
+        payload = jwt.decode(token, AUTH_CONFIG["secret_key"], algorithms=[AUTH_CONFIG["algorithm"]])
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Token invalide")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expiré")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token invalide")
+
+    import agencies_db as adb
+    user = adb.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=401, detail="Utilisateur introuvable")
+    return user
 
 router = APIRouter()
 
@@ -18,8 +40,8 @@ def guide_utilisateur():
 
 
 @router.get("/rapport/mensuel", response_class=HTMLResponse)
-def rapport_mensuel(mois: Optional[str] = None):
-    conn = sqlite3.connect(DB_PATH)
+def rapport_mensuel(mois: Optional[str] = None, current_user: dict = Depends(get_user_from_token_param)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
     aujourd_hui = datetime.now()
@@ -228,12 +250,21 @@ def rapport_mensuel(mois: Optional[str] = None):
       <span class="badge">Rapport mensuel</span>
     </div>
     <h1>Activité de {mois_label}</h1>
-    <p>Saint François Immobilier</p>
-    <div class="nav-mois no-print">
-      <a href="/rapport/mensuel?mois={mois_prec}" class="nav-btn">&#8592; {debut_mois_prec.strftime('%b %Y').capitalize()}</a>
+    <p>{current_user["agency_nom"]}</p>
+    <div class="nav-mois no-print" id="nav-mois">
+      <a id="nav-prec" href="#" class="nav-btn">&#8592; {debut_mois_prec.strftime('%b %Y').capitalize()}</a>
       <span class="nav-label">{mois_label}</span>
-      {'<a class="nav-btn disabled">&#8594; ' + mois_suiv_dt.strftime('%b %Y').capitalize() + '</a>' if est_mois_courant else '<a href="/rapport/mensuel?mois=' + mois_suiv + '" class="nav-btn">&#8594; ' + mois_suiv_dt.strftime('%b %Y').capitalize() + '</a>'}
+      <a id="nav-suiv" href="#" class="nav-btn{'disabled' if est_mois_courant else ''}">&#8594; {mois_suiv_dt.strftime('%b %Y').capitalize()}</a>
     </div>
+    <script>
+      (function() {{
+        var token = new URLSearchParams(window.location.search).get('token') || '';
+        var prec = document.getElementById('nav-prec');
+        var suiv = document.getElementById('nav-suiv');
+        if (prec) prec.href = '/rapport/mensuel?mois={mois_prec}&token=' + token;
+        if (suiv && !suiv.classList.contains('disabled')) suiv.href = '/rapport/mensuel?mois={mois_suiv}&token=' + token;
+      }})();
+    </script>
   </div>
 
   <div class="kpi-grid">
@@ -290,8 +321,8 @@ def rapport_mensuel(mois: Optional[str] = None):
 
 
 @router.get("/rapport/prospect/{prospect_id}", response_class=HTMLResponse)
-def rapport_prospect(prospect_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_from_token_param)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
@@ -435,11 +466,21 @@ def rapport_prospect(prospect_id: int):
     .no-match {{ padding:48px; text-align:center; color:#94a3b8; }}
     .no-match svg {{ margin:0 auto 12px; display:block; opacity:.3; }}
     .footer {{ text-align:center; color:#94a3b8; font-size:12px; padding:24px; }}
-    @media print {{ body {{ background:white; padding:0; }} .page {{ max-width:100%; }} .header {{ border-radius:0; }} .card {{ box-shadow:none; border-radius:0; }} }}
+    .toolbar {{ max-width:900px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center; }}
+    .toolbar-btn {{ display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:.15s; }}
+    .btn-back {{ background:white; color:#1E3A5F; box-shadow:0 1px 4px rgba(0,0,0,.1); }}
+    .btn-back:hover {{ background:#f1f5f9; box-shadow:0 3px 10px rgba(0,0,0,.15); transform:translateX(-3px); }}
+    .btn-pdf {{ background:#1E3A5F; color:white; box-shadow:0 2px 8px rgba(30,58,95,.3); }}
+    .btn-pdf:hover {{ background:#2D5A8A; }}
+    @media print {{ * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }} body {{ background:white; padding:0; }} .page {{ max-width:100%; }} .header {{ border-radius:0; }} .card {{ box-shadow:none; border-radius:0; }} .no-print {{ display:none !important; }} }}
     @media(max-width:600px) {{ .header {{ padding:32px 24px 28px; }} .prospect-name {{ font-size:26px; }} .criteres-section,.matchings-section,.criteres-grid {{ padding:24px 16px; }} .criteres-grid {{ grid-template-columns:1fr; }} }}
   </style>
 </head>
 <body>
+<div class="toolbar no-print">
+  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back">&#8592; Retour</button>
+  <button onclick="window.print()" class="toolbar-btn btn-pdf">&#8615; T&eacute;l&eacute;charger PDF</button>
+</div>
 <div class="page">
   <div class="header">
     <div class="header-top">

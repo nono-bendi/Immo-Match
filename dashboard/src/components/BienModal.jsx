@@ -5,7 +5,7 @@ import {
   Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight,
   Sparkles, Loader2, CheckCircle2, AlertCircle, ArrowRight
 } from 'lucide-react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function BienModal({ bien, onClose }) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
@@ -18,11 +18,7 @@ function BienModal({ bien, onClose }) {
     setAnalyseState('loading')
     setAnalyseResult(null)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`${API_URL}/matching/run-by-bien/${bien.id}`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      })
+      const res = await apiFetch(`/matching/run-by-bien/${bien.id}`, { method: 'POST' })
       const data = await res.json()
       if (data.error) {
         setAnalyseState('error')

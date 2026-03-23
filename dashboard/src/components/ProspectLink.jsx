@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Phone, Mail, MapPin, Home, Euro, Target, Loader2 } from 'lucide-react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function ProspectLink({ prospect, children, className = '' }) {
   const [showModal, setShowModal] = useState(false)
@@ -12,7 +12,7 @@ function ProspectLink({ prospect, children, className = '' }) {
     if (showModal && prospect?.id && !fullProspect) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true)
-      fetch(`${API_URL}/prospects/${prospect.id}`)
+      apiFetch(`/prospects/${prospect.id}`)
         .then(res => res.json())
         .then(data => {
           setFullProspect(data)

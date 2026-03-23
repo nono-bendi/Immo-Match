@@ -1,17 +1,18 @@
 import sqlite3
 from datetime import datetime
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 import pandas as pd
 from io import BytesIO
 
-from config import DB_PATH
+from agencies_db import get_db_path
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 
 @router.get("/prospects")
-def get_prospects():
-    conn = sqlite3.connect(DB_PATH)
+def get_prospects(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     cursor = conn.execute("SELECT * FROM prospects")
     prospects = [dict(row) for row in cursor.fetchall()]
@@ -20,12 +21,12 @@ def get_prospects():
 
 
 @router.post("/prospects/import")
-async def import_prospects(file: UploadFile = File(...)):
+async def import_prospects(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
     contents = await file.read()
     df = pd.read_excel(BytesIO(contents), sheet_name="Prospects")
     df.columns = df.columns.str.strip()
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("DELETE FROM prospects")
 
     for _, row in df.iterrows():
@@ -59,8 +60,8 @@ async def import_prospects(file: UploadFile = File(...)):
 
 
 @router.post("/prospects/add")
-def add_prospect(prospect: dict):
-    conn = sqlite3.connect(DB_PATH)
+def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -88,7 +89,6 @@ def add_prospect(prospect: dict):
     ))
 
     prospect_id = cursor.lastrowid
-
     conn.commit()
     conn.close()
 
@@ -96,14 +96,12 @@ def add_prospect(prospect: dict):
 
 
 @router.put("/prospects/{prospect_id}")
-def update_prospect(prospect_id: int, prospect: dict):
-    conn = sqlite3.connect(DB_PATH)
+def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
-    # Vérifier si le prospect existe
     existing = conn.execute("SELECT id FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
     if not existing:
         conn.close()
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Prospect non trouvé")
 
     conn.execute('''
@@ -139,22 +137,18 @@ def update_prospect(prospect_id: int, prospect: dict):
 
 
 @router.delete("/prospects/{prospect_id}")
-def delete_prospect(prospect_id: int):
-    conn = sqlite3.connect(DB_PATH)
-
-    # Supprimer les matchings associés
+def delete_prospect(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("DELETE FROM matchings WHERE prospect_id = ?", (prospect_id,))
-    # Supprimer le prospect
     conn.execute("DELETE FROM prospects WHERE id = ?", (prospect_id,))
-
     conn.commit()
     conn.close()
     return {"message": "Prospect supprimé"}
 
 
 @router.patch("/prospects/{prospect_id}/archiver")
-def archiver_prospect(prospect_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def archiver_prospect(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("UPDATE prospects SET archive = 1 WHERE id = ?", (prospect_id,))
     conn.commit()
     conn.close()
@@ -162,8 +156,8 @@ def archiver_prospect(prospect_id: int):
 
 
 @router.patch("/prospects/{prospect_id}/desarchiver")
-def desarchiver_prospect(prospect_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def desarchiver_prospect(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.execute("UPDATE prospects SET archive = 0 WHERE id = ?", (prospect_id,))
     conn.commit()
     conn.close()
@@ -171,12 +165,11 @@ def desarchiver_prospect(prospect_id: int):
 
 
 @router.get("/prospects/{prospect_id}")
-def get_prospect(prospect_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def get_prospect(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
     prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (prospect_id,)).fetchone()
     conn.close()
     if not prospect:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Prospect non trouvé")
     return dict(prospect)

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus } from 'lucide-react'
 import Modal from '../components/Modal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 function NewProspectPage() {
   const navigate = useNavigate()
@@ -162,7 +162,7 @@ function NewProspectPage() {
     setShowOverlay(true)
     
     try {
-      await fetch(`${API_URL}/matching/run/${newProspectId}`, { method: 'POST' })
+      await apiFetch(`/matching/run/${newProspectId}`, { method: 'POST' })
       setShowOverlay(false)
       navigate('/matchings')
     } catch {
@@ -192,7 +192,7 @@ function NewProspectPage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/prospects/add`, {
+      const response = await apiFetch('/prospects/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend)

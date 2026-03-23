@@ -1,7 +1,7 @@
 // src/components/TagSelector.jsx
 import { useState, useRef, useEffect } from 'react'
 import { Flame, Sun, Snowflake, X } from 'lucide-react'
-import { API_URL } from '../config'
+import { apiFetch } from '../api'
 
 const TAGS = [
   { value: 'chaud', label: 'Chaud', icon: Flame, color: 'bg-red-500', lightBg: 'bg-red-50', text: 'text-red-600' },
@@ -28,7 +28,7 @@ function TagSelector({ prospectId, currentTag, onTagChange, size = 'md' }) {
   const handleSelectTag = async (tagValue) => {
     setSaving(true)
     try {
-      const response = await fetch(`${API_URL}/prospects/${prospectId}/tag`, {
+      const response = await apiFetch(`/prospects/${prospectId}/tag`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tag: tagValue })

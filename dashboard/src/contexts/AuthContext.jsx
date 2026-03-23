@@ -4,7 +4,6 @@
 // =====================================================
 
 import { createContext, useContext, useState, useEffect } from 'react'
-
 import { API_URL } from '../config'
 
 const AuthContext = createContext(null)
@@ -73,6 +72,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('token', data.access_token)
       setToken(data.access_token)
       setUser(data.user)
+      window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: data.access_token } }))
 
       return { success: true }
     } catch (error) {
@@ -99,6 +99,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('token', data.access_token)
       setToken(data.access_token)
       setUser(data.user)
+      window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: data.access_token } }))
 
       return { success: true }
     } catch (error) {
@@ -111,6 +112,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
+    window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: null } }))
   }
 
   // Fonction pour les requêtes authentifiées

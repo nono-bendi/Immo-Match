@@ -1,10 +1,9 @@
 import sqlite3
 from datetime import datetime
-from config import DB_PATH
 
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
+def init_db(db_path: str = "immomatch.db"):
+    conn = sqlite3.connect(db_path)
     conn.execute('''
         CREATE TABLE IF NOT EXISTS prospects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
