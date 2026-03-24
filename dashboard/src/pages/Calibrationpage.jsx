@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, BarChart2, CheckCircle, AlertCircle, AlertTriangle, Target, Loader2, X, Home, Euro, Maximize2, BedDouble, MapPin } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, BarChart2, CheckCircle, AlertCircle, AlertTriangle, Target, Loader2, X, Home, Euro, Maximize2, BedDouble, MapPin } from 'lucide-react'
 import { apiFetch } from '../api'
+import { useAuth } from '../contexts/AuthContext'
 
 function formatPrix(prix) {
   if (!prix) return '—'
@@ -109,6 +110,7 @@ function BienDetailModal({ m, onClose }) {
 }
 
 export default function CalibrationPage() {
+  const { token } = useAuth()
   const [matchings, setMatchings] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentIdx, setCurrentIdx] = useState(0)
@@ -120,13 +122,14 @@ export default function CalibrationPage() {
   const [scoreAvis, setScoreAvis] = useState(null)
   const [commentaire, setCommentaire] = useState('')
 
-  useEffect(() => { loadMatchings() }, [])
+  useEffect(() => { if (token) loadMatchings() }, [token])
 
   const loadMatchings = async () => {
     setLoading(true)
     try {
       const res = await apiFetch('/calibration/matchings')
       const data = await res.json()
+      if (!Array.isArray(data)) return
       setMatchings(data)
       const first = data.findIndex(m => m.pertinent === null)
       setCurrentIdx(first >= 0 ? first : 0)
