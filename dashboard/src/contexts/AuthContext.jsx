@@ -5,6 +5,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react'
 import { API_URL } from '../config'
+import { setModuleToken } from '../api'
 
 const AuthContext = createContext(null)
 
@@ -34,15 +35,18 @@ export function AuthProvider({ children }) {
           const userData = await response.json()
           setUser(userData)
           setToken(storedToken)
+          setModuleToken(storedToken)
         } else {
           // Token invalide, on le supprime
           localStorage.removeItem('token')
+          setModuleToken(null)
           setToken(null)
           setUser(null)
         }
       } catch (error) {
         console.error('Erreur vérification auth:', error)
         localStorage.removeItem('token')
+        setModuleToken(null)
         setToken(null)
         setUser(null)
       }
@@ -70,6 +74,7 @@ export function AuthProvider({ children }) {
 
       // Stocker le token
       localStorage.setItem('token', data.access_token)
+      setModuleToken(data.access_token)
       setToken(data.access_token)
       setUser(data.user)
       window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: data.access_token } }))
@@ -97,6 +102,7 @@ export function AuthProvider({ children }) {
 
       // Stocker le token
       localStorage.setItem('token', data.access_token)
+      setModuleToken(data.access_token)
       setToken(data.access_token)
       setUser(data.user)
       window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: data.access_token } }))
@@ -110,6 +116,7 @@ export function AuthProvider({ children }) {
   // Fonction de déconnexion
   const logout = () => {
     localStorage.removeItem('token')
+    setModuleToken(null)
     setToken(null)
     setUser(null)
     window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: null } }))
