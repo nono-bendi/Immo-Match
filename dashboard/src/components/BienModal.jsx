@@ -3,16 +3,35 @@ import { useNavigate } from 'react-router-dom'
 import {
   Building2, MapPin, Maximize, Home, X, Euro,
   Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight,
-  Sparkles, Loader2, CheckCircle2, AlertCircle, ArrowRight
+  Sparkles, Loader2, CheckCircle2, AlertCircle, ArrowRight,
+  Link, Save, ExternalLink
 } from 'lucide-react'
 import { apiFetch } from '../api'
 
 function BienModal({ bien, onClose }) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
-  const [analyseState, setAnalyseState] = useState('idle') // idle | loading | done | error
+  const [analyseState, setAnalyseState] = useState('idle')
   const [analyseResult, setAnalyseResult] = useState(null)
   const [matchingsCount, setMatchingsCount] = useState(0)
+  const [lien, setLien] = useState(bien?.lien_annonce || '')
+  const [lienSaving, setLienSaving] = useState(false)
+  const [lienSaved, setLienSaved] = useState(false)
   const navigate = useNavigate()
+
+  const saveLien = async () => {
+    setLienSaving(true)
+    try {
+      await apiFetch(`/biens/${bien.id}/lien`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lien_annonce: lien.trim() })
+      })
+      bien.lien_annonce = lien.trim()
+      setLienSaved(true)
+      setTimeout(() => setLienSaved(false), 2000)
+    } catch { /* ignore */ }
+    setLienSaving(false)
+  }
 
   const lancerAnalyse = async () => {
     setAnalyseState('loading')
@@ -177,20 +196,42 @@ function BienModal({ bien, onClose }) {
             </div>
           )}
 
-          {/* Vendeur / Lien */}
-          <div className="flex items-center gap-4">
-            {bien.vendeur && (
-              <div className="flex-1 p-3 bg-blue-50 rounded-xl">
-                <p className="text-xs text-blue-400 mb-1">Vendeur</p>
-                <p className="text-sm font-medium text-blue-700">{bien.vendeur}</p>
-              </div>
-            )}
-            {bien.lien_annonce && (
-              <a href={bien.lien_annonce} target="_blank" rel="noopener noreferrer" className="flex-1 p-3 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
-                <p className="text-xs text-emerald-400 mb-1">Annonce</p>
-                <p className="text-sm font-medium text-emerald-700">Voir sur le site →</p>
+          {/* Vendeur */}
+          {bien.vendeur && (
+            <div className="p-3 bg-blue-50 rounded-xl">
+              <p className="text-xs text-blue-400 mb-1">Vendeur</p>
+              <p className="text-sm font-medium text-blue-700">{bien.vendeur}</p>
+            </div>
+          )}
+
+          {/* Lien annonce externe */}
+          <div className="p-4 bg-gray-50 rounded-xl space-y-2">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1.5">
+              <Link size={12} /> Lien annonce externe
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={lien}
+                onChange={e => { setLien(e.target.value); setLienSaved(false) }}
+                placeholder="https://www.site-agence.fr/annonce/..."
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+              />
+              <button
+                onClick={saveLien}
+                disabled={lienSaving}
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all"
+              >
+                {lienSaving ? <Loader2 size={14} className="animate-spin" /> : lienSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+                {lienSaved ? 'Sauvegardé' : 'Sauvegarder'}
+              </button>
+            </div>
+            {lien && lien.startsWith('http') && (
+              <a href={lien} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-800 font-medium">
+                <ExternalLink size={11} /> Ouvrir le lien
               </a>
             )}
+            <p className="text-xs text-gray-400">Si renseigné, la page publique redirige vers ce lien.</p>
           </div>
 
           {/* Description */}

@@ -10,6 +10,7 @@ import EmailModal from '../components/EmailModal'
 import Pagination from '../components/Pagination'
 
 import { apiFetch } from '../api'
+import { API_URL } from '../config'
 import { useAgency } from '../contexts/AgencyContext'
 
 const getInitials = (name) => {
@@ -303,7 +304,7 @@ function MatchingsPage() {
           points_forts: content.points_forts || null,
           points_attention: content.points_attention || null,
           recommandation: content.recommandation || null,
-          lien_annonce: match.lien_annonce || null,
+          lien_annonce: match.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: content.intro || null,
           custom_conclusion: content.conclusion || null
@@ -387,7 +388,7 @@ function MatchingsPage() {
           points_forts: emailContent.points_forts || null,
           points_attention: emailContent.points_attention || null,
           recommandation: emailContent.recommandation || null,
-          lien_annonce: match.lien_annonce || null,
+          lien_annonce: match.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: emailContent.intro || null,
           custom_conclusion: emailContent.conclusion || null

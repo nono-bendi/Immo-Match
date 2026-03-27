@@ -80,6 +80,14 @@ def parse_hektor_cols(cols):
     ges_co2 = to_int(179)
     latitude = to_float(297)
     longitude = to_float(298)
+    video_url = g(103) if g(103).startswith("http") else ""
+
+    nb_salles_bain  = to_int(28)
+    nb_salles_eau   = to_int(29)
+    nb_wc           = to_int(30)
+    surface_cave    = to_float(251)
+    prix_hn         = to_float(302)
+    honoraires_pct  = to_float(14)
 
     # --- Photos (col 85-93 + 164-173) ---
     photo_indices = list(range(85, 94)) + list(range(164, 174))
@@ -136,6 +144,13 @@ def parse_hektor_cols(cols):
         "ges_co2": ges_co2,
         "latitude": latitude,
         "longitude": longitude,
+        "video_url": video_url,
+        "nb_salles_bain": nb_salles_bain,
+        "nb_salles_eau": nb_salles_eau,
+        "nb_wc": nb_wc,
+        "surface_cave": surface_cave,
+        "prix_hn": prix_hn,
+        "honoraires_pct": honoraires_pct,
     }
 
 
@@ -239,7 +254,10 @@ async def import_hektor(file: UploadFile = File(...), current_user: dict = Depen
                         nb_parkings=?, nb_boxes=?, terrasse=?, nb_balcons=?,
                         orientation_sud=?, orientation_est=?, orientation_ouest=?, orientation_nord=?,
                         dpe_lettre=?, dpe_kwh=?, ges_lettre=?, ges_co2=?,
-                        latitude=?, longitude=?, date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
+                        latitude=?, longitude=?, video_url=?,
+                        nb_salles_bain=?, nb_salles_eau=?, nb_wc=?,
+                        surface_cave=?, prix_hn=?, honoraires_pct=?,
+                        date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
                     WHERE reference=?
                 ''', (
                     d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
@@ -249,7 +267,10 @@ async def import_hektor(file: UploadFile = File(...), current_user: dict = Depen
                     d["nb_parkings"], d["nb_boxes"], d["terrasse"], d["nb_balcons"],
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
-                    d["latitude"], d["longitude"], datetime.now().isoformat(),
+                    d["latitude"], d["longitude"], d["video_url"],
+                    d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"],
+                    d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
+                    datetime.now().isoformat(),
                     d["nom_agence"], "actif", "ftp",
                     d["reference"]
                 ))
@@ -263,8 +284,11 @@ async def import_hektor(file: UploadFile = File(...), current_user: dict = Depen
                         nb_parkings, nb_boxes, terrasse, nb_balcons,
                         orientation_sud, orientation_est, orientation_ouest, orientation_nord,
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
-                        latitude, longitude, date_ajout, nom_agence, source
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        latitude, longitude, video_url,
+                        nb_salles_bain, nb_salles_eau, nb_wc,
+                        surface_cave, prix_hn, honoraires_pct,
+                        date_ajout, nom_agence, source
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -273,8 +297,10 @@ async def import_hektor(file: UploadFile = File(...), current_user: dict = Depen
                     d["nb_parkings"], d["nb_boxes"], d["terrasse"], d["nb_balcons"],
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
-                    d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"], "ftp"
+                    d["latitude"], d["longitude"], d["video_url"],
+                    d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"],
+                    d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
+                    datetime.now().isoformat(), d["nom_agence"], "ftp"
                 ))
                 imported += 1
 
@@ -385,6 +411,15 @@ def update_bien(bien_id: int, bien: dict, current_user: dict = Depends(get_curre
     conn.commit()
     conn.close()
     return {"message": "Bien mis à jour"}
+
+
+@router.patch("/biens/{bien_id}/lien")
+def patch_bien_lien(bien_id: int, data: dict, current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    conn.execute("UPDATE biens SET lien_annonce = ? WHERE id = ?", (data.get("lien_annonce", ""), bien_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Lien mis à jour"}
 
 
 @router.patch("/biens/{bien_id}/defauts")

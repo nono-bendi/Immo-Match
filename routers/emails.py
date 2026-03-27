@@ -14,6 +14,27 @@ from routers.auth import require_not_demo, get_current_user
 router = APIRouter()
 
 
+def _lighten(hex_color: str, factor: float = 0.35) -> str:
+    h = hex_color.lstrip('#')
+    if len(h) != 6:
+        return hex_color
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    r = int(r + (255 - r) * factor)
+    g = int(g + (255 - g) * factor)
+    b = int(b + (255 - b) * factor)
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+def _darken(hex_color: str, factor: float = 0.25) -> str:
+    h = hex_color.lstrip('#')
+    if len(h) != 6:
+        return hex_color
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    r = int(r * (1 - factor))
+    g = int(g * (1 - factor))
+    b = int(b * (1 - factor))
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
 # ============================================================
 # FONCTIONS UTILITAIRES EMAIL
 # ============================================================
@@ -134,6 +155,8 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     """Génère un email HTML professionnel et personnalisé."""
     agency = agency or {}
     color = escape((agency.get("agency_couleur") or agency.get("couleur_primaire") or "#1E3A5F").strip())
+    color_light = _lighten(color, 0.18)
+    color_dark  = _darken(color, 0.22)
     agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
 
     raw_name = (data.to_name or "").strip()
@@ -236,13 +259,21 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     if has_annonce:
         cta_block = f"""
         <tr>
-          <td align="center" style="padding:8px 40px 32px 40px;">
+          <td align="center" style="padding:16px 40px 40px 40px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="background:{color};border-radius:8px;">
+                <td align="center" style="border-radius:12px;background:{color};background-image:linear-gradient(180deg,{color_light} 0%,{color_dark} 100%);box-shadow:0 6px 20px rgba(0,0,0,0.18);">
                   <a href="{safe_annonce_url}" target="_blank" rel="noopener noreferrer"
-                     style="display:inline-block;padding:14px 36px;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:600;">
-                    Découvrir ce bien
+                     style="display:inline-block;padding:18px 52px;color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:0.05em;border-radius:12px;">
+                    Voir ce bien &rarr;
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding-top:10px;">
+                  <a href="{safe_annonce_url}" target="_blank" rel="noopener noreferrer"
+                     style="font-size:11px;color:#9CA3AF;text-decoration:underline;">
+                    Ouvrir le lien dans votre navigateur
                   </a>
                 </td>
               </tr>

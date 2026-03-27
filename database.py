@@ -213,6 +213,28 @@ def init_db(db_path: str = "immomatch.db"):
         conn.commit()
     except Exception:
         pass
+    try:
+        conn.execute("ALTER TABLE biens ADD COLUMN video_url TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
+    # Migration : nouvelles colonnes Hektor (sanitaires, finances)
+    nouvelles_colonnes_v2 = [
+        ('nb_salles_bain',  'INTEGER'),
+        ('nb_salles_eau',   'INTEGER'),
+        ('nb_wc',           'INTEGER'),
+        ('surface_cave',    'REAL'),
+        ('prix_hn',         'REAL'),
+        ('honoraires_pct',  'REAL'),
+    ]
+    for col_name, col_type in nouvelles_colonnes_v2:
+        try:
+            conn.execute(f'ALTER TABLE biens ADD COLUMN {col_name} {col_type}')
+            conn.commit()
+        except Exception:
+            pass
+
     # Initialiser date_vendu pour les biens déjà marqués vendus (seront supprimés dans 2 jours)
     conn.execute(
         "UPDATE biens SET date_vendu = ? WHERE statut = 'vendu' AND date_vendu IS NULL",
