@@ -124,6 +124,8 @@ export default function AdministrationPage() {
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState(null)
   const [lastSync, setLastSync] = useState(null)
+  const [lastSyncError, setLastSyncError] = useState(null)
+  const [lastSyncErrorAt, setLastSyncErrorAt] = useState(null)
 
   // ── Claude usage ──────────────────────────────────────────────────────────
   const [claudeUsage, setClaudeUsage] = useState(null)
@@ -146,6 +148,10 @@ export default function AdministrationPage() {
 
     apiFetch('/sync-status').then(r => r.json()).then(d => {
       if (d.last_sync) setLastSync(new Date(d.last_sync))
+      if (d.last_sync_error) {
+        setLastSyncError(d.last_sync_error)
+        setLastSyncErrorAt(d.last_sync_error_at ? new Date(d.last_sync_error_at) : null)
+      }
     }).catch(() => {})
 
     if (isAdmin) {
@@ -309,7 +315,8 @@ export default function AdministrationPage() {
       const r = await apiFetch('/sync-hektor', { method: 'POST' })
       const d = await r.json()
       setSyncResult(d)
-      if (d.success) setLastSync(new Date())
+      if (d.success) { setLastSync(new Date()); setLastSyncError(null); setLastSyncErrorAt(null) }
+      if (d.error) { setLastSyncError(d.error); setLastSyncErrorAt(new Date()) }
     } catch { setSyncResult({ error: 'Erreur de connexion' }) }
     setSyncing(false)
   }
@@ -894,6 +901,22 @@ export default function AdministrationPage() {
           </label>
         </div>
 
+        {/* Erreur FTP persistante */}
+        {lastSyncError && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-3">
+            <AlertTriangle size={16} className="text-red-500 mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-red-700">Dernière sync en erreur
+                {lastSyncErrorAt && <span className="font-normal text-red-500 ml-1">· {lastSyncErrorAt.toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>}
+              </p>
+              <p className="text-xs text-red-600 mt-0.5 break-words">{lastSyncError}</p>
+            </div>
+            <button onClick={() => setLastSyncError(null)} className="text-red-400 hover:text-red-600 shrink-0">
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
         {/* Sync manuelle */}
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3 flex-wrap">
           <button onClick={handleSync} disabled={syncing}
@@ -908,7 +931,9 @@ export default function AdministrationPage() {
           )}
           {syncResult && (
             <span className={`text-xs font-medium px-3 py-1.5 rounded-lg ${syncResult.success ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
-              {syncResult.success ? `${syncResult.nouveaux_biens ?? 0} nouveaux biens` : syncResult.error || 'Erreur'}
+              {syncResult.success
+                ? `✓ ${syncResult.imported ?? 0} importés · ${syncResult.updated ?? 0} mis à jour · ${syncResult.vendu ?? 0} vendus`
+                : syncResult.error || 'Erreur'}
             </span>
           )}
         </div>

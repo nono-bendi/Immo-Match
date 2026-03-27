@@ -3,6 +3,7 @@ from logger import get_logger
 log = get_logger('sync')
 import os
 import re
+import socket
 import zipfile
 import ftplib
 import threading
@@ -206,9 +207,10 @@ def sync_hektor_ftp(db_path: str = None):
 
         conn.commit()
 
-        # Sauvegarder la date de dernière sync
+        # Sauvegarder la date de dernière sync et effacer l'erreur précédente
         cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
                        ("last_hektor_sync", datetime.now().isoformat()))
+        cursor.execute("DELETE FROM settings WHERE key IN ('last_sync_error', 'last_sync_error_at')")
         conn.commit()
 
         # Créer une notification si nouveaux biens ou vendus
@@ -246,9 +248,37 @@ def sync_hektor_ftp(db_path: str = None):
         log.info(f"Import : {imported} nouveaux, {updated} mis à jour, {vendu} vendus, {skipped} ignorés")
         return {"success": True, "imported": imported, "updated": updated, "vendu": vendu, "skipped": skipped}
 
+    except ftplib.error_perm as e:
+        msg = f"Authentification FTP échouée : {e}"
+        log.error(msg)
+    except (socket.gaierror, ConnectionRefusedError, OSError) as e:
+        msg = f"Impossible de joindre le serveur FTP ({ftp_host}) : {e}"
+        log.error(msg)
+    except TimeoutError as e:
+        msg = f"Connexion FTP expirée (timeout) : {e}"
+        log.error(msg)
+    except zipfile.BadZipFile as e:
+        msg = f"Le fichier téléchargé n'est pas un ZIP valide : {e}"
+        log.error(msg)
     except Exception as e:
-        log.error(f"Erreur sync : {e}")
-        return {"error": "Une erreur interne est survenue"}
+        msg = f"Erreur inattendue lors de la sync FTP : {e}"
+        log.error(msg)
+    # Persister l'erreur dans les settings pour affichage persistant dans l'UI
+    try:
+        _conn = sqlite3.connect(db_path)
+        _conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+                      ("last_sync_error", msg))
+        _conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+                      ("last_sync_error_at", datetime.now().isoformat()))
+        _conn.execute('''
+            INSERT INTO notifications (type, title, message, link, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ('sync_error', 'Erreur sync FTP', msg, '/administration', datetime.now().isoformat()))
+        _conn.commit()
+        _conn.close()
+    except Exception:
+        pass
+    return {"error": msg}
 
 
 def sync_all_agencies():
@@ -292,6 +322,8 @@ def sync_status(current_user: dict = Depends(get_current_user)):
     cursor = conn.cursor()
     last_sync = cursor.execute("SELECT value FROM settings WHERE key = 'last_hektor_sync'").fetchone()
     interval = cursor.execute("SELECT value FROM settings WHERE key = 'sync_interval_hours'").fetchone()
+    last_error = cursor.execute("SELECT value FROM settings WHERE key = 'last_sync_error'").fetchone()
+    last_error_at = cursor.execute("SELECT value FROM settings WHERE key = 'last_sync_error_at'").fetchone()
     conn.close()
 
     next_run = None
@@ -307,7 +339,9 @@ def sync_status(current_user: dict = Depends(get_current_user)):
         "last_sync": last_sync[0] if last_sync else None,
         "next_sync": next_run,
         "interval_hours": int(interval[0]) if interval else 6,
-        "scheduler_running": scheduler_started
+        "scheduler_running": scheduler_started,
+        "last_sync_error": last_error[0] if last_error else None,
+        "last_sync_error_at": last_error_at[0] if last_error_at else None,
     }
 
 
@@ -337,5 +371,11 @@ def ftp_browse(path: str = "/", current_user: dict = Depends(get_current_user)):
 
         return {"path": path, "files": files}
 
+    except ftplib.error_perm as e:
+        return {"error": f"Authentification FTP échouée : {e}"}
+    except (socket.gaierror, ConnectionRefusedError, OSError) as e:
+        return {"error": f"Impossible de joindre le serveur FTP ({ftp_host}) : {e}"}
+    except TimeoutError as e:
+        return {"error": f"Connexion FTP expirée (timeout) : {e}"}
     except Exception as e:
-        return {"error": "Une erreur interne est survenue"}
+        return {"error": f"Erreur FTP : {e}"}
