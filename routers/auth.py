@@ -1,6 +1,7 @@
 import sqlite3
+import time
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 import bcrypt
@@ -9,6 +10,11 @@ from config import AUTH_CONFIG, security, security_optional, UserRegister, UserL
 import agencies_db as adb
 
 router = APIRouter()
+
+# ── Rate limiting login ───────────────────────────────────────────────────────
+_login_attempts: dict = {}   # { ip: [timestamp, ...] }
+_LOGIN_MAX  = 5              # tentatives max
+_LOGIN_WINDOW = 60           # fenêtre en secondes
 
 
 # ============================================================
@@ -148,15 +154,27 @@ def register(user_data: UserRegister):
 
 
 @router.post("/auth/login", response_model=TokenResponse)
-def login(user_data: UserLogin):
+def login(request: Request, user_data: UserLogin):
+    ip = request.client.host if request.client else "unknown"
+    now = time.time()
+
+    # Nettoyer les anciennes tentatives hors fenêtre
+    attempts = [t for t in _login_attempts.get(ip, []) if now - t < _LOGIN_WINDOW]
+    if len(attempts) >= _LOGIN_MAX:
+        retry_in = int(_LOGIN_WINDOW - (now - attempts[0]))
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Trop de tentatives. Réessayez dans {retry_in}s."
+        )
+
     user = adb.get_user_with_agency(user_data.email.lower())
 
-    if not user:
+    if not user or not verify_password(user_data.password, user["password_hash"]):
+        attempts.append(now)
+        _login_attempts[ip] = attempts
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email ou mot de passe incorrect")
 
-    if not verify_password(user_data.password, user["password_hash"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email ou mot de passe incorrect")
-
+    _login_attempts.pop(ip, None)  # Reset après succès
     access_token = create_access_token({"user_id": user["id"], "email": user["email"]})
 
     return {

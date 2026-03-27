@@ -79,9 +79,12 @@ class TokenResponse(BaseModel):
 # ── Application FastAPI ───────────────────────────────────────────────────────
 app = FastAPI()
 
+_cors_default = "http://localhost:5173,http://localhost:5174"
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", _cors_default).split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
