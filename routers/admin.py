@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from agencies_db import AGENCIES_DB_PATH
-from routers.auth import require_admin
+from routers.auth import require_admin, get_current_user
 
 router = APIRouter()
 
@@ -155,6 +155,13 @@ def update_agent(agent_id: int, data: UpdateAgent, current_user: dict = Depends(
     conn.commit()
     conn.close()
     return {"message": "Agent mis à jour"}
+
+
+@router.get("/admin/claude-usage")
+def get_claude_usage(current_user: dict = Depends(get_current_user)):
+    """Retourne l'usage Claude du mois courant pour l'agence connectée."""
+    from agencies_db import get_claude_usage
+    return get_claude_usage(current_user["agency_slug"])
 
 
 @router.delete("/admin/agents/{agent_id}")

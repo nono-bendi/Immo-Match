@@ -54,6 +54,19 @@ def init_agencies_db():
 
     conn.commit()
 
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS claude_usage (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            agency_slug     TEXT NOT NULL,
+            year_month      TEXT NOT NULL,
+            nb_appels       INTEGER DEFAULT 0,
+            input_tokens    INTEGER DEFAULT 0,
+            output_tokens   INTEGER DEFAULT 0,
+            UNIQUE(agency_slug, year_month)
+        )
+    ''')
+    conn.commit()
+
     # ── Migration : colonnes ajoutées après la création initiale ──────────────
     for col, definition in [
         ("logo_fond_colore", "INTEGER DEFAULT 0"),
@@ -216,3 +229,35 @@ def email_exists(email: str) -> bool:
     row = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
     conn.close()
     return row is not None
+
+
+def track_claude_usage(agency_slug: str, input_tokens: int, output_tokens: int):
+    """Incrémente le compteur d'usage Claude pour l'agence ce mois-ci."""
+    from datetime import datetime
+    ym = datetime.now().strftime("%Y-%m")
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    conn.execute("""
+        INSERT INTO claude_usage (agency_slug, year_month, nb_appels, input_tokens, output_tokens)
+        VALUES (?, ?, 1, ?, ?)
+        ON CONFLICT(agency_slug, year_month) DO UPDATE SET
+            nb_appels     = nb_appels + 1,
+            input_tokens  = input_tokens + excluded.input_tokens,
+            output_tokens = output_tokens + excluded.output_tokens
+    """, (agency_slug, ym, input_tokens, output_tokens))
+    conn.commit()
+    conn.close()
+
+
+def get_claude_usage(agency_slug: str, year_month: str = None) -> dict:
+    """Retourne l'usage Claude pour un mois donné (défaut : mois courant)."""
+    from datetime import datetime
+    ym = year_month or datetime.now().strftime("%Y-%m")
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    row = conn.execute(
+        "SELECT nb_appels, input_tokens, output_tokens FROM claude_usage WHERE agency_slug=? AND year_month=?",
+        (agency_slug, ym)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return {"nb_appels": 0, "input_tokens": 0, "output_tokens": 0, "year_month": ym}
+    return {"nb_appels": row[0], "input_tokens": row[1], "output_tokens": row[2], "year_month": ym}

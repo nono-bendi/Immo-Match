@@ -241,7 +241,7 @@ def _core_analyser_bien(bien_id: int, db_path: str = None) -> dict:
                 continue
 
             try:
-                resultats = scorer_biens_hybride(prospect, [bien], model=settings["model"])
+                resultats = scorer_biens_hybride(prospect, [bien], model=settings["model"], agency_slug=db_path.split("/")[-1].replace(".db",""))
             except Exception as e:
                 log.error(f"Erreur Claude prospect #{prospect.get('id')}: {e}")
                 continue
@@ -578,7 +578,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
             return {"error": "Clé API Anthropic non configurée"}
 
         # Scoring hybride (objectif Python + qualitatif Claude)
-        resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
+        resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'], agency_slug=current_user["agency_slug"])
         resultat_brut = formater_pour_affichage(resultats)
 
         conn = sqlite3.connect(db_path)
@@ -735,7 +735,7 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
             biens_filtres = sorted(biens_filtres, key=lambda b: abs((b.get("prix") or 0) - budget_client))[:max_biens]
 
             try:
-                resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'])
+                resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'], agency_slug=current_user["agency_slug"])
             except Exception as e:
                 log.error(f"Erreur Claude pour {prospect.get('nom')}: {e}")
                 continue  # On garde les anciens matchings, on ne touche pas à la DB

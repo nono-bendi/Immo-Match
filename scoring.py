@@ -230,7 +230,7 @@ def construire_contexte_prospect(prospect):
     return "\n".join(lignes)
 
 
-def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='claude-sonnet-4-20250514'):
+def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='claude-sonnet-4-20250514', agency_slug=None):
     """
     Demande à Claude uniquement le score qualitatif /40.
     Retourne un dict avec score_qualitatif, points_forts, points_attention, recommandation.
@@ -313,6 +313,13 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
         messages=[{"role": "user", "content": prompt}]
     )
 
+    if agency_slug:
+        try:
+            from agencies_db import track_claude_usage
+            track_claude_usage(agency_slug, message.usage.input_tokens, message.usage.output_tokens)
+        except Exception:
+            pass
+
     raw = message.content[0].text.strip()
 
     # Nettoyage au cas où Claude ajoute des backticks
@@ -329,7 +336,7 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
 # PARTIE 3 — ORCHESTRATEUR PRINCIPAL
 # ============================================================
 
-def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514'):
+def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514', agency_slug=None):
     """
     Point d'entrée principal. Remplace scorer_biens() de prompt_scoring.py.
     Retourne une liste de résultats triés par score final décroissant.
@@ -342,7 +349,7 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514'):
 
         # 2. Score qualitatif (Claude)
         try:
-            qualitatif = scorer_bien_claude(prospect, bien, score_obj, detail_obj, model=model)
+            qualitatif = scorer_bien_claude(prospect, bien, score_obj, detail_obj, model=model, agency_slug=agency_slug)
         except Exception as e:
             log.error(f"Erreur Claude pour bien #{bien.get('id')}: {e}")
             qualitatif = {

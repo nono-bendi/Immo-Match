@@ -125,6 +125,10 @@ export default function AdministrationPage() {
   const [syncResult, setSyncResult] = useState(null)
   const [lastSync, setLastSync] = useState(null)
 
+  // ── Claude usage ──────────────────────────────────────────────────────────
+  const [claudeUsage, setClaudeUsage] = useState(null)
+  const CLAUDE_LIMIT = 3000
+
   // ── Misc UI ──────────────────────────────────────────────────────────────
   const [showApiKey, setShowApiKey] = useState(false)
   const [showFtpPass, setShowFtpPass] = useState(false)
@@ -135,6 +139,9 @@ export default function AdministrationPage() {
   useEffect(() => {
     apiFetch('/settings').then(r => r.json()).then(d => {
       if (d && !d.error) setSettings(p => ({ ...p, ...d }))
+    }).catch(() => {})
+    apiFetch('/admin/claude-usage').then(r => r.json()).then(d => {
+      if (d && !d.error) setClaudeUsage(d)
     }).catch(() => {})
 
     apiFetch('/sync-status').then(r => r.json()).then(d => {
@@ -738,6 +745,36 @@ export default function AdministrationPage() {
           </div>
         </Field>
       </Section>
+
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      {/* USAGE CLAUDE CE MOIS                                             */}
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      {claudeUsage && (
+        <div className={`rounded-2xl border p-5 ${claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'bg-red-50 border-red-200' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Cpu size={16} className={claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'text-red-500' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'text-amber-500' : 'text-gray-400'} />
+              <span className="text-sm font-semibold text-gray-700">Usage Claude — {claudeUsage.year_month}</span>
+            </div>
+            <span className={`text-sm font-bold ${claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'text-red-600' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'text-amber-600' : 'text-gray-600'}`}>
+              {claudeUsage.nb_appels} / {CLAUDE_LIMIT} appels
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+            <div
+              className={`h-2 rounded-full transition-all ${claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'bg-red-500' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'bg-amber-400' : 'bg-emerald-500'}`}
+              style={{ width: `${Math.min(100, (claudeUsage.nb_appels / CLAUDE_LIMIT) * 100)}%` }}
+            />
+          </div>
+          <div className="flex gap-4 text-xs text-gray-500">
+            <span>{(claudeUsage.input_tokens || 0).toLocaleString('fr-FR')} tokens entrants</span>
+            <span>{(claudeUsage.output_tokens || 0).toLocaleString('fr-FR')} tokens sortants</span>
+          </div>
+          {claudeUsage.nb_appels >= CLAUDE_LIMIT && (
+            <p className="mt-2 text-xs font-medium text-red-600">⚠️ Limite atteinte — vérifiez votre consommation API Anthropic</p>
+          )}
+        </div>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════════ */}
       {/* 5. PRÉFÉRENCES D'ANALYSE                                         */}
