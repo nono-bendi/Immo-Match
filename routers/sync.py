@@ -129,7 +129,9 @@ def sync_hektor_ftp(db_path: str = None):
                         nb_parkings=?, nb_boxes=?, terrasse=?, nb_balcons=?,
                         orientation_sud=?, orientation_est=?, orientation_ouest=?, orientation_nord=?,
                         dpe_lettre=?, dpe_kwh=?, ges_lettre=?, ges_co2=?,
-                        latitude=?, longitude=?, date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
+                        latitude=?, longitude=?, video_url=?,
+                        nb_salles_bain=?, nb_salles_eau=?, nb_wc=?, surface_cave=?, prix_hn=?, honoraires_pct=?,
+                        date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
                     WHERE reference=?
                 ''', (
                     d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
@@ -139,8 +141,9 @@ def sync_hektor_ftp(db_path: str = None):
                     d["nb_parkings"], d["nb_boxes"], d["terrasse"], d["nb_balcons"],
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
-                    d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"], "actif", "ftp",
+                    d["latitude"], d["longitude"], d["video_url"],
+                    d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"], d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
+                    datetime.now().isoformat(), d["nom_agence"], "actif", "ftp",
                     d["reference"]
                 ))
                 updated += 1
@@ -153,8 +156,10 @@ def sync_hektor_ftp(db_path: str = None):
                         nb_parkings, nb_boxes, terrasse, nb_balcons,
                         orientation_sud, orientation_est, orientation_ouest, orientation_nord,
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
-                        latitude, longitude, date_ajout, nom_agence, source
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        latitude, longitude, video_url,
+                        nb_salles_bain, nb_salles_eau, nb_wc, surface_cave, prix_hn, honoraires_pct,
+                        date_ajout, nom_agence, source
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -163,8 +168,9 @@ def sync_hektor_ftp(db_path: str = None):
                     d["nb_parkings"], d["nb_boxes"], d["terrasse"], d["nb_balcons"],
                     d["orientation_sud"], d["orientation_est"], d["orientation_ouest"], d["orientation_nord"],
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
-                    d["latitude"], d["longitude"], datetime.now().isoformat(),
-                    d["nom_agence"], "ftp"
+                    d["latitude"], d["longitude"], d["video_url"],
+                    d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"], d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
+                    datetime.now().isoformat(), d["nom_agence"], "ftp"
                 ))
                 nouveau_id = cursor.lastrowid
                 nouveaux_bien_ids.append(nouveau_id)
