@@ -4,7 +4,7 @@ from config import app
 from database import init_db
 from agencies_db import init_agencies_db, all_agencies, get_db_path
 from routers import auth, biens, prospects, matchings, emails, sync, rapport, settings, notifications, calibration
-from routers import admin, public
+from routers import admin, public, agent
 
 # ── Initialisation de la DB centrale des agences ──────────────────────────────
 init_agencies_db()
@@ -26,6 +26,7 @@ app.include_router(notifications.router)
 app.include_router(calibration.router)
 app.include_router(admin.router)
 app.include_router(public.router)
+app.include_router(agent.router)
 
 # ── Fichiers statiques (logos agences) ────────────────────────────────────────
 os.makedirs("static/logos", exist_ok=True)

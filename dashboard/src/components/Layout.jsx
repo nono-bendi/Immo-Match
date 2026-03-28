@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import TutorialModal from './TutorialModal'
+import AgentChat from './AgentChat'
 import { useTheme } from '../contexts/ThemeContext'
 
 function Layout({ children }) {
@@ -51,6 +52,7 @@ function Layout({ children }) {
       </div>
 
       <TutorialModal open={showTuto} onClose={handleCloseTuto} />
+      <AgentChat />
     </div>
   )
 }

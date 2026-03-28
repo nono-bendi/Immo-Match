@@ -178,6 +178,8 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     safe_image_url = escape(image_url) if has_image else ""
 
     annonce_url = (data.lien_annonce or "").strip()
+    if not is_valid_http_url(annonce_url) and data.bien_id and data.agency_slug:
+        annonce_url = f"{APP_BASE_URL}/public/bien/{data.agency_slug}/{data.bien_id}"
     has_annonce = is_valid_http_url(annonce_url)
     safe_annonce_url = escape(annonce_url) if has_annonce else ""
 

@@ -50,6 +50,8 @@ class EmailRequest(BaseModel):
     points_attention: Optional[str] = None
     recommandation: Optional[str] = None
     lien_annonce: Optional[str] = None
+    bien_id: Optional[int] = None
+    agency_slug: Optional[str] = None
     bien_image_url: Optional[str] = None
     custom_intro: Optional[str] = None
     custom_conclusion: Optional[str] = None
