@@ -192,6 +192,33 @@ def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_
     } for r in rows], ensure_ascii=False)
 
 
+def biens_recents(db_path, jours=7):
+    from datetime import datetime, timedelta
+    depuis = (datetime.now() - timedelta(days=jours)).isoformat()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT reference, type, ville, quartier, prix, surface, pieces, date_ajout, source, statut
+        FROM biens
+        WHERE date_ajout >= ? AND statut = 'actif'
+        ORDER BY date_ajout DESC
+    """, (depuis,)).fetchall()
+    conn.close()
+    return json.dumps({
+        "periode": f"{jours} derniers jours",
+        "nb_biens": len(rows),
+        "biens": [{
+            "date": r["date_ajout"][:10] if r["date_ajout"] else None,
+            "reference": r["reference"],
+            "type": r["type"],
+            "ville": r["ville"],
+            "prix": r["prix"],
+            "surface": r["surface"],
+            "source": r["source"],
+        } for r in rows],
+    }, ensure_ascii=False)
+
+
 def stats_biens(db_path):
     """Stats completes : total, par type, par ville top 5, fourchettes prix."""
     conn = sqlite3.connect(db_path)
@@ -270,6 +297,16 @@ TOOLS_SCHEMA = [
         "name": "stats_biens",
         "description": "Statistiques completes : total de biens, repartition par type, top villes, fourchettes de prix. Utilise pour toute question de stats ou de repartition.",
         "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "biens_recents",
+        "description": "Biens ajoutés récemment sur une période donnée. Utilise pour 'nouveaux biens cette semaine', 'biens ajoutés ces 3 derniers jours', 'qu'est-ce qui a été importé récemment'.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "jours": {"type": "integer", "description": "Nombre de jours en arrière (défaut 7)"},
+            },
+        },
     },
     {
         "name": "stats_par_agence",
@@ -691,6 +728,7 @@ def guide_action(action):
 def run_tool(name, inputs, db_path):
     if name == "chercher_biens":         return chercher_biens(db_path, **inputs)
     if name == "stats_biens":            return stats_biens(db_path)
+    if name == "biens_recents":          return biens_recents(db_path, **inputs)
     if name == "stats_par_agence":       return stats_par_agence()
     if name == "fourchette_prix":        return fourchette_prix(db_path, **inputs)
     if name == "get_bien_par_reference": return get_bien_par_reference(db_path, **inputs)
