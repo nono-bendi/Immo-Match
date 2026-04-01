@@ -278,7 +278,8 @@ function MatchingsPage() {
     points_forts: match.points_forts || '',
     points_attention: match.points_attention || '',
     recommandation: match.recommandation || '',
-    conclusion: 'Ce bien vous intéresse ? N\'hésitez pas à me contacter pour organiser une visite ou obtenir plus d\'informations.'
+    conclusion: 'Ce bien vous intéresse ? N\'hésitez pas à me contacter pour organiser une visite ou obtenir plus d\'informations.',
+    lien_annonce: match.lien_annonce || ''
   })
 
   // Charge l'aperçu de l'email
@@ -304,7 +305,7 @@ function MatchingsPage() {
           points_forts: content.points_forts || null,
           points_attention: content.points_attention || null,
           recommandation: content.recommandation || null,
-          lien_annonce: match.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
+          lien_annonce: content.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: content.intro || null,
           custom_conclusion: content.conclusion || null
@@ -388,7 +389,7 @@ function MatchingsPage() {
           points_forts: emailContent.points_forts || null,
           points_attention: emailContent.points_attention || null,
           recommandation: emailContent.recommandation || null,
-          lien_annonce: match.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
+          lien_annonce: emailContent.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: emailContent.intro || null,
           custom_conclusion: emailContent.conclusion || null
@@ -451,7 +452,8 @@ function MatchingsPage() {
       points_forts: '',
       points_attention: '',
       recommandation: '',
-      conclusion: ''
+      conclusion: '',
+      lien_annonce: ''
     })
   }
 
