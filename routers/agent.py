@@ -207,7 +207,7 @@ def biens_recents(db_path, jours=7):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     rows = conn.execute("""
-        SELECT reference, type, ville, quartier, prix, surface, pieces, date_ajout, source, statut
+        SELECT reference, type, ville, quartier, prix, surface, pieces, date_creation, source, statut
         FROM biens
         WHERE date_creation >= ? AND statut = 'actif'
         ORDER BY date_creation DESC
@@ -764,6 +764,12 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=404, detail="Agence introuvable")
 
     def generate():
+        try:
+            yield from _generate(body, db_path)
+        except Exception as e:
+            yield f"Une erreur s'est produite : {str(e)}"
+
+    def _generate(body, db_path):
         # Construire le contexte de conversation depuis l'historique
         messages = []
         for msg in body.history[-10:]:  # max 10 messages = 5 tours
