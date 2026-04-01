@@ -213,18 +213,16 @@ def biens_recents(db_path, jours=7):
         ORDER BY date_creation DESC
     """, (depuis,)).fetchall()
     conn.close()
+    apercu = rows[:5]
     return json.dumps({
         "periode": f"{jours} derniers jours",
         "nb_biens": len(rows),
-        "biens": [{
+        "apercu": [{
             "date": r["date_creation"][:10] if r["date_creation"] else None,
-            "reference": r["reference"],
             "type": r["type"],
             "ville": r["ville"],
             "prix": r["prix"],
-            "surface": r["surface"],
-            "source": r["source"],
-        } for r in rows],
+        } for r in apercu],
     }, ensure_ascii=False)
 
 
