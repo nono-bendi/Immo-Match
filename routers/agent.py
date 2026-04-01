@@ -334,6 +334,16 @@ TOOLS_SCHEMA = [
         "input_schema": {"type": "object", "properties": {}},
     },
     {
+        "name": "matchings_recents",
+        "description": "Matchings générés sur une période récente. Utilise pour 'combien de matchings cette semaine', 'matchings des 3 derniers jours', 'qu\\'est-ce qui a été analysé récemment'.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "jours": {"type": "integer", "description": "Nombre de jours en arrière (défaut 7)"},
+            },
+        },
+    },
+    {
         "name": "prospects_non_traites",
         "description": "Retourne les prospects actifs qui n'ont jamais eu de matching, et ceux qui ont des matchings mais n'ont jamais reçu d'email. Utilise pour 'qui je devrais relancer', 'prospects pas encore contactés', 'qui n'a pas reçu de proposition'.",
         "input_schema": {"type": "object", "properties": {}},
@@ -513,6 +523,35 @@ def top_matchings(db_path, score_min=70, limit=8):
     } for r in rows], ensure_ascii=False)
 
 
+def matchings_recents(db_path, jours=7):
+    from datetime import datetime, timedelta
+    depuis = (datetime.now() - timedelta(days=jours)).isoformat()
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT m.score, m.date_analyse, m.date_email_envoye,
+               p.nom as prospect_nom, b.type, b.ville, b.prix, b.reference
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        JOIN biens b ON m.bien_id = b.id
+        WHERE m.date_analyse >= ? AND (p.archive = 0 OR p.archive IS NULL)
+        ORDER BY m.date_analyse DESC
+    """, (depuis,)).fetchall()
+    conn.close()
+    return json.dumps({
+        "periode": f"{jours} derniers jours",
+        "nb_matchings": len(rows),
+        "matchings": [{
+            "date": r["date_analyse"][:10],
+            "prospect": r["prospect_nom"],
+            "bien": f"{r['type']} à {r['ville']}",
+            "prix": r["prix"],
+            "score": r["score"],
+            "email_envoye": bool(r["date_email_envoye"]),
+        } for r in rows],
+    }, ensure_ascii=False)
+
+
 def stats_matchings(db_path):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -660,6 +699,7 @@ def run_tool(name, inputs, db_path):
     if name == "matchings_prospect":     return matchings_prospect(db_path, **inputs)
     if name == "top_matchings":          return top_matchings(db_path, **inputs)
     if name == "stats_matchings":        return stats_matchings(db_path)
+    if name == "matchings_recents":      return matchings_recents(db_path, **inputs)
     if name == "prospects_non_traites":  return prospects_non_traites(db_path)
     if name == "get_statut_agence":      return get_statut_agence(db_path)
     if name == "get_config_smtp":        return get_config_smtp(db_path)
