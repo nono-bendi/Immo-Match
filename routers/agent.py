@@ -200,15 +200,15 @@ def biens_recents(db_path, jours=7):
     rows = conn.execute("""
         SELECT reference, type, ville, quartier, prix, surface, pieces, date_ajout, source, statut
         FROM biens
-        WHERE date_ajout >= ? AND statut = 'actif'
-        ORDER BY date_ajout DESC
+        WHERE date_creation >= ? AND statut = 'actif'
+        ORDER BY date_creation DESC
     """, (depuis,)).fetchall()
     conn.close()
     return json.dumps({
         "periode": f"{jours} derniers jours",
         "nb_biens": len(rows),
         "biens": [{
-            "date": r["date_ajout"][:10] if r["date_ajout"] else None,
+            "date": r["date_creation"][:10] if r["date_creation"] else None,
             "reference": r["reference"],
             "type": r["type"],
             "ville": r["ville"],

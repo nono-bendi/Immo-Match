@@ -235,6 +235,16 @@ def init_db(db_path: str = "immomatch.db"):
         except Exception:
             pass
 
+    # Migration : date_creation (posée une seule fois à l'INSERT, jamais écrasée par les syncs)
+    try:
+        conn.execute('ALTER TABLE biens ADD COLUMN date_creation TEXT')
+        conn.commit()
+        # Rétrocompatibilité : remplir avec date_ajout pour les biens existants
+        conn.execute('UPDATE biens SET date_creation = date_ajout WHERE date_creation IS NULL')
+        conn.commit()
+    except Exception:
+        pass
+
     # Initialiser date_vendu pour les biens déjà marqués vendus (seront supprimés dans 2 jours)
     conn.execute(
         "UPDATE biens SET date_vendu = ? WHERE statut = 'vendu' AND date_vendu IS NULL",

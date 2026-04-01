@@ -158,8 +158,8 @@ def sync_hektor_ftp(db_path: str = None):
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
                         latitude, longitude, video_url,
                         nb_salles_bain, nb_salles_eau, nb_wc, surface_cave, prix_hn, honoraires_pct,
-                        date_ajout, nom_agence, source
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        date_ajout, nom_agence, source, date_creation
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -170,7 +170,7 @@ def sync_hektor_ftp(db_path: str = None):
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], d["video_url"],
                     d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"], d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
-                    datetime.now().isoformat(), d["nom_agence"], "ftp"
+                    datetime.now().isoformat(), d["nom_agence"], "ftp", datetime.now().isoformat()
                 ))
                 nouveau_id = cursor.lastrowid
                 nouveaux_bien_ids.append(nouveau_id)
