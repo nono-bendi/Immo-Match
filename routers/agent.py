@@ -778,25 +778,22 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
         total_output = 0
 
         while True:
-            with client.messages.stream(
+            response = client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS_SCHEMA,
                 tool_choice={"type": "any"} if first_call else {"type": "auto"},
                 messages=messages,
-            ) as stream:
-                first_call = False
-                for text in stream.text_stream:
-                    yield text
-                final_msg = stream.get_final_message()
-                total_input += final_msg.usage.input_tokens
-                total_output += final_msg.usage.output_tokens
+            )
+            first_call = False
+            total_input += response.usage.input_tokens
+            total_output += response.usage.output_tokens
 
-            if final_msg.stop_reason == "tool_use":
-                messages.append({"role": "assistant", "content": final_msg.content})
+            if response.stop_reason == "tool_use":
+                messages.append({"role": "assistant", "content": response.content})
                 tool_results = []
-                for block in final_msg.content:
+                for block in response.content:
                     if block.type == "tool_use":
                         result = run_tool(block.name, block.input, db_path)
                         tool_results.append({
@@ -806,6 +803,8 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
                         })
                 messages.append({"role": "user", "content": tool_results})
             else:
+                text = next((b.text for b in response.content if hasattr(b, "text")), "")
+                yield text
                 try:
                     from agencies_db import track_claude_usage
                     track_claude_usage(body.agency_slug, total_input, total_output)
