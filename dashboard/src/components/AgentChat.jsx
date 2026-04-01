@@ -238,6 +238,7 @@ export default function AgentChat() {
     const question = input.trim()
     if (!question || loading) return
     setInput('')
+    const history = messages.filter(m => m.text && m.text !== '...')
     setMessages(prev => [...prev, { role: 'user', text: question }])
     setLoading(true)
     setMessages(prev => [...prev, { role: 'bot', text: '...', loading: true }])
@@ -245,7 +246,7 @@ export default function AgentChat() {
       const res = await apiFetch('/agent/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, agency_slug: agency?.slug || 'saint_francois' }),
+        body: JSON.stringify({ question, agency_slug: agency?.slug || 'saint_francois', history }),
       })
       if (!res.ok) throw new Error()
       const reader = res.body.getReader()

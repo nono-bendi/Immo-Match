@@ -148,9 +148,14 @@ Choix des outils :
 """
 
 
+class HistoryMessage(BaseModel):
+    role: str  # "user" ou "bot"
+    text: str
+
 class AgentQuestion(BaseModel):
     question: str
     agency_slug: str
+    history: list[HistoryMessage] = []
 
 
 # ── Outils ───────────────────────────────────────────────────────────────────
@@ -672,22 +677,39 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=404, detail="Agence introuvable")
 
     def generate():
-        messages = [{"role": "user", "content": body.question}]
+        # Construire le contexte de conversation depuis l'historique
+        messages = []
+        for msg in body.history[-10:]:  # max 10 messages = 5 tours
+            if not msg.text or msg.text == "...":
+                continue
+            role = "user" if msg.role == "user" else "assistant"
+            messages.append({"role": role, "content": msg.text})
+        messages.append({"role": "user", "content": body.question})
+
         first_call = True
+        total_input = 0
+        total_output = 0
+
         while True:
-            response = client.messages.create(
+            with client.messages.stream(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS_SCHEMA,
                 tool_choice={"type": "any"} if first_call else {"type": "auto"},
                 messages=messages,
-            )
-            first_call = False
-            if response.stop_reason == "tool_use":
-                messages.append({"role": "assistant", "content": response.content})
+            ) as stream:
+                first_call = False
+                for text in stream.text_stream:
+                    yield text
+                final_msg = stream.get_final_message()
+                total_input += final_msg.usage.input_tokens
+                total_output += final_msg.usage.output_tokens
+
+            if final_msg.stop_reason == "tool_use":
+                messages.append({"role": "assistant", "content": final_msg.content})
                 tool_results = []
-                for block in response.content:
+                for block in final_msg.content:
                     if block.type == "tool_use":
                         result = run_tool(block.name, block.input, db_path)
                         tool_results.append({
@@ -697,9 +719,11 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
                         })
                 messages.append({"role": "user", "content": tool_results})
             else:
-                text = next((b.text for b in response.content if hasattr(b, "text")), "")
-                for word in text.split(" "):
-                    yield word + " "
+                try:
+                    from agencies_db import track_claude_usage
+                    track_claude_usage(body.agency_slug, total_input, total_output)
+                except Exception:
+                    pass
                 break
 
     return StreamingResponse(generate(), media_type="text/plain")
