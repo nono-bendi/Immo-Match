@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, Loader2 } from 'lucide-react'
 import { useAgency } from '../contexts/AgencyContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { apiFetch } from '../api'
 
 // ── Animations CSS injectées une seule fois ───────────────────────────────────
@@ -165,7 +166,7 @@ function WaveButton({ open, onClick }) {
 }
 
 // ── Bulle de message ──────────────────────────────────────────────────────────
-function Message({ msg }) {
+function Message({ msg, dark }) {
   const isBot = msg.role === 'bot'
   return (
     <div className={`agent-msg-in flex gap-2 ${isBot ? '' : 'flex-row-reverse'}`}>
@@ -175,7 +176,7 @@ function Message({ msg }) {
         width: 28, height: 28, borderRadius: '50%',
         background: isBot
           ? 'linear-gradient(135deg,#4f46e5,#7c3aed)'
-          : 'linear-gradient(135deg,#0f172a,#1e293b)',
+          : dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: isBot ? '0 2px 8px rgba(99,102,241,.4)' : 'none',
       }}>
@@ -193,10 +194,10 @@ function Message({ msg }) {
         fontSize: 13,
         lineHeight: 1.55,
         background: isBot
-          ? 'white'
+          ? (dark ? '#1a2a3a' : 'white')
           : 'linear-gradient(135deg,#4f46e5,#6d28d9)',
-        color: isBot ? '#1e293b' : 'white',
-        border: isBot ? '1px solid #e2e8f0' : 'none',
+        color: isBot ? (dark ? '#e2e8f0' : '#1e293b') : 'white',
+        border: isBot ? `1px solid ${dark ? 'rgba(255,255,255,.08)' : '#e2e8f0'}` : 'none',
         boxShadow: isBot
           ? '0 1px 4px rgba(0,0,0,.06)'
           : '0 2px 10px rgba(99,102,241,.35)',
@@ -222,6 +223,7 @@ function Message({ msg }) {
 // ── Widget principal ──────────────────────────────────────────────────────────
 export default function AgentChat() {
   const { agency } = useAgency()
+  const { dark } = useTheme()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     { role: 'bot', text: `Bonjour ! Comment puis-je vous aider ?` }
@@ -284,8 +286,10 @@ export default function AgentChat() {
             position: 'fixed', bottom: 96, right: 24, zIndex: 50,
             width: 360, height: 500,
             borderRadius: 20,
-            background: '#f8fafc',
-            boxShadow: '0 24px 60px rgba(0,0,0,.18), 0 0 0 1px rgba(99,102,241,.12)',
+            background: dark ? '#0d1826' : '#f8fafc',
+            boxShadow: dark
+              ? '0 24px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(99,102,241,.2)'
+              : '0 24px 60px rgba(0,0,0,.18), 0 0 0 1px rgba(99,102,241,.12)',
             display: 'flex', flexDirection: 'column', overflow: 'hidden',
           }}
         >
@@ -325,9 +329,11 @@ export default function AgentChat() {
           <div style={{
             flex: 1, overflowY: 'auto', padding: '16px 14px',
             display: 'flex', flexDirection: 'column', gap: 12,
-            background: 'linear-gradient(180deg,#f1f5f9 0%,#f8fafc 100%)',
+            background: dark
+              ? 'linear-gradient(180deg,#0a1520 0%,#0d1826 100%)'
+              : 'linear-gradient(180deg,#f1f5f9 0%,#f8fafc 100%)',
           }}>
-            {messages.map((msg, i) => <Message key={i} msg={msg} />)}
+            {messages.map((msg, i) => <Message key={i} msg={msg} dark={dark} />)}
             {loading && messages[messages.length - 1]?.loading && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: 12 }}>
                 <Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} />
@@ -340,8 +346,8 @@ export default function AgentChat() {
           {/* ── Input ── */}
           <div style={{
             padding: '10px 12px 12px',
-            background: 'white',
-            borderTop: '1px solid #e2e8f0',
+            background: dark ? '#0d1826' : 'white',
+            borderTop: `1px solid ${dark ? 'rgba(255,255,255,.08)' : '#e2e8f0'}`,
           }}>
             <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
               <textarea
@@ -353,16 +359,19 @@ export default function AgentChat() {
                 rows={1}
                 disabled={loading}
                 style={{
-                  flex: 1, resize: 'none', border: '1.5px solid #e2e8f0',
+                  flex: 1, resize: 'none',
+                  border: `1.5px solid ${dark ? 'rgba(255,255,255,.12)' : '#e2e8f0'}`,
                   borderRadius: 12, padding: '8px 12px', fontSize: 13,
-                  color: '#1e293b', outline: 'none', maxHeight: 80,
+                  color: dark ? '#e2e8f0' : '#1e293b',
+                  background: dark ? '#0a1520' : 'white',
+                  outline: 'none', maxHeight: 80,
                   overflowY: 'auto', lineHeight: 1.45,
                   transition: 'border-color .15s',
                   fontFamily: 'inherit',
                   opacity: loading ? .5 : 1,
                 }}
                 onFocus={e => e.target.style.borderColor = '#6366f1'}
-                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                onBlur={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,.12)' : '#e2e8f0'}
               />
               <button
                 onClick={send}
@@ -370,7 +379,7 @@ export default function AgentChat() {
                 style={{
                   flexShrink: 0, width: 36, height: 36, borderRadius: 10,
                   background: (!input.trim() || loading)
-                    ? '#e2e8f0'
+                    ? (dark ? 'rgba(255,255,255,.08)' : '#e2e8f0')
                     : 'linear-gradient(135deg,#4f46e5,#7c3aed)',
                   border: 'none', cursor: (!input.trim() || loading) ? 'not-allowed' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -384,7 +393,7 @@ export default function AgentChat() {
                 }
               </button>
             </div>
-            <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 10, marginTop: 7 }}>
+            <div style={{ textAlign: 'center', color: dark ? 'rgba(255,255,255,.2)' : '#cbd5e1', fontSize: 10, marginTop: 7 }}>
               Propulsé par Claude AI · Données en temps réel
             </div>
           </div>
