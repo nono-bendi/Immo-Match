@@ -109,9 +109,14 @@ function WaveButton({ open, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 flex items-center justify-center focus:outline-none"
       title="Assistant IA"
-      style={{ background: 'none', border: 'none', padding: 0 }}
+      style={{
+        position: 'fixed', bottom: 24, right: 24, zIndex: 50,
+        width: 56, height: 56,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+        outline: 'none',
+      }}
     >
       {/* Anneau wave tournant — couche 1 */}
       <span
