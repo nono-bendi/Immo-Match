@@ -406,6 +406,8 @@
 .btn-sparkle:hover .star-3{top:100%;left:10%;opacity:1}.btn-sparkle:hover .star-4{top:-30%;left:85%;opacity:1}
 .btn-sparkle:hover .star-5{top:70%;left:90%;opacity:1}.btn-sparkle:hover .star-6{top:90%;left:100%;opacity:1}
 .btn-sparkle .fil0{fill:#1E3A5F}
+.dark .btn-sparkle:hover { color: #fff; }
+.dark .btn-sparkle:hover .fil0 { fill: #fff; }
 .btn-sparkle:disabled .star-1,.btn-sparkle:disabled .star-2,.btn-sparkle:disabled .star-3,
 .btn-sparkle:disabled .star-4,.btn-sparkle:disabled .star-5,.btn-sparkle:disabled .star-6{display:none}
 
