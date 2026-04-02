@@ -175,6 +175,7 @@ function BiensPage() {
       quartier: bien.quartier || "",
       stationnement: bien.stationnement || "",
       exterieur: bien.exterieur || "",
+      lien_annonce: bien.lien_annonce || "",
     })
     setEditError("")
   }
@@ -610,6 +611,10 @@ function BiensPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Stationnement</label><input type="text" value={editForm.stationnement} onChange={e => setEditForm(prev => ({ ...prev, stationnement: e.target.value }))} placeholder="Garage, Parking..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Exterieur</label><input type="text" value={editForm.exterieur} onChange={e => setEditForm(prev => ({ ...prev, exterieur: e.target.value }))} placeholder="Jardin, Terrasse..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lien de l'annonce</label>
+                <input type="url" value={editForm.lien_annonce} onChange={e => setEditForm(prev => ({ ...prev, lien_annonce: e.target.value }))} placeholder="https://..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" />
               </div>
               {editError && (<div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl"><AlertCircle size={16} className="text-red-500 shrink-0" /><p className="text-sm text-red-600">{editError}</p></div>)}
             </div>
