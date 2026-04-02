@@ -969,7 +969,7 @@ export default function AdministrationPage() {
       </Section>
 
       {/* ── Barre de sauvegarde sticky ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-end items-center gap-4 px-8 py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-t border-gray-200 dark:border-gray-700 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-end items-center gap-4 px-8 py-3 bg-white/90 backdrop-blur border-t border-gray-200 shadow-lg settings-save-bar">
         <Toast msg={settingsMsg.text} ok={settingsMsg.ok} />
         <button onClick={saveSettings} disabled={savingSettings}
           className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
