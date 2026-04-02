@@ -1598,8 +1598,8 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: background 0.25s ease;
 }
-.sec-icon--navy  { background: linear-gradient(135deg, #1E3A5F, #2D5A8A); }
-.sec-icon--navy  .sec-icon-svg { color: #fff; }
+.sec-icon--navy  { background: #dce7f3; }
+.sec-icon--navy  .sec-icon-svg { color: #1E3A5F; }
 
 .sec-icon--violet { background: #f5f3ff; }
 .sec-icon--violet .sec-icon-svg { color: #7c3aed; }
