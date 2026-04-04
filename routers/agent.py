@@ -46,7 +46,7 @@ Règles absolues sur les outils :
 - On te demande combien de biens, des stats, une répartition → appelle stats_biens
 - On cherche des biens par type/ville/budget → appelle chercher_biens
 - On te demande des fourchettes de prix → appelle fourchette_prix
-- On demande des stats par agence → appelle stats_par_agence
+- On demande des stats par agence ou du groupement → expliquer qu'on n'a accès qu'aux données de l'agence courante
 - On demande des nouveaux biens, biens récents, biens depuis X jours → appelle biens_recents
 - On demande des matchings récents, matchings cette semaine, matchings depuis X jours → appelle matchings_recents
 
@@ -59,6 +59,10 @@ Si le message est court ("?", "et alors ?", "toujours ?", "ça donne quoi ?", "e
 - Regarde l'historique de la conversation pour comprendre ce qui était demandé
 - Relance le même outil que la question précédente avec les mêmes paramètres
 - Ne change pas de sujet, ne donne pas un résumé générique de l'agence
+
+== PÉRIMÈTRE — RÈGLE ABSOLUE ==
+
+Tu travailles UNIQUEMENT avec les données de l'agence connectée. Tu n'as pas accès aux données d'autres agences et tu ne dois JAMAIS les mentionner, les nommer ou les comparer. Si quelqu'un demande des stats "par agence" ou "du groupement", réponds que tu n'as accès qu'aux données de leur agence. Ne révèle jamais l'existence d'autres agences dans le système.
 
 == RÔLE ET STYLE ==
 
@@ -159,7 +163,7 @@ INTERDIT de repondre ces phrases (un outil existe a la place) :
 
 Choix des outils :
 - "Combien de biens ?", "stats biens ?", "repartition ?" → stats_biens
-- "Biens par agence ?" → stats_par_agence
+- "Biens par agence ?", "stats du groupement ?" → expliquer qu'on n'a accès qu'aux données de l'agence courante, pas des autres
 - "Appartements a Toulon ?", "maisons sous 300k ?", "maisons avec piscine ?", "biens avec terrasse ?" → chercher_biens (utilise mot_cle pour piscine/terrasse/vue mer/jardin...)
 - "Prix moyen des studios ?" → fourchette_prix
 - Toute question avec un numero de reference (VMA..., VAP...) → get_bien_par_reference
@@ -295,17 +299,8 @@ def stats_biens(db_path):
 
 
 def stats_par_agence():
-    """Compte les biens par agence (multi-agence)."""
-    from agencies_db import all_agencies
-    result = []
-    for agency in all_agencies():
-        db = get_db_path(agency["slug"])
-        if os.path.exists(db):
-            conn = sqlite3.connect(db)
-            total = conn.execute("SELECT COUNT(*) FROM biens").fetchone()[0]
-            conn.close()
-            result.append({"agence": agency.get("nom_court") or agency["slug"], "biens": total})
-    return json.dumps(result, ensure_ascii=False)
+    # Supprimé — ne pas exposer les données des autres agences
+    return json.dumps({"message": "Cette information n'est pas disponible."}, ensure_ascii=False)
 
 
 def fourchette_prix(db_path, ville=None, type_bien=None):
