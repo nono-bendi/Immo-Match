@@ -512,15 +512,14 @@
 
     /* ── BACK TO TOP ── */
     #back-top {
-      position: fixed; bottom: 28px; right: 28px; z-index: 100;
-      width: 40px; height: 40px; border-radius: 50%;
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      width: 44px; height: 44px; border-radius: 50%;
       background: var(--navy); color: white; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(30,58,95,.35); transition: opacity .2s, transform .2s;
-      opacity: 0; pointer-events: none;
+      box-shadow: 0 4px 20px rgba(30,58,95,.45); transition: transform .2s, box-shadow .2s;
+      opacity: 1; pointer-events: auto;
     }
-    #back-top.visible { opacity: 1; pointer-events: auto; }
-    #back-top:hover { transform: translateY(-2px); }
+    #back-top:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(30,58,95,.55); }
 
     /* ── VISUAL MOCKUPS ── */
     .mockup-wrap {
@@ -1789,9 +1788,6 @@
 
   // ── Back to top ─────────────────────────────────────
   const backTop = document.getElementById('back-top')
-  window.addEventListener('scroll', () => {
-    backTop.classList.toggle('visible', window.scrollY > 300)
-  })
   backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 
   // ── Search ──────────────────────────────────────────
