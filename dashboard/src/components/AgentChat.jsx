@@ -170,6 +170,73 @@ function WaveButton({ open, onClick }) {
   )
 }
 
+// ── Mini-carte bien ───────────────────────────────────────────────────────────
+function BienCard({ line, dark }) {
+  // Extrait ville, surface, prix d'une ligne "- Ville — 98 m² — 409 000 €"
+  const clean = line.replace(/^[-•]\s*/, '')
+  const parts = clean.split(/\s*[—–-]{1,2}\s*/)
+  const ville = parts[0] || ''
+  const surface = parts.find(p => /m²/.test(p)) || ''
+  const prix = parts.find(p => /€/.test(p)) || ''
+  const extra = parts.filter(p => p !== ville && p !== surface && p !== prix).join(' · ')
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '6px 10px', margin: '3px 0',
+      borderRadius: 10,
+      background: dark ? 'rgba(255,255,255,.06)' : '#f8fafc',
+      border: `1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e2e8f0'}`,
+    }}>
+      <div style={{
+        width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+        background: '#4f46e5',
+      }} />
+      <span style={{ fontWeight: 600, fontSize: 12, flex: 1, color: dark ? '#e2e8f0' : '#1e293b' }}>
+        {ville}{extra ? ` · ${extra}` : ''}
+      </span>
+      {surface && (
+        <span style={{ fontSize: 11, color: dark ? '#94a3b8' : '#64748b', whiteSpace: 'nowrap' }}>
+          {surface}
+        </span>
+      )}
+      {prix && (
+        <span style={{
+          fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
+          padding: '2px 7px', borderRadius: 6,
+          background: dark ? 'rgba(99,102,241,.25)' : '#ede9fe',
+          color: '#4f46e5',
+        }}>
+          {prix}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// ── Rendu d'une ligne de texte ────────────────────────────────────────────────
+function RenderLine({ line, i, dark }) {
+  const isBienLine = /^[-•]\s/.test(line) && /€/.test(line)
+  if (isBienLine) return <BienCard key={i} line={line} dark={dark} />
+
+  const parts = line.split(/(\*\*[^*]+\*\*)/g)
+  const content = parts.map((part, j) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <strong key={j}>{part.slice(2, -2)}</strong>
+      : part
+  )
+
+  if (/^[-•]\s/.test(line)) {
+    return (
+      <p key={i} style={{ margin: i > 0 ? '3px 0 0' : 0, paddingLeft: 10, position: 'relative' }}>
+        <span style={{ position: 'absolute', left: 0, color: '#4f46e5' }}>·</span>
+        {content}
+      </p>
+    )
+  }
+  return <p key={i} style={{ margin: i > 0 ? '4px 0 0' : 0 }}>{content}</p>
+}
+
 // ── Bulle de message ──────────────────────────────────────────────────────────
 function Message({ msg, dark }) {
   const isBot = msg.role === 'bot'
@@ -193,7 +260,7 @@ function Message({ msg, dark }) {
 
       {/* Bulle */}
       <div style={{
-        maxWidth: '78%',
+        maxWidth: '82%',
         borderRadius: isBot ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
         padding: '8px 12px',
         fontSize: 13,
@@ -208,18 +275,9 @@ function Message({ msg, dark }) {
           : '0 2px 10px rgba(99,102,241,.35)',
         opacity: msg.loading ? .6 : 1,
       }}>
-        {msg.text.split('\n').map((line, i) => {
-          const parts = line.split(/(\*\*[^*]+\*\*)/g)
-          return (
-            <p key={i} style={{ margin: i > 0 ? '4px 0 0' : 0 }}>
-              {parts.map((part, j) =>
-                part.startsWith('**') && part.endsWith('**')
-                  ? <strong key={j}>{part.slice(2, -2)}</strong>
-                  : part
-              )}
-            </p>
-          )
-        })}
+        {msg.text.split('\n').map((line, i) =>
+          <RenderLine key={i} line={line} i={i} dark={dark} />
+        )}
       </div>
     </div>
   )
