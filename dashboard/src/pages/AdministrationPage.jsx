@@ -446,8 +446,6 @@ export default function AdministrationPage() {
           </div>
         ) : (
           <>
-            <Toast msg={agencyMsg.text} ok={agencyMsg.ok} />
-
             {/* Logo */}
             <div className="mb-6">
               <p className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2"><Image size={16} /> Logo</p>
@@ -560,7 +558,8 @@ export default function AdministrationPage() {
               </Field>
             </div>
 
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end items-center gap-3 mt-4">
+              <Toast msg={agencyMsg.text} ok={agencyMsg.ok} />
               <button onClick={saveAgency} disabled={savingAgency}
                 className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
                   ${savingAgency ? 'bg-gray-400' : 'bg-[#1E3A5F] hover:bg-[#2D5A8A]'}`}>
