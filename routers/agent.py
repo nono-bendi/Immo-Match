@@ -219,15 +219,8 @@ def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_
         params.append(surface_min)
     if mot_cle:
         kw = mot_cle.lower().strip()
-        # Cherche dans la description ET dans les colonnes booléennes connues
-        bool_cols = ["piscine", "terrasse", "ascenseur", "cave", "gardien", "digicode"]
-        col_filter = " OR ".join(f"LOWER({c}) IN ('1','oui','true','yes')" for c in bool_cols if kw in c)
-        if col_filter:
-            query += f" AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ? OR ({col_filter}))"
-            params += [f"%{kw}%", f"%{kw}%"]
-        else:
-            query += " AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ?)"
-            params += [f"%{kw}%", f"%{kw}%"]
+        query += " AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ?)"
+        params += [f"%{kw}%", f"%{kw}%"]
 
     # Compte total avant limite
     count_row = conn.execute(f"SELECT COUNT(*) FROM ({query})", params).fetchone()
