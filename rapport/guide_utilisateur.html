@@ -515,9 +515,10 @@
       <a href="#biens"       class="nav-item"><div class="nav-num">4</div>Biens</a>
       <a href="#matchings"   class="nav-item"><div class="nav-num">5</div>Matchings</a>
       <a href="#email"       class="nav-item"><div class="nav-num">6</div>Envoi d'email</a>
-      <a href="#notifs"      class="nav-item"><div class="nav-num">7</div>Notifications</a>
-      <a href="#calibration" class="nav-item"><div class="nav-num">8</div>Calibration</a>
-      <a href="#rapports"    class="nav-item"><div class="nav-num">9</div>Rapports</a>
+      <a href="#smtp"        class="nav-item"><div class="nav-num">7</div>Config. SMTP</a>
+      <a href="#notifs"      class="nav-item"><div class="nav-num">8</div>Notifications</a>
+      <a href="#calibration" class="nav-item"><div class="nav-num">9</div>Calibration</a>
+      <a href="#rapports"    class="nav-item"><div class="nav-num">10</div>Rapports</a>
     </nav>
   </aside>
 
@@ -937,7 +938,164 @@
       </div>
     </div>
 
-    <!-- 7. NOTIFICATIONS -->
+    <!-- 7. SMTP -->
+    <div class="section" id="smtp">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#f0fdf4;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 0 0 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 7</div>
+          <div class="section-title">Configuration SMTP — Envoi d'emails</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Le SMTP est le protocole qui permet à ImmoMatch d'envoyer des emails depuis l'adresse de votre agence. Sans configuration, les emails ne partent pas. Cette section explique comment le configurer pas à pas.</p>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:0 0 12px;">Où configurer le SMTP ?</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Aller dans Administration</div>
+              <div class="step-desc">Menu latéral → <strong>Administration</strong> (réservé aux administrateurs). Puis ouvrez la section <strong>Identité de l'agence</strong>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Remplir les champs SMTP</div>
+              <div class="step-desc">Descendez jusqu'à la section <strong>Configuration email (SMTP)</strong> et renseignez les 6 champs ci-dessous.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div></div>
+            <div class="step-content">
+              <div class="step-title">Sauvegarder</div>
+              <div class="step-desc">Cliquez sur <strong>Sauvegarder l'agence</strong>. Un message de confirmation apparaît à droite du bouton. Testez ensuite en envoyant un email depuis la page Matchings.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Les 6 champs à renseigner</h3>
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Serveur SMTP</div>
+            <div class="info-card-desc">L'adresse du serveur sortant de votre messagerie. Exemples : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.gmail.com</code> · <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">ssl0.ovh.net</code> · <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.office365.com</code></div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Port</div>
+            <div class="info-card-desc"><strong>587</strong> (recommandé — TLS/STARTTLS) · <strong>465</strong> (SSL) · <strong>25</strong> (sans chiffrement, déconseillé). Utilisez 587 par défaut.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Email d'envoi</div>
+            <div class="info-card-desc">L'adresse depuis laquelle partent les emails. Ex : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">contact@agence.fr</code>. Doit correspondre au compte SMTP.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Mot de passe d'application</div>
+            <div class="info-card-desc">⚠️ Pour Gmail : ce n'est <strong>pas</strong> votre mot de passe habituel. Il faut générer un <strong>mot de passe d'application</strong> dans les paramètres de sécurité Google (voir ci-dessous).</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Optionnel</div>
+            <div class="info-card-title">Nom d'expéditeur</div>
+            <div class="info-card-desc">Le nom affiché dans la boîte de réception du prospect. Ex : <em>Saint François Immobilier</em>. Si vide, seul l'email s'affiche.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Optionnel</div>
+            <div class="info-card-title">Email de réponse (Reply-To)</div>
+            <div class="info-card-desc">Si le prospect répond à l'email, la réponse sera envoyée à cette adresse. Utile si l'email d'envoi est un alias et que vous voulez recevoir les réponses ailleurs.</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Cas Gmail — Mot de passe d'application</h3>
+        <div class="callout warn">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div>Google bloque les connexions avec le mot de passe habituel. Vous devez créer un <strong>mot de passe d'application</strong> dédié.</div>
+        </div>
+        <div class="steps" style="margin-top:12px;">
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">A</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Activer la validation en deux étapes</div>
+              <div class="step-desc">Sur votre compte Google → Sécurité → Validation en deux étapes. Sans cette étape, l'option mot de passe d'application n'apparaît pas.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">B</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Générer le mot de passe d'application</div>
+              <div class="step-desc">Sécurité → Mots de passe des applications → sélectionnez <strong>"Autre (nom personnalisé)"</strong> → tapez "ImmoMatch" → cliquez Générer. Google vous donne un code de 16 caractères.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">C</div></div>
+            <div class="step-content">
+              <div class="step-title">Copier ce code dans ImmoMatch</div>
+              <div class="step-desc">Collez le code de 16 caractères (sans espaces) dans le champ <strong>Mot de passe d'application</strong> d'ImmoMatch. Serveur : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.gmail.com</code> — Port : <strong>587</strong>.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Références par fournisseur</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Fournisseur</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Serveur SMTP</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Port</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Authentification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 14px;font-weight:600;">Gmail</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.gmail.com</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Mot de passe d'application Google</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:#fafafa;">
+              <td style="padding:10px 14px;font-weight:600;">OVH</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">ssl0.ovh.net</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe OVH</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 14px;font-weight:600;">Office 365</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.office365.com</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe Microsoft</td>
+            </tr>
+            <tr style="background:#fafafa;">
+              <td style="padding:10px 14px;font-weight:600;">Ionos / 1&1</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.ionos.fr</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe Ionos</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout info" style="margin-top:16px;">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div><strong>Erreur "Authentification SMTP" ?</strong> Vérifiez que vous utilisez bien un <em>mot de passe d'application</em> (pas votre mot de passe habituel) et que la validation en deux étapes est activée sur votre compte email.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. NOTIFICATIONS -->
     <div class="section" id="notifs">
       <div class="section-header">
         <div class="section-icon-wrap" style="background:#fef2f2;">
