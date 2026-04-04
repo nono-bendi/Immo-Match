@@ -172,31 +172,49 @@ function WaveButton({ open, onClick }) {
 }
 
 // ── Mini-carte bien ───────────────────────────────────────────────────────────
-function BienCard({ line, dark, onNavigate }) {
-  // Split uniquement sur — et – (pas sur - pour éviter de couper les noms de villes)
+function BienCard({ line, dark, onNavigate, biens }) {
+  const [hovered, setHovered] = useState(false)
+
+  // Split uniquement sur — et – (pas sur - pour préserver les noms de villes)
   const clean = line.replace(/^[-•]\s*/, '')
   const parts = clean.split(/\s*[—–]\s*/)
-  const ville = parts[0] || ''
+  const ville = parts[0]?.trim() || ''
   const surface = parts.find(p => /m²/.test(p)) || ''
-  const prix = parts.find(p => /€/.test(p)) || ''
-  const ref = parts.find(p => /^[A-Z]{2,4}\d{5,}/.test(p.trim())) || ''
+  const prixPart = parts.find(p => /€/.test(p)) || ''
+  const prixNum = parseFloat(prixPart.replace(/[^\d]/g, '')) || 0
+
+  // Référence : dans le texte du bot ou fallback match par ville+prix dans la liste des biens
+  let ref = parts.find(p => /^[A-Z]{2,4}\d{5,}/.test(p.trim()))?.trim() || ''
+  if (!ref && biens?.length) {
+    const match = biens.find(b => {
+      const sameVille = b.ville?.toLowerCase().includes(ville.toLowerCase()) || ville.toLowerCase().includes(b.ville?.toLowerCase() || '')
+      const samePrix = prixNum > 0 && Math.abs((b.prix || 0) - prixNum) < 1000
+      return sameVille && samePrix
+    })
+    if (match) ref = match.reference || ''
+  }
+
+  const clickable = !!ref
 
   return (
     <div
-      onClick={() => onNavigate && onNavigate(ref)}
+      onClick={() => clickable && onNavigate && onNavigate(ref)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={clickable ? 'Voir la fiche complète' : ''}
       style={{
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '6px 10px', margin: '3px 0',
         borderRadius: 10,
-        background: dark ? 'rgba(255,255,255,.06)' : '#f8fafc',
-        border: `1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e2e8f0'}`,
-        cursor: ref ? 'pointer' : 'default',
-        transition: 'background .15s',
+        background: hovered && clickable
+          ? (dark ? 'rgba(99,102,241,.18)' : '#ede9fe')
+          : (dark ? 'rgba(255,255,255,.06)' : '#f8fafc'),
+        border: `1px solid ${hovered && clickable ? '#a5b4fc' : (dark ? 'rgba(255,255,255,.1)' : '#e2e8f0')}`,
+        cursor: clickable ? 'pointer' : 'default',
+        transition: 'all .15s',
       }}
-      onMouseEnter={e => { if (ref) e.currentTarget.style.background = dark ? 'rgba(255,255,255,.11)' : '#f1f5f9' }}
-      onMouseLeave={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,.06)' : '#f8fafc' }}
     >
-      <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: '#4f46e5' }} />
+      <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: clickable ? '#4f46e5' : '#94a3b8' }} />
       <span style={{ fontWeight: 600, fontSize: 12, flex: 1, color: dark ? '#e2e8f0' : '#1e293b' }}>
         {ville}
       </span>
@@ -205,33 +223,29 @@ function BienCard({ line, dark, onNavigate }) {
           {surface}
         </span>
       )}
-      {prix && (
+      {prixPart && (
         <span style={{
           fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
           padding: '2px 7px', borderRadius: 6,
           background: dark ? 'rgba(99,102,241,.25)' : '#ede9fe', color: '#4f46e5',
         }}>
-          {prix}
+          {prixPart}
         </span>
       )}
-      {ref && (
+      {clickable && (
         <span style={{
-          fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap',
-          padding: '2px 6px', borderRadius: 6,
-          background: dark ? 'rgba(99,102,241,.2)' : '#ede9fe',
-          color: '#6d28d9',
-        }}>
-          Voir →
-        </span>
+          fontSize: 11, color: hovered ? '#4f46e5' : (dark ? '#64748b' : '#94a3b8'),
+          transition: 'color .15s', flexShrink: 0,
+        }}>→</span>
       )}
     </div>
   )
 }
 
 // ── Rendu d'une ligne de texte ────────────────────────────────────────────────
-function RenderLine({ line, i, dark, onNavigate }) {
+function RenderLine({ line, i, dark, onNavigate, biens }) {
   const isBienLine = /^[-•]\s/.test(line) && /€/.test(line)
-  if (isBienLine) return <BienCard key={i} line={line} dark={dark} onNavigate={onNavigate} />
+  if (isBienLine) return <BienCard key={i} line={line} dark={dark} onNavigate={onNavigate} biens={biens} />
 
   const parts = line.split(/(\*\*[^*]+\*\*)/g)
   const content = parts.map((part, j) =>
@@ -252,7 +266,7 @@ function RenderLine({ line, i, dark, onNavigate }) {
 }
 
 // ── Bulle de message ──────────────────────────────────────────────────────────
-function Message({ msg, dark, onNavigate }) {
+function Message({ msg, dark, onNavigate, biens }) {
   const isBot = msg.role === 'bot'
   return (
     <div className={`agent-msg-in flex gap-2 ${isBot ? '' : 'flex-row-reverse'}`}>
@@ -290,7 +304,7 @@ function Message({ msg, dark, onNavigate }) {
         opacity: msg.loading ? .6 : 1,
       }}>
         {msg.text.split('\n').map((line, i) =>
-          <RenderLine key={i} line={line} i={i} dark={dark} onNavigate={onNavigate} />
+          <RenderLine key={i} line={line} i={i} dark={dark} onNavigate={onNavigate} biens={biens} />
         )}
       </div>
     </div>
@@ -308,8 +322,16 @@ export default function AgentChat() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [biens, setBiens] = useState([])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
+
+  // Charge les biens pour le matching de références dans les cartes
+  useEffect(() => {
+    apiFetch('/biens').then(r => r.json()).then(data => {
+      if (Array.isArray(data)) setBiens(data)
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 120) }, [open])
@@ -412,7 +434,7 @@ export default function AgentChat() {
               : 'linear-gradient(180deg,#f1f5f9 0%,#f8fafc 100%)',
           }}>
             {messages.map((msg, i) => (
-              <Message key={i} msg={msg} dark={dark} onNavigate={ref => {
+              <Message key={i} msg={msg} dark={dark} biens={biens} onNavigate={ref => {
                 navigate(`/biens?ref=${ref}`)
                 setOpen(false)
               }} />
