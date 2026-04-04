@@ -373,6 +373,15 @@ export default function AdministrationPage() {
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Administration</h1>
           <p className="text-sm text-gray-400">Configuration de votre espace ImmoMatch</p>
         </div>
+        <a
+          href={`${API_URL}/guide`}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] hover:bg-[#2D5A8A] text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          <FileText size={15} />
+          Guide utilisateur
+        </a>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════ */}
