@@ -62,7 +62,7 @@ Si le message est court ("?", "et alors ?", "toujours ?", "ça donne quoi ?", "e
 
 == PÉRIMÈTRE — RÈGLE ABSOLUE ==
 
-Tu travailles UNIQUEMENT avec les données de l'agence connectée. Ne révèle jamais les données internes d'une autre agence (nombre de biens, de prospects, stats, nom des agents...). Si quelqu'un demande des stats "par agence" ou "du groupement", dis simplement que tu n'as accès qu'aux données de leur agence.
+La base de données contient les biens de plusieurs agences d'un même groupement, distinguées par le champ nom_agence. Tu peux filtrer par agence du groupement quand on te le demande. En revanche, ne révèle jamais de données appartenant à un client complètement distinct (autre système, autre base).
 
 == RÔLE ET STYLE ==
 
@@ -201,7 +201,7 @@ class AgentQuestion(BaseModel):
 
 # ── Outils ───────────────────────────────────────────────────────────────────
 
-def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_min=None, surface_min=None, mot_cle=None):
+def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_min=None, surface_min=None, mot_cle=None, nom_agence=None):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     query = "SELECT * FROM biens WHERE statut != 'vendu'"
@@ -221,6 +221,9 @@ def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_
     if surface_min:
         query += " AND surface >= ?"
         params.append(surface_min)
+    if nom_agence:
+        query += " AND LOWER(nom_agence) LIKE ?"
+        params.append(f"%{nom_agence.lower()}%")
     if mot_cle:
         kw = mot_cle.lower().strip()
         query += " AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ?)"
@@ -270,24 +273,21 @@ def biens_recents(db_path, jours=7):
     }, ensure_ascii=False)
 
 
-def stats_biens(db_path):
+def stats_biens(db_path, nom_agence=None):
     """Stats completes : total, par type, par ville top 5, fourchettes prix."""
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
 
-    total = conn.execute("SELECT COUNT(*) as n FROM biens").fetchone()["n"]
+    where = "WHERE 1=1"
+    params = []
+    if nom_agence:
+        where += " AND LOWER(nom_agence) LIKE ?"
+        params.append(f"%{nom_agence.lower()}%")
 
-    par_type = conn.execute(
-        "SELECT type, COUNT(*) as n FROM biens GROUP BY type ORDER BY n DESC"
-    ).fetchall()
-
-    par_ville = conn.execute(
-        "SELECT ville, COUNT(*) as n FROM biens GROUP BY ville ORDER BY n DESC LIMIT 5"
-    ).fetchall()
-
-    prix = conn.execute(
-        "SELECT MIN(prix) as mn, MAX(prix) as mx, AVG(prix) as avg FROM biens WHERE prix > 0"
-    ).fetchone()
+    total = conn.execute(f"SELECT COUNT(*) as n FROM biens {where}", params).fetchone()["n"]
+    par_type = conn.execute(f"SELECT type, COUNT(*) as n FROM biens {where} GROUP BY type ORDER BY n DESC", params).fetchall()
+    par_ville = conn.execute(f"SELECT ville, COUNT(*) as n FROM biens {where} GROUP BY ville ORDER BY n DESC LIMIT 5", params).fetchall()
+    prix = conn.execute(f"SELECT MIN(prix) as mn, MAX(prix) as mx, AVG(prix) as avg FROM biens {where} AND prix > 0", params).fetchone()
 
     conn.close()
     return json.dumps({
@@ -323,7 +323,7 @@ def fourchette_prix(db_path, ville=None, type_bien=None):
 TOOLS_SCHEMA = [
     {
         "name": "chercher_biens",
-        "description": "Cherche des biens selon des criteres. Utilise sans filtre ville si la ville n'est pas mentionnee. Retourne le total réel + la liste. Pour des critères comme 'piscine', 'terrasse', 'vue mer', utilise le paramètre mot_cle.",
+        "description": "Cherche des biens selon des criteres. Retourne le total réel + la liste. Pour des critères comme 'piscine', 'terrasse', 'vue mer', utilise mot_cle. Pour filtrer par agence du groupement (ex: 'B&B Immobilier'), utilise nom_agence.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -332,13 +332,20 @@ TOOLS_SCHEMA = [
                 "budget_max":  {"type": "number", "description": "Budget max en euros"},
                 "pieces_min":  {"type": "integer", "description": "Nb min de pieces"},
                 "surface_min": {"type": "number", "description": "Surface min en m2"},
-                "mot_cle":     {"type": "string", "description": "Mot-clé à chercher dans la description ou les équipements, ex: 'piscine', 'vue mer', 'terrasse', 'jardin'"},
+                "mot_cle":     {"type": "string", "description": "Mot-clé dans la description, ex: 'piscine', 'vue mer', 'terrasse'"},
+                "nom_agence":  {"type": "string", "description": "Filtrer par agence du groupement, ex: 'B&B', 'Saint François'"},
             },
         },
     },
     {
         "name": "stats_biens",
-        "description": "Statistiques completes : total de biens, repartition par type, top villes, fourchettes de prix. Utilise pour toute question de stats ou de repartition.",
+        "description": "Statistiques completes : total de biens, repartition par type, top villes, fourchettes de prix. Accepte un filtre nom_agence pour les stats d'une agence du groupement.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "nom_agence": {"type": "string", "description": "Filtrer par agence du groupement, ex: 'B&B', 'Saint François'. Omis = toutes les agences."},
+            },
+        },
         "input_schema": {"type": "object", "properties": {}},
     },
     {
@@ -809,7 +816,7 @@ def lire_guide(recherche: str) -> str:
 
 def run_tool(name, inputs, db_path):
     if name == "chercher_biens":         return chercher_biens(db_path, **inputs)
-    if name == "stats_biens":            return stats_biens(db_path)
+    if name == "stats_biens":            return stats_biens(db_path, **inputs)
     if name == "biens_recents":          return biens_recents(db_path, **inputs)
     if name == "stats_par_agence":       return stats_par_agence()
     if name == "fourchette_prix":        return fourchette_prix(db_path, **inputs)
