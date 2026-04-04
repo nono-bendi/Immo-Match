@@ -183,12 +183,14 @@ function BienCard({ line, dark, onNavigate, biens }) {
   const prixPart = parts.find(p => /€/.test(p)) || ''
   const prixNum = parseFloat(prixPart.replace(/[^\d]/g, '')) || 0
 
-  // Référence : dans le texte du bot ou fallback match par ville+prix dans la liste des biens
+  // Référence : dans le texte du bot ou fallback match par ville+prix
   let ref = parts.find(p => /^[A-Z]{2,4}\d{5,}/.test(p.trim()))?.trim() || ''
-  if (!ref && biens?.length) {
+  if (!ref && biens?.length && prixNum > 0) {
     const match = biens.find(b => {
-      const sameVille = b.ville?.toLowerCase().includes(ville.toLowerCase()) || ville.toLowerCase().includes(b.ville?.toLowerCase() || '')
-      const samePrix = prixNum > 0 && Math.abs((b.prix || 0) - prixNum) < 1000
+      const bVille = (b.ville || '').toLowerCase()
+      const cVille = ville.toLowerCase()
+      const sameVille = bVille.includes(cVille) || cVille.includes(bVille) || cVille.split('-').some(w => w.length > 3 && bVille.includes(w))
+      const samePrix = Math.abs((b.prix || 0) - prixNum) < 5000
       return sameVille && samePrix
     })
     if (match) ref = match.reference || ''
@@ -215,18 +217,16 @@ function BienCard({ line, dark, onNavigate, biens }) {
       }}
     >
       <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: clickable ? '#4f46e5' : '#94a3b8' }} />
-      <span style={{ fontWeight: 600, fontSize: 12, flex: 1, color: dark ? '#e2e8f0' : '#1e293b' }}>
-        {ville}
-      </span>
-      {surface && (
-        <span style={{ fontSize: 11, color: dark ? '#94a3b8' : '#64748b', whiteSpace: 'nowrap' }}>
-          {surface}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ fontWeight: 600, fontSize: 12, color: dark ? '#e2e8f0' : '#1e293b', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {ville}
         </span>
-      )}
+        {surface && <span style={{ fontSize: 10, color: dark ? '#94a3b8' : '#64748b' }}>{surface}</span>}
+      </div>
       {prixPart && (
         <span style={{
-          fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
-          padding: '2px 7px', borderRadius: 6,
+          fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
+          padding: '2px 6px', borderRadius: 6,
           background: dark ? 'rgba(99,102,241,.25)' : '#ede9fe', color: '#4f46e5',
         }}>
           {prixPart}
@@ -234,8 +234,9 @@ function BienCard({ line, dark, onNavigate, biens }) {
       )}
       {clickable && (
         <span style={{
-          fontSize: 11, color: hovered ? '#4f46e5' : (dark ? '#64748b' : '#94a3b8'),
-          transition: 'color .15s', flexShrink: 0,
+          fontSize: 12, flexShrink: 0,
+          color: hovered ? '#4f46e5' : (dark ? '#475569' : '#94a3b8'),
+          transition: 'color .15s',
         }}>→</span>
       )}
     </div>
