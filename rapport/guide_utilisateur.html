@@ -497,6 +497,104 @@
       .section-body, .section-header { padding-left: 24px; padding-right: 24px; }
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
+
+    /* ── SEARCH ── */
+    .search-wrap { padding: 12px; border-bottom: 1px solid var(--border); }
+    .search-input {
+      width: 100%; padding: 7px 10px 7px 30px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 12px; font-family: inherit; color: #1e293b;
+      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath stroke-linecap='round' d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 9px center;
+      outline: none; transition: border-color .15s;
+    }
+    .search-input:focus { border-color: var(--navy); }
+    .search-no-result { padding: 10px 16px; font-size: 12px; color: var(--slate); display: none; }
+
+    /* ── BACK TO TOP ── */
+    #back-top {
+      position: fixed; bottom: 28px; right: 28px; z-index: 100;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--navy); color: white; border: none; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(30,58,95,.35); transition: opacity .2s, transform .2s;
+    }
+    #back-top:hover { transform: translateY(-2px); }
+
+    /* ── VISUAL MOCKUPS ── */
+    .mockup-wrap {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; margin: 20px 0;
+    }
+    .mockup-bar {
+      background: #e2e8f0; padding: 8px 14px; display: flex; gap: 6px; align-items: center;
+    }
+    .mockup-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .mockup-title { font-size: 11px; color: var(--slate); margin-left: 6px; font-weight: 500; }
+    .mockup-body { padding: 16px; }
+
+    /* Chatbot mockup */
+    .chat-screen {
+      background: linear-gradient(135deg,#080f1a,#0d1826);
+      border-radius: 10px; padding: 14px; position: relative; min-height: 160px;
+    }
+    .chat-fab {
+      position: absolute; bottom: 14px; right: 14px;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(99,102,241,.5);
+    }
+    .chat-window {
+      position: absolute; bottom: 64px; right: 14px; width: 200px;
+      background: #0d1826; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1); box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+    .chat-win-header {
+      background: #162840; padding: 8px 12px; font-size: 11px; color: #7dd3fc; font-weight: 600;
+    }
+    .chat-win-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .chat-bubble-bot {
+      background: #1a2a3a; border-radius: 8px 8px 8px 2px; padding: 6px 9px;
+      font-size: 10px; color: #e2e8f0; max-width: 85%; line-height: 1.4;
+    }
+    .chat-bubble-user {
+      background: #1e4976; border-radius: 8px 8px 2px 8px; padding: 6px 9px;
+      font-size: 10px; color: #e2e8f0; max-width: 85%; line-height: 1.4; align-self: flex-end;
+    }
+
+    /* Claude usage mockup */
+    .usage-card {
+      background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-width: 420px;
+    }
+    .usage-card-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .usage-row { margin-bottom: 12px; }
+    .usage-row-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); margin-bottom: 5px; }
+    .usage-row-label strong { color: #1e293b; }
+    .usage-bar-bg { background: #f1f5f9; border-radius: 4px; height: 7px; overflow: hidden; }
+    .usage-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .usage-stats { display: flex; gap: 14px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .usage-stat { flex: 1; text-align: center; }
+    .usage-stat-val { font-size: 18px; font-weight: 800; color: var(--navy); }
+    .usage-stat-lbl { font-size: 10px; color: var(--slate); margin-top: 2px; }
+
+    /* Email with logo mockup */
+    .email-mock {
+      background: white; border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--border); max-width: 340px; font-size: 11px;
+    }
+    .email-mock-header {
+      background: var(--navy); padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+    }
+    .email-mock-logo {
+      background: white; border-radius: 6px; padding: 5px 10px;
+      font-size: 11px; font-weight: 800; color: var(--navy); letter-spacing: -.02em;
+    }
+    .email-mock-from { color: rgba(255,255,255,.7); font-size: 10px; }
+    .email-mock-body { padding: 14px 18px; color: #334155; line-height: 1.6; }
+    .email-mock-btn {
+      display: inline-block; background: var(--navy); color: white;
+      border-radius: 6px; padding: 7px 14px; font-size: 10px; font-weight: 600; margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -508,7 +606,10 @@
       <div class="sidebar-logo">Immo<span>Match</span></div>
       <div class="sidebar-label">Guide utilisateur</div>
     </div>
-    <nav class="sidebar-nav">
+    <div class="search-wrap">
+      <input class="search-input" id="guide-search" type="text" placeholder="Rechercher…" autocomplete="off" />
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
       <a href="#workflow"     class="nav-item"><div class="nav-num">1</div>Fonctionnement</a>
       <a href="#dashboard"   class="nav-item"><div class="nav-num">2</div>Tableau de bord</a>
       <a href="#prospects"   class="nav-item"><div class="nav-num">3</div>Prospects</a>
@@ -524,7 +625,15 @@
       <a href="#claude"      class="nav-item"><div class="nav-num">13</div>Usage Claude</a>
       <a href="#chatbot"     class="nav-item"><div class="nav-num">14</div>Assistant IA</a>
     </nav>
+    <div id="search-no-result" class="search-no-result">Aucun résultat</div>
   </aside>
+
+  <!-- BACK TO TOP -->
+  <button id="back-top" title="Retour en haut">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+    </svg>
+  </button>
 
   <!-- MAIN -->
   <div class="main">
@@ -1247,6 +1356,34 @@
       <div class="section-body">
         <p class="intro">Le logo et la couleur principale de l'agence ne sont pas que décoratifs — ils sont intégrés dans les emails envoyés aux prospects et dans les rapports PDF. Une configuration soignée renforce l'image professionnelle de l'agence.</p>
 
+        <div class="mockup-wrap">
+          <div class="mockup-bar">
+            <div class="mockup-dot" style="background:#ef4444"></div>
+            <div class="mockup-dot" style="background:#f59e0b"></div>
+            <div class="mockup-dot" style="background:#10b981"></div>
+            <span class="mockup-title">Aperçu email avec logo agence</span>
+          </div>
+          <div class="mockup-body">
+            <div class="email-mock">
+              <div class="email-mock-header">
+                <div>
+                  <div class="email-mock-logo">Saint François Immo</div>
+                  <div class="email-mock-from" style="margin-top:4px;">contact@saintfrancoisimmobilier.fr</div>
+                </div>
+              </div>
+              <div class="email-mock-body">
+                <div style="font-weight:700;font-size:13px;color:#1e293b;margin-bottom:6px;">Bonjour Mme Dupont,</div>
+                <div style="color:#475569;">Nous avons sélectionné un bien qui correspond à votre recherche…</div>
+                <div style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:8px;border-left:3px solid #1E3A5F;">
+                  <div style="font-weight:600;color:#1e293b;">Appartement T3 · Fréjus</div>
+                  <div style="color:#64748b;font-size:10px;margin-top:2px;">194 000 € · 40 m² · Score : 88/100</div>
+                </div>
+                <div><span class="email-mock-btn">Voir ce bien →</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="feature-list">
           <div class="feature-row">
             <div class="feature-icon" style="background:#fdf4ff;">
@@ -1388,6 +1525,40 @@
       <div class="section-body">
         <p class="intro">ImmoMatch utilise Claude (Anthropic) pour analyser les matchings, générer les emails et faire fonctionner l'assistant IA. Chaque appel consomme des tokens (unités de traitement). L'usage est suivi par mois pour votre agence.</p>
 
+        <div class="mockup-wrap">
+          <div class="mockup-bar">
+            <div class="mockup-dot" style="background:#ef4444"></div>
+            <div class="mockup-dot" style="background:#f59e0b"></div>
+            <div class="mockup-dot" style="background:#10b981"></div>
+            <span class="mockup-title">Administration → Usage Claude</span>
+          </div>
+          <div class="mockup-body">
+            <div class="usage-card">
+              <div class="usage-card-title">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                Usage Claude — Avril 2026
+              </div>
+              <div class="usage-row">
+                <div class="usage-row-label"><span>Tokens en entrée</span><strong>142 500</strong></div>
+                <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:62%;background:#3b82f6"></div></div>
+              </div>
+              <div class="usage-row">
+                <div class="usage-row-label"><span>Tokens en sortie</span><strong>38 200</strong></div>
+                <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:28%;background:#10b981"></div></div>
+              </div>
+              <div class="usage-row">
+                <div class="usage-row-label"><span>Appels API</span><strong>87</strong></div>
+                <div class="usage-bar-bg"><div class="usage-bar-fill" style="width:43%;background:#f59e0b"></div></div>
+              </div>
+              <div class="usage-stats">
+                <div class="usage-stat"><div class="usage-stat-val">87</div><div class="usage-stat-lbl">Appels</div></div>
+                <div class="usage-stat"><div class="usage-stat-val">180k</div><div class="usage-stat-lbl">Tokens total</div></div>
+                <div class="usage-stat"><div class="usage-stat-val" style="color:#10b981">~0.54€</div><div class="usage-stat-lbl">Coût estimé</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="feature-list">
           <div class="feature-row">
             <div class="feature-icon" style="background:#fef3c7;">
@@ -1452,6 +1623,40 @@
       </div>
       <div class="section-body">
         <p class="intro">ImmoMatch intègre un assistant IA conversationnel accessible depuis toutes les pages (bouton en bas à droite). Il répond à vos questions sur l'activité de l'agence en temps réel, sans quitter votre page.</p>
+
+        <div class="mockup-wrap">
+          <div class="mockup-bar">
+            <div class="mockup-dot" style="background:#ef4444"></div>
+            <div class="mockup-dot" style="background:#f59e0b"></div>
+            <div class="mockup-dot" style="background:#10b981"></div>
+            <span class="mockup-title">ImmoMatch — Tableau de bord</span>
+          </div>
+          <div class="mockup-body">
+            <div class="chat-screen">
+              <div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;">Tableau de bord</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:8px 12px;font-size:10px;color:rgba(255,255,255,.6);">57 prospects</div>
+                <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:8px 12px;font-size:10px;color:rgba(255,255,255,.6);">115 biens</div>
+                <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:8px 12px;font-size:10px;color:rgba(255,255,255,.6);">271 matchings</div>
+              </div>
+              <!-- Chat window -->
+              <div class="chat-window">
+                <div class="chat-win-header">✦ Assistant ImmoMatch</div>
+                <div class="chat-win-body">
+                  <div class="chat-bubble-user">Combien de matchings cette semaine ?</div>
+                  <div class="chat-bubble-bot">Cette semaine : <strong style="color:#7dd3fc">12 nouveaux matchings</strong>, dont 4 avec un score ≥ 80.</div>
+                </div>
+              </div>
+              <!-- FAB button -->
+              <div class="chat-fab">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-3 3v-3z"/>
+                </svg>
+              </div>
+              <div style="position:absolute;bottom:62px;right:62px;background:#6366f1;border-radius:4px;padding:3px 7px;font-size:9px;color:white;white-space:nowrap;">← Bouton assistant IA</div>
+            </div>
+          </div>
+        </div>
 
         <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:0 0 12px;">Comment y accéder ?</h3>
         <div class="steps">
@@ -1547,7 +1752,7 @@
 </div><!-- /layout -->
 
 <script>
-  // Highlight nav item on scroll
+  // ── Highlight nav on scroll ─────────────────────────
   const sections = document.querySelectorAll('.section[id]')
   const navItems = document.querySelectorAll('.nav-item')
   const observer = new IntersectionObserver(entries => {
@@ -1558,8 +1763,42 @@
         if (active) active.classList.add('active')
       }
     })
-  }, { threshold: 0.4 })
+  }, { threshold: 0.3 })
   sections.forEach(s => observer.observe(s))
+
+  // ── Back to top ─────────────────────────────────────
+  const backTop = document.getElementById('back-top')
+  window.addEventListener('scroll', () => {
+    backTop.style.display = window.scrollY > 300 ? 'flex' : 'none'
+  })
+  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
+
+  // ── Search ──────────────────────────────────────────
+  const searchInput = document.getElementById('guide-search')
+  const noResult    = document.getElementById('search-no-result')
+  const allNavItems = document.querySelectorAll('#sidebar-nav .nav-item')
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase()
+    if (!q) {
+      allNavItems.forEach(n => n.style.display = '')
+      sections.forEach(s => s.style.display = '')
+      noResult.style.display = 'none'
+      return
+    }
+    let found = 0
+    allNavItems.forEach(n => {
+      const match = n.textContent.toLowerCase().includes(q)
+      n.style.display = match ? '' : 'none'
+    })
+    sections.forEach(s => {
+      const text = s.textContent.toLowerCase()
+      const match = text.includes(q)
+      s.style.display = match ? '' : 'none'
+      if (match) found++
+    })
+    noResult.style.display = found === 0 ? 'block' : 'none'
+  })
 </script>
 </body>
 </html>
