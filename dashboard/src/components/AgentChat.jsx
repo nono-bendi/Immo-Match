@@ -215,8 +215,13 @@ function BienCard({ line, dark, onNavigate }) {
         </span>
       )}
       {ref && (
-        <span style={{ fontSize: 10, color: dark ? '#64748b' : '#94a3b8', whiteSpace: 'nowrap' }}>
-          ↗
+        <span style={{
+          fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap',
+          padding: '2px 6px', borderRadius: 6,
+          background: dark ? 'rgba(99,102,241,.2)' : '#ede9fe',
+          color: '#6d28d9',
+        }}>
+          Voir →
         </span>
       )}
     </div>

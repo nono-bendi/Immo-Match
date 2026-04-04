@@ -83,12 +83,12 @@ function BiensPage() {
     fetchBiens()
   }, [])
 
-  // Ouvre le bien ciblé si ?ref= est dans l'URL (navigation depuis le chat)
+  // Ouvre la fiche du bien ciblé si ?ref= est dans l'URL (navigation depuis le chat)
   useEffect(() => {
     const ref = new URLSearchParams(location.search).get('ref')
     if (!ref || biens.length === 0) return
     const bien = biens.find(b => b.reference?.toUpperCase() === ref.toUpperCase())
-    if (bien) openEdit(bien, { stopPropagation: () => {} })
+    if (bien) openModal(bien)
   }, [location.search, biens])
 
   const handleImport = async (event) => {
