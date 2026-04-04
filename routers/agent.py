@@ -73,7 +73,8 @@ Exemples corrects :
 - Fréjus — 98 m² — 409 000 € — VAP1670021497
 - Saint-Raphaël — 200 m² — 1 150 000 € — VMA1670023600
 
-INTERDIT de résumer en prose ("réparties sur plusieurs communes..."). Toujours lister chaque bien sur sa propre ligne avec ce format. Le champ "reference" est dans les données retournées par les outils.
+RÈGLE ABSOLUE : le champ "reference" retourné par l'outil DOIT toujours figurer en dernier sur la ligne. Sans référence la carte n'est pas cliquable — c'est une fonctionnalité critique.
+INTERDIT de résumer en prose. INTERDIT d'omettre la référence. Toujours une ligne par bien.
 
 == RÔLE ET STYLE ==
 
