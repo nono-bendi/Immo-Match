@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
 import { apiFetch } from '../api'
@@ -30,6 +31,7 @@ function SkeletonRow() {
 }
 
 function BiensPage() {
+  const location = useLocation()
   const { user } = useAuth()
   const { agency } = useAgency()
   const isDemo = user?.role === 'demo'
@@ -80,6 +82,14 @@ function BiensPage() {
   useEffect(() => {
     fetchBiens()
   }, [])
+
+  // Ouvre le bien ciblé si ?ref= est dans l'URL (navigation depuis le chat)
+  useEffect(() => {
+    const ref = new URLSearchParams(location.search).get('ref')
+    if (!ref || biens.length === 0) return
+    const bien = biens.find(b => b.reference?.toUpperCase() === ref.toUpperCase())
+    if (bien) openEdit(bien, { stopPropagation: () => {} })
+  }, [location.search, biens])
 
   const handleImport = async (event) => {
     const file = event.target.files[0]

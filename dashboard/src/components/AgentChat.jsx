@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAgency } from '../contexts/AgencyContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { apiFetch } from '../api'
@@ -171,29 +172,33 @@ function WaveButton({ open, onClick }) {
 }
 
 // ── Mini-carte bien ───────────────────────────────────────────────────────────
-function BienCard({ line, dark }) {
-  // Extrait ville, surface, prix d'une ligne "- Ville — 98 m² — 409 000 €"
+function BienCard({ line, dark, onNavigate }) {
+  // Split uniquement sur — et – (pas sur - pour éviter de couper les noms de villes)
   const clean = line.replace(/^[-•]\s*/, '')
-  const parts = clean.split(/\s*[—–-]{1,2}\s*/)
+  const parts = clean.split(/\s*[—–]\s*/)
   const ville = parts[0] || ''
   const surface = parts.find(p => /m²/.test(p)) || ''
   const prix = parts.find(p => /€/.test(p)) || ''
-  const extra = parts.filter(p => p !== ville && p !== surface && p !== prix).join(' · ')
+  const ref = parts.find(p => /^[A-Z]{2,4}\d{5,}/.test(p.trim())) || ''
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 8,
-      padding: '6px 10px', margin: '3px 0',
-      borderRadius: 10,
-      background: dark ? 'rgba(255,255,255,.06)' : '#f8fafc',
-      border: `1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e2e8f0'}`,
-    }}>
-      <div style={{
-        width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
-        background: '#4f46e5',
-      }} />
+    <div
+      onClick={() => onNavigate && onNavigate(ref)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 10px', margin: '3px 0',
+        borderRadius: 10,
+        background: dark ? 'rgba(255,255,255,.06)' : '#f8fafc',
+        border: `1px solid ${dark ? 'rgba(255,255,255,.1)' : '#e2e8f0'}`,
+        cursor: ref ? 'pointer' : 'default',
+        transition: 'background .15s',
+      }}
+      onMouseEnter={e => { if (ref) e.currentTarget.style.background = dark ? 'rgba(255,255,255,.11)' : '#f1f5f9' }}
+      onMouseLeave={e => { e.currentTarget.style.background = dark ? 'rgba(255,255,255,.06)' : '#f8fafc' }}
+    >
+      <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: '#4f46e5' }} />
       <span style={{ fontWeight: 600, fontSize: 12, flex: 1, color: dark ? '#e2e8f0' : '#1e293b' }}>
-        {ville}{extra ? ` · ${extra}` : ''}
+        {ville}
       </span>
       {surface && (
         <span style={{ fontSize: 11, color: dark ? '#94a3b8' : '#64748b', whiteSpace: 'nowrap' }}>
@@ -204,10 +209,14 @@ function BienCard({ line, dark }) {
         <span style={{
           fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
           padding: '2px 7px', borderRadius: 6,
-          background: dark ? 'rgba(99,102,241,.25)' : '#ede9fe',
-          color: '#4f46e5',
+          background: dark ? 'rgba(99,102,241,.25)' : '#ede9fe', color: '#4f46e5',
         }}>
           {prix}
+        </span>
+      )}
+      {ref && (
+        <span style={{ fontSize: 10, color: dark ? '#64748b' : '#94a3b8', whiteSpace: 'nowrap' }}>
+          ↗
         </span>
       )}
     </div>
@@ -215,9 +224,9 @@ function BienCard({ line, dark }) {
 }
 
 // ── Rendu d'une ligne de texte ────────────────────────────────────────────────
-function RenderLine({ line, i, dark }) {
+function RenderLine({ line, i, dark, onNavigate }) {
   const isBienLine = /^[-•]\s/.test(line) && /€/.test(line)
-  if (isBienLine) return <BienCard key={i} line={line} dark={dark} />
+  if (isBienLine) return <BienCard key={i} line={line} dark={dark} onNavigate={onNavigate} />
 
   const parts = line.split(/(\*\*[^*]+\*\*)/g)
   const content = parts.map((part, j) =>
@@ -238,7 +247,7 @@ function RenderLine({ line, i, dark }) {
 }
 
 // ── Bulle de message ──────────────────────────────────────────────────────────
-function Message({ msg, dark }) {
+function Message({ msg, dark, onNavigate }) {
   const isBot = msg.role === 'bot'
   return (
     <div className={`agent-msg-in flex gap-2 ${isBot ? '' : 'flex-row-reverse'}`}>
@@ -276,7 +285,7 @@ function Message({ msg, dark }) {
         opacity: msg.loading ? .6 : 1,
       }}>
         {msg.text.split('\n').map((line, i) =>
-          <RenderLine key={i} line={line} i={i} dark={dark} />
+          <RenderLine key={i} line={line} i={i} dark={dark} onNavigate={onNavigate} />
         )}
       </div>
     </div>
@@ -287,6 +296,7 @@ function Message({ msg, dark }) {
 export default function AgentChat() {
   const { agency } = useAgency()
   const { dark } = useTheme()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     { role: 'bot', text: `Bonjour ! Comment puis-je vous aider ?` }
@@ -396,7 +406,12 @@ export default function AgentChat() {
               ? 'linear-gradient(180deg,#0a1520 0%,#0d1826 100%)'
               : 'linear-gradient(180deg,#f1f5f9 0%,#f8fafc 100%)',
           }}>
-            {messages.map((msg, i) => <Message key={i} msg={msg} dark={dark} />)}
+            {messages.map((msg, i) => (
+              <Message key={i} msg={msg} dark={dark} onNavigate={ref => {
+                navigate(`/biens?ref=${ref}`)
+                setOpen(false)
+              }} />
+            ))}
             {loading && messages[messages.length - 1]?.loading && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: 12 }}>
                 <Loader2 size={11} style={{ animation: 'spin 1s linear infinite' }} />
