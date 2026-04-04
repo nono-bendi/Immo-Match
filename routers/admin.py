@@ -35,7 +35,8 @@ def update_agency_config(data: dict, current_user: dict = Depends(require_admin)
     allowed = {
         "nom", "nom_court", "nom_filtre", "adresse", "telephone", "email",
         "logo_url", "couleur_primaire", "logo_fond_colore",
-        "smtp_user", "smtp_password", "smtp_from_name", "smtp_reply_to"
+        "smtp_user", "smtp_password", "smtp_from_name", "smtp_reply_to",
+        "smtp_server", "smtp_port"
     }
     fields = {k: v for k, v in data.items() if k in allowed}
     if not fields:

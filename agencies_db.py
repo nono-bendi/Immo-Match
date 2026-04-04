@@ -70,6 +70,8 @@ def init_agencies_db():
     # ── Migration : colonnes ajoutées après la création initiale ──────────────
     for col, definition in [
         ("logo_fond_colore", "INTEGER DEFAULT 0"),
+        ("smtp_server", "TEXT DEFAULT 'smtp.gmail.com'"),
+        ("smtp_port", "INTEGER DEFAULT 587"),
     ]:
         try:
             conn.execute(f"ALTER TABLE agencies ADD COLUMN {col} {definition}")
@@ -167,7 +169,8 @@ def get_user_with_agency(email: str) -> dict | None:
             a.logo_url           AS agency_logo_url,
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
-            a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to
+            a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
+            a.smtp_server, a.smtp_port
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.email = ?
@@ -193,7 +196,8 @@ def get_user_by_id(user_id: int) -> dict | None:
             a.logo_url           AS agency_logo_url,
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
-            a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to
+            a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
+            a.smtp_server, a.smtp_port
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.id = ?

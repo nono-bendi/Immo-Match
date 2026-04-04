@@ -516,7 +516,8 @@ async def send_email(data: EmailRequest, _user: dict = Depends(require_not_demo)
 
     # Construire la config SMTP depuis l'agence de l'utilisateur
     smtp_cfg = {
-        **SMTP_BASE,
+        "server":    _user.get("smtp_server") or SMTP_BASE["server"],
+        "port":      int(_user.get("smtp_port") or SMTP_BASE["port"]),
         "user":      _user.get("smtp_user", ""),
         "password":  _user.get("smtp_password", ""),
         "from_name": _user.get("smtp_from_name", _user.get("agency_nom", "")),

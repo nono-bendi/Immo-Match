@@ -95,7 +95,8 @@ export default function AdministrationPage() {
   const [agencyForm, setAgencyForm] = useState({
     nom: '', nom_court: '', nom_filtre: '', adresse: '', telephone: '', email: '',
     logo_url: '', couleur_primaire: '#1E3A5F', logo_fond_colore: 0,
-    smtp_user: '', smtp_password: '', smtp_from_name: '', smtp_reply_to: ''
+    smtp_user: '', smtp_password: '', smtp_from_name: '', smtp_reply_to: '',
+    smtp_server: 'smtp.gmail.com', smtp_port: 587
   })
   const [savingAgency, setSavingAgency] = useState(false)
   const [agencyMsg, setAgencyMsg] = useState({ ok: false, text: '' })
@@ -161,7 +162,8 @@ export default function AdministrationPage() {
           adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '',
           logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0,
           smtp_user: d.smtp_user || '', smtp_password: d.smtp_password || '',
-          smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || ''
+          smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || '',
+          smtp_server: d.smtp_server || 'smtp.gmail.com', smtp_port: d.smtp_port || 587
         })
       }).catch(() => {})
 
@@ -531,6 +533,12 @@ export default function AdministrationPage() {
               Ces identifiants permettent d'envoyer les propositions depuis l'adresse de l'agence.
             </p>
             <div className="grid grid-cols-2 gap-4 mb-2">
+              <Field label="Serveur SMTP">
+                <Input value={agencyForm.smtp_server} onChange={e => chgA('smtp_server', e.target.value)} placeholder="smtp.gmail.com" />
+              </Field>
+              <Field label="Port">
+                <Input type="number" value={agencyForm.smtp_port} onChange={e => chgA('smtp_port', parseInt(e.target.value) || 587)} placeholder="587" />
+              </Field>
               <Field label="Email d'envoi">
                 <Input type="email" value={agencyForm.smtp_user} onChange={e => chgA('smtp_user', e.target.value)} placeholder="contact@agence.fr" />
               </Field>
