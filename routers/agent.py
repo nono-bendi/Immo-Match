@@ -160,7 +160,7 @@ INTERDIT de repondre ces phrases (un outil existe a la place) :
 Choix des outils :
 - "Combien de biens ?", "stats biens ?", "repartition ?" → stats_biens
 - "Biens par agence ?" → stats_par_agence
-- "Appartements a Toulon ?", "maisons sous 300k ?" → chercher_biens
+- "Appartements a Toulon ?", "maisons sous 300k ?", "maisons avec piscine ?", "biens avec terrasse ?" → chercher_biens (utilise mot_cle pour piscine/terrasse/vue mer/jardin...)
 - "Prix moyen des studios ?" → fourchette_prix
 - Toute question avec un numero de reference (VMA..., VAP...) → get_bien_par_reference
 - "Combien de prospects ?", "stats prospects ?" → stats_prospects
@@ -197,10 +197,10 @@ class AgentQuestion(BaseModel):
 
 # ── Outils ───────────────────────────────────────────────────────────────────
 
-def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_min=None, surface_min=None):
+def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_min=None, surface_min=None, mot_cle=None):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    query = "SELECT * FROM biens WHERE 1=1"
+    query = "SELECT * FROM biens WHERE statut != 'vendu'"
     params = []
     if type_bien:
         query += " AND LOWER(type) LIKE ?"
@@ -217,16 +217,35 @@ def chercher_biens(db_path, type_bien=None, ville=None, budget_max=None, pieces_
     if surface_min:
         query += " AND surface >= ?"
         params.append(surface_min)
-    query += " ORDER BY prix ASC LIMIT 6"
+    if mot_cle:
+        kw = mot_cle.lower().strip()
+        # Cherche dans la description ET dans les colonnes booléennes connues
+        bool_cols = ["piscine", "terrasse", "ascenseur", "cave", "gardien", "digicode"]
+        col_filter = " OR ".join(f"LOWER({c}) IN ('1','oui','true','yes')" for c in bool_cols if kw in c)
+        if col_filter:
+            query += f" AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ? OR ({col_filter}))"
+            params += [f"%{kw}%", f"%{kw}%"]
+        else:
+            query += " AND (LOWER(description) LIKE ? OR LOWER(defauts) LIKE ?)"
+            params += [f"%{kw}%", f"%{kw}%"]
+
+    # Compte total avant limite
+    count_row = conn.execute(f"SELECT COUNT(*) FROM ({query})", params).fetchone()
+    total = count_row[0] if count_row else 0
+
+    query += " ORDER BY prix ASC LIMIT 20"
     rows = conn.execute(query, params).fetchall()
     conn.close()
     if not rows:
-        return "Aucun bien trouve avec ces criteres."
-    return json.dumps([{
-        "reference": r["reference"], "type": r["type"], "ville": r["ville"],
-        "prix": r["prix"], "surface": r["surface"], "pieces": r["pieces"],
-        "description": (r["description"] or "")[:200],
-    } for r in rows], ensure_ascii=False)
+        return f"Aucun bien trouvé avec ces critères (total vérifié : 0)."
+    return json.dumps({
+        "total": total,
+        "biens": [{
+            "reference": r["reference"], "type": r["type"], "ville": r["ville"],
+            "prix": r["prix"], "surface": r["surface"], "pieces": r["pieces"],
+            "description": (r["description"] or "")[:200],
+        } for r in rows]
+    }, ensure_ascii=False)
 
 
 def biens_recents(db_path, jours=7):
@@ -316,7 +335,7 @@ def fourchette_prix(db_path, ville=None, type_bien=None):
 TOOLS_SCHEMA = [
     {
         "name": "chercher_biens",
-        "description": "Cherche des biens selon des criteres. Utilise sans filtre ville si la ville n'est pas mentionnee.",
+        "description": "Cherche des biens selon des criteres. Utilise sans filtre ville si la ville n'est pas mentionnee. Retourne le total réel + la liste. Pour des critères comme 'piscine', 'terrasse', 'vue mer', utilise le paramètre mot_cle.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -325,6 +344,7 @@ TOOLS_SCHEMA = [
                 "budget_max":  {"type": "number", "description": "Budget max en euros"},
                 "pieces_min":  {"type": "integer", "description": "Nb min de pieces"},
                 "surface_min": {"type": "number", "description": "Surface min en m2"},
+                "mot_cle":     {"type": "string", "description": "Mot-clé à chercher dans la description ou les équipements, ex: 'piscine', 'vue mer', 'terrasse', 'jardin'"},
             },
         },
     },
