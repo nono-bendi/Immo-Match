@@ -1237,36 +1237,18 @@ export default function TutorialModal({ open, onClose }) {
 
         {/* Footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderTop: '1px solid rgba(255,255,255,0.07)', position: 'relative', zIndex: 5 }}>
-          {/* Dots + lien guide */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ display: 'flex', gap: '5px' }}>
-              {SLIDES.map((_, i) => (
-                <button key={i} onClick={() => goTo(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-                  <div style={{
-                    height: '6px', width: i === current ? '20px' : '6px',
-                    borderRadius: '3px',
-                    background: i === current ? slide.color : 'rgba(255,255,255,0.15)',
-                    transition: 'all 0.35s ease',
-                  }} />
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={() => window.open(`${API_URL}/guide`, '_blank')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '4px',
-                padding: '4px 10px', borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.07)',
-                color: 'rgba(255,255,255,0.55)',
-                fontSize: '11px', fontWeight: 500, cursor: 'pointer',
-                transition: 'all 0.18s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.13)'; e.currentTarget.style.color = 'white' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)' }}
-            >
-              <BookOpen size={11} /> Guide
-            </button>
+          {/* Dots */}
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {SLIDES.map((_, i) => (
+              <button key={i} onClick={() => goTo(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
+                <div style={{
+                  height: '6px', width: i === current ? '20px' : '6px',
+                  borderRadius: '3px',
+                  background: i === current ? slide.color : 'rgba(255,255,255,0.15)',
+                  transition: 'all 0.35s ease',
+                }} />
+              </button>
+            ))}
           </div>
 
           {/* Boutons nav */}
@@ -1285,20 +1267,38 @@ export default function TutorialModal({ open, onClose }) {
             </button>
 
             {current < SLIDES.length - 1 ? (
-              <button onClick={() => goTo(current + 1)} style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                padding: '8px 18px', borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.08)',
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '13px', fontWeight: 500, cursor: 'pointer',
-                transition: 'all 0.18s',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)' }}
-              >
-                Suivant <ChevronRight size={14} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => window.open(`${API_URL}/guide`, '_blank')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '8px 14px', borderRadius: '10px',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.75)',
+                    fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+                    transition: 'all 0.18s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.75)' }}
+                >
+                  <BookOpen size={13} /> Guide complet
+                </button>
+                <button onClick={() => goTo(current + 1)} style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  padding: '8px 18px', borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(255,255,255,0.08)',
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                  transition: 'all 0.18s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.color = 'white' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)' }}
+                >
+                  Suivant <ChevronRight size={14} />
+                </button>
+              </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
