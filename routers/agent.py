@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+import re
 import anthropic
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
@@ -8,6 +9,28 @@ from pydantic import BaseModel
 
 from agencies_db import get_db_path, AGENCIES_DB_PATH
 from routers.auth import get_current_user
+
+
+# ── Chargement du guide utilisateur ──────────────────────────────────────────
+
+def _load_guide_text() -> str:
+    """Lit le guide HTML et en extrait le texte brut par section."""
+    guide_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "rapport", "guide_utilisateur.html")
+    try:
+        with open(guide_path, encoding="utf-8") as f:
+            html = f.read()
+        # Supprime les balises script et style
+        html = re.sub(r'<(script|style)[^>]*>.*?</\1>', ' ', html, flags=re.DOTALL | re.IGNORECASE)
+        # Supprime toutes les balises HTML
+        text = re.sub(r'<[^>]+>', ' ', html)
+        # Normalise les espaces
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
+    except Exception:
+        return ""
+
+_GUIDE_TEXT = _load_guide_text()
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -150,6 +173,7 @@ Choix des outils :
 - "Mes emails partent pas", "verifier le SMTP", "expediteur email" → get_config_smtp
 - "Derniere synchro ?", "historique sync", "la synchro a pas tourne" → get_historique_sync
 - "Comment je fais pour...", "ou est l'option...", "je trouve pas...", "comment envoyer un email ?" → guide_action
+- Question détaillée sur une fonctionnalité (SMTP, calibration, scoring, logo, équipe, usage Claude, assistant IA...) → lire_guide
 
 == AUTRES REGLES ==
 - Si une fonctionnalite n'est pas dans cette liste : dis clairement qu'elle n'existe pas
@@ -425,6 +449,17 @@ TOOLS_SCHEMA = [
                 "action": {"type": "string", "description": "L'action demandée, ex: 'configurer smtp', 'ajouter un bien', 'envoyer email'"},
             },
             "required": ["action"],
+        },
+    },
+    {
+        "name": "lire_guide",
+        "description": "Consulte le guide utilisateur complet d'ImmoMatch et retourne les passages pertinents pour une question donnée. Utilise cet outil quand guide_action ne suffit pas, ou pour des questions détaillées sur une fonctionnalité (SMTP, calibration, scoring, logo, équipe, usage Claude, assistant IA, etc.).",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "recherche": {"type": "string", "description": "Le mot-clé ou la question à rechercher dans le guide, ex: 'SMTP', 'calibration', 'logo', 'score'"},
+            },
+            "required": ["recherche"],
         },
     },
     {
@@ -736,6 +771,34 @@ def guide_action(action):
     }, ensure_ascii=False)
 
 
+def lire_guide(recherche: str) -> str:
+    """Recherche un mot-clé dans le guide et retourne les passages pertinents."""
+    if not _GUIDE_TEXT:
+        return json.dumps({"erreur": "Guide non disponible"})
+
+    mots = [m.strip().lower() for m in re.split(r'[\s,]+', recherche) if len(m.strip()) > 2]
+    paragraphes = [p.strip() for p in _GUIDE_TEXT.split('\n\n') if p.strip()]
+
+    # Score : nombre de mots trouvés dans chaque paragraphe
+    scores = []
+    for p in paragraphes:
+        pl = p.lower()
+        score = sum(1 for m in mots if m in pl)
+        if score > 0:
+            scores.append((score, p))
+
+    scores.sort(key=lambda x: -x[0])
+    top = [p for _, p in scores[:6]]
+
+    if not top:
+        return json.dumps({"message": f"Aucun passage trouvé pour '{recherche}' dans le guide."})
+
+    return json.dumps({
+        "recherche": recherche,
+        "passages": top,
+    }, ensure_ascii=False)
+
+
 def run_tool(name, inputs, db_path):
     if name == "chercher_biens":         return chercher_biens(db_path, **inputs)
     if name == "stats_biens":            return stats_biens(db_path)
@@ -754,6 +817,7 @@ def run_tool(name, inputs, db_path):
     if name == "get_config_smtp":        return get_config_smtp(db_path)
     if name == "get_historique_sync":    return get_historique_sync(db_path, **inputs)
     if name == "guide_action":           return guide_action(**inputs)
+    if name == "lire_guide":             return lire_guide(**inputs)
     return "Outil inconnu"
 
 
