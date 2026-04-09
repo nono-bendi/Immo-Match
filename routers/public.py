@@ -727,7 +727,7 @@ def _render_page(bien: dict, agency: dict) -> str:
       const url = window.location.href;
       const title = document.title;
       if (navigator.share) {{
-        try {{ await navigator.share({{ title, url }}); return; }} catch(e) {{}}
+        try {{ await navigator.share({{ title, url }}); return; }} catch(e) {{ if (e.name === 'AbortError') return; }}
       }}
       showSharePanel(url, title);
     }}
