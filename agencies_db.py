@@ -166,7 +166,7 @@ def init_agencies_db():
             pw_hash = bcrypt.hashpw(b"demo", bcrypt.gensalt()).decode()
             conn.execute(
                 "INSERT INTO users (email, password_hash, nom, role, agency_id) VALUES (?, ?, ?, ?, ?)",
-                ("demo@immowatch.fr", pw_hash, "Compte Demo", "admin", demo_agency["id"])
+                ("demo@immowatch.fr", pw_hash, "Compte Demo", "admin", demo_agency[0])
             )
             conn.commit()
 
