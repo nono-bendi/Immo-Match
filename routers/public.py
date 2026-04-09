@@ -586,7 +586,7 @@ def _render_page(bien: dict, agency: dict) -> str:
       .grid {{ display: block; }}
       .grid-2, .grid-5 {{ display: grid; }}
       .layout {{ grid-template-columns: 1fr 420px; gap: 56px; padding: 40px 40px 60px; }}
-      .sidebar {{ display: block; position: sticky; top: 80px; }}
+      .sidebar {{ display: block; position: sticky; top: 80px; align-self: start; }}
       .mobile-bar {{ display: none; }}
       footer {{ margin-bottom: 0; }}
     }}
