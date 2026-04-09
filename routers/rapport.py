@@ -16,7 +16,7 @@ def get_user_from_token_param(token: str = Query(...)):
     try:
         payload = jwt.decode(token, AUTH_CONFIG["secret_key"], algorithms=[AUTH_CONFIG["algorithm"]])
         user_id = payload.get("user_id")
-        if not user_id:
+        if user_id is None:
             raise HTTPException(status_code=401, detail="Token invalide")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expiré")

@@ -81,12 +81,13 @@ class TokenResponse(BaseModel):
 # ── Application FastAPI ───────────────────────────────────────────────────────
 app = FastAPI()
 
-_cors_default = "http://localhost:5173,http://localhost:5174"
+_cors_default = "http://localhost:5173,http://localhost:5174,http://localhost:3000,http://localhost:4173,http://localhost:8080"
 CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", _cors_default).split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

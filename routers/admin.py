@@ -79,6 +79,20 @@ async def upload_logo(file: UploadFile = File(...), current_user: dict = Depends
 
 
 # ══════════════════════════════════════════════════════════════
+# RESET DÉMO
+# ══════════════════════════════════════════════════════════════
+
+@router.post("/admin/reset-demo")
+def reset_demo(current_user: dict = Depends(require_admin)):
+    """Réinitialise demo.db — uniquement accessible depuis le compte démo."""
+    if current_user.get("agency_slug") != "demo":
+        raise HTTPException(status_code=403, detail="Réservé au compte démo")
+    from demo_data import init_demo_db
+    init_demo_db(force=True)
+    return {"success": True, "message": "Démo réinitialisée avec les données fraîches"}
+
+
+# ══════════════════════════════════════════════════════════════
 # GESTION DES AGENTS
 # ══════════════════════════════════════════════════════════════
 

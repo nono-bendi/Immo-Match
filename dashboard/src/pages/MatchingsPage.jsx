@@ -296,7 +296,7 @@ function MatchingsPage() {
         body: JSON.stringify({
           to_email: prospectMail.trim(),
           to_name: prospectNom || 'Madame, Monsieur',
-          subject: content.subject || `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | Saint François Immobilier`,
+          subject: content.subject || `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | ${agencyNom}`,
           bien_type: match.bien_type || 'Bien immobilier',
           bien_ville: match.bien_ville || 'Non précisé',
           bien_prix: formatBudget(match.bien_prix),
@@ -380,7 +380,7 @@ function MatchingsPage() {
         body: JSON.stringify({
           to_email: prospectMail.trim(),
           to_name: prospectNom || 'Madame, Monsieur',
-          subject: emailContent.subject || `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | Saint François Immobilier`,
+          subject: emailContent.subject || `Proposition immobilière - ${match.bien_type} à ${match.bien_ville} | ${agencyNom}`,
           bien_type: match.bien_type || 'Bien immobilier',
           bien_ville: match.bien_ville || 'Non précisé',
           bien_prix: formatBudget(match.bien_prix),

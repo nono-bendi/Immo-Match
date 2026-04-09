@@ -338,7 +338,7 @@ function LoginPage() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Mot de passe</label>
                 <div style={{ position: 'relative' }}>
                   <Lock size={14} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: focused === 'pwd' ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', transition: 'color 0.18s', pointerEvents: 'none' }} />
-                  <input type={showPassword ? 'text' : 'password'} value={password} required minLength={6} onChange={e => setPassword(e.target.value)} onFocus={() => setFocused('pwd')} onBlur={() => setFocused(null)} placeholder="••••••••" style={{ ...inp('pwd'), paddingRight: '40px' }} />
+                  <input type={showPassword ? 'text' : 'password'} value={password} required minLength={isLogin ? 1 : 6} onChange={e => setPassword(e.target.value)} onFocus={() => setFocused('pwd')} onBlur={() => setFocused(null)} placeholder="••••••••" style={{ ...inp('pwd'), paddingRight: '40px' }} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '11px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', display: 'flex', padding: '2px', transition: 'color 0.18s' }}
                     onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
                     onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}

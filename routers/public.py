@@ -558,6 +558,15 @@ def _render_page(bien: dict, agency: dict) -> str:
     .toast {{ position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(10px); background: rgba(17,24,39,.9); color: #fff; padding: 10px 22px; border-radius: 24px; font-size: 13px; font-weight: 500; opacity: 0; transition: all .25s; z-index: 999; pointer-events: none; white-space: nowrap; }}
     .toast.show {{ opacity: 1; transform: translateX(-50%) translateY(0); }}
 
+    /* ── Share panel ── */
+    #share-backdrop {{ position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 300; }}
+    #share-sheet {{ position: fixed; bottom: 0; left: 0; right: 0; z-index: 301; background: var(--white); border-radius: 20px 20px 0 0; padding: 24px 20px 36px; transform: translateY(100%); transition: transform .3s cubic-bezier(.32,1,.23,1); }}
+    #share-sheet.open {{ transform: translateY(0); }}
+    #share-grid {{ display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 4px; }}
+    .share-item {{ display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; background: none; border: none; cursor: pointer; padding: 10px 4px; border-radius: 14px; transition: background .15s; }}
+    .share-item:hover {{ background: var(--surface2, #f2f2f7); }}
+    .share-item span {{ font-size: 12px; color: var(--fg); font-weight: 500; }}
+
     /* ── Lightbox ── */
     .lb {{ display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.95); align-items: center; justify-content: center; }}
     .lb.open {{ display: flex; }}
@@ -715,13 +724,57 @@ def _render_page(bien: dict, agency: dict) -> str:
       btn.textContent  = open ? 'Lire la suite →' : 'Réduire ↑';
     }}
     async function share() {{
-      const d = {{ title: document.title, url: window.location.href }};
+      const url = window.location.href;
+      const title = document.title;
       if (navigator.share) {{
-        try {{ await navigator.share(d); }} catch(e) {{}}
-      }} else {{
-        try {{ await navigator.clipboard.writeText(window.location.href); toast('Lien copié ✓'); }}
-        catch(e) {{ toast('Copiez : ' + window.location.href); }}
+        try {{ await navigator.share({{ title, url }}); return; }} catch(e) {{}}
       }}
+      showSharePanel(url, title);
+    }}
+    function showSharePanel(url, title) {{
+      if (document.getElementById('share-panel')) return;
+      const enc = encodeURIComponent(url);
+      const txt = encodeURIComponent(title + ' ' + url);
+      const panel = document.createElement('div');
+      panel.id = 'share-panel';
+      panel.innerHTML = `
+        <div id="share-backdrop" onclick="closeSharePanel()"></div>
+        <div id="share-sheet">
+          <div style="font-weight:600;font-size:15px;margin-bottom:18px;color:var(--fg)">Partager ce bien</div>
+          <div id="share-grid">
+            <a href="https://wa.me/?text=${{txt}}" target="_blank" class="share-item">
+              <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M22.5 19.4c-.3-.15-1.8-.9-2.1-1-.3-.1-.5-.15-.7.15s-.8 1-.97 1.2c-.18.2-.35.22-.65.07a8.2 8.2 0 01-2.4-1.48 9 9 0 01-1.67-2.07c-.17-.3 0-.46.13-.6l.44-.52c.14-.16.18-.3.27-.5.1-.2.05-.36-.02-.5s-.7-1.68-.96-2.3c-.25-.6-.5-.52-.7-.53h-.6c-.2 0-.52.07-.8.37s-1.04 1.02-1.04 2.48 1.07 2.88 1.22 3.08c.14.2 2.1 3.2 5.08 4.48.71.3 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.3.18-1.42-.07-.1-.27-.17-.57-.32z" fill="#fff"/></svg>
+              <span>WhatsApp</span>
+            </a>
+            <a href="sms:?body=${{txt}}" class="share-item">
+              <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="16" fill="#5AC8FA"/><path d="M8 10h16v10H8z" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M8 12l8 5 8-5" fill="none" stroke="#fff" stroke-width="1.5"/></svg>
+              <span>SMS</span>
+            </a>
+            <a href="mailto:?subject=${{encodeURIComponent(title)}}&body=${{txt}}" class="share-item">
+              <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="16" fill="#EA4335"/><path d="M8 11h16v10H8z" fill="none" stroke="#fff" stroke-width="1.5" rx="1"/><path d="M8 12l8 5.5L24 12" fill="none" stroke="#fff" stroke-width="1.5"/></svg>
+              <span>Email</span>
+            </a>
+            <button class="share-item" onclick="copyShareLink('${{url}}')">
+              <svg viewBox="0 0 32 32" width="32" height="32"><circle cx="16" cy="16" r="16" fill="#636366"/><rect x="10" y="13" width="9" height="10" rx="1.5" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="13" y="9" width="9" height="10" rx="1.5" fill="none" stroke="#fff" stroke-width="1.5"/></svg>
+              <span>Copier</span>
+            </button>
+          </div>
+          <button onclick="closeSharePanel()" style="margin-top:18px;width:100%;padding:12px;border-radius:12px;border:none;background:var(--surface2,#f2f2f7);color:var(--fg);font-size:15px;font-weight:500;cursor:pointer;">Annuler</button>
+        </div>`;
+      document.body.appendChild(panel);
+      requestAnimationFrame(() => panel.querySelector('#share-sheet').classList.add('open'));
+    }}
+    function closeSharePanel() {{
+      const p = document.getElementById('share-panel');
+      if (!p) return;
+      const s = p.querySelector('#share-sheet');
+      s.classList.remove('open');
+      setTimeout(() => p.remove(), 300);
+    }}
+    async function copyShareLink(url) {{
+      try {{ await navigator.clipboard.writeText(url); }} catch(e) {{}}
+      closeSharePanel();
+      toast('Lien copié ✓');
     }}
     function toast(msg) {{
       const t = document.createElement('div');

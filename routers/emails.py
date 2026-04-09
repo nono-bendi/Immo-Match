@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from config import SMTP_BASE, EmailRequest, _email_rate, APP_BASE_URL
-from routers.auth import require_not_demo, get_current_user
+from routers.auth import get_current_user
 
 router = APIRouter()
 
@@ -504,7 +504,7 @@ Pour ne plus recevoir nos propositions : répondez "STOP" à cet email.
 # ============================================================
 
 @router.post("/send-email")
-async def send_email(data: EmailRequest, _user: dict = Depends(require_not_demo)):
+async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)):
     """Envoie un email de proposition immobilière"""
     # Rate limiting : max 3 emails par minute par utilisateur
     uid = str(_user.get("id", _user.get("nom", "unknown")))

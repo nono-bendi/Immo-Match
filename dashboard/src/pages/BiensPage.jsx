@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom'
 import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
 import { apiFetch } from '../api'
-import { useAuth } from '../contexts/AuthContext'
 import { useAgency } from '../contexts/AgencyContext'
 import Pagination from '../components/Pagination'
 import BienModal from '../components/BienModal'
@@ -32,9 +31,7 @@ function SkeletonRow() {
 
 function BiensPage() {
   const location = useLocation()
-  const { user } = useAuth()
   const { agency } = useAgency()
-  const isDemo = user?.role === 'demo'
   const nomFiltre = agency?.nom_filtre || 'SAINT FRANCOIS'
   const [biens, setBiens] = useState([])
   const [loading, setLoading] = useState(true)
@@ -508,16 +505,14 @@ function BiensPage() {
                         >
                           <Eye size={16} className="icon-bounce" />
                         </button>
-                        {!isDemo && (
-                          <button
-                            onClick={(e) => openEdit(bien, e)}
-                            className="p-2 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-600 transition-all"
-                            title="Modifier"
-                          >
-                            <Pencil size={16} className="icon-pop" />
-                          </button>
-                        )}
-                        {!isDemo && bien.statut === 'vendu' && (
+                        <button
+                          onClick={(e) => openEdit(bien, e)}
+                          className="p-2 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-600 transition-all"
+                          title="Modifier"
+                        >
+                          <Pencil size={16} className="icon-pop" />
+                        </button>
+                        {bien.statut === 'vendu' && (
                           <button
                             onClick={async e => {
                               e.stopPropagation()
@@ -530,15 +525,13 @@ function BiensPage() {
                             <RotateCcw size={16} />
                           </button>
                         )}
-                        {!isDemo && (
-                          <button
-                            onClick={e => { e.stopPropagation(); setConfirmDelete({ id: bien.id, type: bien.type, ville: bien.ville }) }}
-                            className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all group/del"
-                            title="Supprimer"
-                          >
-                            <Trash2 size={16} className="group-hover/del:animate-shake" />
-                          </button>
-                        )}
+                        <button
+                          onClick={e => { e.stopPropagation(); setConfirmDelete({ id: bien.id, type: bien.type, ville: bien.ville }) }}
+                          className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all group/del"
+                          title="Supprimer"
+                        >
+                          <Trash2 size={16} className="group-hover/del:animate-shake" />
+                        </button>
                       </div>
                     </td>
                   </tr>

@@ -74,6 +74,7 @@ export default function AdministrationPage() {
   const { user, token } = useAuth()
   const { agency, loadAgency } = useAgency()
   const isAdmin = user?.role === 'admin'
+  const isDemo = agency?.slug === 'demo'
 
   // ── App settings (API key, IA, FTP, préférences) ─────────────────────────
   const [settings, setSettings] = useState({
@@ -344,6 +345,19 @@ export default function AdministrationPage() {
     } catch { alert('Erreur') }
   }
 
+  const [resettingDemo, setResettingDemo] = useState(false)
+  const handleResetDemo = async () => {
+    if (!window.confirm('Réinitialiser la démo ? Toutes les modifications seront perdues.')) return
+    setResettingDemo(true)
+    try {
+      const r = await apiFetch('/admin/reset-demo', { method: 'POST' })
+      const d = await r.json()
+      if (d.success) alert('Démo réinitialisée — les données fraîches sont chargées.')
+      else alert('Erreur : ' + (d.detail || d.message))
+    } catch { alert('Erreur lors de la réinitialisation') }
+    finally { setResettingDemo(false) }
+  }
+
   const maskKey = k => k && k.length > 20 ? k.slice(0, 10) + '••••••••••••••••' + k.slice(-5) : k
 
   const models = [
@@ -513,10 +527,10 @@ export default function AdministrationPage() {
             {/* Infos */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <Field label="Nom complet">
-                <Input value={agencyForm.nom} onChange={e => chgA('nom', e.target.value)} placeholder="Saint François Immobilier" />
+                <Input value={agencyForm.nom} onChange={e => chgA('nom', e.target.value)} placeholder="Mon Agence Immobilier" />
               </Field>
               <Field label="Nom court (sidebar)">
-                <Input value={agencyForm.nom_court} onChange={e => chgA('nom_court', e.target.value)} placeholder="Saint François Immo" />
+                <Input value={agencyForm.nom_court} onChange={e => chgA('nom_court', e.target.value)} placeholder="Mon Agence Immo" />
               </Field>
               <Field label="Téléphone">
                 <Input type="tel" value={agencyForm.telephone} onChange={e => chgA('telephone', e.target.value)} placeholder="04 94 XX XX XX" />
@@ -560,7 +574,7 @@ export default function AdministrationPage() {
                 </div>
               </Field>
               <Field label="Nom d'expéditeur">
-                <Input value={agencyForm.smtp_from_name} onChange={e => chgA('smtp_from_name', e.target.value)} placeholder="Saint François Immobilier" />
+                <Input value={agencyForm.smtp_from_name} onChange={e => chgA('smtp_from_name', e.target.value)} placeholder="Mon Agence Immobilier" />
               </Field>
               <Field label="Email de réponse (Reply-To)">
                 <Input type="email" value={agencyForm.smtp_reply_to} onChange={e => chgA('smtp_reply_to', e.target.value)} placeholder="contact@agence.fr" />
@@ -965,6 +979,14 @@ export default function AdministrationPage() {
             className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 transition-colors">
             <Download size={17} /> Exporter en Excel
           </button>
+
+          {isDemo && (
+            <button onClick={handleResetDemo} disabled={resettingDemo}
+              className="flex items-center gap-2 px-5 py-3 bg-blue-50 text-blue-600 border border-blue-200 text-sm font-medium rounded-xl hover:bg-blue-100 transition-colors disabled:opacity-60">
+              {resettingDemo ? <Loader2 size={17} className="animate-spin" /> : <RefreshCw size={17} />}
+              Réinitialiser la démo
+            </button>
+          )}
 
           {!showResetConfirm ? (
             <button onClick={() => setShowResetConfirm(true)}

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
 import ProspectModal from '../components/ProspectModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Modal from '../components/Modal'
@@ -32,8 +31,6 @@ function SkeletonRow() {
 }
 
 function ClientsPage() {
-  const { user } = useAuth()
-  const isDemo = user?.role === 'demo'
   const [prospects, setProspects] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedProspect, setSelectedProspect] = useState(null)
@@ -258,7 +255,7 @@ function ClientsPage() {
           >
             <Eye size={18} className="text-[#2D5A8A] icon-bounce" />
           </button>
-          {!archived && !isDemo && (
+          {!archived && (
             <button
               onClick={e => { e.stopPropagation(); setEditingProspect(prospect) }}
               className="p-2 rounded-lg hover:bg-amber-50 transition-all"
@@ -267,7 +264,7 @@ function ClientsPage() {
               <Pencil size={18} className="text-amber-500 icon-pop" />
             </button>
           )}
-          {!isDemo && (archived ? (
+          {archived ? (
             <button
               onClick={e => { e.stopPropagation(); handleDesarchiver(prospect) }}
               className="p-2 rounded-lg hover:bg-emerald-50 transition-all"
@@ -283,16 +280,14 @@ function ClientsPage() {
             >
               <Archive size={18} className="text-gray-400 hover:text-gray-600" />
             </button>
-          ))}
-          {!isDemo && (
-            <button
-              onClick={e => { e.stopPropagation(); setDeleteConfirm(prospect.id) }}
-              className="p-2 rounded-lg hover:bg-red-50 transition-all group/del"
-              title="Supprimer"
-            >
-              <Trash2 size={18} className="text-red-400 group-hover/del:animate-shake" />
-            </button>
           )}
+          <button
+            onClick={e => { e.stopPropagation(); setDeleteConfirm(prospect.id) }}
+            className="p-2 rounded-lg hover:bg-red-50 transition-all group/del"
+            title="Supprimer"
+          >
+            <Trash2 size={18} className="text-red-400 group-hover/del:animate-shake" />
+          </button>
         </div>
       </td>
     </tr>
