@@ -410,7 +410,7 @@ def _render_page(bien: dict, agency: dict) -> str:
       --white: #fff;
       --r: 12px;
     }}
-    html {{ font-size: 16px; scroll-behavior: smooth; }}
+    html {{ font-size: 16px; scroll-behavior: smooth; color-scheme: light; }}
     body {{ font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: var(--white); line-height: 1.5; }}
     a {{ text-decoration: none; color: inherit; }}
     img {{ display: block; width: 100%; height: 100%; object-fit: cover; }}
