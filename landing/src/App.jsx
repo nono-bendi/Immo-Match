@@ -11,7 +11,7 @@ import Showcase from './pages/Showcase'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/landing">
       <Routes>
         <Route path="/"                         element={<Home />} />
         <Route path="/showcase"                 element={<Showcase />} />
