@@ -27,6 +27,46 @@ body {
 @keyframes growBar {
   from { width: 0% }
 }
+@keyframes arrowPulse {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50%       { transform: translateX(5px); opacity: 1; }
+}
+.arrow-pulse { animation: arrowPulse 1.8s ease-in-out infinite; }
+
+@keyframes arrowDraw {
+  0%   { stroke-dashoffset: 30; }
+  60%  { stroke-dashoffset: 0;  }
+  100% { stroke-dashoffset: 0;  }
+}
+.arrow-slide { /* conteneur — pas d'animation */ }
+.arrow-draw  { animation: arrowDraw 1.8s ease-in-out infinite; }
+
+@keyframes fillProgress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes snapIn {
+  0%   { opacity: 0; transform: translateY(5px) scale(0.97); }
+  65%  { transform: translateY(-1px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Gauche : items cachés par défaut, animés un par un au reveal ── */
+.before-item-1, .before-item-2, .before-item-3, .before-item-4 { opacity: 0; }
+.before-prog   { transform: scaleX(0); transform-origin: left; }
+
+.left-before.playing .before-item-1 { animation: fadeSlideUp 0.5s ease 0.1s  forwards; }
+.left-before.playing .before-item-2 { animation: fadeSlideUp 0.5s ease 1.0s  forwards; }
+.left-before.playing .before-item-3 { animation: fadeSlideUp 0.5s ease 2.0s  forwards; }
+.left-before.playing .before-item-4 { animation: fadeSlideUp 0.5s ease 3.0s  forwards; }
+.left-before.playing .before-prog-1 { animation: fillProgress 0.8s ease-out 0.5s  forwards; }
+.left-before.playing .before-prog-2 { animation: fillProgress 0.8s ease-out 1.4s  forwards; }
+.left-before.playing .before-prog-3 { animation: fillProgress 0.8s ease-out 2.4s  forwards; }
+.left-before.playing .before-prog-4 { animation: fillProgress 0.8s ease-out 3.4s  forwards; }
+
+/* ── Droite : tout claque ensemble ── */
+.after-item { opacity: 0; }
+.right-after.playing .after-item { animation: snapIn 0.3s ease-out 0.15s forwards; }
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(10px) }
   to   { opacity: 1; transform: translateY(0) }
@@ -60,11 +100,12 @@ body {
   top: 0;
   left: 0;
   height: 3px;
-  background: #1E3A5F;
+  background: linear-gradient(90deg, #1E3A5F 0%, #2D7DD2 40%, #38bdf8 75%, #7dd3fc 100%);
   z-index: 9999;
   width: 0%;
-  transition: width 0.1s linear;
+  transition: width 0.08s linear;
   pointer-events: none;
+  border-radius: 0 2px 2px 0;
 }
 
 /* ════════════════════════════════════════════
@@ -314,6 +355,250 @@ body {
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ════════════════════════════════════════════
+   FEATURES TIMELINE
+   ════════════════════════════════════════════ */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: #cbd5e1;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #64748b;
+  transition: background 0.3s;
+  z-index: 2;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.timeline-row.visible .timeline-dot {
+  background: #475569;
+}
+
+.timeline-dot::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid #94a3b8;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: none;
+}
+
+.timeline-row.visible .timeline-dot::after {
+  animation: radarPulse 2.2s ease-out infinite;
+}
+
+@keyframes radarPulse {
+  0%   { opacity: 0.5; transform: scale(0.6); }
+  70%  { opacity: 0;   transform: scale(1.8); }
+  100% { opacity: 0;   transform: scale(1.8); }
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  align-items: center;
+  position: relative;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.timeline-row.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.timeline-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: visible;
+  transition: box-shadow 0.25s;
+  box-shadow: 0 2px 12px rgba(15,23,42,0.05);
+}
+.timeline-card:hover {
+  box-shadow: 0 8px 32px rgba(15,23,42,0.1);
+}
+
+/* ════════════════════════════════════════════
+   FEATURE HIGHLIGHT — FeaturesSection
+   ════════════════════════════════════════════ */
+
+/* Scroll reveal propre à la section */
+.feature-block {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.feature-block.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ligne image + texte */
+.feature-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  min-height: 460px;
+}
+
+/* Colonne image : 55% */
+.feature-img-outer {
+  flex: 0 0 55%;
+  /* padding pour que l'ombre/glow respirent sans clipper */
+  padding: 20px;
+}
+
+/* Colonne texte : 45% */
+.feature-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Bot animations (ChatMock) ── */
+@keyframes bot-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(0.1); }
+}
+@keyframes bot-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+.bot-eye   { animation: bot-blink 4s ease-in-out infinite; transform-origin: center; }
+.bot-float { animation: bot-float 3s ease-in-out infinite; }
+
+/* Lignes matching — déclenchées par .feature-block.visible */
+@keyframes matchRowIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.matching-row {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+/* Les delays sont gérés en inline style dans le JSX (bypass nth-child) */
+.feature-block.visible .matching-row { animation: matchRowIn 0.45s ease forwards; }
+
+/* Email annotation — fade-in depuis le bas */
+@keyframes annotIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.email-annotation { animation: annotIn 0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+/* Dot pulse — alerte dashboard */
+@keyframes dash-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+.dash-pulse-dot { animation: dash-pulse 1.6s ease-out infinite; }
+
+/* ── Email CTA — bouton shimmer ── */
+.email-cta-btn {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.email-cta-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  transform: skewX(-20deg);
+  transition: none;
+}
+.email-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(30,58,95,0.5);
+}
+.email-cta-btn:hover::after {
+  left: 125%;
+  transition: left 0.5s ease;
+}
+
+/* ── Steps — barre de progression ── */
+@keyframes steps-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+.steps-grid.visible .steps-progress-bar {
+  animation: steps-fill 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* ── Chat — typing dots ── */
+@keyframes chat-bounce {
+  0%, 80%, 100% { transform: translateY(0);    opacity: .4; }
+  40%            { transform: translateY(-5px); opacity: 1;  }
+}
+.chat-dot { animation: chat-bounce 1.2s ease-in-out infinite; }
+
+/* ── Chat — apparition message ── */
+@keyframes chat-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.chat-msg-in { animation: chat-in 0.3s ease forwards; }
+
+/* ── Chat — curseur typewriter ── */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.chat-cursor {
+  display: inline-block;
+  width: 2px; height: 12px;
+  background: #4f46e5;
+  border-radius: 1px;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursor-blink 0.7s ease-in-out infinite;
+}
+
+/* ── Mobile : stack vertical ── */
+@media (max-width: 768px) {
+  .feature-row {
+    flex-direction: column !important;
+    min-height: unset;
+    gap: 2rem;
+  }
+  .feature-img-outer {
+    flex: unset;
+    width: 100%;
+    padding: 12px 0;
+  }
+  .feature-mock-card {
+    height: 260px !important;
+    transform: none !important;
+  }
+  .email-annotation { display: none !important; }
+  .feature-text {
+    width: 100%;
+  }
+
+  /* ── Timeline rows ── */
+  .timeline-row {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+  .timeline-line { display: none; }
+  .timeline-dot  { display: none; }
+
+  /* ── Steps — progress bar inutile sur 2 colonnes ── */
+  .steps-progress-bar { display: none; }
 }
 
 /* ════════════════════════════════════════════

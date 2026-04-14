@@ -7,12 +7,14 @@ import Confidentialite from './pages/Confidentialite'
 import Cookies from './pages/Cookies'
 import GuideDemarrage from './pages/GuideDemarrage'
 import Documentation from './pages/Documentation'
+import Showcase from './pages/Showcase'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/"                         element={<Home />} />
+        <Route path="/showcase"                 element={<Showcase />} />
         <Route path="/faq"                      element={<FAQ />} />
         <Route path="/mentions-legales"         element={<MentionsLegales />} />
         <Route path="/cgu"                      element={<CGU />} />
