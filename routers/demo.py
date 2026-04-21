@@ -199,7 +199,7 @@ def _sync_in_background(db_path: str):
 # POST /api/onboard
 # ════════════════════════════════════════════════════════════════════════════
 
-@router.post("/api/onboard")
+@router.post("/onboard")
 async def onboard(
     request: Request,
     nom:        str  = Form(...),
@@ -278,7 +278,7 @@ class DemoRequest(BaseModel):
     telephone: Optional[str] = None
 
 
-@router.post("/api/start-demo")
+@router.post("/start-demo")
 def start_demo(data: DemoRequest, request: Request):
     ip = getattr(request.client, "host", "unknown")
     _check_rate_limit(ip)
