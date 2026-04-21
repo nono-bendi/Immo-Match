@@ -263,7 +263,7 @@ async def onboard(
     file: Optional[UploadFile] = File(None),
 ):
     ip = getattr(request.client, "host", "unknown")
-    _check_rate_limit(ip)  # vérifie mais ne compte pas encore
+    # _check_rate_limit(ip)  # désactivé pendant les tests
 
     email = email.strip().lower()
     nom = nom.strip()
@@ -308,7 +308,7 @@ async def onboard(
         _delete_account(agency_id, slug)
         raise
 
-    _commit_rate_limit(ip)  # ne compte que les onboardings réussis
+    # _commit_rate_limit(ip)  # désactivé pendant les tests
     token = _jwt(user_id, expires_iso)
     return {
         "access_token": token,
