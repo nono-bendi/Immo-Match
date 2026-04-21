@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#1E3A5F"/>
+  <!-- M gauche : blanc -->
+  <polyline
+    points="5,27 5,5 16,17"
+    fill="none"
+    stroke="white"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+  <!-- M droite : bleu ciel -->
+  <polyline
+    points="16,17 27,5 27,27"
+    fill="none"
+    stroke="#7CB9E8"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+</svg>

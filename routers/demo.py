@@ -169,9 +169,18 @@ def _import_hektor_bytes(raw: bytes, db_path: str) -> int:
 
 def _import_csv_bytes(raw: bytes, filename: str, db_path: str) -> int:
     fname = (filename or "").lower()
+
+    # Auto-détection format Hektor (délimiteur !#)
+    try:
+        sample = raw[:500].decode("latin-1")
+    except Exception:
+        sample = ""
+    if "!#" in sample:
+        return _import_hektor_bytes(raw, db_path)
+
     if fname.endswith(".csv"):
         df = None
-        for enc in ("utf-8-sig", "latin-1", "cp1252", "utf-8"):
+        for enc in ("utf-8-sig", "cp1252", "latin-1", "utf-8"):
             try:
                 df = pd.read_csv(BytesIO(raw), encoding=enc)
                 break

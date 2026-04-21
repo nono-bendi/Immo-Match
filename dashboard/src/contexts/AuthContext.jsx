@@ -14,11 +14,23 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [loading, setLoading] = useState(true)
 
-  // Vérifie le token au chargement
+  // Vérifie le token au chargement (ou récupère ?token= depuis l'URL)
   useEffect(() => {
     const checkAuth = async () => {
-      const storedToken = localStorage.getItem('token')
-      
+      // Récupère le token depuis l'URL si présent (redirect depuis la landing démo)
+      const urlParams = new URLSearchParams(window.location.search)
+      const urlToken = urlParams.get('token')
+      if (urlToken) {
+        localStorage.setItem('token', urlToken)
+        setModuleToken(urlToken)
+        const clean = window.location.pathname + window.location.hash
+        window.history.replaceState({}, document.title, clean)
+        // Notifier AgencyContext et autres providers du nouveau token
+        window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: urlToken } }))
+      }
+
+      const storedToken = urlToken || localStorage.getItem('token')
+
       if (!storedToken) {
         setLoading(false)
         return
@@ -30,6 +42,7 @@ export function AuthProvider({ children }) {
             'Authorization': `Bearer ${storedToken}`
           }
         })
+
 
         if (response.ok) {
           const userData = await response.json()
