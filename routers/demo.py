@@ -47,6 +47,14 @@ def _check_rate_limit(ip: str):
     window = [t for t in _rate_limit.get(ip, []) if (now - t).total_seconds() < 3600]
     if len(window) >= 5:
         raise HTTPException(status_code=429, detail="Trop de demandes. Réessayez dans 1 heure.")
+    # On enregistre seulement ici (vérification) — le comptage réel se fait après succès
+    _rate_limit[f"{ip}_pending"] = window
+
+
+def _commit_rate_limit(ip: str):
+    """Enregistre la tentative seulement si l'onboarding a réussi."""
+    now = datetime.now()
+    window = _rate_limit.pop(f"{ip}_pending", [])
     _rate_limit[ip] = window + [now]
 
 
@@ -89,6 +97,24 @@ def _create_account(email: str, nom: str, agence_nom: str, telephone: str = "") 
 
 def _jwt(user_id: int, expires_iso: str) -> str:
     return create_access_token({"user_id": user_id, "is_trial": True, "trial_expires_at": expires_iso})
+
+
+def _delete_account(agency_id: int, slug: str):
+    """Rollback : supprime agence + user en cas d'échec d'import."""
+    try:
+        conn = sqlite3.connect(adb.AGENCIES_DB_PATH)
+        conn.execute("DELETE FROM users WHERE agency_id=?", (agency_id,))
+        conn.execute("DELETE FROM agencies WHERE id=?", (agency_id,))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+    db_path = adb.get_db_path(slug)
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+        except Exception:
+            pass
 
 
 # ── Import Hektor CSV ─────────────────────────────────────────────────────────
@@ -142,10 +168,22 @@ def _import_hektor_bytes(raw: bytes, db_path: str) -> int:
 # ── Import CSV/Excel standard ─────────────────────────────────────────────────
 
 def _import_csv_bytes(raw: bytes, filename: str, db_path: str) -> int:
-    try:
-        df = pd.read_csv(BytesIO(raw)) if (filename or "").lower().endswith(".csv") else pd.read_excel(BytesIO(raw))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Fichier illisible : {e}")
+    fname = (filename or "").lower()
+    if fname.endswith(".csv"):
+        df = None
+        for enc in ("utf-8-sig", "latin-1", "cp1252", "utf-8"):
+            try:
+                df = pd.read_csv(BytesIO(raw), encoding=enc)
+                break
+            except Exception:
+                continue
+        if df is None:
+            raise HTTPException(status_code=400, detail="Fichier CSV illisible — encodage non reconnu.")
+    else:
+        try:
+            df = pd.read_excel(BytesIO(raw))
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Fichier illisible : {e}")
     df.columns = df.columns.str.strip()
     conn = sqlite3.connect(db_path)
     n = 0
@@ -216,7 +254,7 @@ async def onboard(
     file: Optional[UploadFile] = File(None),
 ):
     ip = getattr(request.client, "host", "unknown")
-    _check_rate_limit(ip)
+    _check_rate_limit(ip)  # vérifie mais ne compte pas encore
 
     email = email.strip().lower()
     nom = nom.strip()
@@ -229,32 +267,39 @@ async def onboard(
     nb_biens = 0
     syncing = False
 
-    if mode == "demo":
-        init_demo_db()
-        src = DEMO_DB_PATH
-        if os.path.exists(src):
-            shutil.copy2(src, trial_db)
+    try:
+        if mode == "demo":
+            init_demo_db()
+            src = DEMO_DB_PATH
+            if os.path.exists(src):
+                shutil.copy2(src, trial_db)
+            else:
+                init_db(trial_db)
+            nb_biens = sqlite3.connect(trial_db).execute("SELECT COUNT(*) FROM biens").fetchone()[0]
+
+        elif mode == "csv":
+            if not file:
+                raise HTTPException(status_code=400, detail="Fichier requis pour l'import CSV/Excel.")
+            init_db(trial_db)
+            nb_biens = _import_csv_bytes(await file.read(), file.filename or "", trial_db)
+
+        elif mode == "hektor_ftp":
+            if not all([ftp_host, ftp_user, ftp_pass, ftp_path]):
+                raise HTTPException(status_code=400, detail="Tous les champs FTP sont requis.")
+            init_db(trial_db)
+            _save_ftp_settings(trial_db, ftp_host.strip(), ftp_user.strip(), ftp_pass.strip(), ftp_path.strip())
+            _sync_in_background(trial_db)
+            syncing = True
+
         else:
             init_db(trial_db)
-        nb_biens = sqlite3.connect(trial_db).execute("SELECT COUNT(*) FROM biens").fetchone()[0]
 
-    elif mode == "csv":
-        if not file:
-            raise HTTPException(status_code=400, detail="Fichier requis pour l'import CSV/Excel.")
-        init_db(trial_db)
-        nb_biens = _import_csv_bytes(await file.read(), file.filename or "", trial_db)
+    except HTTPException:
+        # Import échoué → supprimer le compte pour libérer l'email
+        _delete_account(agency_id, slug)
+        raise
 
-    elif mode == "hektor_ftp":
-        if not all([ftp_host, ftp_user, ftp_pass, ftp_path]):
-            raise HTTPException(status_code=400, detail="Tous les champs FTP sont requis.")
-        init_db(trial_db)
-        _save_ftp_settings(trial_db, ftp_host.strip(), ftp_user.strip(), ftp_pass.strip(), ftp_path.strip())
-        _sync_in_background(trial_db)
-        syncing = True
-
-    else:
-        init_db(trial_db)
-
+    _commit_rate_limit(ip)  # ne compte que les onboardings réussis
     token = _jwt(user_id, expires_iso)
     return {
         "access_token": token,
