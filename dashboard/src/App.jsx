@@ -37,12 +37,20 @@ function PublicRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth()
-  const [showTuto, setShowTuto] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return !window.localStorage.getItem('immoMatch_tuto_done')
-  })
+  const { isAuthenticated, user } = useAuth()
+
+  // Clé tutorial par utilisateur — chaque nouveau compte voit le tutorial
+  const tutoKey = user ? `immoMatch_tuto_done_${user.id}` : 'immoMatch_tuto_done'
+  const [showTuto, setShowTuto] = useState(false)
   const [newBienId, setNewBienId] = useState(null)
+
+  // Afficher le tutorial dès que l'utilisateur est connu et qu'il ne l'a pas encore vu
+  useEffect(() => {
+    if (user) {
+      const key = `immoMatch_tuto_done_${user.id}`
+      setShowTuto(!window.localStorage.getItem(key))
+    }
+  }, [user?.id])
 
   useEffect(() => {
     const handler = (e) => setNewBienId(e.detail.bienId)
@@ -52,7 +60,7 @@ function AppRoutes() {
 
   const closeTuto = () => {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem('immoMatch_tuto_done', '1')
+      window.localStorage.setItem(tutoKey, '1')
     }
     setShowTuto(false)
   }

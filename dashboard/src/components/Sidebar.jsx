@@ -104,7 +104,7 @@ function Sidebar({ isOpen, onClose }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-medium truncate">{user?.nom || 'Utilisateur'}</p>
-            <p className="text-white/50 text-xs capitalize">{user?.role === 'admin' ? 'Administrateur' : 'Agent'}</p>
+            <p className="text-white/50 text-xs capitalize">{user?.is_trial ? 'Accès démo' : user?.role === 'admin' ? 'Administrateur' : 'Agent'}</p>
           </div>
         </div>
       </div>

@@ -63,6 +63,18 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             detail="Utilisateur non trouvé",
         )
 
+    # Vérifier l'expiration du compte trial
+    if user.get("is_trial") and user.get("trial_expires_at"):
+        try:
+            expires = datetime.fromisoformat(user["trial_expires_at"])
+            if datetime.now() > expires:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Votre période d'essai est terminée.",
+                )
+        except ValueError:
+            pass
+
     return user
 
 
@@ -189,13 +201,15 @@ def login(request: Request, user_data: UserLogin):
     }
 
 
-@router.get("/auth/me", response_model=UserResponse)
+@router.get("/auth/me")
 def get_me(current_user: dict = Depends(get_current_user)):
     return {
         "id": current_user["id"],
         "email": current_user["email"],
         "nom": current_user["nom"],
         "role": current_user["role"],
+        "is_trial": bool(current_user.get("is_trial")),
+        "trial_expires_at": current_user.get("trial_expires_at"),
     }
 
 
