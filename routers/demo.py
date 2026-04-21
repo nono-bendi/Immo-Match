@@ -322,6 +322,43 @@ async def onboard(
 
 
 # ════════════════════════════════════════════════════════════════════════════
+# POST /trial-reconnect — génère un nouveau JWT pour un compte trial existant
+# ════════════════════════════════════════════════════════════════════════════
+
+class ReconnectRequest(BaseModel):
+    email: str
+
+
+@router.post("/trial-reconnect")
+def trial_reconnect(data: ReconnectRequest):
+    email = (data.email or "").strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Email invalide.")
+
+    conn = sqlite3.connect(adb.AGENCIES_DB_PATH)
+    row = conn.execute(
+        "SELECT id, is_trial, trial_expires_at FROM users WHERE email=?", (email,)
+    ).fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email.")
+
+    user_id, is_trial, expires_iso = row
+
+    if not is_trial:
+        raise HTTPException(status_code=403, detail="Ce compte n'est pas un compte démo.")
+
+    if expires_iso:
+        from datetime import datetime
+        if datetime.now() > datetime.fromisoformat(expires_iso):
+            raise HTTPException(status_code=403, detail="Votre période d'essai est terminée.")
+
+    token = _jwt(user_id, expires_iso or "")
+    return {"access_token": token, "token_type": "bearer"}
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # POST /api/start-demo — legacy JSON
 # ════════════════════════════════════════════════════════════════════════════
 

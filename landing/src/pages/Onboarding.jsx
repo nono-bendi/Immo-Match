@@ -286,18 +286,31 @@ export default function Onboarding() {
               </h1>
 
               {result.syncing ? (
-                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 2rem' }}>
+                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                   La synchronisation Hektor est en cours en arrière-plan.<br/>
                   Vos biens apparaîtront dans votre dashboard dans quelques instants.
                 </p>
               ) : (
-                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 2rem' }}>
+                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                   {result.nb_biens > 0
                     ? <><strong style={{ color: '#38bdf8' }}>{result.nb_biens} biens</strong> importés avec succès. </>
                     : ''}
                   Vous allez être redirigé automatiquement.
                 </p>
               )}
+
+              {/* Lien de reconnexion */}
+              <div style={{ background: 'rgba(255,193,7,0.08)', border: '1px solid rgba(255,193,7,0.25)', borderRadius: 14, padding: '14px 18px', marginBottom: '1.5rem', textAlign: 'left' }}>
+                <p style={{ margin: '0 0 6px', fontSize: 12, fontWeight: 700, color: '#fbbf24', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  ⚠ Notez votre email de connexion
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+                  Aucun mot de passe n'a été créé. Pour revenir à votre espace, rendez-vous sur la page de connexion et entrez votre email :
+                </p>
+                <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 14px', fontFamily: 'monospace', fontSize: 14, color: '#38bdf8', wordBreak: 'break-all' }}>
+                  {email}
+                </div>
+              </div>
 
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 999, padding: '10px 22px' }}>
                 <Spinner size={15} color="#38bdf8" />

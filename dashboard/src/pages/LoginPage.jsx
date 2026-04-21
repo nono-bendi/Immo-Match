@@ -3,8 +3,10 @@
 // =====================================================
 
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Mail, Lock, Eye, EyeOff, LogIn, UserPlus, Sparkles } from 'lucide-react'
+import { API_URL } from '../config'
 
 // Canvas particules
 function ParticlesCanvas() {
@@ -91,6 +93,7 @@ function ParticlesCanvas() {
 
 function LoginPage() {
   const { login, register } = useAuth()
+  const navigate = useNavigate()
   const [isLogin,      setIsLogin]      = useState(true)
   const [email,        setEmail]        = useState('')
   const [password,     setPassword]     = useState('')
@@ -101,7 +104,33 @@ function LoginPage() {
   const [mounted,      setMounted]      = useState(false)
   const [focused,      setFocused]      = useState(null)
 
+  // Reconnexion compte démo
+  const [showDemo,     setShowDemo]     = useState(false)
+  const [demoEmail,    setDemoEmail]    = useState('')
+  const [demoLoading,  setDemoLoading]  = useState(false)
+  const [demoError,    setDemoError]    = useState('')
+
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
+
+  const handleDemoReconnect = async (e) => {
+    e.preventDefault()
+    setDemoError('')
+    setDemoLoading(true)
+    try {
+      const res = await fetch(`${API_URL}/trial-reconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: demoEmail.trim().toLowerCase() }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setDemoError(data.detail || 'Erreur.'); setDemoLoading(false); return }
+      localStorage.setItem('token', data.access_token)
+      window.location.href = '/?token=' + data.access_token
+    } catch {
+      setDemoError('Impossible de contacter le serveur.')
+      setDemoLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -365,8 +394,44 @@ function LoginPage() {
             </form>
           </div>
 
+          {/* Reconnexion compte démo */}
+          <div style={{ marginTop: '14px' }}>
+            {!showDemo ? (
+              <p style={{ textAlign: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.25)' }}>
+                Compte démo ?{' '}
+                <button onClick={() => setShowDemo(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#38bdf8', fontSize: '12px', fontWeight: 600, padding: 0 }}>
+                  Reconnectez-vous par email →
+                </button>
+              </p>
+            ) : (
+              <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: '14px', padding: '18px 20px' }}>
+                <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 700, color: '#7dd3fc' }}>
+                  Accès démo sans mot de passe
+                </p>
+                <p style={{ margin: '0 0 12px', fontSize: '12px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+                  Entrez l'email utilisé lors de votre inscription, nous vous reconnectons directement.
+                </p>
+                {demoError && (
+                  <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#f87171', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: '7px 10px' }}>{demoError}</p>
+                )}
+                <form onSubmit={handleDemoReconnect} style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="email" required value={demoEmail}
+                    onChange={e => setDemoEmail(e.target.value)}
+                    placeholder="votre@email.fr"
+                    style={{ flex: 1, padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', color: 'white', fontSize: 13, fontFamily: 'inherit', outline: 'none' }}
+                  />
+                  <button type="submit" disabled={demoLoading} style={{ padding: '9px 16px', borderRadius: 8, border: 'none', background: '#0ea5e9', color: '#0f172a', fontWeight: 700, fontSize: 13, cursor: demoLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: demoLoading ? 0.6 : 1 }}>
+                    {demoLoading ? '…' : 'Accéder'}
+                  </button>
+                </form>
+                <button onClick={() => setShowDemo(false)} style={{ marginTop: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.25)', fontSize: 11 }}>Annuler</button>
+              </div>
+            )}
+          </div>
+
           {/* Footer */}
-          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '11px', marginTop: '20px' }}>
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '11px', marginTop: '16px' }}>
             © 2026 ImmoMatch
           </p>
         </div>
