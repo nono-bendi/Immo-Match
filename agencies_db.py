@@ -80,6 +80,17 @@ def init_agencies_db():
         except Exception:
             pass  # colonne déjà présente
 
+    # ── Migration : colonnes trial sur users ──────────────────────────────────
+    for col, definition in [
+        ("is_trial", "INTEGER DEFAULT 0"),
+        ("trial_expires_at", "TEXT"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE users ADD COLUMN {col} {definition}")
+            conn.commit()
+        except Exception:
+            pass  # colonne déjà présente
+
     # ── Saint François (agence par défaut) ────────────────────────────────────
     if not conn.execute("SELECT id FROM agencies WHERE slug = 'saint_francois'").fetchone():
         conn.execute('''
@@ -200,6 +211,7 @@ def get_user_with_agency(email: str) -> dict | None:
     row = conn.execute('''
         SELECT
             u.id, u.email, u.password_hash, u.nom, u.role, u.agency_id, u.created_at,
+            u.is_trial, u.trial_expires_at,
             a.slug          AS agency_slug,
             a.nom           AS agency_nom,
             a.nom_court     AS agency_nom_court,
@@ -227,6 +239,7 @@ def get_user_by_id(user_id: int) -> dict | None:
     row = conn.execute('''
         SELECT
             u.id, u.email, u.password_hash, u.nom, u.role, u.agency_id, u.created_at,
+            u.is_trial, u.trial_expires_at,
             a.slug          AS agency_slug,
             a.nom           AS agency_nom,
             a.nom_court     AS agency_nom_court,

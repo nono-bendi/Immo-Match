@@ -71,6 +71,8 @@ class UserResponse(BaseModel):
     email: str
     nom: str
     role: str
+    is_trial: bool = False
+    trial_expires_at: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str

@@ -1,0 +1,561 @@
+/* ════════════════════════════════════════════════════════════════
+   Page /demarrer — Onboarding ImmoMatch
+   Étape 1 : Votre agence
+   Étape 2 : Méthode d'import  (Hektor FTP · CSV/Excel · Démo)
+   Étape 3 : Config FTP  OU  Upload fichier  (selon choix étape 2)
+   → POST /api/onboard → JWT → redirect dashboard connecté
+   ════════════════════════════════════════════════════════════════ */
+
+import { useState, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
+
+const API_URL       = import.meta.env.VITE_API_URL       ?? ''
+const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL ||
+  (typeof window !== 'undefined' ? window.location.origin + '/' : '/')
+
+/* ════ Styles partagés ═══════════════════════════════════════════ */
+
+const S = {
+  input: (err) => ({
+    width: '100%', background: 'rgba(255,255,255,0.05)',
+    border: `1.5px solid ${err ? '#f87171' : 'rgba(255,255,255,0.1)'}`,
+    borderRadius: 10, padding: '13px 16px',
+    color: '#f1f5f9', fontSize: 15, outline: 'none', fontFamily: 'inherit',
+    boxSizing: 'border-box', transition: 'border-color 150ms, background 150ms',
+  }),
+  label: {
+    display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b',
+    letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 7,
+  },
+  btnPrimary: (disabled) => ({
+    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    padding: '14px 28px', borderRadius: 12, border: 'none', fontFamily: 'inherit',
+    fontSize: 15, fontWeight: 700, cursor: disabled ? 'not-allowed' : 'pointer',
+    background: disabled
+      ? 'rgba(56,189,248,0.25)'
+      : 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
+    color: disabled ? 'rgba(15,23,42,0.5)' : '#0f172a',
+    boxShadow: disabled ? 'none' : '0 4px 24px rgba(56,189,248,0.3)',
+    transition: 'all 150ms',
+  }),
+  btnBack: {
+    padding: '14px 20px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.04)', color: '#64748b', fontSize: 14, fontWeight: 600,
+    cursor: 'pointer', fontFamily: 'inherit', transition: 'all 150ms',
+  },
+}
+
+/* ════ Composants ════════════════════════════════════════════════ */
+
+function Field({ label, type = 'text', value, onChange, placeholder, required, error, autoFocus, hint }) {
+  return (
+    <div style={{ marginBottom: '1.1rem' }}>
+      <label style={S.label}>{label}{required && <span style={{ color: '#38bdf8' }}> *</span>}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        autoFocus={autoFocus}
+        style={S.input(error)}
+        onFocus={e => { e.target.style.borderColor = '#38bdf8'; e.target.style.background = 'rgba(56,189,248,0.06)' }}
+        onBlur={e => { e.target.style.borderColor = error ? '#f87171' : 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)' }}
+      />
+      {hint && !error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#334155' }}>{hint}</p>}
+      {error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#f87171' }}>{error}</p>}
+    </div>
+  )
+}
+
+function Spinner({ size = 18, color = '#0f172a' }) {
+  return (
+    <span style={{
+      display: 'inline-block', width: size, height: size, flexShrink: 0,
+      border: `2.5px solid ${color}44`, borderTopColor: color, borderRadius: '50%',
+      animation: 'spin 0.7s linear infinite',
+    }} />
+  )
+}
+
+/* ════ Stepper ═══════════════════════════════════════════════════ */
+
+function Stepper({ step, total }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: '2.5rem' }}>
+      {Array.from({ length: total }, (_, i) => {
+        const n = i + 1
+        const done = n < step
+        const active = n === step
+        return (
+          <div key={n} style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: done ? '#38bdf8' : active ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.04)',
+              border: `2px solid ${done || active ? '#38bdf8' : 'rgba(255,255,255,0.1)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 12, fontWeight: 700, transition: 'all 300ms',
+              color: done ? '#0f172a' : active ? '#38bdf8' : '#334155',
+            }}>
+              {done
+                ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                : n}
+            </div>
+            {n < total && (
+              <div style={{
+                width: 48, height: 2, margin: '0 4px',
+                background: done ? '#38bdf8' : 'rgba(255,255,255,0.08)',
+                transition: 'background 300ms',
+              }} />
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ════ Page principale ═══════════════════════════════════════════ */
+
+export default function Onboarding() {
+  /* ── State compte ── */
+  const [nom, setNom] = useState('')
+  const [email, setEmail] = useState('')
+  const [agence, setAgence] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
+
+  /* ── State wizard ── */
+  const [step, setStep] = useState(1)
+  const [importMode, setImportMode] = useState(null)   // 'demo' | 'csv' | 'hektor_ftp'
+
+  /* ── State FTP ── */
+  const [ftpHost, setFtpHost] = useState('')
+  const [ftpUser, setFtpUser] = useState('')
+  const [ftpPass, setFtpPass] = useState('')
+  const [ftpPath, setFtpPath] = useState('/Annonces.csv')
+
+  /* ── State upload ── */
+  const [file, setFile] = useState(null)
+  const [dragging, setDragging] = useState(false)
+
+  /* ── State async ── */
+  const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState(null)
+  const [result, setResult] = useState(null)
+
+  /* ── Titre de la page ── */
+  useEffect(() => { document.title = 'Démarrer — ImmoMatch' }, [])
+
+  /* ── Drag & drop (avant tout return conditionnel) ── */
+  const handleDrop = useCallback((e) => {
+    e.preventDefault(); setDragging(false)
+    const f = e.dataTransfer.files?.[0]
+    if (f) { setFile(f); setApiError(null) }
+  }, [])
+  const onDragOver  = useCallback(e => { e.preventDefault(); setDragging(true) }, [])
+  const onDragLeave = useCallback(() => setDragging(false), [])
+
+  /* ── Validation ── */
+  function validateStep1() {
+    const e = {}
+    if (!nom.trim()) e.nom = 'Obligatoire'
+    if (!email.trim() || !email.includes('@') || !email.split('@')[1]?.includes('.')) e.email = 'Email invalide'
+    if (!agence.trim()) e.agence = 'Obligatoire'
+    setFieldErrors(e)
+    return !Object.keys(e).length
+  }
+
+  function validateFtp() {
+    const e = {}
+    if (!ftpHost.trim()) e.ftpHost = 'Obligatoire'
+    if (!ftpUser.trim()) e.ftpUser = 'Obligatoire'
+    if (!ftpPass.trim()) e.ftpPass = 'Obligatoire'
+    if (!ftpPath.trim()) e.ftpPath = 'Obligatoire'
+    setFieldErrors(e)
+    return !Object.keys(e).length
+  }
+
+  /* ── Navigation ── */
+  function next() {
+    setApiError(null)
+    if (step === 1) {
+      if (!validateStep1()) return
+      setStep(2)
+    } else if (step === 2) {
+      if (!importMode) return
+      if (importMode === 'demo') submit()
+      else setStep(3)
+    } else if (step === 3) {
+      if (importMode === 'hektor_ftp') {
+        if (!validateFtp()) return
+        submit()
+      } else {
+        if (!file) { setApiError('Veuillez sélectionner un fichier.'); return }
+        submit()
+      }
+    }
+  }
+
+  function back() {
+    setApiError(null)
+    if (step === 2) setStep(1)
+    if (step === 3) { setStep(2); setFile(null) }
+  }
+
+  /* ── Soumission ── */
+  async function submit() {
+    setLoading(true)
+    setApiError(null)
+
+    const fd = new FormData()
+    fd.append('nom', nom.trim())
+    fd.append('email', email.trim().toLowerCase())
+    fd.append('agence_nom', agence.trim())
+    fd.append('mode', importMode)
+    if (importMode === 'hektor_ftp') {
+      fd.append('ftp_host', ftpHost.trim())
+      fd.append('ftp_user', ftpUser.trim())
+      fd.append('ftp_pass', ftpPass.trim())
+      fd.append('ftp_path', ftpPath.trim())
+    }
+    if (importMode === 'csv' && file) fd.append('file', file)
+
+    try {
+      const res = await fetch(`${API_URL}/api/onboard`, { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setApiError(data.detail || 'Erreur serveur.'); setLoading(false); return }
+      setResult(data)
+      setTimeout(() => {
+        window.location.href = `${DASHBOARD_URL.replace(/\/$/, '')}/?token=${data.access_token}`
+      }, 2800)
+    } catch {
+      setApiError('Impossible de contacter le serveur.')
+      setLoading(false)
+    }
+  }
+
+  /* ── Nombre d'étapes ── */
+  const totalSteps = importMode === 'demo' ? 2 : 3
+
+  /* ══════════════════════════════════════════════════════════════
+     RENDU
+  ══════════════════════════════════════════════════════════════ */
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      background: 'radial-gradient(ellipse at 20% 30%, #0d2137 0%, #060d1a 55%, #0a0618 100%)',
+      fontFamily: "'Inter', system-ui, sans-serif",
+      color: '#f1f5f9',
+    }}>
+      {/* ── Orbs décoratifs ── */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <div style={{ position: 'absolute', width: 600, height: 600, top: -200, left: '-5%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,0.18) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        <div style={{ position: 'absolute', width: 500, height: 500, bottom: -150, right: '-5%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+      </div>
+
+      {/* ── Header ── */}
+      <header style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <Link to="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 18, color: '#f1f5f9' }}>
+          Immo<span style={{ color: '#38bdf8' }}>Match</span>
+        </Link>
+        <a href={`${DASHBOARD_URL}login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
+          onMouseEnter={e => e.target.style.color = '#94a3b8'}
+          onMouseLeave={e => e.target.style.color = '#475569'}>
+          Déjà un compte ? <span style={{ color: '#38bdf8', fontWeight: 600 }}>Se connecter</span>
+        </a>
+      </header>
+
+      {/* ── Contenu centré ── */}
+      <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ width: '100%', maxWidth: 560 }}>
+
+          {/* ════ SUCCÈS ════ */}
+          {result ? (
+            <div key="success" style={{ textAlign: 'center', animation: 'stepIn 320ms ease' }}>
+              <div style={{
+                width: 80, height: 80, borderRadius: '50%', margin: '0 auto 1.75rem',
+                background: 'rgba(56,189,248,0.1)', border: '2px solid rgba(56,189,248,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 13l4 4L19 7" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
+              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, letterSpacing: '-0.8px', margin: '0 0 1rem', color: '#f1f5f9' }}>
+                Votre espace est prêt !
+              </h1>
+
+              {result.syncing ? (
+                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 2rem' }}>
+                  La synchronisation Hektor est en cours en arrière-plan.<br/>
+                  Vos biens apparaîtront dans votre dashboard dans quelques instants.
+                </p>
+              ) : (
+                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 2rem' }}>
+                  {result.nb_biens > 0
+                    ? <><strong style={{ color: '#38bdf8' }}>{result.nb_biens} biens</strong> importés avec succès. </>
+                    : ''}
+                  Vous allez être redirigé automatiquement.
+                </p>
+              )}
+
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 999, padding: '10px 22px' }}>
+                <Spinner size={15} color="#38bdf8" />
+                <span style={{ fontSize: 14, color: '#38bdf8', fontWeight: 600 }}>Chargement de votre dashboard…</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* ── Stepper ── */}
+              <Stepper step={step} total={totalSteps} />
+
+              {/* ════ ÉTAPE 1 — Votre agence ════ */}
+              {step === 1 && (
+                <div key="step1" style={{ animation: 'stepIn 280ms ease' }}>
+                  <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.18)', borderRadius: 999, padding: '4px 14px', fontSize: 11, fontWeight: 600, color: '#7dd3fc', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
+                      Gratuit · 6 jours · Sans carte bancaire
+                    </div>
+                    <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontWeight: 800, letterSpacing: '-0.8px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                      Créons votre espace
+                    </h1>
+                    <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>
+                      30 secondes et vous êtes opérationnel.
+                    </p>
+                  </div>
+
+                  <Field label="Nom complet" value={nom} onChange={setNom} placeholder="Sophie Martin" required error={fieldErrors.nom} autoFocus />
+                  <Field label="Email professionnel" type="email" value={email} onChange={setEmail} placeholder="sophie@agence.fr" required error={fieldErrors.email} />
+                  <Field label="Nom de votre agence" value={agence} onChange={setAgence} placeholder="Martin Immobilier" required error={fieldErrors.agence} />
+
+                  <div style={{ marginTop: '1.75rem' }}>
+                    <button onClick={next} style={S.btnPrimary(false)}>
+                      Continuer <span style={{ fontSize: 17 }}>→</span>
+                    </button>
+                  </div>
+
+                  <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
+                    En continuant, vous acceptez les <Link to="/cgu" style={{ color: '#334155' }}>CGU</Link> et la <Link to="/confidentialite" style={{ color: '#334155' }}>Politique de confidentialité</Link>
+                  </p>
+                </div>
+              )}
+
+              {/* ════ ÉTAPE 2 — Méthode d'import ════ */}
+              {step === 2 && (
+                <div key="step2" style={{ animation: 'stepIn 280ms ease' }}>
+                  <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+                    <h1 style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 800, letterSpacing: '-0.6px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                      Comment sont gérés<br />vos biens ?
+                    </h1>
+                    <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>
+                      Choisissez votre source, on s'occupe du reste.
+                    </p>
+                  </div>
+
+                  {[
+                    {
+                      id: 'hektor_ftp',
+                      badge: 'Recommandé',
+                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14.93-4M20 12a8 8 0 0 1-14.93 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M18 4l2 4h-4M6 20l-2-4h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                      title: 'Logiciel Hektor',
+                      desc: 'Connexion directe via FTP — vos biens se synchronisent automatiquement',
+                    },
+                    {
+                      id: 'csv',
+                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M3 9h18M3 15h18M9 3v18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+                      title: 'Fichier Excel / CSV',
+                      desc: 'Importez un export depuis votre logiciel ou un fichier structuré',
+                    },
+                    {
+                      id: 'demo',
+                      badge: '0 effort',
+                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                      title: 'Données de démo',
+                      desc: '20 vrais biens anonymisés du Var · matchings et prospects pré-calculés',
+                    },
+                  ].map(m => {
+                    const sel = importMode === m.id
+                    return (
+                      <button
+                        key={m.id}
+                        onClick={() => setImportMode(m.id)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 16, width: '100%',
+                          textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+                          background: sel ? 'rgba(56,189,248,0.09)' : 'rgba(255,255,255,0.03)',
+                          border: `1.5px solid ${sel ? '#38bdf8' : 'rgba(255,255,255,0.08)'}`,
+                          borderRadius: 14, padding: '17px 18px', marginBottom: '0.75rem',
+                          transition: 'all 170ms',
+                          transform: sel ? 'translateX(4px)' : 'none',
+                        }}
+                      >
+                        <div style={{
+                          width: 50, height: 50, borderRadius: 12, flexShrink: 0,
+                          background: sel ? 'rgba(56,189,248,0.13)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${sel ? 'rgba(56,189,248,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: sel ? '#38bdf8' : '#475569', transition: 'all 170ms',
+                        }}>
+                          {m.icon}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: sel ? '#f1f5f9' : '#94a3b8' }}>{m.title}</span>
+                            {m.badge && <span style={{ fontSize: 10, fontWeight: 700, background: '#38bdf8', color: '#0f172a', borderRadius: 999, padding: '2px 8px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{m.badge}</span>}
+                          </div>
+                          <p style={{ margin: 0, fontSize: 13, color: '#475569', lineHeight: 1.5 }}>{m.desc}</p>
+                        </div>
+                        {/* Radio */}
+                        <div style={{
+                          width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                          border: `2px solid ${sel ? '#38bdf8' : '#334155'}`,
+                          background: sel ? '#38bdf8' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 170ms',
+                        }}>
+                          {sel && <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#0f172a' }} />}
+                        </div>
+                      </button>
+                    )
+                  })}
+
+                  {apiError && (
+                    <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '1rem' }}>
+                      {apiError}
+                    </p>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
+                    <button onClick={back} style={S.btnBack}>← Retour</button>
+                    <button
+                      onClick={next}
+                      disabled={!importMode || loading}
+                      style={S.btnPrimary(!importMode || loading)}
+                    >
+                      {loading ? <><Spinner /> En cours…</> : importMode === 'demo' ? <>Accéder à ma démo →</> : <>Continuer <span style={{ fontSize: 17 }}>→</span></>}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ════ ÉTAPE 3a — Hektor FTP ════ */}
+              {step === 3 && importMode === 'hektor_ftp' && (
+                <div key="step3-ftp" style={{ animation: 'stepIn 280ms ease' }}>
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                      Vos accès FTP Hektor
+                    </h1>
+                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                      Ces informations vous sont fournies par le support Hektor.
+                    </p>
+                  </div>
+
+                  {/* Info box */}
+                  <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.18)', borderRadius: 12, padding: '14px 16px', marginBottom: '1.5rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#38bdf8' }}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                    <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
+                      <strong style={{ color: '#94a3b8' }}>Vous n'avez pas vos accès FTP ?</strong><br/>
+                      Contactez le support Hektor et demandez vos "identifiants d'export FTP". Ils vous fourniront le serveur, l'identifiant, le mot de passe et le chemin du fichier CSV.
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
+                    <Field label="Serveur FTP" value={ftpHost} onChange={setFtpHost} placeholder="ftp.hektor.fr" required error={fieldErrors.ftpHost} autoFocus />
+                    <Field label="Port" value="21" onChange={() => {}} placeholder="21" hint="Généralement 21" />
+                  </div>
+                  <Field label="Identifiant" value={ftpUser} onChange={setFtpUser} placeholder="mon_agence_ftp" required error={fieldErrors.ftpUser} />
+                  <Field label="Mot de passe FTP" type="password" value={ftpPass} onChange={setFtpPass} placeholder="••••••••••" required error={fieldErrors.ftpPass} />
+                  <Field label="Chemin du fichier" value={ftpPath} onChange={setFtpPath} placeholder="/Annonces.csv" required error={fieldErrors.ftpPath} hint='Généralement "/Annonces.csv" ou "/export/Annonces.csv"' />
+
+                  {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '0.75rem' }}>{apiError}</p>}
+
+                  <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
+                    <button onClick={back} style={S.btnBack}>← Retour</button>
+                    <button onClick={next} disabled={loading} style={S.btnPrimary(loading)}>
+                      {loading ? <><Spinner />Connexion en cours…</> : <>Connecter Hektor →</>}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ════ ÉTAPE 3b — Upload CSV/Excel ════ */}
+              {step === 3 && importMode === 'csv' && (
+                <div key="step3-csv" style={{ animation: 'stepIn 280ms ease' }}>
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                      Importez votre fichier
+                    </h1>
+                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                      Fichier Excel (.xlsx) ou CSV standard.
+                    </p>
+                  </div>
+
+                  {/* Dropzone */}
+                  <div
+                    onDrop={handleDrop} onDragOver={onDragOver} onDragLeave={onDragLeave}
+                    onClick={() => document.getElementById('file-input').click()}
+                    style={{
+                      border: `2px dashed ${dragging ? '#38bdf8' : file ? 'rgba(56,189,248,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                      borderRadius: 16, padding: '2.75rem 1.5rem', textAlign: 'center', cursor: 'pointer',
+                      background: dragging ? 'rgba(56,189,248,0.07)' : file ? 'rgba(56,189,248,0.04)' : 'rgba(255,255,255,0.02)',
+                      transition: 'all 200ms', marginBottom: '1.25rem',
+                    }}
+                  >
+                    <input id="file-input" type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) { setFile(f); setApiError(null) } }} />
+                    {file ? (
+                      <>
+                        <div style={{ width: 52, height: 52, borderRadius: 12, margin: '0 auto 1rem', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 2v6h6M9 13l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>{file.name}</p>
+                        <p style={{ margin: 0, fontSize: 13, color: '#38bdf8' }}>Fichier prêt · Cliquer pour changer</p>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ width: 52, height: 52, borderRadius: 12, margin: '0 auto 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155' }}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#64748b' }}>Glissez votre fichier ici</p>
+                        <p style={{ margin: 0, fontSize: 13, color: '#334155' }}>ou <span style={{ color: '#38bdf8' }}>parcourir</span> · .xlsx, .xls, .csv</p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Colonnes attendues */}
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px', marginBottom: '0.25rem' }}>
+                    <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#475569', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Colonnes attendues</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {['Reference', 'Type', 'Ville', 'Quartier', 'Prix', 'Surface', 'Pieces', 'Chambres', 'Description', 'Etat', 'Date'].map(col => (
+                        <span key={col} style={{ fontSize: 12, background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.15)', color: '#7dd3fc', borderRadius: 6, padding: '3px 9px', fontFamily: 'monospace' }}>{col}</span>
+                      ))}
+                    </div>
+                    <p style={{ margin: '10px 0 0', fontSize: 12, color: '#334155' }}>Seules Reference, Type, Ville et Prix sont obligatoires. Les autres colonnes sont facultatives.</p>
+                  </div>
+
+                  {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '1rem' }}>{apiError}</p>}
+
+                  <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
+                    <button onClick={back} style={S.btnBack}>← Retour</button>
+                    <button onClick={next} disabled={!file || loading} style={S.btnPrimary(!file || loading)}>
+                      {loading ? <><Spinner />Import en cours…</> : <>Importer mes biens →</>}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            </>
+          )}
+        </div>
+      </main>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @keyframes stepIn { from { opacity: 0; transform: translateX(22px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes spin   { to { transform: rotate(360deg) } }
+        ::placeholder { color: #334155; }
+      `}</style>
+    </div>
+  )
+}

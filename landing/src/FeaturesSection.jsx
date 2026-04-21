@@ -10,7 +10,7 @@ function MatchingMock() {
     { i: 'DC', name: 'Mr Durand Charles',   budget: '450 000 €', bien: 'Appartement à Agay',            score: 88 },
     { i: 'BC', name: 'BERDIN Clémence',      budget: '160 000 €', bien: 'Appartement à Fréjus',         score: 88 },
     { i: 'CP', name: 'Mme Cellier Pascale',  budget: '250 000 €', bien: 'Appartement à Fréjus',         score: 87 },
-    { i: 'DD', name: 'David Dufour',         budget: '500 000 €', bien: 'Maison/villa à Saint-Raphaël', score: 83 },
+    { i: 'MD', name: 'Mathis Duverger',       budget: '500 000 €', bien: 'Maison/villa à Saint-Raphaël', score: 83 },
     { i: 'PR', name: 'Mr Paul Rouvier',      budget: '410 000 €', bien: 'Maison/villa à Fréjus',        score: 82 },
     { i: 'BM', name: 'Mr Brian Muller',      budget: '170 000 €', bien: 'Appartement à Fréjus',         score: 82 },
   ]
@@ -353,7 +353,11 @@ function EmailMock() {
       if (!entry.isIntersecting) return
       io.disconnect()
       setTimeout(() => {
-        smoothScrollTo(480, 2000, () => {
+        const isMobile = window.innerWidth < 768
+        const scrollTarget = isMobile
+          ? Math.round((el.scrollHeight - el.clientHeight) * 0.67)
+          : 480
+        smoothScrollTo(scrollTarget, 2200, () => {
           setTimeout(() => setAnnotVisible(true), 300)
         })
       }, 900)
@@ -363,9 +367,9 @@ function EmailMock() {
   }, [])
 
   const args = [
-    "Surface convenable avec 70 m²",
-    "Proximité commerces et écoles pratique",
-    "Box de stationnement inclus",
+    "167 m² avec 4 chambres, correspond à votre besoin d'espace",
+    "Plain-pied intégral avec suite parentale, critère mentionné",
+    "Piscine privée et jardin 700 m², l'extérieur que vous cherchiez",
   ]
 
   return (
@@ -467,12 +471,12 @@ function EmailMock() {
             {/* header card */}
             <div style={{ background: GRAD, padding: '14px 20px' }}>
               <p style={{ margin: 0, color: '#FFFFFF', fontSize: 16, fontWeight: 600 }}>
-                Maison/villa à Fréjus
+                Maison/villa · Les Arcs
               </p>
             </div>
             {/* détails */}
             <div style={{ padding: '16px 20px' }}>
-              {[['Prix', '288 750 €', true], ['Surface', '72 m²', false], ['Pièces', '3 pièces', false]].map(([k, v, big]) => (
+              {[['Prix', '580 000 €', true], ['Surface', '167 m²', false], ['Pièces', '5 pièces', false]].map(([k, v, big]) => (
                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #F3F4F6' }}>
                   <span style={{ fontSize: 13, color: '#6B7280' }}>{k}</span>
                   <span style={{ fontSize: big ? 18 : 13, fontWeight: 700, color: big ? COLOR : '#111827' }}>{v}</span>
@@ -485,8 +489,8 @@ function EmailMock() {
         {/* ── Photo réelle du bien (ID 20) ── */}
         <div style={{ margin: '0 28px 18px', borderRadius: 12, overflow: 'hidden' }}>
           <img
-            src="https://groupementprimmo.staticlbi.com/wa/images/biens/12/a250fab4a2c4b0dd44e7fbccc62d16de/photo_48347d1adc58ea2976500be9ddf894f5.jpg"
-            alt="Maison/villa Fréjus"
+            src="https://groupementprimmo.staticlbi.com/wa/images/biens/11/67e970bb42105a5188b32864e42d1424/photo_0ca2885f13804197b64beb9874714665.jpg"
+            alt="Villa Les Arcs"
             style={{ width: '100%', display: 'block', height: 160, objectFit: 'cover' }}
           />
         </div>
@@ -635,7 +639,7 @@ function DashboardMock() {
 
   const matches = [
     { score: 94, nom: 'Mme Marchand Sophie',  bien: 'Maison/villa · Fréjus',       budget: '250 000 €', top: true  },
-    { score: 88, nom: 'Mr Legrand Antoine',   bien: 'Appartement · Saint-Raphaël', budget: '450 000 €', top: false },
+    { score: 88, nom: 'Mme Rochel Laura',     bien: 'Maison/villa · Les Arcs',     budget: '620 000 €', top: false },
     { score: 85, nom: 'Mme Torres Elena',     bien: 'Maison/villa · Agay',          budget: '160 000 €', top: false },
     { score: 82, nom: 'Mr Blanchard Luc',     bien: 'Appartement · Fréjus',         budget: '410 000 €', top: false },
   ]
@@ -780,8 +784,8 @@ const FEATURES = [
   {
     id: 'matching',
     label: 'Matching IA',
-    title: 'Le bon acheteur, pour le bon bien.',
-    description: "ImmoMatch croise budget, localisation et style de vie, puis attribue un score /100 à chaque paire. Les meilleures remontent toutes seules — toi tu valides.",
+    title: 'Le bon bien pour le bon acheteur.',
+    description: "ImmoMatch croise budget, localisation et style de vie, puis attribue un score sur 100 à chaque paire. Les meilleures remontent toutes seules, toi tu valides.",
     proof: "Score calculé en temps réel sur l'ensemble de ton portefeuille",
     Mock: MatchingMock,
     height: 420,
@@ -794,7 +798,7 @@ const FEATURES = [
     id: 'chat',
     label: 'Agent IA conversationnel',
     title: 'Tu lui parles. Il connaît ton stock par cœur.',
-    description: '"Quel bien pour Sophie, budget 350k, cherche du calme et un garage ?" — une question, une réponse en quelques secondes. Comme un collègue qui aurait tout mémorisé.',
+    description: '"Quel bien pour Sophie, budget 350k, cherche du calme et un garage ?" Une question, une réponse en quelques secondes. Comme un collègue qui aurait tout mémorisé.',
     proof: "Répond sur l'ensemble du catalogue en moins de 5 secondes",
     Mock: ChatMock,
     height: 420,
@@ -806,8 +810,8 @@ const FEATURES = [
   {
     id: 'email',
     label: 'Emails générés automatiquement',
-    title: "L'email est déjà écrit. Il t'attend.",
-    description: "ImmoMatch rédige un email personnalisé avec les vrais arguments du bien — prix, surface, emplacement. Tu relis en 30 secondes, tu envoies.",
+    title: "L'email est prêt. Il t'attend.",
+    description: "ImmoMatch rédige un email personnalisé avec les vrais arguments du bien : prix, surface, emplacement. Tu relis en 30 secondes, tu envoies.",
     proof: "Email prêt en moins de 10 secondes, personnalisé par bien et acheteur",
     Mock: EmailMock,
     height: 480,
@@ -820,8 +824,8 @@ const FEATURES = [
     id: 'biens',
     label: 'Import de biens',
     title: 'Ton portefeuille se met à jour tout seul.',
-    description: "Tu uploades un Excel, ou rien du tout si la synchro est activée. Tes biens sont là, prêts à être matchés. Zéro double saisie.",
-    proof: 'Compatible Excel, CSV et synchronisation automatique',
+    description: "On connecte ImmoMatch à ton logiciel métier. Chaque nouveau bien remonte automatiquement, zéro saisie, zéro manipulation de ta part.",
+    proof: 'Connexion à ton logiciel métier, synchronisation en temps réel',
     Mock: BiensMock,
     height: 390,
     scrollable: false,
@@ -833,7 +837,7 @@ const FEATURES = [
     id: 'dashboard',
     label: 'Dashboard & analytics',
     title: 'Tu sais exactement où tu en es.',
-    description: "Matchings lancés, performance par agent, biens les plus demandés — pas pour faire joli, pour savoir où donner un coup de main.",
+    description: "Matchings lancés, performance par agent, biens les plus demandés. Pas pour faire joli, pour savoir où donner un coup de main.",
     proof: 'Données mises à jour en temps réel',
     Mock: DashboardMock,
     height: 462,

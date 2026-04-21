@@ -1,6 +1,29 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import FeaturesSection from './FeaturesSection'
+
+const RemotionPlayer = lazy(() =>
+  Promise.all([
+    import('@remotion/player'),
+    import('./remotion/ImmoMatchVideo'),
+  ]).then(([{ Player }, { ImmoMatchVideo }]) => ({
+    default: () => (
+      <Player
+        component={ImmoMatchVideo}
+        durationInFrames={3600}
+        fps={120}
+        compositionWidth={1280}
+        compositionHeight={720}
+        style={{ width: '100%', display: 'block' }}
+        autoPlay
+        loop
+        controls={false}
+        clickToPlay={false}
+        spaceKeyToPlayOrPause={false}
+      />
+    ),
+  }))
+)
 
 /* ════════════════════════════════════════════════════════════════
    HOOK — Scroll Progress Bar
@@ -97,6 +120,20 @@ export default function Home() {
 
   const isMobile = useIsMobile()
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const openDemo = (e) => { e?.preventDefault(); setMenuOpen(false); navigate('/demarrer') }
+  const stepsRef = useRef(null)
+  const [stepsVisible, setStepsVisible] = useState(false)
+  useEffect(() => {
+    const el = stepsRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setStepsVisible(true); io.disconnect() }
+    }, { threshold: 0.2 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false) }
@@ -205,9 +242,9 @@ export default function Home() {
       title: 'Produit',
       links: [
         { label: 'Fonctionnalités', href: '#features' },
+        { label: 'Comment ça marche', href: '#steps' },
         { label: 'Tarifs', href: '#pricing' },
-        { label: 'Roadmap', href: '#' },
-        { label: 'Nouveautés', href: '#' },
+        { label: 'FAQ', href: '#faq' },
       ],
     },
     {
@@ -215,7 +252,6 @@ export default function Home() {
       links: [
         { label: 'Documentation', href: '/documentation', internal: true },
         { label: 'Guide de démarrage', href: '/guide-de-demarrage', internal: true },
-        { label: 'Blog', href: '#' },
         { label: 'FAQ', href: '/faq', internal: true },
       ],
     },
@@ -233,8 +269,6 @@ export default function Home() {
       links: [
         { label: 'contact@immowatch.fr', href: 'mailto:contact@immowatch.fr' },
         { label: 'Support', href: 'mailto:contact@immowatch.fr' },
-        { label: 'Partenariats', href: 'mailto:contact@immowatch.fr' },
-        { label: 'Presse', href: 'mailto:contact@immowatch.fr' },
       ],
     },
   ]
@@ -291,34 +325,33 @@ export default function Home() {
             </a>
           ))}
         </div>
-        <a href="mailto:contact@immowatch.fr" className="btn-primary hidden md:inline-flex" style={{ padding: '9px 20px', fontSize: 13 }}>
+        <a href="#" onClick={openDemo} className="btn-primary navbar-cta" style={{ padding: '9px 20px', fontSize: 13 }}>
           Essayer gratuitement
         </a>
-        <button className="md:hidden" onClick={() => setMenuOpen(true)} aria-label="Menu" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+        <button className="navbar-burger" onClick={() => setMenuOpen(true)} aria-label="Menu"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}>
           <span style={{ display: 'block', width: 22, height: 2, background: '#fff', borderRadius: 2, marginBottom: 5 }} />
           <span style={{ display: 'block', width: 22, height: 2, background: '#fff', borderRadius: 2, marginBottom: 5 }} />
-          <span style={{ display: 'block', width: 16, height: 2, background: '#fff', borderRadius: 2 }} />
+          <span style={{ display: 'block', width: 14, height: 2, background: '#fff', borderRadius: 2 }} />
         </button>
       </nav>
 
-      {/* ── Mobile Menu ── */}
+      {/* ── Mobile Menu glassmorphisme ── */}
       <div className={`mobile-menu ${menuOpen ? 'open' : ''}`}>
-        <button
-          onClick={() => setMenuOpen(false)}
-          aria-label="Fermer"
-          style={{ position: 'absolute', top: 20, right: 20, background: 'none', border: 'none', cursor: 'pointer', fontSize: 28, color: '#0f172a', lineHeight: 1 }}
+        <button onClick={() => setMenuOpen(false)} aria-label="Fermer"
+          style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: 16, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >×</button>
-        <a href="#" style={{ fontWeight: 800, fontSize: 24, color: '#0f172a', textDecoration: 'none' }}>
-          Immo<span style={{ color: '#1E3A5F' }}>Match</span>
+        <a href="#" style={{ fontWeight: 800, fontSize: 20, color: '#fff', textDecoration: 'none' }}>
+          Immo<span style={{ color: '#38bdf8' }}>Match</span>
         </a>
         {navLinks.map(link => (
           <a key={link.label} href={link.href} onClick={() => setMenuOpen(false)}
-            style={{ color: '#0f172a', textDecoration: 'none', fontSize: 20, fontWeight: 600 }}>
+            style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none', fontSize: 17, fontWeight: 500 }}>
             {link.label}
           </a>
         ))}
-        <a href="mailto:contact@immowatch.fr" onClick={() => setMenuOpen(false)}
-          style={{ background: '#1E3A5F', color: '#fff', textDecoration: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 16, fontWeight: 600 }}>
+        <a href="#" onClick={openDemo} className="btn-primary"
+          style={{ padding: '12px 28px', fontSize: 14, width: '100%', textAlign: 'center', justifyContent: 'center' }}>
           Demander une démo
         </a>
       </div>
@@ -368,7 +401,7 @@ export default function Home() {
 
           {/* CTAs */}
           <div className="reveal" style={{ display: 'flex', flexWrap: 'wrap', gap: 14, justifyContent: 'center', marginBottom: '1rem' }}>
-            <a href="mailto:contact@immowatch.fr" className="btn-primary">
+            <a href="#" onClick={openDemo} className="btn-primary">
               Demander une démo gratuite
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
@@ -382,38 +415,11 @@ export default function Home() {
             Aucune carte bancaire · Opérationnel en 24h · Vos vraies données
           </p>
 
-          {/* Vidéo de présentation — 🚧 placeholder */}
-          <div className="reveal" style={{ maxWidth: 780, margin: '0 auto' }}>
-            <div style={{
-              position: 'relative',
-              borderRadius: 16,
-              overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-              background: 'rgba(255,255,255,0.04)',
-              aspectRatio: '16/9',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              gap: 16,
-              cursor: 'pointer',
-            }}>
-              {/* Bouton play */}
-              <div style={{
-                width: 64, height: 64, borderRadius: '50%',
-                background: 'rgba(56,189,248,0.15)',
-                border: '2px solid rgba(56,189,248,0.4)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M8 5.14v14l11-7-11-7z" fill="#38bdf8" />
-                </svg>
-              </div>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, margin: 0 }}>
-                Vidéo de présentation — à venir
-              </p>
-            </div>
+          {/* Vidéo de présentation — Remotion Player */}
+          <div className="reveal" style={{ maxWidth: 780, margin: '0 auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <Suspense fallback={<div style={{ aspectRatio: '16/9', background: '#080d17' }} />}>
+              <RemotionPlayer />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -458,12 +464,7 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════════════
-          4. FONCTIONNALITÉS
-          ════════════════════════════════════════════ */}
-      <FeaturesSection />
-
-      {/* ════════════════════════════════════════════
-          5. COMMENT ÇA MARCHE — 3 étapes
+          4. COMMENT ÇA MARCHE — 4 étapes
           ════════════════════════════════════════════ */}
       <section className="section" style={{ background: '#f8fafc' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
@@ -482,12 +483,12 @@ export default function Home() {
           </div>
 
           {/* Étapes */}
-          <div className="reveal steps-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1.5rem', position: 'relative' }}>
+          <div ref={stepsRef} className="steps-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '1.5rem', position: 'relative' }}>
 
             {/* Ligne de connexion — fond gris, desktop uniquement */}
             <div style={{ display: isMobile ? 'none' : 'block', position: 'absolute', top: 36, left: 'calc(12.5% + 16px)', right: 'calc(12.5% + 16px)', height: 2, background: '#e2e8f0', borderRadius: 2, zIndex: 0, pointerEvents: 'none' }}>
               {/* Barre de progression animée — se remplit gauche→droite en bleu clair */}
-              <div className="steps-progress-bar" style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #1E3A5F 0%, #38bdf8 60%, #7dd3fc 100%)', width: 0 }} />
+              <div className="steps-progress-bar" style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #1E3A5F 0%, #38bdf8 60%, #7dd3fc 100%)', width: stepsVisible ? '100%' : 0, transition: stepsVisible ? 'width 1.6s cubic-bezier(0.4,0,0.2,1) 0.3s' : 'none' }} />
             </div>
 
             {[
@@ -499,8 +500,8 @@ export default function Home() {
                     <path d="M9 22V12h6v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 ),
-                title: 'Synchronisez vos biens',
-                desc: "Importez votre catalogue depuis votre logiciel métier (Hektor, etc.). Les biens sont mis à jour automatiquement.",
+                title: 'Vos biens sont déjà là',
+                desc: "On connecte ImmoMatch à votre logiciel métier. Vos biens se synchronisent automatiquement, vous n'avez rien à faire.",
               },
               {
                 color: '#1E3A5F',
@@ -522,7 +523,7 @@ export default function Home() {
                   </svg>
                 ),
                 title: "L'IA score chaque matching",
-                desc: "L'algorithme compare chaque prospect avec chaque bien et attribue un score de compatibilité /100.",
+                desc: "L'algorithme compare chaque prospect avec chaque bien et attribue un score de compatibilité sur 100.",
               },
               {
                 color: '#059669',
@@ -533,10 +534,10 @@ export default function Home() {
                   </svg>
                 ),
                 title: "Envoyez l'email en 30 s",
-                desc: "Les meilleurs matchings remontent en tête. Un email personnalisé par l'IA est généré avec les arguments du bien.",
+                desc: "Les meilleurs matchings remontent en tête. Un email personnalisé est généré avec les arguments du bien.",
               },
             ].map((step, i) => (
-              <div key={i} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div key={i} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', opacity: stepsVisible ? 1 : 0, transform: stepsVisible ? 'none' : 'translateY(28px)', transition: `opacity 0.55s ease ${i * 0.26 + 0.1}s, transform 0.55s ease ${i * 0.26 + 0.1}s` }}>
 
                 {/* Badge numéro + icône */}
                 <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
@@ -565,7 +566,7 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════════════
-          6. PAIN POINT — Avant / Après
+          5. PAIN POINT — Avant / Après
           ════════════════════════════════════════════ */}
       <section className="section" style={{ background: '#ffffff' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
@@ -690,24 +691,10 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════════════
-          7. TÉMOIGNAGES — placeholder
+          6. FONCTIONNALITÉS
           ════════════════════════════════════════════ */}
-      <section className="section" style={{ background: '#f8fafc' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <div className="reveal" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <p style={{ color: '#38bdf8', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 12px' }}>
-              Témoignages
-            </p>
-            <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.8px', margin: 0 }}>
-              Ce qu'ils en disent.
-            </h2>
-          </div>
-          <div className="reveal" style={{ background: '#fff', border: '2px dashed #e2e8f0', borderRadius: 20, padding: '4rem 2rem', textAlign: 'center' }}>
-            <p style={{ color: '#94a3b8', fontSize: 15, margin: '0 0 8px' }}>Citations clients à collecter</p>
-            <p style={{ color: '#cbd5e1', fontSize: 13, margin: 0 }}>3–5 témoignages courts, avec prénom + agence</p>
-          </div>
-        </div>
-      </section>
+      <FeaturesSection />
+
 
       {/* ════════════════════════════════════════════
           8. PRICING
@@ -764,13 +751,24 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <a
-                  href="mailto:contact@immowatch.fr"
-                  className={plan.ctaStyle === 'filled' ? 'btn-filled-dark' : 'btn-outline-white'}
-                  style={{ marginTop: 'auto' }}
-                >
-                  {plan.cta}
-                </a>
+                {plan.name === 'Agence+' ? (
+                  <a
+                    href="mailto:contact@immowatch.fr"
+                    className="btn-outline-white"
+                    style={{ marginTop: 'auto' }}
+                  >
+                    {plan.cta}
+                  </a>
+                ) : (
+                  <a
+                    href="#"
+                    onClick={openDemo}
+                    className={plan.ctaStyle === 'filled' ? 'btn-filled-dark' : 'btn-outline-white'}
+                    style={{ marginTop: 'auto' }}
+                  >
+                    {plan.cta}
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -815,7 +813,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           9. CTA FINAL
           ════════════════════════════════════════════ */}
-      <section style={{ background: 'radial-gradient(ellipse at 50% 0%, #0d2137 0%, #060d1a 70%)', padding: '6rem 1.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <section id="demo" style={{ background: 'radial-gradient(ellipse at 50% 0%, #0d2137 0%, #060d1a 70%)', padding: '6rem 1.5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', width: 600, height: 600, top: -200, left: '50%', transform: 'translateX(-50%)', borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ maxWidth: 620, margin: '0 auto', position: 'relative' }}>
           <div className="reveal">
@@ -828,7 +826,7 @@ export default function Home() {
             <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 2.5rem' }}>
               Démo sur vos données réelles. Aucune carte bancaire. Opérationnel en 24h.
             </p>
-            <a href="mailto:contact@immowatch.fr" className="btn-primary" style={{ fontSize: 15, padding: '14px 32px' }}>
+            <a href="#" onClick={openDemo} className="btn-primary" style={{ fontSize: 15, padding: '14px 32px' }}>
               Demander une démo gratuite
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>

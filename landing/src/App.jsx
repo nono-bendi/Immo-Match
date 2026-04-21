@@ -8,12 +8,14 @@ import Cookies from './pages/Cookies'
 import GuideDemarrage from './pages/GuideDemarrage'
 import Documentation from './pages/Documentation'
 import Showcase from './pages/Showcase'
+import Onboarding from './pages/Onboarding'
 
 export default function App() {
   return (
     <BrowserRouter basename="/landing">
       <Routes>
         <Route path="/"                         element={<Home />} />
+        <Route path="/demarrer"                 element={<Onboarding />} />
         <Route path="/showcase"                 element={<Showcase />} />
         <Route path="/faq"                      element={<FAQ />} />
         <Route path="/mentions-legales"         element={<MentionsLegales />} />

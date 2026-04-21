@@ -9,25 +9,98 @@ router = APIRouter()
 
 
 @router.get("/calibration/matchings")
-def get_matchings_for_calibration(current_user: dict = Depends(get_current_user)):
+def get_matchings_for_calibration(
+    sans_feedback_only: bool = False,
+    limit: int = 50,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Retourne les matchings pour calibration.
+    - sans_feedback_only=true : uniquement ceux sans feedback (priorité à collecter)
+    - Triés : d'abord sans feedback (récents en premier), puis ceux déjà évalués
+    """
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
-    rows = conn.execute("""
-        SELECT m.id, m.prospect_id, m.bien_id, m.score, m.points_forts,
-               p.nom as prospect_nom, p.bien as prospect_type, p.budget_max,
+
+    filtre_feedback = "AND cf.id IS NULL" if sans_feedback_only else ""
+
+    rows = conn.execute(f"""
+        SELECT m.id, m.prospect_id, m.bien_id, m.score, m.points_forts, m.points_attention,
+               m.recommandation, m.date_analyse,
+               p.nom as prospect_nom, p.bien as prospect_type, p.budget_max, p.destination,
                b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix, b.surface,
-               b.photos as bien_photos, b.pieces, b.chambres, b.quartier, b.etat, b.description, b.defauts as bien_defauts,
-               cf.pertinent, cf.score_avis, cf.commentaire
+               b.photos as bien_photos, b.pieces, b.chambres, b.quartier, b.etat,
+               b.description, b.defauts as bien_defauts, b.reference as bien_ref,
+               cf.id as feedback_id, cf.pertinent, cf.score_avis, cf.commentaire
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
         LEFT JOIN calibration_feedback cf ON cf.matching_id = m.id
         WHERE (m.statut_prospect IS NULL OR m.statut_prospect != 'refused')
           AND (p.archive = 0 OR p.archive IS NULL)
-        ORDER BY m.score DESC
-    """).fetchall()
+          {filtre_feedback}
+        ORDER BY cf.id IS NULL DESC, m.date_analyse DESC
+        LIMIT ?
+    """, (limit,)).fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+
+@router.get("/calibration/a-evaluer")
+def get_matchings_a_evaluer(current_user: dict = Depends(get_current_user)):
+    """
+    Retourne un échantillon représentatif de matchings sans feedback à évaluer :
+    - 5 scores élevés (>=75) sans feedback
+    - 5 scores moyens (50-74) sans feedback
+    - 5 scores faibles (<50) sans feedback
+    Objectif : couvrir toute l'échelle de score pour une calibration équilibrée.
+    """
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    conn.row_factory = sqlite3.Row
+
+    base_query = """
+        SELECT m.id, m.score, m.points_forts, m.points_attention, m.recommandation,
+               p.nom as prospect_nom, p.bien as prospect_type, p.budget_max, p.destination,
+               b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix,
+               b.surface, b.reference as bien_ref
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        JOIN biens b ON m.bien_id = b.id
+        LEFT JOIN calibration_feedback cf ON cf.matching_id = m.id
+        WHERE cf.id IS NULL
+          AND (p.archive = 0 OR p.archive IS NULL)
+          AND m.score {condition}
+        ORDER BY RANDOM()
+        LIMIT 5
+    """
+
+    hauts  = conn.execute(base_query.format(condition=">= 75")).fetchall()
+    moyens = conn.execute(base_query.format(condition="BETWEEN 50 AND 74")).fetchall()
+    faibles = conn.execute(base_query.format(condition="< 50")).fetchall()
+
+    # Stats globales pour afficher la progression
+    total_matchings = conn.execute("SELECT COUNT(*) FROM matchings").fetchone()[0]
+    total_feedbacks = conn.execute("SELECT COUNT(*) FROM calibration_feedback").fetchone()[0]
+    sans_feedback = conn.execute("""
+        SELECT COUNT(*) FROM matchings m
+        LEFT JOIN calibration_feedback cf ON cf.matching_id = m.id
+        WHERE cf.id IS NULL
+    """).fetchone()[0]
+
+    conn.close()
+    return {
+        "progression": {
+            "total_matchings": total_matchings,
+            "total_feedbacks": total_feedbacks,
+            "sans_feedback": sans_feedback,
+            "taux_couverture": round(total_feedbacks / total_matchings * 100, 1) if total_matchings else 0,
+        },
+        "a_evaluer": {
+            "hauts_scores": [dict(r) for r in hauts],
+            "scores_moyens": [dict(r) for r in moyens],
+            "scores_faibles": [dict(r) for r in faibles],
+        }
+    }
 
 
 @router.post("/calibration/feedback")
