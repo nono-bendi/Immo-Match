@@ -316,14 +316,20 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'radial-gradient(ellipse at 20% 30%, #0d2137 0%, #060d1a 55%, #0a0618 100%)',
+      background: '#020b14',
       fontFamily: "'Inter', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
-      {/* ── Orbs décoratifs ── */}
+      {/* ── Halos condensés ── */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: 600, height: 600, top: -200, left: '-5%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,0.18) 0%, transparent 70%)', filter: 'blur(60px)' }} />
-        <div style={{ position: 'absolute', width: 500, height: 500, bottom: -150, right: '-5%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        {/* Halo principal — spotlight centré derrière le formulaire */}
+        <div style={{ position: 'absolute', width: 700, height: 700, top: '50%', left: '50%', transform: 'translate(-50%, -58%)', borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.28) 0%, rgba(56,189,248,0.10) 35%, transparent 65%)', filter: 'blur(35px)' }} />
+        {/* Halo secondaire bleu froid — coin haut gauche */}
+        <div style={{ position: 'absolute', width: 340, height: 340, top: -80, left: -60, borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,0.16) 0%, transparent 70%)', filter: 'blur(28px)' }} />
+        {/* Halo violet — coin bas droit */}
+        <div style={{ position: 'absolute', width: 360, height: 360, bottom: -80, right: -60, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.18) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+        {/* Grain subtil */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'0.04\'/%3E%3C/svg%3E")', opacity: 0.6 }} />
       </div>
 
       {/* ── Header ── */}
@@ -416,7 +422,7 @@ export default function Onboarding() {
                   <Field label="Nom de votre agence" value={agence} onChange={setAgence} placeholder="Martin Immobilier" required error={fieldErrors.agence} />
 
                   <div style={{ marginTop: '1.75rem' }}>
-                    <button onClick={next} style={S.btnPrimary(false)}>
+                    <button onClick={next} className="ob-primary" style={S.btnPrimary(false)}>
                       Continuer <span style={{ fontSize: 17 }}>→</span>
                     </button>
                   </div>
@@ -519,11 +525,11 @@ export default function Onboarding() {
                   )}
 
                   <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
-                    <button onClick={back} style={S.btnBack}>← Retour</button>
+                    <button onClick={back} className="ob-back" style={S.btnBack}>← Retour</button>
                     <button
                       onClick={next}
                       disabled={!importMode || loading}
-                      style={S.btnPrimary(!importMode || loading)}
+                      className="ob-primary" style={S.btnPrimary(!importMode || loading)}
                     >
                       {loading ? <><Spinner /> En cours…</> : importMode === 'demo' ? <>Accéder à ma démo →</> : <>Continuer <span style={{ fontSize: 17 }}>→</span></>}
                     </button>
@@ -563,8 +569,8 @@ export default function Onboarding() {
                   {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '0.75rem' }}>{apiError}</p>}
 
                   <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
-                    <button onClick={back} style={S.btnBack}>← Retour</button>
-                    <button onClick={next} disabled={loading} style={S.btnPrimary(loading)}>
+                    <button onClick={back} className="ob-back" style={S.btnBack}>← Retour</button>
+                    <button onClick={next} disabled={loading} className="ob-primary" style={S.btnPrimary(loading)}>
                       {loading ? <><Spinner />Connexion en cours…</> : <>Connecter Hektor →</>}
                     </button>
                   </div>
@@ -687,7 +693,7 @@ export default function Onboarding() {
                         <button
                           onClick={analyserSite}
                           disabled={!siteUrl.trim() || scrapeLoading}
-                          style={S.btnPrimary(!siteUrl.trim() || scrapeLoading)}
+                          className="ob-primary" style={S.btnPrimary(!siteUrl.trim() || scrapeLoading)}
                         >
                           {scrapeLoading
                             ? <><Spinner />Analyse en cours…</>
@@ -730,8 +736,8 @@ export default function Onboarding() {
                       {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: '1rem' }}>{apiError}</p>}
 
                       <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={() => { setScrapePreview(null); setScrapeError(null) }} style={S.btnBack}>← Changer l'URL</button>
-                        <button onClick={next} disabled={loading} style={S.btnPrimary(loading)}>
+                        <button onClick={() => { setScrapePreview(null); setScrapeError(null) }} className="ob-back" style={S.btnBack}>← Changer l'URL</button>
+                        <button onClick={next} disabled={loading} className="ob-primary" style={S.btnPrimary(loading)}>
                           {loading ? <><Spinner />Création en cours…</> : <>Créer mon compte →</>}
                         </button>
                       </div>
@@ -798,8 +804,8 @@ export default function Onboarding() {
                   {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '1rem' }}>{apiError}</p>}
 
                   <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
-                    <button onClick={back} style={S.btnBack}>← Retour</button>
-                    <button onClick={next} disabled={!file || loading} style={S.btnPrimary(!file || loading)}>
+                    <button onClick={back} className="ob-back" style={S.btnBack}>← Retour</button>
+                    <button onClick={next} disabled={!file || loading} className="ob-primary" style={S.btnPrimary(!file || loading)}>
                       {loading ? <><Spinner />Import en cours…</> : <>Importer mes biens →</>}
                     </button>
                   </div>
@@ -814,9 +820,54 @@ export default function Onboarding() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes stepIn { from { opacity: 0; transform: translateX(22px) } to { opacity: 1; transform: translateX(0) } }
-        @keyframes spin   { to { transform: rotate(360deg) } }
+
+        @keyframes stepIn   { from { opacity: 0; transform: translateX(22px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes spin     { to { transform: rotate(360deg) } }
+        @keyframes shimmer  { 0% { background-position: -200% center } 100% { background-position: 200% center } }
+
         ::placeholder { color: #334155; }
+
+        /* ── Bouton primaire ── */
+        .ob-primary {
+          position: relative; overflow: hidden;
+          transition: transform 180ms cubic-bezier(0.34,1.56,0.64,1),
+                      box-shadow 180ms ease,
+                      filter 180ms ease !important;
+        }
+        .ob-primary::after {
+          content: '';
+          position: absolute; inset: 0;
+          background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%);
+          background-size: 200% 100%;
+          opacity: 0;
+          transition: opacity 200ms;
+        }
+        .ob-primary:not(:disabled):hover {
+          transform: translateY(-2px) scale(1.015);
+          box-shadow: 0 10px 36px rgba(56,189,248,0.55), 0 0 0 1px rgba(56,189,248,0.25) !important;
+          filter: brightness(1.07);
+        }
+        .ob-primary:not(:disabled):hover::after {
+          opacity: 1;
+          animation: shimmer 600ms ease forwards;
+        }
+        .ob-primary:not(:disabled):active {
+          transform: translateY(0) scale(0.98);
+          box-shadow: 0 4px 16px rgba(56,189,248,0.3) !important;
+        }
+
+        /* ── Bouton retour ── */
+        .ob-back {
+          transition: border-color 160ms, color 160ms, background 160ms, transform 160ms !important;
+        }
+        .ob-back:hover {
+          border-color: rgba(56,189,248,0.35) !important;
+          color: #cbd5e1 !important;
+          background: rgba(56,189,248,0.06) !important;
+        }
+        .ob-back:active {
+          transform: scale(0.97);
+        }
       `}</style>
     </div>
   )
