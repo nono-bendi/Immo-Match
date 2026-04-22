@@ -316,16 +316,28 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'linear-gradient(160deg, #06111f 0%, #040d18 45%, #060818 100%)',
+      background: '#04090f',
       fontFamily: "'Inter', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
-      {/* ── Halos ── */}
+      {/* ── Scène lumineuse ── */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
-        {/* Halo principal centré */}
-        <div style={{ position: 'absolute', width: 800, height: 500, top: '50%', left: '50%', transform: 'translate(-50%, -60%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.13) 0%, rgba(56,189,248,0.04) 50%, transparent 75%)', filter: 'blur(20px)' }} />
-        {/* Accent violet bas droit */}
-        <div style={{ position: 'absolute', width: 400, height: 400, bottom: -120, right: -80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,60,220,0.12) 0%, transparent 70%)', filter: 'blur(25px)' }} />
+
+        {/* Grille de points — très subtile */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.045) 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+
+        {/* Halo cyan — haut gauche, large et doux */}
+        <div style={{ position: 'absolute', width: 900, height: 700, top: -200, left: -200, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.18) 0%, rgba(56,189,248,0.06) 45%, transparent 70%)', filter: 'blur(60px)' }} />
+
+        {/* Halo violet — bas droite */}
+        <div style={{ position: 'absolute', width: 750, height: 600, bottom: -180, right: -150, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(124,58,237,0.2) 0%, rgba(139,92,246,0.07) 45%, transparent 70%)', filter: 'blur(55px)' }} />
+
+        {/* Petit accent chaud — centre bas, relie les deux halos */}
+        <div style={{ position: 'absolute', width: 360, height: 260, bottom: '15%', left: '50%', transform: 'translateX(-50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+
+        {/* Ligne de séparation lumineuse en haut */}
+        <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.18), rgba(139,92,246,0.14), transparent)' }} />
+
       </div>
 
       {/* ── Header ── */}
