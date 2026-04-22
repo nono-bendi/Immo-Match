@@ -316,27 +316,33 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#04090f',
+      background: '#050c15',
       fontFamily: "'Inter', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
       {/* ── Scène lumineuse ── */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
 
-        {/* Grille de points — très subtile */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.045) 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+        {/* Grille de points */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
-        {/* Halo cyan — haut gauche, large et doux */}
-        <div style={{ position: 'absolute', width: 900, height: 700, top: -200, left: -200, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.18) 0%, rgba(56,189,248,0.06) 45%, transparent 70%)', filter: 'blur(60px)' }} />
+        {/* Halo cyan — coin haut gauche, intense */}
+        <div style={{ position: 'absolute', width: 1000, height: 800, top: -300, left: -250, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(6,182,212,0.26) 0%, rgba(14,165,233,0.10) 40%, transparent 68%)', filter: 'blur(50px)' }} />
 
-        {/* Halo violet — bas droite */}
-        <div style={{ position: 'absolute', width: 750, height: 600, bottom: -180, right: -150, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(124,58,237,0.2) 0%, rgba(139,92,246,0.07) 45%, transparent 70%)', filter: 'blur(55px)' }} />
+        {/* Halo indigo — coin bas droite */}
+        <div style={{ position: 'absolute', width: 900, height: 750, bottom: -280, right: -200, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(99,60,220,0.28) 0%, rgba(124,58,237,0.10) 40%, transparent 68%)', filter: 'blur(50px)' }} />
 
-        {/* Petit accent chaud — centre bas, relie les deux halos */}
-        <div style={{ position: 'absolute', width: 360, height: 260, bottom: '15%', left: '50%', transform: 'translateX(-50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+        {/* Halo bleu — coin haut droite, secondaire */}
+        <div style={{ position: 'absolute', width: 500, height: 420, top: -100, right: -80, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(56,189,248,0.12) 0%, transparent 65%)', filter: 'blur(45px)' }} />
 
-        {/* Ligne de séparation lumineuse en haut */}
-        <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.18), rgba(139,92,246,0.14), transparent)' }} />
+        {/* Halo violet — coin bas gauche, secondaire */}
+        <div style={{ position: 'absolute', width: 460, height: 380, bottom: -80, left: -60, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(139,92,246,0.13) 0%, transparent 65%)', filter: 'blur(40px)' }} />
+
+        {/* Lueur centrale douce derrière le formulaire */}
+        <div style={{ position: 'absolute', width: 600, height: 400, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+
+        {/* Ligne lumineuse en haut */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.2) 30%, rgba(139,92,246,0.18) 70%, transparent 95%)' }} />
 
       </div>
 
@@ -354,7 +360,16 @@ export default function Onboarding() {
 
       {/* ── Contenu centré ── */}
       <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', position: 'relative', zIndex: 1 }}>
-        <div style={{ width: '100%', maxWidth: 560 }}>
+        <div style={{
+          width: '100%', maxWidth: 560,
+          background: 'rgba(255,255,255,0.025)',
+          border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: 28,
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          boxShadow: '0 0 0 1px rgba(56,189,248,0.05), 0 30px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)',
+          padding: '2.5rem 2.5rem 2rem',
+        }}>
 
           {/* ════ SUCCÈS ════ */}
           {result ? (
