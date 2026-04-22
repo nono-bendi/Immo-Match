@@ -252,7 +252,10 @@ export default function Onboarding() {
       fd.append('ftp_path', ftpPath.trim())
     }
     if (importMode === 'csv' && file) fd.append('file', file)
-    if (importMode === 'scrape' && siteUrl.trim()) fd.append('site_url', siteUrl.trim())
+    // Scrape : on envoie les biens déjà récupérés — pas de re-scraping côté serveur
+    if (importMode === 'scrape' && scrapePreview) {
+      fd.append('biens_json', JSON.stringify(scrapePreview.biens))
+    }
 
     try {
       const res = await fetch(`${API_URL}/api/onboard`, { method: 'POST', body: fd })

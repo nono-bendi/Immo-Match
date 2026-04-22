@@ -319,6 +319,8 @@ async def onboard(
     file: Optional[UploadFile] = File(None),
     # URL (mode scrape)
     site_url: Optional[str] = Form(None),
+    # Biens déjà scrappés (évite de re-scraper côté serveur)
+    biens_json: Optional[str] = Form(None),
 ):
     ip = getattr(request.client, "host", "unknown")
     # _check_rate_limit(ip)  # désactivé pendant les tests
@@ -351,26 +353,37 @@ async def onboard(
             nb_biens = _import_csv_bytes(await file.read(), file.filename or "", trial_db)
 
         elif mode == "scrape":
-            if not site_url or not site_url.strip():
-                raise HTTPException(status_code=400, detail="URL du site requise pour l'import par scraping.")
-            from routers.scraper import _clean_html, _extract_with_claude, HEADERS as SCRAPE_HEADERS, FETCH_TIMEOUT
-            import httpx as _httpx
-            url_clean = site_url.strip()
-            if not url_clean.startswith(("http://", "https://")):
-                url_clean = "https://" + url_clean
-            try:
-                async with _httpx.AsyncClient(timeout=FETCH_TIMEOUT, follow_redirects=True) as client:
-                    resp = await client.get(url_clean, headers=SCRAPE_HEADERS)
-                html = resp.text
-            except Exception as e:
-                raise HTTPException(status_code=422, detail=f"Impossible d'accéder au site : {e}")
-            content = _clean_html(html)
-            if len(content) < 100:
-                raise HTTPException(status_code=422, detail="Contenu trop vide — le site utilise peut-être JavaScript dynamique.")
-            try:
-                biens_scraped = _extract_with_claude(content)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Erreur d'extraction : {e}")
+            # Priorité : biens déjà scrappés envoyés par le frontend (évite le re-scraping)
+            if biens_json:
+                try:
+                    biens_scraped = json.loads(biens_json)
+                    if not isinstance(biens_scraped, list):
+                        raise ValueError("not a list")
+                except Exception:
+                    raise HTTPException(status_code=400, detail="biens_json invalide.")
+            elif site_url and site_url.strip():
+                # Fallback : re-scraper si pas de biens transmis
+                from routers.scraper import _clean_html, HEADERS as SCRAPE_HEADERS, FETCH_TIMEOUT
+                from routers.scraper import _call_claude, PROMPT_LISTING, MAX_BIENS
+                import httpx as _httpx
+                url_clean = site_url.strip()
+                if not url_clean.startswith(("http://", "https://")):
+                    url_clean = "https://" + url_clean
+                try:
+                    async with _httpx.AsyncClient(timeout=FETCH_TIMEOUT, follow_redirects=True) as client:
+                        resp = await client.get(url_clean, headers=SCRAPE_HEADERS)
+                    html = resp.text
+                except Exception as e:
+                    raise HTTPException(status_code=422, detail=f"Impossible d'accéder au site : {e}")
+                content = _clean_html(html, base_url=url_clean, keep_links=False)
+                if len(content) < 100:
+                    raise HTTPException(status_code=422, detail="Contenu trop vide.")
+                try:
+                    biens_scraped = _call_claude(PROMPT_LISTING.format(max=MAX_BIENS, content=content))
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=f"Erreur d'extraction : {e}")
+            else:
+                raise HTTPException(status_code=400, detail="biens_json ou site_url requis pour le mode scrape.")
             biens_scraped = [b for b in biens_scraped if b.get("prix") or b.get("ville")][:15]
             init_db(trial_db)
             nb_biens = _import_scraped_biens(biens_scraped, trial_db)
