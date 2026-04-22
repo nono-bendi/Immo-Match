@@ -26,7 +26,7 @@ _anthropic = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
 
 MAX_HTML_CHARS   = 12_000   # par page envoyée à Claude
 MAX_BIENS        = 15       # biens max
-MAX_DETAIL_PAGES = 10       # pages détail fetchées en parallèle
+MAX_DETAIL_PAGES = 5        # pages détail enrichies en parallèle (HTTP + Claude simultanés)
 FETCH_TIMEOUT    = 12
 
 HEADERS = {
@@ -215,6 +215,46 @@ async def _fetch(client: httpx.AsyncClient, url: str) -> tuple[str, str]:
     return resp.text, str(resp.url)
 
 
+# ── Enrichissement depuis page détail ────────────────────────────────────────
+
+async def _enrich_from_detail(bien: dict, detail_url: str) -> dict:
+    """
+    Fetch la page détail + appel Claude dans un thread (non-bloquant).
+    Retourne le bien enrichi (ou inchangé si erreur).
+    """
+    try:
+        async with httpx.AsyncClient(timeout=FETCH_TIMEOUT, follow_redirects=True) as client:
+            resp = await client.get(detail_url, headers=HEADERS)
+            resp.raise_for_status()
+            detail_html = resp.text
+            final_url = str(resp.url)
+    except Exception:
+        return bien
+
+    detail_content = _clean_html(detail_html, base_url=final_url, keep_links=False)
+
+    # Claude dans un thread pour ne pas bloquer l'event loop
+    try:
+        detail_biens = await asyncio.to_thread(
+            _call_claude,
+            PROMPT_DETAIL.format(content=detail_content),
+            3000,
+        )
+    except Exception:
+        return bien
+
+    if not detail_biens:
+        return bien
+
+    d = detail_biens[0]
+    # Merger : les détails enrichissent le bien du listing
+    for k, v in d.items():
+        if v is not None:
+            if k in ("photos", "description") or bien.get(k) is None:
+                bien[k] = v
+    return bien
+
+
 # ── Endpoint ──────────────────────────────────────────────────────────────────
 
 class ScrapeRequest(BaseModel):
@@ -249,41 +289,24 @@ async def scrape_preview(data: ScrapeRequest):
 
     biens = [b for b in biens if b.get("prix") or b.get("ville")][:MAX_BIENS]
 
-    # ── Passe 2 : pages détail (parallèle) ────────────────────────────────────
-    detail_jobs = []   # (index_bien, url_detail)
+    # ── Passe 2 : pages détail (HTTP + Claude entièrement en parallèle) ─────────
+    detail_jobs = []
     for i, b in enumerate(biens):
         lien = b.pop("lien_detail", None) or ""
         if lien.startswith("http"):
             detail_jobs.append((i, lien))
 
-    # Limiter à MAX_DETAIL_PAGES pages
     detail_jobs = detail_jobs[:MAX_DETAIL_PAGES]
 
     if detail_jobs:
-        async with httpx.AsyncClient(timeout=FETCH_TIMEOUT, follow_redirects=True) as client:
-            tasks = [_fetch(client, lien) for _, lien in detail_jobs]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        for (idx, lien), result in zip(detail_jobs, results):
-            if isinstance(result, Exception):
-                continue
-            detail_html, detail_url = result
-            detail_content = _clean_html(detail_html, base_url=detail_url, keep_links=False)
-            try:
-                detail_biens = _call_claude(
-                    PROMPT_DETAIL.format(content=detail_content), max_tokens=3000
-                )
-            except Exception:
-                continue
-            if not detail_biens:
-                continue
-            d = detail_biens[0]
-            # Merger : les détails enrichissent ce qui vient du listing
-            for k, v in d.items():
-                if v is not None:
-                    # Photos et description : toujours prendre les détails (plus complets)
-                    if k in ("photos", "description") or biens[idx].get(k) is None:
-                        biens[idx][k] = v
+        enrich_tasks = [
+            _enrich_from_detail(biens[idx], lien)
+            for idx, lien in detail_jobs
+        ]
+        enriched_list = await asyncio.gather(*enrich_tasks, return_exceptions=True)
+        for i, (idx, _) in enumerate(detail_jobs):
+            if not isinstance(enriched_list[i], Exception):
+                biens[idx] = enriched_list[i]
 
     return {
         "url": url,
