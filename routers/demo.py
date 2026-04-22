@@ -223,21 +223,43 @@ def _import_csv_bytes(raw: bytes, filename: str, db_path: str) -> int:
 # ── Import biens scrappés ─────────────────────────────────────────────────────
 
 def _import_scraped_biens(biens: list, db_path: str) -> int:
-    import json as _json
     conn = sqlite3.connect(db_path)
     n = 0
     for b in biens:
         try:
-            photo = b.get("photo")
-            photos_json = _json.dumps([photo]) if photo else "[]"
+            # Photos : liste → chaîne pipe-séparée (format attendu par le dashboard)
+            raw_photos = b.get("photos") or []
+            if isinstance(raw_photos, str):
+                raw_photos = [raw_photos] if raw_photos else []
+            photos_str = "|".join(p for p in raw_photos if p) or None
+
+            # Booleans → 0/1
+            def _bool(v):
+                if v is True:  return 1
+                if v is False: return 0
+                return None
+
+            # Copropriété : bool → "OUI"/"NON" (format texte utilisé ailleurs)
+            copro_raw = b.get("copropriete")
+            copro_str = ("OUI" if copro_raw is True else "NON" if copro_raw is False else None)
+
             conn.execute("""
-                INSERT INTO biens (reference,type,ville,prix,surface,pieces,chambres,
-                    description,photos,statut,source,date_creation,date_ajout)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO biens (
+                    reference, type, ville, prix, surface, pieces, chambres,
+                    description, photos,
+                    terrasse, cave, nb_parkings, exposition,
+                    charges_mensuelles, dpe_lettre, dpe_kwh, ges_lettre,
+                    copropriete, statut, source, date_creation, date_ajout
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, (
                 b.get("reference"), b.get("type"), b.get("ville"),
                 b.get("prix"), b.get("surface"), b.get("pieces"), b.get("chambres"),
-                b.get("description"), photos_json, "actif", "scrape",
+                b.get("description"), photos_str,
+                _bool(b.get("terrasse")), _bool(b.get("cave")),
+                b.get("nb_parkings"), b.get("exposition"),
+                b.get("charges"), b.get("dpe_lettre"), b.get("dpe_kwh"),
+                b.get("ges_lettre"), copro_str,
+                "actif", "scrape",
                 datetime.now().isoformat(), datetime.now().isoformat(),
             ))
             n += 1
