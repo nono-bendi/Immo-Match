@@ -19,6 +19,15 @@ SMTP_BASE = {
     "port": 587,
 }
 
+# ── SMTP de secours : utilisé quand l'agence n'a pas configuré le sien ────────
+SMTP_FALLBACK = {
+    "server":    os.getenv("SMTP_FALLBACK_SERVER", "smtp.gmail.com"),
+    "port":      int(os.getenv("SMTP_FALLBACK_PORT", "587")),
+    "user":      os.getenv("SMTP_FALLBACK_USER", ""),
+    "password":  os.getenv("SMTP_FALLBACK_PASSWORD", ""),
+    "from_name": os.getenv("SMTP_FALLBACK_FROM_NAME", "ImmoMatch"),
+}
+
 # ── Configuration Auth ────────────────────────────────────────────────────────
 AUTH_CONFIG = {
     "secret_key": os.getenv("JWT_SECRET_KEY") or secrets.token_hex(32),

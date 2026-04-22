@@ -226,6 +226,10 @@ def get_my_agency(current_user: dict = Depends(get_current_user)):
         "email":            current_user["agency_email"],
         "logo_url":         current_user["agency_logo_url"],
         "couleur_primaire": current_user["agency_couleur"],
+        "smtp_configured":  bool(
+            (current_user.get("smtp_user") or "").strip() and
+            (current_user.get("smtp_password") or "").strip()
+        ),
     }
 
 

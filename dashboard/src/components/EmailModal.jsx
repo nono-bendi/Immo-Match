@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles } from 'lucide-react'
+import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 function EmailModal({
   isOpen,
@@ -12,9 +13,11 @@ function EmailModal({
   previewLoading,
   emailContent,
   setEmailContent,
-  onRegeneratePreview
+  onRegeneratePreview,
+  smtpConfigured,
 }) {
   const [activeTab, setActiveTab] = useState('preview')
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (isOpen && type === 'confirm') {
@@ -299,6 +302,24 @@ function EmailModal({
                     <p className="text-sm text-[#1E3A5F] font-semibold">{data.bienPrix}</p>
                   </div>
 
+                  {!smtpConfigured && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 flex items-start gap-3">
+                      <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-amber-800 font-medium">Envoi via l'adresse ImmoMatch par défaut</p>
+                        <p className="text-xs text-amber-700 mt-0.5">
+                          Vous n'avez pas encore configuré votre propre adresse d'envoi.{' '}
+                          <button
+                            onClick={() => { onClose(); navigate('/administration') }}
+                            className="underline font-medium hover:text-amber-900"
+                          >
+                            Configurer mon SMTP →
+                          </button>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
                     <p className="text-sm text-amber-800">
                       <strong>Confirmation :</strong> L'email sera envoyé immédiatement à {data.prospectMail}
@@ -347,6 +368,24 @@ function EmailModal({
                   La proposition pour <span className="font-medium text-gray-900">{data.bienType} à {data.bienVille}</span> a été envoyée à <span className="font-medium text-gray-900">{data.prospectNom}</span>.
                 </p>
               </div>
+
+              {data.via_fallback && data.fallback_address && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-start gap-3">
+                  <AlertCircle size={16} className="text-blue-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm text-blue-800">
+                      Email envoyé depuis <span className="font-medium">{data.fallback_address}</span> (adresse ImmoMatch par défaut).
+                    </p>
+                    <button
+                      onClick={() => { onClose(); navigate('/administration') }}
+                      className="text-xs text-blue-600 underline mt-1 hover:text-blue-800 flex items-center gap-1"
+                    >
+                      <Settings size={11} />
+                      Configurer mon propre SMTP
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={onClose}

@@ -419,7 +419,9 @@ function MatchingsPage() {
           data: {
             prospectNom,
             bienType: match.bien_type,
-            bienVille: match.bien_ville
+            bienVille: match.bien_ville,
+            via_fallback: result.via_fallback || false,
+            fallback_address: result.fallback_address || null,
           },
           isLoading: false
         })
@@ -523,7 +525,7 @@ function MatchingsPage() {
       <Confetti show={showConfetti} />
       
       {/* Modal d'envoi d'email */}
-      <EmailModal 
+      <EmailModal
         isOpen={emailModal.isOpen}
         onClose={closeEmailModal}
         type={emailModal.type}
@@ -535,6 +537,7 @@ function MatchingsPage() {
         emailContent={emailContent}
         setEmailContent={setEmailContent}
         onRegeneratePreview={regeneratePreview}
+        smtpConfigured={agency?.smtp_configured ?? true}
       />
       
       <AnalysisOverlay

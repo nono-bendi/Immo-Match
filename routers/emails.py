@@ -9,7 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
-from config import SMTP_BASE, EmailRequest, _email_rate, APP_BASE_URL
+from config import SMTP_BASE, SMTP_FALLBACK, EmailRequest, _email_rate, APP_BASE_URL
 from routers.auth import get_current_user
 
 router = APIRouter()
@@ -515,15 +515,39 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
         return JSONResponse(status_code=429, content={"error": "Trop d'emails envoyés, attendez 1 minute"})
     _email_rate[uid].append(now)
 
-    # Construire la config SMTP depuis l'agence de l'utilisateur
-    smtp_cfg = {
-        "server":    _user.get("smtp_server") or SMTP_BASE["server"],
-        "port":      int(_user.get("smtp_port") or SMTP_BASE["port"]),
-        "user":      _user.get("smtp_user", ""),
-        "password":  _user.get("smtp_password", ""),
-        "from_name": _user.get("smtp_from_name", _user.get("agency_nom", "")),
-        "reply_to":  _user.get("smtp_reply_to", _user.get("agency_email", "")),
-    }
+    # Construire la config SMTP : agence en priorité, SMTP de secours sinon
+    agency_smtp_user = (_user.get("smtp_user") or "").strip()
+    agency_smtp_pass = (_user.get("smtp_password") or "").strip()
+    via_fallback = not (agency_smtp_user and agency_smtp_pass)
+
+    if via_fallback:
+        if not SMTP_FALLBACK["user"] or not SMTP_FALLBACK["password"]:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "success": False,
+                    "error": "Aucun SMTP configuré. Rendez-vous dans Administration → Email pour configurer votre adresse d'envoi.",
+                    "smtp_missing": True,
+                }
+            )
+        agency_nom = (_user.get("agency_nom") or "").strip()
+        smtp_cfg = {
+            "server":    SMTP_FALLBACK["server"],
+            "port":      SMTP_FALLBACK["port"],
+            "user":      SMTP_FALLBACK["user"],
+            "password":  SMTP_FALLBACK["password"],
+            "from_name": f"{agency_nom} via ImmoMatch" if agency_nom else SMTP_FALLBACK["from_name"],
+            "reply_to":  (_user.get("agency_email") or SMTP_FALLBACK["user"]),
+        }
+    else:
+        smtp_cfg = {
+            "server":    _user.get("smtp_server") or SMTP_BASE["server"],
+            "port":      int(_user.get("smtp_port") or SMTP_BASE["port"]),
+            "user":      agency_smtp_user,
+            "password":  agency_smtp_pass,
+            "from_name": _user.get("smtp_from_name") or _user.get("agency_nom", ""),
+            "reply_to":  _user.get("smtp_reply_to") or _user.get("agency_email", ""),
+        }
 
     try:
         # Créer le message
@@ -546,7 +570,12 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
             server.login(smtp_cfg["user"], smtp_cfg["password"])
             server.send_message(msg)
 
-        return {"success": True, "message": f"Email envoyé à {data.to_email}"}
+        return {
+            "success": True,
+            "message": f"Email envoyé à {data.to_email}",
+            "via_fallback": via_fallback,
+            "fallback_address": SMTP_FALLBACK["user"] if via_fallback else None,
+        }
 
     except smtplib.SMTPAuthenticationError:
         return JSONResponse(

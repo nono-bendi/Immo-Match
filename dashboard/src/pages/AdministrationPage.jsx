@@ -549,6 +549,24 @@ export default function AdministrationPage() {
             <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3 mt-2">
               <Mail size={16} className="text-[#1E3A5F]" /> Configuration email (SMTP)
             </h3>
+
+            {!agencyForm.smtp_user || !agencyForm.smtp_password ? (
+              <div className="mb-4 p-3 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-2">
+                <AlertTriangle size={15} className="text-amber-500 mt-0.5 shrink-0" />
+                <div className="text-xs text-amber-800">
+                  <span className="font-semibold">Aucun SMTP configuré</span> — les emails sont envoyés depuis l'adresse ImmoMatch par défaut.
+                  Renseignez vos identifiants ci-dessous pour envoyer depuis votre propre adresse.
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 bg-emerald-50 rounded-lg border border-emerald-200 flex items-center gap-2">
+                <CheckCircle size={14} className="text-emerald-500 shrink-0" />
+                <p className="text-xs text-emerald-800">
+                  Emails envoyés depuis <span className="font-semibold">{agencyForm.smtp_user}</span>
+                </p>
+              </div>
+            )}
+
             <p className="text-xs text-gray-500 mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center gap-2">
               <Lightbulb size={14} className="text-blue-500 shrink-0" />
               Ces identifiants permettent d'envoyer les propositions depuis l'adresse de l'agence.
