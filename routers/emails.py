@@ -1,6 +1,7 @@
 import os
 import re
 import smtplib
+import traceback
 from datetime import datetime
 from html import escape
 from email.mime.text import MIMEText
@@ -558,6 +559,7 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
             content={"success": False, "error": f"Erreur SMTP: {str(e)}"}
         )
     except Exception as e:
+        print(f"[send-email] Erreur: {e}\n{traceback.format_exc()}")
         return JSONResponse(
             status_code=500,
             content={"success": False, "error": f"Erreur: {str(e)}"}
@@ -571,6 +573,7 @@ async def preview_email(data: EmailRequest, current_user: dict = Depends(get_cur
         html_content = generate_email_html(data, agent_nom=current_user.get("nom"), agency=current_user)
         return {"success": True, "html": html_content}
     except Exception as e:
+        print(f"[preview-email] Erreur: {e}\n{traceback.format_exc()}")
         return JSONResponse(
             status_code=500,
             content={"success": False, "error": f"Erreur: {str(e)}"}

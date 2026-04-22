@@ -316,9 +316,13 @@ function MatchingsPage() {
 
       if (result.success) {
         setPreviewHtml(result.html)
+      } else {
+        console.error('Erreur preview (backend):', result.error)
+        setPreviewHtml(`<div style="padding:20px;color:#dc2626;font-family:monospace;font-size:12px;white-space:pre-wrap;">${result.error || 'Erreur inconnue'}</div>`)
       }
     } catch (err) {
       console.error('Erreur preview:', err)
+      setPreviewHtml(`<div style="padding:20px;color:#dc2626;font-family:monospace;font-size:12px;">Erreur réseau : ${err.message}</div>`)
     }
 
     setPreviewLoading(false)
@@ -504,9 +508,11 @@ function MatchingsPage() {
   }, {})
 
   const prospectGroups = Object.values(groupedByProspect).sort((a, b) => {
-    const maxScoreA = Math.max(...a.matchings.map(m => m.score))
-    const maxScoreB = Math.max(...b.matchings.map(m => m.score))
-    return maxScoreB - maxScoreA
+    // Tri par score pondéré (score × complétude du profil)
+    // Un prospect avec peu de critères renseignés est pénalisé en affichage
+    const maxPondereA = Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
+    const maxPondereB = Math.max(...b.matchings.map(m => m.score_pondere ?? m.score))
+    return maxPondereB - maxPondereA
   })
 
   const totalPages = Math.ceil(prospectGroups.length / itemsPerPage)
@@ -669,11 +675,13 @@ function MatchingsPage() {
             const bestMatch = group.matchings.reduce((best, m) => m.score > best.score ? m : best, group.matchings[0])
             const bestStyle = getScoreStyle(bestMatch.score)
             const isExpanded = expandedProspect === group.prospect_id
+            const completudePct = bestMatch.completude_pct ?? null
+            const profilIncomplet = completudePct !== null && completudePct < 50
 
             return (
               <div key={group.prospect_id} id={`prospect-${group.prospect_id}`} className="border-b border-gray-100 last:border-b-0">
                 {/* Ligne principale */}
-                <div 
+                <div
                   className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-blue-50/40 cursor-pointer transition-colors group"
                   onClick={() => setExpandedProspect(isExpanded ? null : group.prospect_id)}
                 >
@@ -682,16 +690,26 @@ function MatchingsPage() {
                       {getInitials(group.prospect_nom)}
                     </div>
                     <div>
-                      <ProspectLink prospect={{ 
-                        id: group.prospect_id, 
-                        nom: group.prospect_nom, 
+                      <ProspectLink prospect={{
+                        id: group.prospect_id,
+                        nom: group.prospect_nom,
                         mail: group.prospect_mail,
                         telephone: group.prospect_tel,
                         budget_max: group.prospect_budget
                       }}>
                         {group.prospect_nom}
                       </ProspectLink>
-                      <p className="text-sm text-gray-400">{formatBudget(group.prospect_budget)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-400">{formatBudget(group.prospect_budget)}</p>
+                        {profilIncomplet && (
+                          <span
+                            className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium"
+                            title={`Profil renseigné à ${completudePct}% — critères manquants : le score affiché est pondéré`}
+                          >
+                            profil {completudePct}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="col-span-3">
