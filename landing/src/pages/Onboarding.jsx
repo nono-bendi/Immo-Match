@@ -137,6 +137,12 @@ export default function Onboarding() {
   const [file, setFile] = useState(null)
   const [dragging, setDragging] = useState(false)
 
+  /* ── State scrape ── */
+  const [siteUrl, setSiteUrl] = useState('')
+  const [scrapePreview, setScrapePreview] = useState(null)
+  const [scrapeLoading, setScrapeLoading] = useState(false)
+  const [scrapeError, setScrapeError] = useState(null)
+
   /* ── State async ── */
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState(null)
@@ -188,17 +194,45 @@ export default function Onboarding() {
       if (importMode === 'hektor_ftp') {
         if (!validateFtp()) return
         submit()
-      } else {
+      } else if (importMode === 'csv') {
         if (!file) { setApiError('Veuillez sélectionner un fichier.'); return }
         submit()
+      } else if (importMode === 'scrape') {
+        if (!scrapePreview) return
+        submit()
       }
+    }
+  }
+
+  async function analyserSite() {
+    if (!siteUrl.trim()) return
+    setScrapeLoading(true)
+    setScrapeError(null)
+    setScrapePreview(null)
+    try {
+      const res = await fetch(`${API_URL}/api/scrape-preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: siteUrl.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setScrapeError(data.detail || "Erreur d'analyse."); return }
+      if (!data.nb_biens) {
+        setScrapeError('Aucun bien trouvé. Essayez une URL de page listing plus spécifique (ex: /vente ou /annonces).')
+        return
+      }
+      setScrapePreview(data)
+    } catch {
+      setScrapeError('Impossible de contacter le serveur.')
+    } finally {
+      setScrapeLoading(false)
     }
   }
 
   function back() {
     setApiError(null)
     if (step === 2) setStep(1)
-    if (step === 3) { setStep(2); setFile(null) }
+    if (step === 3) { setStep(2); setFile(null); setScrapePreview(null); setScrapeError(null) }
   }
 
   /* ── Soumission ── */
@@ -218,6 +252,7 @@ export default function Onboarding() {
       fd.append('ftp_path', ftpPath.trim())
     }
     if (importMode === 'csv' && file) fd.append('file', file)
+    if (importMode === 'scrape' && siteUrl.trim()) fd.append('site_url', siteUrl.trim())
 
     try {
       const res = await fetch(`${API_URL}/api/onboard`, { method: 'POST', body: fd })
@@ -380,6 +415,12 @@ export default function Onboarding() {
                       desc: 'Importez un export depuis votre logiciel ou un fichier structuré',
                     },
                     {
+                      id: 'scrape',
+                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M2 12h20M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+                      title: 'Mon site web',
+                      desc: 'On extrait vos biens directement depuis votre site agence — aucun export requis',
+                    },
+                    {
                       id: 'demo',
                       badge: '0 effort',
                       icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
@@ -488,6 +529,90 @@ export default function Onboarding() {
                       {loading ? <><Spinner />Connexion en cours…</> : <>Connecter Hektor →</>}
                     </button>
                   </div>
+                </div>
+              )}
+
+              {/* ════ ÉTAPE 3c — Site web (scraping) ════ */}
+              {step === 3 && importMode === 'scrape' && (
+                <div key="step3-scrape" style={{ animation: 'stepIn 280ms ease' }}>
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                      Votre site immobilier
+                    </h1>
+                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                      Entrez l'URL de la page qui liste vos biens à vendre.
+                    </p>
+                  </div>
+
+                  {!scrapePreview ? (
+                    <>
+                      <Field
+                        label="URL de votre site"
+                        value={siteUrl}
+                        onChange={v => { setSiteUrl(v); setScrapeError(null) }}
+                        placeholder="https://www.mon-agence.fr/vente"
+                        error={scrapeError}
+                        autoFocus
+                      />
+                      <p style={{ margin: '-0.7rem 0 1.5rem', fontSize: 12, color: '#334155' }}>
+                        Privilégiez la page listant tous vos biens (pas la page d'accueil).
+                      </p>
+
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={back} style={S.btnBack}>← Retour</button>
+                        <button
+                          onClick={analyserSite}
+                          disabled={!siteUrl.trim() || scrapeLoading}
+                          style={S.btnPrimary(!siteUrl.trim() || scrapeLoading)}
+                        >
+                          {scrapeLoading
+                            ? <><Spinner />Analyse en cours…</>
+                            : <>Analyser mon site →</>}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Aperçu des biens trouvés */}
+                      <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 14, padding: '16px 18px', marginBottom: '1.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(56,189,248,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8', flexShrink: 0 }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </div>
+                          <div>
+                            <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>
+                              {scrapePreview.nb_biens} bien{scrapePreview.nb_biens > 1 ? 's' : ''} trouvé{scrapePreview.nb_biens > 1 ? 's' : ''}
+                            </p>
+                            <p style={{ margin: 0, fontSize: 12, color: '#475569', wordBreak: 'break-all' }}>{scrapePreview.url}</p>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                          {scrapePreview.biens.slice(0, 4).map((b, i) => (
+                            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '7px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                              <span style={{ fontSize: 13, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {[b.type, b.ville, b.surface ? `${b.surface}m²` : null, b.pieces ? `${b.pieces}p` : null].filter(Boolean).join(' · ')}
+                              </span>
+                              {b.prix && <span style={{ fontSize: 13, fontWeight: 700, color: '#38bdf8', flexShrink: 0 }}>{Number(b.prix).toLocaleString('fr-FR')} €</span>}
+                            </div>
+                          ))}
+                          {scrapePreview.nb_biens > 4 && (
+                            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#475569', textAlign: 'center' }}>
+                              + {scrapePreview.nb_biens - 4} autres biens
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: '1rem' }}>{apiError}</p>}
+
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={() => { setScrapePreview(null); setScrapeError(null) }} style={S.btnBack}>← Changer l'URL</button>
+                        <button onClick={next} disabled={loading} style={S.btnPrimary(loading)}>
+                          {loading ? <><Spinner />Création en cours…</> : <>Créer mon compte →</>}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

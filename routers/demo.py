@@ -220,6 +220,31 @@ def _import_csv_bytes(raw: bytes, filename: str, db_path: str) -> int:
     return n
 
 
+# ── Import biens scrappés ─────────────────────────────────────────────────────
+
+def _import_scraped_biens(biens: list, db_path: str) -> int:
+    conn = sqlite3.connect(db_path)
+    n = 0
+    for b in biens:
+        try:
+            conn.execute("""
+                INSERT INTO biens (reference,type,ville,prix,surface,pieces,chambres,
+                    description,statut,source,date_creation,date_ajout)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            """, (
+                b.get("reference"), b.get("type"), b.get("ville"),
+                b.get("prix"), b.get("surface"), b.get("pieces"), b.get("chambres"),
+                b.get("description"), "actif", "scrape",
+                datetime.now().isoformat(), datetime.now().isoformat(),
+            ))
+            n += 1
+        except Exception:
+            pass
+    conn.commit()
+    conn.close()
+    return n
+
+
 # ── Sync Hektor FTP en arrière-plan ──────────────────────────────────────────
 
 def _save_ftp_settings(db_path: str, ftp_host: str, ftp_user: str, ftp_pass: str, ftp_path: str):
@@ -261,6 +286,8 @@ async def onboard(
     ftp_path:   str  = Form(None),
     # Fichier (mode csv)
     file: Optional[UploadFile] = File(None),
+    # URL (mode scrape)
+    site_url: Optional[str] = Form(None),
 ):
     ip = getattr(request.client, "host", "unknown")
     # _check_rate_limit(ip)  # désactivé pendant les tests
@@ -291,6 +318,31 @@ async def onboard(
                 raise HTTPException(status_code=400, detail="Fichier requis pour l'import CSV/Excel.")
             init_db(trial_db)
             nb_biens = _import_csv_bytes(await file.read(), file.filename or "", trial_db)
+
+        elif mode == "scrape":
+            if not site_url or not site_url.strip():
+                raise HTTPException(status_code=400, detail="URL du site requise pour l'import par scraping.")
+            from routers.scraper import _clean_html, _extract_with_claude, HEADERS as SCRAPE_HEADERS, FETCH_TIMEOUT
+            import httpx as _httpx
+            url_clean = site_url.strip()
+            if not url_clean.startswith(("http://", "https://")):
+                url_clean = "https://" + url_clean
+            try:
+                async with _httpx.AsyncClient(timeout=FETCH_TIMEOUT, follow_redirects=True) as client:
+                    resp = await client.get(url_clean, headers=SCRAPE_HEADERS)
+                html = resp.text
+            except Exception as e:
+                raise HTTPException(status_code=422, detail=f"Impossible d'accéder au site : {e}")
+            content = _clean_html(html)
+            if len(content) < 100:
+                raise HTTPException(status_code=422, detail="Contenu trop vide — le site utilise peut-être JavaScript dynamique.")
+            try:
+                biens_scraped = _extract_with_claude(content)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Erreur d'extraction : {e}")
+            biens_scraped = [b for b in biens_scraped if b.get("prix") or b.get("ville")][:15]
+            init_db(trial_db)
+            nb_biens = _import_scraped_biens(biens_scraped, trial_db)
 
         elif mode == "hektor_ftp":
             if not all([ftp_host, ftp_user, ftp_pass, ftp_path]):
