@@ -323,7 +323,7 @@ async def onboard(
     biens_json: Optional[str] = Form(None),
 ):
     ip = getattr(request.client, "host", "unknown")
-    # _check_rate_limit(ip)  # désactivé pendant les tests
+    _check_rate_limit(ip)
 
     email = email.strip().lower()
     nom = nom.strip()
@@ -349,8 +349,11 @@ async def onboard(
         elif mode == "csv":
             if not file:
                 raise HTTPException(status_code=400, detail="Fichier requis pour l'import CSV/Excel.")
+            raw = await file.read()
+            if len(raw) > 50 * 1024 * 1024:  # 50 MB max
+                raise HTTPException(status_code=413, detail="Fichier trop volumineux (max 50 Mo).")
             init_db(trial_db)
-            nb_biens = _import_csv_bytes(await file.read(), file.filename or "", trial_db)
+            nb_biens = _import_csv_bytes(raw, file.filename or "", trial_db)
 
         elif mode == "scrape":
             # Priorité : biens déjà scrappés envoyés par le frontend (évite le re-scraping)
@@ -404,7 +407,7 @@ async def onboard(
         _delete_account(agency_id, slug)
         raise
 
-    # _commit_rate_limit(ip)  # désactivé pendant les tests
+    _commit_rate_limit(ip)
     token = _jwt(user_id, expires_iso)
     return {
         "access_token": token,
@@ -426,7 +429,16 @@ class ReconnectRequest(BaseModel):
 
 
 @router.post("/trial-reconnect")
-def trial_reconnect(data: ReconnectRequest):
+def trial_reconnect(data: ReconnectRequest, request: Request):
+    ip = getattr(request.client, "host", "unknown")
+    # Rate limit séparé pour les reconnexions (3 tentatives/IP/heure)
+    key = f"reconnect_{ip}"
+    now = datetime.now()
+    window = [t for t in _rate_limit.get(key, []) if (now - t).total_seconds() < 3600]
+    if len(window) >= 3:
+        raise HTTPException(status_code=429, detail="Trop de tentatives. Réessayez dans 1 heure.")
+    _rate_limit[key] = window + [now]
+
     email = (data.email or "").strip().lower()
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Email invalide.")
@@ -437,18 +449,23 @@ def trial_reconnect(data: ReconnectRequest):
     ).fetchone()
     conn.close()
 
+    # Message générique : ne pas révéler si l'email existe ou non
+    _NOT_FOUND = "Email introuvable ou période d'essai expirée."
+
     if not row:
-        raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email.")
+        raise HTTPException(status_code=404, detail=_NOT_FOUND)
 
     user_id, is_trial, expires_iso = row
 
     if not is_trial:
-        raise HTTPException(status_code=403, detail="Ce compte n'est pas un compte démo.")
+        raise HTTPException(status_code=403, detail=_NOT_FOUND)
 
     if expires_iso:
-        from datetime import datetime
-        if datetime.now() > datetime.fromisoformat(expires_iso):
-            raise HTTPException(status_code=403, detail="Votre période d'essai est terminée.")
+        try:
+            if datetime.now() > datetime.fromisoformat(expires_iso):
+                raise HTTPException(status_code=403, detail=_NOT_FOUND)
+        except ValueError:
+            raise HTTPException(status_code=403, detail=_NOT_FOUND)
 
     token = _jwt(user_id, expires_iso or "")
     return {"access_token": token, "token_type": "bearer"}

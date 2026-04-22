@@ -147,12 +147,24 @@ export default function OnboardingWizard({ open, onClose }) {
   }, [open])
 
   /* ── Drag & drop (hooks obligatoirement avant tout return conditionnel) ── */
+  const MAX_FILE_SIZE = 10 * 1024 * 1024  // 10 MB
+
+  const setFileChecked = useCallback((f) => {
+    if (!f) return
+    if (f.size > MAX_FILE_SIZE) {
+      setApiError('Fichier trop volumineux (max 10 Mo). Divisez votre fichier si nécessaire.')
+      return
+    }
+    setFile(f)
+    setApiError(null)
+  }, [])
+
   const handleDrop = useCallback((e) => {
     e.preventDefault()
     setDragging(false)
     const f = e.dataTransfer.files?.[0]
-    if (f) { setFile(f); setApiError(null) }
-  }, [])
+    if (f) setFileChecked(f)
+  }, [setFileChecked])
 
   const handleDragOver = useCallback(e => { e.preventDefault(); setDragging(true) }, [])
   const handleDragLeave = useCallback(() => setDragging(false), [])
@@ -446,7 +458,7 @@ export default function OnboardingWizard({ open, onClose }) {
                   type="file"
                   accept={modeInfo.accept}
                   style={{ display: 'none' }}
-                  onChange={e => { const f = e.target.files?.[0]; if (f) { setFile(f); setApiError(null) } }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) setFileChecked(f) }}
                 />
 
                 {file ? (

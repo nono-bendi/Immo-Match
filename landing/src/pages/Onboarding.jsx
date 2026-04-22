@@ -6,7 +6,7 @@
    → POST /api/onboard → JWT → redirect dashboard connecté
    ════════════════════════════════════════════════════════════════ */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 
 const API_URL       = import.meta.env.VITE_API_URL       ?? ''
@@ -142,6 +142,30 @@ export default function Onboarding() {
   const [scrapePreview, setScrapePreview] = useState(null)
   const [scrapeLoading, setScrapeLoading] = useState(false)
   const [scrapeError, setScrapeError] = useState(null)
+  const [scrapeStepIdx, setScrapeStepIdx] = useState(0)
+  const scrapeTimers = useRef([])
+
+  /* ── Séquence de messages pendant le scraping ── */
+  const SCRAPE_STEPS = [
+    { text: 'Connexion au site…',                    sub: 'Récupération du contenu de la page' },
+    { text: 'Lecture des annonces…',                 sub: 'Parcours de la structure HTML' },
+    { text: 'Extraction par intelligence artificielle…', sub: 'Claude analyse chaque annonce' },
+    { text: 'Structuration des données…',            sub: 'Prix, surfaces, types, localisations' },
+    { text: 'Finalisation…',                         sub: 'Presque prêt !' },
+  ]
+  const SCRAPE_DELAYS = [0, 3500, 8000, 15000, 22000]
+
+  useEffect(() => {
+    // Nettoyer les timers précédents
+    scrapeTimers.current.forEach(clearTimeout)
+    scrapeTimers.current = []
+    if (!scrapeLoading) { setScrapeStepIdx(0); return }
+    SCRAPE_DELAYS.forEach((delay, i) => {
+      const t = setTimeout(() => setScrapeStepIdx(i), delay)
+      scrapeTimers.current.push(t)
+    })
+    return () => scrapeTimers.current.forEach(clearTimeout)
+  }, [scrapeLoading])
 
   /* ── State async ── */
   const [loading, setLoading] = useState(false)
@@ -152,11 +176,23 @@ export default function Onboarding() {
   useEffect(() => { document.title = 'Démarrer — ImmoMatch' }, [])
 
   /* ── Drag & drop (avant tout return conditionnel) ── */
+  const MAX_FILE_SIZE = 10 * 1024 * 1024  // 10 MB
+
+  const setFileChecked = useCallback((f) => {
+    if (!f) return
+    if (f.size > MAX_FILE_SIZE) {
+      setApiError('Fichier trop volumineux (max 10 Mo). Divisez votre fichier si nécessaire.')
+      return
+    }
+    setFile(f)
+    setApiError(null)
+  }, [])
+
   const handleDrop = useCallback((e) => {
     e.preventDefault(); setDragging(false)
     const f = e.dataTransfer.files?.[0]
-    if (f) { setFile(f); setApiError(null) }
-  }, [])
+    if (f) setFileChecked(f)
+  }, [setFileChecked])
   const onDragOver  = useCallback(e => { e.preventDefault(); setDragging(true) }, [])
   const onDragLeave = useCallback(() => setDragging(false), [])
 
@@ -538,31 +574,116 @@ export default function Onboarding() {
               {/* ════ ÉTAPE 3c — Site web (scraping) ════ */}
               {step === 3 && importMode === 'scrape' && (
                 <div key="step3-scrape" style={{ animation: 'stepIn 280ms ease' }}>
-                  <div style={{ marginBottom: '1.75rem' }}>
-                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.4rem', color: '#f1f5f9' }}>
                       Votre site immobilier
                     </h1>
                     <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
-                      Entrez l'URL de la page qui liste vos biens à vendre.
+                      On extrait jusqu'à <strong style={{ color: '#94a3b8' }}>15 biens</strong> automatiquement — sans export, sans fichier.
                     </p>
                   </div>
 
                   {!scrapePreview ? (
                     <>
+                      {/* Encart "quelle URL coller" */}
+                      <div style={{
+                        background: 'rgba(251,191,36,0.06)',
+                        border: '1px solid rgba(251,191,36,0.25)',
+                        borderRadius: 12,
+                        padding: '13px 16px',
+                        marginBottom: '1.25rem',
+                        display: 'flex',
+                        gap: 11,
+                        alignItems: 'flex-start',
+                      }}>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#fbbf24' }}>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65 }}>
+                          <strong style={{ color: '#fbbf24' }}>Collez l'URL de votre page de biens à vendre</strong> — pas la page d'accueil.<br/>
+                          <span style={{ color: '#64748b' }}>
+                            Exemple : <span style={{ fontFamily: 'monospace', color: '#7dd3fc' }}>mon-agence.fr<strong style={{ color: '#f1f5f9' }}>/vente</strong></span>
+                            {' '}ou{' '}
+                            <span style={{ fontFamily: 'monospace', color: '#7dd3fc' }}>mon-agence.fr<strong style={{ color: '#f1f5f9' }}>/annonces</strong></span>
+                          </span>
+                        </div>
+                      </div>
+
                       <Field
-                        label="URL de votre site"
+                        label="URL de la page listing"
                         value={siteUrl}
                         onChange={v => { setSiteUrl(v); setScrapeError(null) }}
                         placeholder="https://www.mon-agence.fr/vente"
                         error={scrapeError}
                         autoFocus
                       />
-                      <p style={{ margin: '-0.7rem 0 1.5rem', fontSize: 12, color: '#334155' }}>
-                        Privilégiez la page listant tous vos biens (pas la page d'accueil).
+                      <p style={{ margin: '-0.6rem 0 1.25rem', fontSize: 12, color: '#334155' }}>
+                        Maximum 15 biens extraits · Vous pourrez en ajouter d'autres ensuite.
                       </p>
 
+                      {/* ── Live status pendant l'analyse ── */}
+                      {scrapeLoading && (
+                        <div style={{
+                          background: 'rgba(56,189,248,0.05)',
+                          border: '1px solid rgba(56,189,248,0.18)',
+                          borderRadius: 14,
+                          padding: '18px 20px',
+                          marginBottom: '1.25rem',
+                          animation: 'stepIn 280ms ease',
+                        }}>
+                          {/* Étapes avec état */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {SCRAPE_STEPS.map((s, i) => {
+                              const done    = i < scrapeStepIdx
+                              const active  = i === scrapeStepIdx
+                              const pending = i > scrapeStepIdx
+                              return (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, opacity: pending ? 0.3 : 1, transition: 'opacity 400ms' }}>
+                                  {/* Icône état */}
+                                  <div style={{
+                                    width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                                    background: done
+                                      ? 'rgba(56,189,248,0.2)'
+                                      : active
+                                        ? 'rgba(56,189,248,0.1)'
+                                        : 'rgba(255,255,255,0.04)',
+                                    border: `1.5px solid ${done || active ? 'rgba(56,189,248,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    transition: 'all 400ms',
+                                  }}>
+                                    {done ? (
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                                        <path d="M5 13l4 4L19 7" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                      </svg>
+                                    ) : active ? (
+                                      <Spinner size={13} color="#38bdf8" />
+                                    ) : (
+                                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#334155' }} />
+                                    )}
+                                  </div>
+                                  {/* Texte */}
+                                  <div>
+                                    <p style={{
+                                      margin: 0, fontSize: 13, fontWeight: active ? 700 : 500,
+                                      color: done ? '#38bdf8' : active ? '#f1f5f9' : '#334155',
+                                      transition: 'color 400ms',
+                                    }}>{s.text}</p>
+                                    {active && (
+                                      <p style={{ margin: '2px 0 0', fontSize: 11, color: '#475569', animation: 'stepIn 300ms ease' }}>
+                                        {s.sub}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       <div style={{ display: 'flex', gap: 10 }}>
-                        <button onClick={back} style={S.btnBack}>← Retour</button>
+                        <button onClick={back} disabled={scrapeLoading} style={{ ...S.btnBack, opacity: scrapeLoading ? 0.4 : 1, cursor: scrapeLoading ? 'not-allowed' : 'pointer' }}>← Retour</button>
                         <button
                           onClick={analyserSite}
                           disabled={!siteUrl.trim() || scrapeLoading}
@@ -643,7 +764,7 @@ export default function Onboarding() {
                     }}
                   >
                     <input id="file-input" type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }}
-                      onChange={e => { const f = e.target.files?.[0]; if (f) { setFile(f); setApiError(null) } }} />
+                      onChange={e => { const f = e.target.files?.[0]; if (f) setFileChecked(f) }} />
                     {file ? (
                       <>
                         <div style={{ width: 52, height: 52, borderRadius: 12, margin: '0 auto 1rem', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
