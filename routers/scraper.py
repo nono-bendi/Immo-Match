@@ -177,21 +177,33 @@ Contenu :
 {content}"""
 
 
-def _call_claude(prompt: str, max_tokens: int = 3000) -> list[dict]:
+def _call_claude(prompt: str, max_tokens: int = 6000) -> list[dict]:
     msg = _anthropic.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
     raw = msg.content[0].text.strip()
+
+    # Chercher le tableau JSON (peut être entouré de ```json ... ```)
     match = re.search(r"\[.*\]", raw, re.DOTALL)
     if not match:
         return []
+    fragment = match.group()
     try:
-        result = json.loads(match.group())
+        result = json.loads(fragment)
         return result if isinstance(result, list) else []
     except json.JSONDecodeError:
-        return []
+        # JSON tronqué (max_tokens atteint) : récupérer les objets complets
+        objects = []
+        for m in re.finditer(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}", fragment, re.DOTALL):
+            try:
+                obj = json.loads(m.group())
+                if isinstance(obj, dict):
+                    objects.append(obj)
+            except json.JSONDecodeError:
+                pass
+        return objects
 
 
 # ── Fetch helpers ─────────────────────────────────────────────────────────────
@@ -259,7 +271,7 @@ async def scrape_preview(data: ScrapeRequest):
             detail_content = _clean_html(detail_html, base_url=detail_url, keep_links=False)
             try:
                 detail_biens = _call_claude(
-                    PROMPT_DETAIL.format(content=detail_content), max_tokens=2000
+                    PROMPT_DETAIL.format(content=detail_content), max_tokens=3000
                 )
             except Exception:
                 continue
