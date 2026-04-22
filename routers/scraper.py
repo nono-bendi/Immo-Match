@@ -2,9 +2,9 @@
 # SCRAPER — Extraction de biens depuis le site web d'une agence
 #
 # POST /api/scrape-preview  { url }
-#   → fetch HTML → nettoyage → Claude Haiku → liste de biens structurés
+#   → fetch HTML → nettoyage + préservation photos → Claude Haiku → biens structurés
 #
-# Coût : ~$0.001 par appel (Haiku, HTML tronqué à 6000 chars)
+# Coût : ~$0.002 par appel (Haiku, HTML tronqué à 15 000 chars)
 # ════════════════════════════════════════════════════════════════════════════
 
 import os
@@ -20,9 +20,9 @@ router = APIRouter()
 
 _anthropic = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", ""))
 
-MAX_HTML_CHARS  = 6_000   # chars envoyés à Claude
-MAX_BIENS       = 15      # biens extraits max
-FETCH_TIMEOUT   = 10      # secondes
+MAX_HTML_CHARS  = 15_000  # chars envoyés à Claude (augmenté pour plus de biens)
+MAX_BIENS       = 20      # biens extraits max
+FETCH_TIMEOUT   = 12      # secondes
 
 HEADERS = {
     "User-Agent": (
@@ -31,23 +31,45 @@ HEADERS = {
         "Chrome/124.0 Safari/537.36"
     ),
     "Accept-Language": "fr-FR,fr;q=0.9",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
 
 
 # ── Nettoyage HTML ────────────────────────────────────────────────────────────
 
-def _clean_html(html: str) -> str:
-    """Supprime scripts/styles/nav/footer, retourne le texte utile tronqué."""
+def _clean_html(html: str, base_url: str = "") -> str:
+    """Supprime le bruit, préserve les photos inline, retourne le texte tronqué."""
     soup = BeautifulSoup(html, "html.parser")
+
+    # Supprimer les balises de bruit
     for tag in soup(["script", "style", "noscript", "nav", "footer",
-                     "header", "aside", "meta", "link", "svg", "img"]):
+                     "header", "aside", "meta", "link", "svg"]):
         tag.decompose()
+
+    # Remplacer les <img> par leur URL (data-src pour lazy loading)
+    for img in soup.find_all("img"):
+        src = (
+            img.get("data-src") or img.get("data-lazy-src") or
+            img.get("data-original") or img.get("src") or ""
+        )
+        # Ignorer les data-URI, icônes minuscules et placeholders
+        if src and not src.startswith("data:") and not src.endswith(".svg"):
+            # Reconstruire les URL relatives
+            if src.startswith("//"):
+                src = "https:" + src
+            elif src.startswith("/") and base_url:
+                from urllib.parse import urlparse
+                p = urlparse(base_url)
+                src = f"{p.scheme}://{p.netloc}{src}"
+            img.replace_with(f"\n[PHOTO:{src}]\n")
+        else:
+            img.decompose()
 
     # Essayer de trouver la zone de listings (heuristiques communes)
     main = (
         soup.find("main") or
-        soup.find(id=re.compile(r"(content|listing|biens|properties|annonces)", re.I)) or
-        soup.find(class_=re.compile(r"(listing|biens|properties|annonces|catalog)", re.I)) or
+        soup.find(id=re.compile(r"(content|listing|biens|properties|annonces|catalog|results)", re.I)) or
+        soup.find(class_=re.compile(r"(listing|biens|properties|annonces|catalog|results|cards)", re.I)) or
         soup.body
     )
 
@@ -61,6 +83,7 @@ def _clean_html(html: str) -> str:
 # ── Appel Claude Haiku ────────────────────────────────────────────────────────
 
 PROMPT = """Voici le contenu textuel d'une page de listings immobiliers d'une agence française.
+Les photos de chaque bien sont indiquées sous la forme [PHOTO:url] juste avant ou après le bien.
 
 Extrais jusqu'à {max} biens immobiliers à vendre (ignore les biens en location).
 Pour chaque bien retourne un objet JSON avec ces champs (null si non trouvé) :
@@ -71,10 +94,11 @@ Pour chaque bien retourne un objet JSON avec ces champs (null si non trouvé) :
 - pieces : integer
 - chambres : integer
 - reference : string (ref interne si présente)
-- description : string (1-2 phrases max, résumé du bien)
+- description : string (2-3 phrases décrivant le bien : état, atouts, localisation, prestations)
+- photo : string (URL complète de la première photo du bien, ou null)
 
 Réponds UNIQUEMENT avec un tableau JSON valide. Pas de markdown, pas d'explication.
-Exemple : [{{"type":"Appartement","ville":"Fréjus","prix":245000,"surface":68.0,"pieces":3,"chambres":2,"reference":"REF123","description":"Bel appartement lumineux."}}]
+Exemple : [{{"type":"Appartement","ville":"Fréjus","prix":245000,"surface":68.0,"pieces":3,"chambres":2,"reference":"REF123","description":"Bel appartement lumineux avec terrasse. Cuisine équipée, double vitrage. Proche commerces et plage.","photo":"https://agence.fr/img/bien1.jpg"}}]
 
 Contenu de la page :
 {content}"""
@@ -84,7 +108,7 @@ def _extract_with_claude(content: str) -> list[dict]:
     """Envoie le contenu à Claude Haiku et parse la réponse JSON."""
     msg = _anthropic.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=1500,
+        max_tokens=3000,
         messages=[{
             "role": "user",
             "content": PROMPT.format(max=MAX_BIENS, content=content),
@@ -130,8 +154,8 @@ async def scrape_preview(data: ScrapeRequest):
     except httpx.RequestError as e:
         raise HTTPException(status_code=422, detail=f"Impossible d'accéder au site : {e}")
 
-    # 2. Nettoyer le HTML
-    content = _clean_html(html)
+    # 2. Nettoyer le HTML (en préservant les photos)
+    content = _clean_html(html, base_url=url)
     if len(content) < 100:
         raise HTTPException(
             status_code=422,

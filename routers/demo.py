@@ -223,18 +223,21 @@ def _import_csv_bytes(raw: bytes, filename: str, db_path: str) -> int:
 # ── Import biens scrappés ─────────────────────────────────────────────────────
 
 def _import_scraped_biens(biens: list, db_path: str) -> int:
+    import json as _json
     conn = sqlite3.connect(db_path)
     n = 0
     for b in biens:
         try:
+            photo = b.get("photo")
+            photos_json = _json.dumps([photo]) if photo else "[]"
             conn.execute("""
                 INSERT INTO biens (reference,type,ville,prix,surface,pieces,chambres,
-                    description,statut,source,date_creation,date_ajout)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                    description,photos,statut,source,date_creation,date_ajout)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, (
                 b.get("reference"), b.get("type"), b.get("ville"),
                 b.get("prix"), b.get("surface"), b.get("pieces"), b.get("chambres"),
-                b.get("description"), "actif", "scrape",
+                b.get("description"), photos_json, "actif", "scrape",
                 datetime.now().isoformat(), datetime.now().isoformat(),
             ))
             n += 1
