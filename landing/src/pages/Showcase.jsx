@@ -461,14 +461,17 @@ export default function Showcase() {
 
         {/* ── 14. LOGOS ── */}
         <Block title="Logos partenaires">
-          {[
-            { src: 'logo/b&b.png', alt: 'B&B', h: 60 },
-            { src: 'logo/rastel.png', alt: 'Rastel', h: 56 },
-            { src: 'logo/saintfrancois.png', alt: 'Saint-François', h: 64 },
-            { src: 'logo/sierra.png', alt: 'Sierra', h: 52 },
-            { src: 'logo/revedesud.svg', alt: 'Rêve du Sud', h: 56 },
-            { src: 'logo/intramuros.jpg', alt: 'Intramuros', h: 48 },
-          ].map((logo, i) => (
+          {(() => {
+            const b = import.meta.env.BASE_URL
+            return [
+            { src: `${b}logo/b&b.png`, alt: 'B&B', h: 60 },
+            { src: `${b}logo/rastel.png`, alt: 'Rastel', h: 56 },
+            { src: `${b}logo/saintfrancois.png`, alt: 'Saint-François', h: 64 },
+            { src: `${b}logo/sierra.png`, alt: 'Sierra', h: 52 },
+            { src: `${b}logo/revedesud.svg`, alt: 'Rêve du Sud', h: 56 },
+            { src: `${b}logo/intramuros.jpg`, alt: 'Intramuros', h: 48 },
+            ]
+          })().map((logo, i) => (
             <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 90 }}>
                 <img src={logo.src} alt={logo.alt} style={{ height: logo.h, width: 'auto', opacity: 0.8, filter: 'grayscale(20%)' }} />

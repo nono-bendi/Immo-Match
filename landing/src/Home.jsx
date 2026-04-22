@@ -434,21 +434,24 @@ export default function Home() {
           </p>
           <div className="reveal logo-marquee-wrapper">
             <div className="logo-marquee-track">
-              {[
-                { src: 'logo/b&b.png',          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
-                { src: 'logo/rastel.png',        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
-                { src: 'logo/saintfrancois.png', alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
-                { src: 'logo/sierra.png',       alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
-                { src: 'logo/revedesud.svg',     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
-                { src: 'logo/intramuros.jpg',    alt: 'Intramuros',           h: 60, href: '#' },
+              {(() => {
+                const b = import.meta.env.BASE_URL
+                return [
+                { src: `${b}logo/b&b.png`,          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
+                { src: `${b}logo/rastel.png`,        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
+                { src: `${b}logo/saintfrancois.png`, alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
+                { src: `${b}logo/sierra.png`,        alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
+                { src: `${b}logo/revedesud.svg`,     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
+                { src: `${b}logo/intramuros.jpg`,    alt: 'Intramuros',           h: 60, href: '#' },
                 /* Duplicata boucle infinie */
-                { src: 'logo/b&b.png',          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
-                { src: 'logo/rastel.png',        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
-                { src: 'logo/saintfrancois.png', alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
-                { src: 'logo/sierra.png',       alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
-                { src: 'logo/revedesud.svg',     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
-                { src: 'logo/intramuros.jpg',    alt: 'Intramuros',           h: 60, href: '#' },
-              ].map((logo, i) => (
+                { src: `${b}logo/b&b.png`,          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
+                { src: `${b}logo/rastel.png`,        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
+                { src: `${b}logo/saintfrancois.png`, alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
+                { src: `${b}logo/sierra.png`,        alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
+                { src: `${b}logo/revedesud.svg`,     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
+                { src: `${b}logo/intramuros.jpg`,    alt: 'Intramuros',           h: 60, href: '#' },
+                ]
+              })().map((logo, i) => (
                 <a key={i} href={logo.href} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, display: 'inline-flex' }}>
                   <img
                     src={logo.src} alt={logo.alt}
