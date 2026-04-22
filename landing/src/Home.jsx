@@ -63,28 +63,46 @@ function useReveal() {
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) {
-      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'))
+      document.querySelectorAll('.reveal, .reveal-group, .timeline-row').forEach(el => el.classList.add('visible'))
       return
     }
+
+    const makeVisible = (el) => {
+      const children = el.querySelectorAll('.reveal-child')
+      if (children.length > 0) {
+        children.forEach((child, i) => setTimeout(() => child.classList.add('visible'), i * 80))
+      } else {
+        el.classList.add('visible')
+      }
+    }
+
+    const els = [...document.querySelectorAll('.reveal, .reveal-group, .timeline-row')]
+
+    // Éléments déjà dans le viewport au montage → visible immédiatement
+    // (évite le bug IntersectionObserver async sur navigation retour)
+    els.forEach(el => {
+      const r = el.getBoundingClientRect()
+      if (r.top < window.innerHeight + 50 && r.bottom > 0) {
+        makeVisible(el)
+      }
+    })
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const children = entry.target.querySelectorAll('.reveal-child')
-            if (children.length > 0) {
-              children.forEach((child, i) => {
-                setTimeout(() => child.classList.add('visible'), i * 80)
-              })
-            } else {
-              entry.target.classList.add('visible')
-            }
+            makeVisible(entry.target)
             observer.unobserve(entry.target)
           }
         })
       },
       { threshold: 0.12, rootMargin: '0px 0px -48px 0px' }
     )
-    document.querySelectorAll('.reveal, .reveal-group, .timeline-row').forEach(el => observer.observe(el))
+
+    els.forEach(el => {
+      if (!el.classList.contains('visible')) observer.observe(el)
+    })
+
     return () => observer.disconnect()
   }, [])
 }
