@@ -206,14 +206,17 @@ export default function Home() {
   /* ── PRICING DATA ── */
   const plans = [
     {
-      name: 'Starter',
+      name: 'Agence',
       price: '49',
-      subtitle: 'Idéal pour démarrer',
+      subtitle: 'L\'agence solo qui veut démarrer',
       features: [
-        "Jusqu'à 50 biens importés",
-        '20 matchings / mois',
-        'Import Hektor',
-        'Support email',
+        '1 utilisateur',
+        "Jusqu'à 50 biens actifs",
+        '20 matchings IA / mois',
+        '20 emails personnalisés / mois',
+        '30 questions agent IA / mois',
+        'Import Hektor (sync toutes 6h)',
+        'Support email — réponse 48h',
       ],
       cta: 'Commencer',
       ctaStyle: 'outline',
@@ -221,18 +224,20 @@ export default function Home() {
       stripeUrl: 'https://buy.stripe.com/test_7sY14pfEo7Pu0te1m6cAo00',
     },
     {
-      name: 'Pro',
-      price: '99',
-      subtitle: 'Pour les agences actives',
+      name: 'Cabinet',
+      price: '89',
+      subtitle: 'L\'agence active avec une équipe',
       badge: 'Recommandé',
       features: [
-        'Biens illimités',
-        'Matchings illimités',
-        'Import Hektor',
-        'Emails IA générés',
-        'Dashboard + historique',
-        'Agent IA intégré',
-        'Support prioritaire',
+        'Jusqu\'à 3 agents',
+        "Jusqu'à 200 biens actifs",
+        'Matchings IA illimités',
+        '80 emails personnalisés / mois',
+        '200 questions agent IA / mois',
+        'Import Hektor (sync toutes 6h)',
+        'Rapport mensuel PDF automatique',
+        'Boucle de calibration IA',
+        'Support email — réponse 24h',
       ],
       cta: 'Commencer',
       ctaStyle: 'filled',
@@ -240,15 +245,22 @@ export default function Home() {
       stripeUrl: 'https://buy.stripe.com/test_cNi5kF63O9XC3Fqc0KcAo01',
     },
     {
-      name: 'Agence+',
-      price: '199',
-      subtitle: 'Multi-agents, marque blanche',
+      name: 'Réseau',
+      price: '179',
+      subtitle: 'Les agences multi-bureaux',
       features: [
-        'Tout le plan Pro',
-        "Multi-utilisateurs (jusqu'à 5 agents)",
-        'Rapports mensuels automatiques',
-        'Personnalisation marque blanche',
-        'Onboarding dédié',
+        "Jusqu'à 10 agents",
+        'Biens illimités',
+        'Matchings IA illimités',
+        'Emails personnalisés illimités',
+        'Questions agent IA illimitées',
+        "Jusqu'à 3 bureaux dans un compte",
+        'Dashboard multi-agences centralisé',
+        'Rapport avancé + export Excel',
+        'Import Hektor prioritaire (toutes 2h)',
+        'Onboarding dédié inclus (visio 1h)',
+        'Support prioritaire — réponse 12h',
+        'SLA uptime 99,5% garanti',
       ],
       cta: 'Nous contacter',
       ctaStyle: 'outline',
@@ -798,15 +810,62 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="reveal" style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
-              border: '1px solid rgba(56,189,248,0.2)',
-              borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
+          {/* ROI calculé */}
+          <div className="reveal" style={{ textAlign: 'center', marginTop: '3rem', marginBottom: '1.5rem' }}>
+            <div style={{
+              display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center',
+              gap: '1rem 2.5rem', background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 16, padding: '1.25rem 2rem',
             }}>
-              🔒 Tarif de lancement — garanti à vie pour les premières agences
-            </span>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>~400€</div>
+                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>économisés / agent / mois</div>
+              </div>
+              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>5–8h</div>
+                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>économisées / agent / semaine</div>
+              </div>
+              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>×4,5</div>
+                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>ROI moyen plan Cabinet</div>
+              </div>
+            </div>
+            <p style={{ color: '#64748b', fontSize: 12, marginTop: 10 }}>
+              Calcul : 1 agent × 5h/semaine × 20€/h = 400€/mois économisés. Plan Cabinet : 89€/mois.
+            </p>
+          </div>
+
+          {/* Garanties */}
+          <div className="reveal" style={{ textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
+                border: '1px solid rgba(56,189,248,0.2)',
+                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
+              }}>
+                🔒 Tarif de lancement garanti à vie
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
+                border: '1px solid rgba(56,189,248,0.2)',
+                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
+              }}>
+                ✓ Satisfait ou remboursé 14 jours
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
+                border: '1px solid rgba(56,189,248,0.2)',
+                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
+              }}>
+                ✓ Aucune carte bancaire à l'inscription
+              </span>
+            </div>
           </div>
         </div>
       </section>
