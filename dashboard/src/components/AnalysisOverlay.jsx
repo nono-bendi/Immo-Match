@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted }) {
+function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted, onCancel }) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [estimatedTimePerProspect, setEstimatedTimePerProspect] = useState(0)
   
@@ -50,7 +50,20 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
 
   return (
     <div className="fixed inset-0 bg-[#1E3A5F]/80 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center relative">
+
+        {/* Bouton annuler */}
+        {onCancel && !isCompleted && (
+          <button
+            onClick={onCancel}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            title="Annuler l'analyse"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        )}
         
         {/* Loader SVG */}
         <div className="relative w-32 h-40 mx-auto mb-4">

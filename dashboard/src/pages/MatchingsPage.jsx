@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Clock, ChevronDown, ChevronUp, Home, CheckCircle, AlertTriangle, Lightbulb, TrendingUp, XCircle } from 'lucide-react'
 import ProspectLink from '../components/ProspectLink'
@@ -109,6 +109,7 @@ function MatchingsPage() {
   const [currentProspectName, setCurrentProspectName] = useState('')
   const [showConfetti, setShowConfetti] = useState(false)
   const [pendingScrollTo, setPendingScrollTo] = useState(null)
+  const cancelAnalysisRef = useRef(false)
 
   const fetchData = () => {
     setLoading(true)
@@ -149,7 +150,12 @@ function MatchingsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingScrollTo, matchings])
 
+  const cancelAnalysis = () => {
+    cancelAnalysisRef.current = true
+  }
+
   const runGlobalAnalysis = async () => {
+    cancelAnalysisRef.current = false
     setAnalyzing(true)
     setShowOverlay(true)
     setCurrentProspectIndex(0)
@@ -158,7 +164,7 @@ function MatchingsPage() {
     try {
       const prospectsRes = await apiFetch('/prospects')
       const prospects = await prospectsRes.json()
-      
+
       if (!Array.isArray(prospects) || prospects.length === 0) {
         alert('Aucun prospect à analyser')
         setShowOverlay(false)
@@ -170,6 +176,8 @@ function MatchingsPage() {
 
       let totalMatchings = 0
       for (let i = 0; i < prospects.length; i++) {
+        if (cancelAnalysisRef.current) break
+
         const prospect = prospects[i]
         setCurrentProspectIndex(i + 1)
         setCurrentProspectName(prospect.nom || `Prospect ${prospect.id}`)
@@ -188,15 +196,19 @@ function MatchingsPage() {
       setShowOverlay(false)
       fetchData()
 
-      const hasExcellent = await apiFetch('/matchings').then(r => r.json()).then(data =>
-        data.some(m => m.score >= 80)
-      )
-      if (hasExcellent) {
-        setShowConfetti(true)
-        setTimeout(() => setShowConfetti(false), 3000)
+      if (cancelAnalysisRef.current) {
+        cancelAnalysisRef.current = false
+        // Pas d'alerte — l'utilisateur a annulé volontairement
+      } else {
+        const hasExcellent = await apiFetch('/matchings').then(r => r.json()).then(data =>
+          data.some(m => m.score >= 80)
+        )
+        if (hasExcellent) {
+          setShowConfetti(true)
+          setTimeout(() => setShowConfetti(false), 3000)
+        }
+        alert(`Analyse terminée ! ${totalMatchings} matchings trouvés pour ${prospects.length} prospects.`)
       }
-
-      alert(`Analyse terminée ! ${totalMatchings} matchings trouvés pour ${prospects.length} prospects.`)
 
     } catch (err) {
       console.error('Erreur:', err)
@@ -546,6 +558,7 @@ function MatchingsPage() {
         currentProspect={currentProspectIndex}
         currentProspectName={currentProspectName}
         isCompleted={overlayCompleted}
+        onCancel={totalProspects > 1 ? cancelAnalysis : undefined}
       />
 
       {/* Header */}
