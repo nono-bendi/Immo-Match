@@ -218,6 +218,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'outline',
       featured: false,
+      stripeUrl: 'https://buy.stripe.com/test_7sY14pfEo7Pu0te1m6cAo00',
     },
     {
       name: 'Pro',
@@ -233,9 +234,10 @@ export default function Home() {
         'Agent IA intégré',
         'Support prioritaire',
       ],
-      cta: 'Demander une démo',
+      cta: 'Commencer',
       ctaStyle: 'filled',
       featured: true,
+      stripeUrl: 'https://buy.stripe.com/test_cNi5kF63O9XC3Fqc0KcAo01',
     },
     {
       name: 'Agence+',
@@ -251,6 +253,7 @@ export default function Home() {
       cta: 'Nous contacter',
       ctaStyle: 'outline',
       featured: false,
+      ctaHref: 'mailto:contact@immomatch.fr',
     },
   ]
 
@@ -772,19 +775,20 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                {plan.name === 'Agence+' ? (
+                {plan.stripeUrl ? (
                   <a
-                    href="mailto:contact@immowatch.fr"
-                    className="btn-outline-white"
+                    href={plan.stripeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={plan.ctaStyle === 'filled' ? 'btn-filled-dark' : 'btn-outline-white'}
                     style={{ marginTop: 'auto' }}
                   >
                     {plan.cta}
                   </a>
                 ) : (
                   <a
-                    href="#"
-                    onClick={openDemo}
-                    className={plan.ctaStyle === 'filled' ? 'btn-filled-dark' : 'btn-outline-white'}
+                    href={plan.ctaHref || '#'}
+                    className="btn-outline-white"
                     style={{ marginTop: 'auto' }}
                   >
                     {plan.cta}
