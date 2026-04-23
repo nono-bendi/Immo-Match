@@ -221,7 +221,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'outline',
       featured: false,
-      stripeUrl: 'https://buy.stripe.com/test_7sY14pfEo7Pu0te1m6cAo00',
+      stripeUrl: 'https://buy.stripe.com/test_5kQfZj4ZK7Pu1xi2qacAo04',
     },
     {
       name: 'Cabinet',
@@ -242,7 +242,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'filled',
       featured: true,
-      stripeUrl: 'https://buy.stripe.com/test_cNi5kF63O9XC3Fqc0KcAo01',
+      stripeUrl: 'https://buy.stripe.com/test_6oUaEZ77S9XCgsc9SCcAo02',
     },
     {
       name: 'Réseau',
@@ -261,10 +261,10 @@ export default function Home() {
         'Onboarding dédié inclus (visio 1h)',
         'Support prioritaire — réponse 12h',
       ],
-      cta: 'Nous contacter',
+      cta: 'Commencer',
       ctaStyle: 'outline',
       featured: false,
-      ctaHref: 'mailto:contact@immomatch.fr',
+      stripeUrl: 'https://buy.stripe.com/test_cNi4gBcscc5KcbW4yicAo03',
     },
   ]
 
@@ -815,8 +815,6 @@ export default function Home() {
               Tarif de lancement garanti à vie pour les premières agences
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
               Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours
-              <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
-              Aucune carte bancaire requise à l'inscription
             </p>
           </div>
         </div>
