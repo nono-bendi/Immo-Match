@@ -260,7 +260,6 @@ export default function Home() {
         'Import Hektor prioritaire (toutes 2h)',
         'Onboarding dédié inclus (visio 1h)',
         'Support prioritaire — réponse 12h',
-        'SLA uptime 99,5% garanti',
       ],
       cta: 'Nous contacter',
       ctaStyle: 'outline',
@@ -810,62 +809,15 @@ export default function Home() {
             ))}
           </div>
 
-          {/* ROI calculé */}
-          <div className="reveal" style={{ textAlign: 'center', marginTop: '3rem', marginBottom: '1.5rem' }}>
-            <div style={{
-              display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'center',
-              gap: '1rem 2.5rem', background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 16, padding: '1.25rem 2rem',
-            }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>~400€</div>
-                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>économisés / agent / mois</div>
-              </div>
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch' }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>5–8h</div>
-                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>économisées / agent / semaine</div>
-              </div>
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.08)', alignSelf: 'stretch' }} />
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: 22 }}>×4,5</div>
-                <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 2 }}>ROI moyen plan Cabinet</div>
-              </div>
-            </div>
-            <p style={{ color: '#64748b', fontSize: 12, marginTop: 10 }}>
-              Calcul : 1 agent × 5h/semaine × 20€/h = 400€/mois économisés. Plan Cabinet : 89€/mois.
+          {/* Garanties sobres */}
+          <div className="reveal" style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+            <p style={{ color: '#475569', fontSize: 13, margin: 0, lineHeight: 1.8 }}>
+              Tarif de lancement garanti à vie pour les premières agences
+              <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
+              Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours
+              <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
+              Aucune carte bancaire requise à l'inscription
             </p>
-          </div>
-
-          {/* Garanties */}
-          <div className="reveal" style={{ textAlign: 'center' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
-                border: '1px solid rgba(56,189,248,0.2)',
-                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
-              }}>
-                🔒 Tarif de lancement garanti à vie
-              </span>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
-                border: '1px solid rgba(56,189,248,0.2)',
-                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
-              }}>
-                ✓ Satisfait ou remboursé 14 jours
-              </span>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'rgba(56,189,248,0.08)', color: '#38bdf8',
-                border: '1px solid rgba(56,189,248,0.2)',
-                borderRadius: 999, padding: '6px 16px', fontSize: 13, fontWeight: 500,
-              }}>
-                ✓ Aucune carte bancaire à l'inscription
-              </span>
-            </div>
           </div>
         </div>
       </section>
