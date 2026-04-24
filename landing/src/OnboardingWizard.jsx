@@ -218,7 +218,7 @@ export default function OnboardingWizard({ open, onClose }) {
     if (file) formData.append('file', file)
 
     try {
-      const res = await fetch(`${API_URL}/api/onboard`, { method: 'POST', body: formData })
+      const res = await fetch(`${API_URL}/onboard`, { method: 'POST', body: formData })
       const data = await res.json()
 
       if (!res.ok) {

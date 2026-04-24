@@ -246,7 +246,7 @@ export default function Onboarding() {
     setScrapeError(null)
     setScrapePreview(null)
     try {
-      const res = await fetch(`${API_URL}/api/scrape-preview`, {
+      const res = await fetch(`${API_URL}/scrape-preview`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: siteUrl.trim() }),
@@ -294,7 +294,7 @@ export default function Onboarding() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/api/onboard`, { method: 'POST', body: fd })
+      const res = await fetch(`${API_URL}/onboard`, { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) { setApiError(data.detail || 'Erreur serveur.'); setLoading(false); return }
       setResult(data)
