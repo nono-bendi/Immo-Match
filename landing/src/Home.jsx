@@ -5,11 +5,11 @@ import FeaturesSection from './FeaturesSection'
 const RemotionPlayer = lazy(() =>
   Promise.all([
     import('@remotion/player'),
-    import('./remotion/ImmoFlashVideo'),
-  ]).then(([{ Player }, { ImmoFlashVideo }]) => ({
+    import('./remotion/ImmoMatchVideo'),
+  ]).then(([{ Player }, { ImmoMatchVideo }]) => ({
     default: () => (
       <Player
-        component={ImmoFlashVideo}
+        component={ImmoMatchVideo}
         durationInFrames={3600}
         fps={120}
         compositionWidth={1280}
