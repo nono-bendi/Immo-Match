@@ -6,10 +6,10 @@ const RemotionPlayer = lazy(() =>
   Promise.all([
     import('@remotion/player'),
     import('./remotion/ImmoMatchVideo'),
-  ]).then(([{ Player }, { ImmoMatchVideo }]) => ({
+  ]).then(([{ Player }, { ImmoFlashVideo }]) => ({
     default: () => (
       <Player
-        component={ImmoMatchVideo}
+        component={ImmoFlashVideo}
         durationInFrames={3600}
         fps={120}
         compositionWidth={1280}
