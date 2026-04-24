@@ -199,7 +199,7 @@ export default function Showcase() {
         <div style={{ marginBottom: '3.5rem', paddingBottom: '2rem', borderBottom: '2px solid #f1f5f9' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <span style={{ fontWeight: 800, fontSize: 22, color: '#0f172a', letterSpacing: '-0.5px' }}>
-              Immo<span style={{ color: '#38bdf8' }}>Match</span>
+              Immo<span style={{ color: '#38bdf8' }}>Flash</span>
             </span>
             <span style={{ background: '#f1f5f9', color: '#64748b', borderRadius: 6, padding: '2px 10px', fontSize: 11, fontWeight: 600 }}>Design System</span>
           </div>

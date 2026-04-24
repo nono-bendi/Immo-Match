@@ -38,7 +38,7 @@ function Sidebar({ isOpen, onClose }) {
       <div className="flex items-center gap-3 px-2 mb-10">
         <div className="flex-1 min-w-0">
           <h1 className="font-extrabold text-xl leading-none" style={{ letterSpacing: '-0.04em' }}>
-            <span className="text-white">Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
+            <span className="text-white">Immo</span><span style={{ color: '#60a5fa' }}>Flash</span>
           </h1>
           <p className="text-white/50 text-xs mt-1 truncate">{agency?.nom_court || 'ImmoFlash'}</p>
         </div>

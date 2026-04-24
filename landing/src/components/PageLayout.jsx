@@ -27,7 +27,7 @@ export default function PageLayout({ title, category, children }) {
           to="/"
           style={{ fontWeight: 800, fontSize: 18, color: '#0f172a', textDecoration: 'none', letterSpacing: '-0.5px' }}
         >
-          Immo<span style={{ color: '#1E3A5F' }}>Match</span>
+          Immo<span style={{ color: '#1E3A5F' }}>Flash</span>
         </Link>
         <Link
           to="/"
@@ -68,7 +68,7 @@ export default function PageLayout({ title, category, children }) {
       <footer style={{ background: '#0f172a', padding: '2rem 1.5rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link to="/" style={{ fontWeight: 700, fontSize: 16, color: '#ffffff', textDecoration: 'none' }}>
-            Immo<span style={{ color: '#38bdf8' }}>Match</span>
+            Immo<span style={{ color: '#38bdf8' }}>Flash</span>
           </Link>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
             {[

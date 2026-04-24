@@ -342,7 +342,7 @@ export default function Home() {
           ════════════════════════════════════════════ */}
       <nav className="navbar">
         <a href="#" style={{ fontWeight: 800, fontSize: 19, color: '#fff', textDecoration: 'none', letterSpacing: '-0.5px', flexShrink: 0 }}>
-          Immo<span style={{ color: '#38bdf8' }}>Match</span>
+          Immo<span style={{ color: '#38bdf8' }}>Flash</span>
         </a>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map(link => (
@@ -374,7 +374,7 @@ export default function Home() {
           style={{ position: 'absolute', top: 14, right: 16, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: 16, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >×</button>
         <a href="#" style={{ fontWeight: 800, fontSize: 20, color: '#fff', textDecoration: 'none' }}>
-          Immo<span style={{ color: '#38bdf8' }}>Match</span>
+          Immo<span style={{ color: '#38bdf8' }}>Flash</span>
         </a>
         {navLinks.map(link => (
           <a key={link.label} href={link.href} onClick={() => setMenuOpen(false)}
@@ -876,7 +876,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '2.5rem', marginBottom: '3rem' }}>
             <div style={{ gridColumn: 'span 1' }}>
               <div style={{ fontWeight: 800, fontSize: 20, color: '#ffffff', marginBottom: 12 }}>
-                Immo<span style={{ color: '#38bdf8' }}>Match</span>
+                Immo<span style={{ color: '#38bdf8' }}>Flash</span>
               </div>
               <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, margin: '0 0 1rem', maxWidth: 220 }}>
                 Le matching prospect-bien réinventé par l'IA.

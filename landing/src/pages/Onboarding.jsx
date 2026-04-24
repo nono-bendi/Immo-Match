@@ -349,7 +349,7 @@ export default function Onboarding() {
       {/* ── Header ── */}
       <header style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <Link to="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 18, color: '#f1f5f9' }}>
-          Immo<span style={{ color: '#38bdf8' }}>Match</span>
+          Immo<span style={{ color: '#38bdf8' }}>Flash</span>
         </Link>
         <a href={`${DASHBOARD_URL}login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
           onMouseEnter={e => e.target.style.color = '#94a3b8'}

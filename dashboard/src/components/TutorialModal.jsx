@@ -92,7 +92,7 @@ function SlideWelcome({ active, userName }) {
         animation: step >= 1 ? 'logoPulse 2.5s ease-in-out infinite' : 'none',
       }}>
         <span style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>
-          <span style={{ color: 'white' }}>Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
+          <span style={{ color: 'white' }}>Immo</span><span style={{ color: '#60a5fa' }}>Flash</span>
         </span>
       </div>
 

@@ -194,7 +194,7 @@ function Navbar({ onLogin }) {
           <Shuffle size={16} color="#60a5fa" strokeWidth={2.5}/>
         </div>
         <span style={{ fontSize:18, fontWeight:800, color:'#f1f5f9', letterSpacing:'-0.05em' }}>
-          Immo<span style={{ color:'#60a5fa' }}>Match</span>
+          Immo<span style={{ color:'#60a5fa' }}>Flash</span>
         </span>
       </div>
       <div style={{ display:'flex', alignItems:'center', gap:12 }}>
@@ -640,7 +640,7 @@ function Footer() {
           <Shuffle size={12} color="#60a5fa" strokeWidth={2.5}/>
         </div>
         <span style={{ fontSize:14, fontWeight:800, color:'rgba(255,255,255,0.25)', letterSpacing:'-0.04em' }}>
-          Immo<span style={{ color:'rgba(96,165,250,0.3)' }}>Match</span>
+          Immo<span style={{ color:'rgba(96,165,250,0.3)' }}>Flash</span>
         </span>
       </div>
       <span style={{ fontSize:12, color:'rgba(255,255,255,0.15)' }}>© 2026 · Saint François Immobilier · Tous droits réservés</span>
