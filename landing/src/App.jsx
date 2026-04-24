@@ -12,7 +12,7 @@ import Onboarding from './pages/Onboarding'
 
 export default function App() {
   return (
-    <BrowserRouter basename="/landing">
+    <BrowserRouter>
       <Routes>
         <Route path="/"                         element={<Home />} />
         <Route path="/demarrer"                 element={<Onboarding />} />
