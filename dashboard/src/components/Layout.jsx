@@ -35,7 +35,7 @@ function TrialBanner({ user }) {
         ? 'Votre accès démo expire aujourd\'hui'
         : `Accès démo — ${daysLeft} jour${daysLeft > 1 ? 's' : ''} restant${daysLeft > 1 ? 's' : ''}`}
       <span style={{ opacity: 0.6, fontWeight: 400 }}>·</span>
-      <a href="mailto:contact@immowatch.fr" style={{ color: '#7dd3fc', fontWeight: 700, textDecoration: 'none' }}>
+      <a href="mailto:contact@immoflash.app" style={{ color: '#7dd3fc', fontWeight: 700, textDecoration: 'none' }}>
         Passer en version complète →
       </a>
     </div>

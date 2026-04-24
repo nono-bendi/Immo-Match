@@ -303,7 +303,7 @@ function ChatMock() {
 /* ──────────────────────────────────────────────────────────────── */
 
 /* URL du VPS (même variable que l'app) */
-const VPS_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/+$/, '')
+const VPS_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '')
 const BIEN_DEMO_URL = `${VPS_URL}/public/bien/saint_francois/20`
 
 function EmailMock() {

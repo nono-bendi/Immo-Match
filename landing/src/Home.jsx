@@ -299,8 +299,8 @@ export default function Home() {
     {
       title: 'Contact',
       links: [
-        { label: 'contact@immowatch.fr', href: 'mailto:contact@immowatch.fr' },
-        { label: 'Support', href: 'mailto:contact@immowatch.fr' },
+        { label: 'contact@immoflash.app', href: 'mailto:contact@immoflash.app' },
+        { label: 'Support', href: 'mailto:contact@immoflash.app' },
       ],
     },
   ]
@@ -831,7 +831,7 @@ export default function Home() {
             </h2>
             <p style={{ color: '#64748b', fontSize: 15, margin: 0 }}>
               Pas trouvé la réponse ?{' '}
-              <a href="mailto:contact@immowatch.fr" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 500 }}>
+              <a href="mailto:contact@immoflash.app" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 500 }}>
                 Écrivez-nous.
               </a>
             </p>
@@ -881,8 +881,8 @@ export default function Home() {
               <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6, margin: '0 0 1rem', maxWidth: 220 }}>
                 Le matching prospect-bien réinventé par l'IA.
               </p>
-              <a href="mailto:contact@immowatch.fr" style={{ color: '#38bdf8', fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>
-                contact@immowatch.fr
+              <a href="mailto:contact@immoflash.app" style={{ color: '#38bdf8', fontSize: 13, textDecoration: 'none', fontWeight: 500 }}>
+                contact@immoflash.app
               </a>
             </div>
             {footerCols.map(col => (

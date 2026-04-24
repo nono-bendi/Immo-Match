@@ -470,7 +470,7 @@ export default function Documentation() {
               Écrivez-nous — nous répondons sous 24h ouvrées.
             </p>
             <a
-              href="mailto:contact@immowatch.fr"
+              href="mailto:contact@immoflash.app"
               className="btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', fontSize: 14 }}
             >

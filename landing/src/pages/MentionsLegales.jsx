@@ -25,11 +25,11 @@ export default function MentionsLegales() {
         SIREN : 990 077 331<br />
         Code APE : 6201Z — Programmation informatique<br />
         Immatriculé au Registre National des Entreprises depuis le 06/08/2025<br /><br />
-        Email : <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immowatch.fr</a>
+        Email : <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>
       </P>
 
       <S>Directeur de la publication</S>
-      <P>Bendiaf Noa — contact@immowatch.fr</P>
+      <P>Bendiaf Noa — contact@immoflash.app</P>
 
       <S>Hébergement</S>
       <P>
@@ -53,7 +53,7 @@ export default function MentionsLegales() {
         Les informations recueillies sur ce site font l'objet d'un traitement informatique destiné à la gestion des demandes de démonstration et à la relation commerciale. Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, de portabilité et d'effacement de vos données.
       </P>
       <P>
-        Pour exercer ces droits : <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immowatch.fr</a>
+        Pour exercer ces droits : <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>
       </P>
       <P>
         Pour plus d'informations, consultez notre{' '}

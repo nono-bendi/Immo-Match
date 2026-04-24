@@ -110,7 +110,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/dashboard">
       <AuthProvider>
         <AgencyProvider>
           <AppRoutes />

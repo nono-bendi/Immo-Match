@@ -131,8 +131,8 @@ export default function FAQ() {
       <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 3rem' }}>
         Vous avez une question sur ImmoMatch ? Vous trouverez probablement la réponse ici.
         Sinon, écrivez-nous à{' '}
-        <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600, textDecoration: 'none' }}>
-          contact@immowatch.fr
+        <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600, textDecoration: 'none' }}>
+          contact@immoflash.app
         </a>.
       </p>
 
@@ -159,7 +159,7 @@ export default function FAQ() {
           Notre équipe répond sous 24h.
         </p>
         <a
-          href="mailto:contact@immowatch.fr"
+          href="mailto:contact@immoflash.app"
           className="btn-primary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 24px', fontSize: 14 }}
         >

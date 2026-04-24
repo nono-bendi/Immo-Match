@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: '/landing/',
+  base: '/',
   resolve: {
     dedupe: ['remotion', '@remotion/player'],
   },

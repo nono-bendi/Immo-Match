@@ -21,7 +21,7 @@ export default function Confidentialite() {
       <S>1. Responsable du traitement</S>
       <P>
         Le responsable du traitement des données collectées via ImmoMatch est l'éditeur du site.
-        Contact : <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immowatch.fr</a>
+        Contact : <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>
       </P>
 
       <S>2. Données collectées</S>
@@ -88,7 +88,7 @@ export default function Confidentialite() {
       </ul>
       <P>
         Pour exercer ces droits, contactez-nous à{' '}
-        <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immowatch.fr</a>.
+        <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>.
         Nous répondons dans un délai maximum d'un mois.
       </P>
       <P>

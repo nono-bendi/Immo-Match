@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-const API_URL       = import.meta.env.VITE_API_URL       || 'http://127.0.0.1:8000'
+const API_URL       = import.meta.env.VITE_API_URL       || '/api'
 const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL || (
   typeof window !== 'undefined' ? window.location.origin + '/' : '/'
 )

@@ -123,7 +123,7 @@ export default function GuideDemarrage() {
             <Li><strong>Mot de passe</strong> : temporaire, à changer dès la première connexion</Li>
           </ul>
           <Action>→ Rendez-vous sur votre espace ImmoMatch et connectez-vous avec ces identifiants.</Action>
-          <Tip>Si vous n'avez pas reçu vos identifiants, vérifiez vos spams ou écrivez à contact@immowatch.fr.</Tip>
+          <Tip>Si vous n'avez pas reçu vos identifiants, vérifiez vos spams ou écrivez à contact@immoflash.app.</Tip>
         </Step>
       </div>
 
@@ -363,7 +363,7 @@ export default function GuideDemarrage() {
           Notre équipe accompagne chaque agence lors du démarrage — gratuitement, sur votre première session.
         </p>
         <a
-          href="mailto:contact@immowatch.fr"
+          href="mailto:contact@immoflash.app"
           className="btn-primary"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 24px', fontSize: 14 }}
         >

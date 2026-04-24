@@ -85,7 +85,7 @@ export default function Cookies() {
       <P>Cette politique est conforme aux recommandations de la Commission Nationale de l'Informatique et des Libertés (CNIL) et au Règlement Général sur la Protection des Données (RGPD).</P>
       <P>
         Pour toute question, contactez-nous à{' '}
-        <a href="mailto:contact@immowatch.fr" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immowatch.fr</a>.
+        <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>.
       </P>
 
       <p style={{ color: '#94a3b8', fontSize: 13, marginTop: '3rem', fontStyle: 'italic' }}>
