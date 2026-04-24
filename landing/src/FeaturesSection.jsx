@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import logoDemoUrl from '../image/logo.demo.png'
 
 /* ════════════════════════════════════════════════════════════════
-   MOCK COMPONENTS — reproductions fidèles de l'app ImmoMatch
+   MOCK COMPONENTS — reproductions fidèles de l'app ImmoFlash
    ════════════════════════════════════════════════════════════════ */
 
 function MatchingMock() {
@@ -140,7 +140,7 @@ function ChatMock() {
   )
   const EASTER_REPLIES = [
     <span>T'es curieux toi 😄 Mes vraies réponses sont réservées aux agents abonnés.{LINK}</span>,
-    <span>Belle tentative 👀 Mais je suis réservé aux abonnés ImmoMatch.{LINK}</span>,
+    <span>Belle tentative 👀 Mais je suis réservé aux abonnés ImmoFlash.{LINK}</span>,
     <span>Chut… je parle uniquement à mes abonnés 🤫{LINK}</span>,
     <span>Bonne question ! Mais je ne réponds qu'aux abonnés 😉{LINK}</span>,
   ]
@@ -785,7 +785,7 @@ const FEATURES = [
     id: 'matching',
     label: 'Matching IA',
     title: 'Le bon bien pour le bon acheteur.',
-    description: "ImmoMatch croise budget, localisation et style de vie, puis attribue un score sur 100 à chaque paire. Les meilleures remontent toutes seules, toi tu valides.",
+    description: "ImmoFlash croise budget, localisation et style de vie, puis attribue un score sur 100 à chaque paire. Les meilleures remontent toutes seules, toi tu valides.",
     proof: "Score calculé en temps réel sur l'ensemble de ton portefeuille",
     Mock: MatchingMock,
     height: 420,
@@ -811,7 +811,7 @@ const FEATURES = [
     id: 'email',
     label: 'Emails générés automatiquement',
     title: "L'email est prêt. Il t'attend.",
-    description: "ImmoMatch rédige un email personnalisé avec les vrais arguments du bien : prix, surface, emplacement. Tu relis en 30 secondes, tu envoies.",
+    description: "ImmoFlash rédige un email personnalisé avec les vrais arguments du bien : prix, surface, emplacement. Tu relis en 30 secondes, tu envoies.",
     proof: "Email prêt en moins de 10 secondes, personnalisé par bien et acheteur",
     Mock: EmailMock,
     height: 480,
@@ -824,7 +824,7 @@ const FEATURES = [
     id: 'biens',
     label: 'Import de biens',
     title: 'Ton portefeuille se met à jour tout seul.',
-    description: "On connecte ImmoMatch à ton logiciel métier. Chaque nouveau bien remonte automatiquement, zéro saisie, zéro manipulation de ta part.",
+    description: "On connecte ImmoFlash à ton logiciel métier. Chaque nouveau bien remonte automatiquement, zéro saisie, zéro manipulation de ta part.",
     proof: 'Connexion à ton logiciel métier, synchronisation en temps réel',
     Mock: BiensMock,
     height: 390,

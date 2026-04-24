@@ -1,6 +1,6 @@
 // src/components/TagSelector.jsx
 import { useState, useRef, useEffect } from 'react'
-import { Flame, Sun, Snowflake, X } from 'lucide-react'
+import { Flame, Sun, Snowflake, X } from 'lucide-react'
 import { apiFetch } from '../api'
 
 const TAGS = [

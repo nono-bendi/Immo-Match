@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, MapPin, Euro, Maximize, Home, Building2, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { X, MapPin, Euro, Maximize, Home, Building2, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { apiFetch } from '../api'
 
 function BienLink({ bien, children, className = '' }) {

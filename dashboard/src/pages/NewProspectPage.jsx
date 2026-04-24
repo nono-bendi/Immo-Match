@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus } from 'lucide-react'
 import Modal from '../components/Modal'
-import AnalysisOverlay from '../components/AnalysisOverlay'
+import AnalysisOverlay from '../components/AnalysisOverlay'
 import { apiFetch } from '../api'
 
 function NewProspectPage() {

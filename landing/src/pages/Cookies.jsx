@@ -19,7 +19,7 @@ export default function Cookies() {
   return (
     <PageLayout title="Politique de cookies" category="Légal">
       <P>Un cookie est un petit fichier texte déposé sur votre terminal (ordinateur, mobile, tablette) lors de la visite d'un site. Il permet de mémoriser des informations relatives à votre navigation.</P>
-      <P>Cette page explique quels cookies ImmoMatch utilise, pourquoi, et comment vous pouvez les gérer.</P>
+      <P>Cette page explique quels cookies ImmoFlash utilise, pourquoi, et comment vous pouvez les gérer.</P>
 
       <S>Cookies utilisés</S>
       <div style={{ overflowX: 'auto', margin: '0 0 1.5rem' }}>
@@ -54,14 +54,14 @@ export default function Cookies() {
       </div>
 
       <S>Cookies strictement nécessaires</S>
-      <P>Ces cookies sont indispensables au fonctionnement de la plateforme ImmoMatch (authentification, sécurité, préférences essentielles). Ils ne peuvent pas être désactivés sans empêcher l'utilisation du service.</P>
+      <P>Ces cookies sont indispensables au fonctionnement de la plateforme ImmoFlash (authentification, sécurité, préférences essentielles). Ils ne peuvent pas être désactivés sans empêcher l'utilisation du service.</P>
 
       <S>Cookies analytiques</S>
       <P>Ces cookies nous permettent de mesurer l'audience de notre site et d'améliorer l'expérience utilisateur. Les données collectées sont anonymisées — elles ne permettent pas de vous identifier personnellement.</P>
       <P>Conformément aux recommandations de la CNIL, nous utilisons ces cookies sans recueillir votre consentement préalable dès lors qu'ils servent exclusivement à la production de statistiques anonymes.</P>
 
       <S>Cookies tiers</S>
-      <P>ImmoMatch ne dépose pas de cookies publicitaires ou de tracking de tiers à des fins commerciales.</P>
+      <P>ImmoFlash ne dépose pas de cookies publicitaires ou de tracking de tiers à des fins commerciales.</P>
 
       <S>Comment gérer vos cookies</S>
       <P>Vous pouvez à tout moment configurer votre navigateur pour refuser ou supprimer les cookies. La procédure varie selon le navigateur :</P>
@@ -79,7 +79,7 @@ export default function Cookies() {
           <strong>Edge</strong> : Paramètres → Cookies et autorisations du site → Cookies et données du site
         </li>
       </ul>
-      <P>Attention : la désactivation de certains cookies peut affecter le fonctionnement de la plateforme ImmoMatch.</P>
+      <P>Attention : la désactivation de certains cookies peut affecter le fonctionnement de la plateforme ImmoFlash.</P>
 
       <S>Droit applicable</S>
       <P>Cette politique est conforme aux recommandations de la Commission Nationale de l'Informatique et des Libertés (CNIL) et au Règlement Général sur la Protection des Données (RGPD).</P>

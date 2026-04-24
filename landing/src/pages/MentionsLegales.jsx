@@ -12,7 +12,7 @@ const P = ({ children }) => (
 export default function MentionsLegales() {
   return (
     <PageLayout title="Mentions légales" category="Légal">
-      <P>Conformément aux dispositions de la loi n° 2004-575 du 21 juin 2004 pour la confiance en l'économie numérique, les informations suivantes sont portées à la connaissance des utilisateurs du site ImmoMatch.</P>
+      <P>Conformément aux dispositions de la loi n° 2004-575 du 21 juin 2004 pour la confiance en l'économie numérique, les informations suivantes sont portées à la connaissance des utilisateurs du site ImmoFlash.</P>
 
       <S>Éditeur du site</S>
       <P>
@@ -33,7 +33,7 @@ export default function MentionsLegales() {
 
       <S>Hébergement</S>
       <P>
-        Le site ImmoMatch est hébergé par :<br />
+        Le site ImmoFlash est hébergé par :<br />
         <strong>Hetzner Online GmbH</strong><br />
         Industriestr. 25<br />
         91710 Gunzenhausen — Allemagne<br />
@@ -42,7 +42,7 @@ export default function MentionsLegales() {
 
       <S>Propriété intellectuelle</S>
       <P>
-        L'ensemble du contenu de ce site (textes, images, graphismes, logo, icônes, algorithmes…) est la propriété exclusive de Bendiaf Noa / ImmoMatch, à l'exception des marques, logos ou contenus appartenant à d'autres sociétés partenaires ou auteurs.
+        L'ensemble du contenu de ce site (textes, images, graphismes, logo, icônes, algorithmes…) est la propriété exclusive de Bendiaf Noa / ImmoFlash, à l'exception des marques, logos ou contenus appartenant à d'autres sociétés partenaires ou auteurs.
       </P>
       <P>
         Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation écrite préalable de l'éditeur.
@@ -68,7 +68,7 @@ export default function MentionsLegales() {
 
       <S>Droit applicable et juridiction</S>
       <P>
-        Tout litige en relation avec l'utilisation du site ImmoMatch est soumis au droit français. En dehors des cas où la loi ne le permet pas, il est fait attribution exclusive de juridiction aux tribunaux compétents.
+        Tout litige en relation avec l'utilisation du site ImmoFlash est soumis au droit français. En dehors des cas où la loi ne le permet pas, il est fait attribution exclusive de juridiction aux tribunaux compétents.
       </P>
 
       <p style={{ color: '#94a3b8', fontSize: 13, marginTop: '3rem', fontStyle: 'italic' }}>

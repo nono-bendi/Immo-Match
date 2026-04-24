@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════
-// LandingPage.jsx — ImmoMatch · SaaS Commercial
+// LandingPage.jsx — ImmoFlash · SaaS Commercial
 // Hero · Preuves · Features · Pricing Stripe-ready · FAQ · CTA
 // ══════════════════════════════════════════════════════════════
 
@@ -84,7 +84,7 @@ function AppPreview() {
       <div style={{ background:'#080f1a', padding:'10px 14px', display:'flex', alignItems:'center', gap:8, borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display:'flex', gap:5 }}>{['#ff5f57','#febc2e','#28c840'].map(c=><div key={c} style={{width:9,height:9,borderRadius:'50%',background:c}}/>)}</div>
         <div style={{ flex:1, background:'rgba(255,255,255,0.04)', borderRadius:5, padding:'3px 10px', display:'flex', alignItems:'center', gap:6 }}>
-          <div style={{width:5,height:5,borderRadius:'50%',background:'#10b981'}}/><span style={{fontSize:10,color:'rgba(255,255,255,0.25)'}}>app.immomatch.fr</span>
+          <div style={{width:5,height:5,borderRadius:'50%',background:'#10b981'}}/><span style={{fontSize:10,color:'rgba(255,255,255,0.25)'}}>app.immoflash.fr</span>
         </div>
       </div>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 18px', borderBottom:'1px solid rgba(255,255,255,0.04)', background:'rgba(13,24,38,0.9)' }}>
@@ -237,7 +237,7 @@ function Hero({ onLogin }) {
           </h1>
 
           <p style={{ fontSize:16, color:'rgba(255,255,255,0.5)', lineHeight:1.78, maxWidth:460, marginBottom:36, fontWeight:400, animation:'fadeUp 0.7s 0.1s cubic-bezier(0.22,1,0.36,1) both' }}>
-            ImmoMatch synchronise vos annonces Hektor et les met en correspondance avec vos acheteurs — automatiquement. Chaque bien, chaque prospect, zéro oubli.
+            ImmoFlash synchronise vos annonces Hektor et les met en correspondance avec vos acheteurs — automatiquement. Chaque bien, chaque prospect, zéro oubli.
           </p>
 
           <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom:48, animation:'fadeUp 0.7s 0.15s cubic-bezier(0.22,1,0.36,1) both' }}>
@@ -338,7 +338,7 @@ function Features() {
             Tout ce dont votre agence<br/>a besoin pour vendre plus.
           </h2>
           <p style={{ fontSize:15, color:'rgba(255,255,255,0.4)', maxWidth:520, margin:'16px auto 0', lineHeight:1.75 }}>
-            ImmoMatch s'occupe du travail de mise en relation. Vous, vous vous occupez de vendre.
+            ImmoFlash s'occupe du travail de mise en relation. Vous, vous vous occupez de vendre.
           </p>
         </div>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))', gap:20 }}>
@@ -387,9 +387,9 @@ function HowItWorks() {
         </div>
         <div style={{ display:'flex', flexDirection:'column', gap:0 }}>
           {[
-            { n:'01', color:'#38bdf8', title:'Connexion au FTP Hektor', desc:'Renseignez les identifiants FTP de votre compte Hektor dans les paramètres. ImmoMatch commence à importer vos annonces immédiatement.' },
+            { n:'01', color:'#38bdf8', title:'Connexion au FTP Hektor', desc:'Renseignez les identifiants FTP de votre compte Hektor dans les paramètres. ImmoFlash commence à importer vos annonces immédiatement.' },
             { n:'02', color:'#60a5fa', title:'Ajoutez vos premiers prospects', desc:'Créez les fiches acheteurs avec leurs critères — budget, surface, type de bien, villes souhaitées. 2 minutes par prospect.' },
-            { n:'03', color:'#a78bfa', title:'Laissez ImmoMatch travailler', desc:'À chaque nouvelle annonce Hektor, ImmoMatch calcule les compatibilités et notifie vos agents. Vous ne manquez plus rien.' },
+            { n:'03', color:'#a78bfa', title:'Laissez ImmoFlash travailler', desc:'À chaque nouvelle annonce Hektor, ImmoFlash calcule les compatibilités et notifie vos agents. Vous ne manquez plus rien.' },
           ].map((s,i)=>(
             <div key={s.n} style={{ display:'flex', gap:28, padding:'32px 0', borderBottom:i<2?'1px solid rgba(255,255,255,0.05)':'none' }}>
               <div style={{ flexShrink:0, width:52, height:52, borderRadius:14, background:`${s.color}12`, border:`1px solid ${s.color}25`, display:'flex', alignItems:'center', justifyContent:'center', marginTop:4 }}>
@@ -561,9 +561,9 @@ function FAQ() {
   const [ref, v] = useReveal()
   const [open, setOpen] = useState(null)
   const items = [
-    { q:'Est-ce compatible avec toutes les versions de Hektor ?', a:"Oui, ImmoMatch se connecte via FTP à votre compte Hektor et importe le fichier CSV standard d'annonces. Toutes les versions de Hektor qui exportent ce format sont compatibles." },
-    { q:'Combien de temps pour être opérationnel ?', a:"Moins de 5 minutes. Renseignez vos identifiants FTP Hektor, créez vos premiers prospects, et ImmoMatch commence à faire des matchings dès la première synchronisation." },
-    { q:'Que se passe-t-il quand un bien est vendu ?', a:"ImmoMatch détecte automatiquement les biens absents du CSV Hektor et les marque comme vendus. Ils restent visibles 2 jours dans votre interface avant d'être supprimés." },
+    { q:'Est-ce compatible avec toutes les versions de Hektor ?', a:"Oui, ImmoFlash se connecte via FTP à votre compte Hektor et importe le fichier CSV standard d'annonces. Toutes les versions de Hektor qui exportent ce format sont compatibles." },
+    { q:'Combien de temps pour être opérationnel ?', a:"Moins de 5 minutes. Renseignez vos identifiants FTP Hektor, créez vos premiers prospects, et ImmoFlash commence à faire des matchings dès la première synchronisation." },
+    { q:'Que se passe-t-il quand un bien est vendu ?', a:"ImmoFlash détecte automatiquement les biens absents du CSV Hektor et les marque comme vendus. Ils restent visibles 2 jours dans votre interface avant d'être supprimés." },
     { q:'Puis-je personnaliser les critères de matching ?', a:"Oui, la page Calibration vous permet d'ajuster le poids de chaque critère (budget, surface, type de bien, localisation) selon votre marché local, avec une prévisualisation en temps réel." },
     { q:'Est-ce que je peux annuler mon abonnement ?', a:"Absolument. Vous pouvez annuler à tout moment depuis votre espace paramètres. Aucun engagement, aucune pénalité." },
   ]

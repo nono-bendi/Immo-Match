@@ -580,7 +580,7 @@ function Scene6({ frame }) {
                   <div style={{ padding: 18, background: '#f8fafc' }}>
                     <div style={{ maxWidth: 400, margin: '0 auto' }}>
                       <div style={{ background: W, borderRadius: 8, padding: 12, marginBottom: 10, border: `1px solid ${G200}` }}>
-                        <div style={{ fontSize: 10, color: G400, marginBottom: 1 }}>De : contact@immomatch.fr</div>
+                        <div style={{ fontSize: 10, color: G400, marginBottom: 1 }}>De : contact@immoflash.fr</div>
                         <div style={{ fontSize: 10, color: G400, marginBottom: 1 }}>À : {PROSPECT.mail}</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: G900 }}>Proposition immobilière — Maison à Les Arcs</div>
                       </div>
@@ -674,7 +674,7 @@ function Scene7({ frame }) {
 }
 
 // ═══════════════════════════ MAIN — 120fps · 3600f · 30s ═══════════════════════════
-export function ImmoMatchVideo() {
+export function ImmoFlashVideo() {
   const frame = useCurrentFrame()
 
   // Scene windows

@@ -7,17 +7,17 @@ const ThemeContext = createContext()
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
-    return localStorage.getItem('immoMatch_theme') === 'dark'
+    return localStorage.getItem('immoFlash_theme') === 'dark'
   })
 
   useEffect(() => {
     const root = document.documentElement
     if (dark) {
       root.classList.add('dark')
-      localStorage.setItem('immoMatch_theme', 'dark')
+      localStorage.setItem('immoFlash_theme', 'dark')
     } else {
       root.classList.remove('dark')
-      localStorage.setItem('immoMatch_theme', 'light')
+      localStorage.setItem('immoFlash_theme', 'light')
     }
   }, [dark])
 

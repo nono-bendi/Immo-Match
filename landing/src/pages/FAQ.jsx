@@ -6,16 +6,16 @@ const faqs = [
     section: 'Le produit',
     items: [
       {
-        q: 'Qu\'est-ce qu\'ImmoMatch exactement ?',
-        a: 'ImmoMatch est un logiciel SaaS conçu pour les agences immobilières. Il analyse automatiquement votre portefeuille de biens et votre base de prospects pour générer des correspondances précises — avec un score de 0 à 100, une analyse argumentée, et un email de proposition personnalisé. L\'objectif : trouver le bon acheteur pour chaque bien, sans y passer des heures.',
+        q: 'Qu\'est-ce qu\'ImmoFlash exactement ?',
+        a: 'ImmoFlash est un logiciel SaaS conçu pour les agences immobilières. Il analyse automatiquement votre portefeuille de biens et votre base de prospects pour générer des correspondances précises — avec un score de 0 à 100, une analyse argumentée, et un email de proposition personnalisé. L\'objectif : trouver le bon acheteur pour chaque bien, sans y passer des heures.',
       },
       {
         q: 'Comment fonctionne le score /100 ?',
-        a: 'Le score ImmoMatch est calculé en deux parties. Une partie objective (60 points maximum) évalue l\'adéquation sur des critères mesurables : budget par rapport au prix du bien, type de bien recherché, localisation souhaitée, surface, nombre de pièces. Une partie qualitative (40 points maximum) est générée par l\'IA : elle analyse les notes libres sur le prospect, le DPE, la destination prévue (résidence principale, investissement, rénovation) et d\'autres signaux contextuels. Le total donne une vision immédiate des meilleures opportunités à traiter en priorité.',
+        a: 'Le score ImmoFlash est calculé en deux parties. Une partie objective (60 points maximum) évalue l\'adéquation sur des critères mesurables : budget par rapport au prix du bien, type de bien recherché, localisation souhaitée, surface, nombre de pièces. Une partie qualitative (40 points maximum) est générée par l\'IA : elle analyse les notes libres sur le prospect, le DPE, la destination prévue (résidence principale, investissement, rénovation) et d\'autres signaux contextuels. Le total donne une vision immédiate des meilleures opportunités à traiter en priorité.',
       },
       {
         q: 'L\'IA peut-elle se tromper ?',
-        a: 'ImmoMatch est un assistant, pas un décideur. Il propose des scores et des analyses — c\'est l\'agent qui choisit ce qu\'il fait de ces informations. Le système limite les biais grâce à son approche hybride (règles objectives + IA qualitative). Plus vous l\'utilisez, plus il s\'affine. En pratique, les agents constatent rapidement que les opportunités remontées correspondent à ce qu\'ils auraient identifié eux-mêmes — mais en quelques secondes plutôt qu\'en plusieurs heures.',
+        a: 'ImmoFlash est un assistant, pas un décideur. Il propose des scores et des analyses — c\'est l\'agent qui choisit ce qu\'il fait de ces informations. Le système limite les biais grâce à son approche hybride (règles objectives + IA qualitative). Plus vous l\'utilisez, plus il s\'affine. En pratique, les agents constatent rapidement que les opportunités remontées correspondent à ce qu\'ils auraient identifié eux-mêmes — mais en quelques secondes plutôt qu\'en plusieurs heures.',
       },
     ],
   },
@@ -28,7 +28,7 @@ const faqs = [
       },
       {
         q: 'Est-ce que je dois changer mes outils actuels ?',
-        a: 'Non. ImmoMatch s\'intègre à votre flux de travail existant. Vous continuez à utiliser votre logiciel métier pour la gestion courante — ImmoMatch ajoute simplement une couche d\'intelligence pour le matching. L\'import se fait depuis Excel, CSV ou via synchronisation directe selon votre logiciel.',
+        a: 'Non. ImmoFlash s\'intègre à votre flux de travail existant. Vous continuez à utiliser votre logiciel métier pour la gestion courante — ImmoFlash ajoute simplement une couche d\'intelligence pour le matching. L\'import se fait depuis Excel, CSV ou via synchronisation directe selon votre logiciel.',
       },
       {
         q: 'Faut-il former toute l\'équipe ?',
@@ -44,16 +44,16 @@ const faqs = [
         a: 'Oui. Chaque email est généré spécifiquement pour la paire prospect / bien concernée. Il met en avant les points forts qui correspondent aux critères du prospect, mentionne les points d\'attention de manière honnête, et utilise un ton adapté. Le résultat est un email HTML de qualité, prêt à envoyer — ou à relire et ajuster en 30 secondes.',
       },
       {
-        q: 'Puis-je envoyer les emails directement depuis ImmoMatch ?',
-        a: 'Oui. ImmoMatch inclut un module d\'envoi email configuré avec les paramètres SMTP de votre agence. Les emails partent depuis votre adresse, avec votre identité visuelle. Un historique des envois est conservé par prospect.',
+        q: 'Puis-je envoyer les emails directement depuis ImmoFlash ?',
+        a: 'Oui. ImmoFlash inclut un module d\'envoi email configuré avec les paramètres SMTP de votre agence. Les emails partent depuis votre adresse, avec votre identité visuelle. Un historique des envois est conservé par prospect.',
       },
       {
         q: 'Qu\'est-ce que l\'assistant IA conversationnel ?',
-        a: 'C\'est une interface de dialogue intégrée qui vous permet d\'interroger votre portefeuille en langage naturel. Exemples : "Quels prospects ont un budget entre 200k et 300k à Nice ?", "Montre-moi les biens disponibles avec plus de 3 pièces", "Génère un email pour ce prospect et ce bien". Vous n\'avez pas besoin de naviguer dans des menus — vous posez la question, ImmoMatch répond.',
+        a: 'C\'est une interface de dialogue intégrée qui vous permet d\'interroger votre portefeuille en langage naturel. Exemples : "Quels prospects ont un budget entre 200k et 300k à Nice ?", "Montre-moi les biens disponibles avec plus de 3 pièces", "Génère un email pour ce prospect et ce bien". Vous n\'avez pas besoin de naviguer dans des menus — vous posez la question, ImmoFlash répond.',
       },
       {
         q: 'Y a-t-il des rapports et des statistiques ?',
-        a: 'Oui. ImmoMatch génère des rapports mensuels HTML avec les statistiques de votre agence : nombre de matchings réalisés, taux de conversion, mails envoyés, activité par agent. Ces rapports sont disponibles en téléchargement et peuvent être partagés avec votre direction.',
+        a: 'Oui. ImmoFlash génère des rapports mensuels HTML avec les statistiques de votre agence : nombre de matchings réalisés, taux de conversion, mails envoyés, activité par agent. Ces rapports sont disponibles en téléchargement et peuvent être partagés avec votre direction.',
       },
     ],
   },
@@ -74,7 +74,7 @@ const faqs = [
       },
       {
         q: 'Une vente couvre-t-elle vraiment l\'abonnement ?',
-        a: 'Dans l\'immense majorité des cas, oui. Une commission moyenne sur une vente immobilière en France représente plusieurs milliers d\'euros. Notre plan Pro est à 99 € HT par mois — soit environ 1 200 € par an. Si ImmoMatch permet à votre agence de conclure une vente supplémentaire dans l\'année grâce à un rapprochement qu\'elle aurait raté, l\'investissement est largement amorti.',
+        a: 'Dans l\'immense majorité des cas, oui. Une commission moyenne sur une vente immobilière en France représente plusieurs milliers d\'euros. Notre plan Pro est à 99 € HT par mois — soit environ 1 200 € par an. Si ImmoFlash permet à votre agence de conclure une vente supplémentaire dans l\'année grâce à un rapprochement qu\'elle aurait raté, l\'investissement est largement amorti.',
       },
     ],
   },
@@ -87,7 +87,7 @@ const faqs = [
       },
       {
         q: 'Qui a accès aux données de mon agence ?',
-        a: 'Uniquement les utilisateurs que vous créez dans votre espace ImmoMatch. Les rôles (Admin, Agent) permettent de définir les niveaux d\'accès. L\'équipe ImmoMatch peut accéder aux données en cas de demande de support technique, avec votre accord explicite.',
+        a: 'Uniquement les utilisateurs que vous créez dans votre espace ImmoFlash. Les rôles (Admin, Agent) permettent de définir les niveaux d\'accès. L\'équipe ImmoFlash peut accéder aux données en cas de demande de support technique, avec votre accord explicite.',
       },
       {
         q: 'Que se passe-t-il si j\'arrête mon abonnement ?',
@@ -129,7 +129,7 @@ export default function FAQ() {
   return (
     <PageLayout title="Questions fréquentes" category="FAQ">
       <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 3rem' }}>
-        Vous avez une question sur ImmoMatch ? Vous trouverez probablement la réponse ici.
+        Vous avez une question sur ImmoFlash ? Vous trouverez probablement la réponse ici.
         Sinon, écrivez-nous à{' '}
         <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600, textDecoration: 'none' }}>
           contact@immoflash.app

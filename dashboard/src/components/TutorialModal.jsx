@@ -1034,7 +1034,7 @@ const SLIDES = [
   {
     id: 'welcome', num: '00', color: '#6366f1',
     title: 'Bonjour et bienvenue !',
-    desc: "ImmoMatch est votre assistant IA pour l'immobilier. Il analyse automatiquement vos prospects, trouve les meilleurs biens, et génère les emails pour vos clients — en quelques secondes.",
+    desc: "ImmoFlash est votre assistant IA pour l'immobilier. Il analyse automatiquement vos prospects, trouve les meilleurs biens, et génère les emails pour vos clients — en quelques secondes.",
     cta: "Ce guide vous présente les 5 fonctionnalités clés. Prenez 2 minutes pour le parcourir.",
     Component: SlideWelcome,
   },
@@ -1042,7 +1042,7 @@ const SLIDES = [
     id: 'prospect', num: '01', color: '#6366f1',
     title: 'Ajouter un prospect',
     desc: "Renseignez le profil de votre client — budget, type de bien, localisation. Tout se fait depuis le formulaire Nouveau prospect.",
-    cta: "Saisissez une fois, ImmoMatch s'occupe du reste.",
+    cta: "Saisissez une fois, ImmoFlash s'occupe du reste.",
     Component: SlideProspect,
   },
   {
@@ -1055,7 +1055,7 @@ const SLIDES = [
   {
     id: 'email', num: '03', color: '#f59e0b',
     title: 'Email personnalisé',
-    desc: "ImmoMatch génère un email professionnel avec aperçu en temps réel. Vous pouvez le modifier avant de l'envoyer en un clic.",
+    desc: "ImmoFlash génère un email professionnel avec aperçu en temps réel. Vous pouvez le modifier avant de l'envoyer en un clic.",
     cta: 'Votre client reçoit la bonne proposition.',
     Component: SlideEmail,
   },
@@ -1175,7 +1175,7 @@ export default function TutorialModal({ open, onClose }) {
             <div style={{ width: '30px', height: '30px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Sparkles size={15} color="rgba(255,255,255,0.8)" />
             </div>
-            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 500 }}>Guide ImmoMatch</span>
+            <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 500 }}>Guide ImmoFlash</span>
           </div>
           <button onClick={onClose} style={{
             width: '30px', height: '30px', borderRadius: '8px',

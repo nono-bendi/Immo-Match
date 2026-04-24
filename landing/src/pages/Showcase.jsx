@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 /* ════════════════════════════════════════════════════════════════
-   SHOWCASE — Tous les composants / assets de la landing ImmoMatch
+   SHOWCASE — Tous les composants / assets de la landing ImmoFlash
    Accès : /showcase
    ════════════════════════════════════════════════════════════════ */
 
@@ -49,7 +49,7 @@ function EmailPreview() {
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fee2e2' }} />
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fef3c7' }} />
         <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#dcfce7' }} />
-        <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8, fontFamily: 'monospace' }}>Brouillon généré par ImmoMatch</span>
+        <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8, fontFamily: 'monospace' }}>Brouillon généré par ImmoFlash</span>
       </div>
       <div style={{ padding: '14px 16px' }}>
         <p style={{ fontSize: 11, color: '#94a3b8', margin: '0 0 4px' }}>À : <span style={{ color: '#0f172a' }}>sophie.martin@gmail.com</span></p>
@@ -73,7 +73,7 @@ function ChatPreview() {
     <div style={{ background: '#0f172a', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 14, width: 360, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>Agent IA — ImmoMatch</span>
+        <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>Agent IA — ImmoFlash</span>
       </div>
       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* User */}
@@ -175,7 +175,7 @@ function FaqPreview() {
   return (
     <div style={{ width: 420, border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
       <div onClick={() => setOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '1rem 1.25rem', cursor: 'pointer', background: '#fff' }}>
-        <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Comment ImmoMatch importe mes biens ?</span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Comment ImmoFlash importe mes biens ?</span>
         <span style={{ fontSize: 20, color: '#64748b', flexShrink: 0, lineHeight: 1, transition: 'transform 200ms', transform: open ? 'rotate(45deg)' : 'none' }}>+</span>
       </div>
       {open && (
@@ -244,7 +244,7 @@ export default function Showcase() {
               <p style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Matching IA</p>
             </Variant>
             <Variant label="Body — 14–16px, #64748b, lh 1.75">
-              <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.75, margin: 0, maxWidth: 520 }}>ImmoMatch croise budget, localisation, style de vie et te sort un score /100. Les meilleures paires remontent tout seules. Toi tu valides.</p>
+              <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.75, margin: 0, maxWidth: 520 }}>ImmoFlash croise budget, localisation, style de vie et te sort un score /100. Les meilleures paires remontent tout seules. Toi tu valides.</p>
             </Variant>
             <Variant label="Mention — 13px, #334155">
               <p style={{ fontSize: 13, color: '#334155', margin: 0 }}>Aucune carte bancaire · Opérationnel en 24h · Vos vraies données</p>
@@ -363,7 +363,7 @@ export default function Showcase() {
           {/* Avant item */}
           <Variant label="Before item (animé)">
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '1rem 1.25rem', width: 280 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Sans ImmoMatch</p>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Sans ImmoFlash</p>
               {[
                 { text: 'Exporter les biens manuellement', note: '5 min' },
                 { text: 'Parcourir les fiches prospect', note: '20 min' },
@@ -389,7 +389,7 @@ export default function Showcase() {
             <div style={{ background: 'linear-gradient(150deg, #071220 0%, #0b1e38 60%, #0c2647 100%)', border: '1px solid rgba(56,189,248,0.25)', borderRadius: 16, padding: '1rem 1.25rem', width: 280, position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.85), transparent)' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Avec ImmoMatch</p>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Avec ImmoFlash</p>
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#0f172a', background: '#38bdf8', borderRadius: 999, padding: '2px 8px' }}>Solution</span>
               </div>
               {['Synchronisation auto du portefeuille', 'Score /100 calculé en temps réel'].map((text, i) => (
@@ -483,7 +483,7 @@ export default function Showcase() {
 
         {/* Footer de la page showcase */}
         <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
-          <p style={{ color: '#cbd5e1', fontSize: 12, margin: 0 }}>ImmoMatch Design System — usage interne · <a href="/" style={{ color: '#38bdf8', textDecoration: 'none' }}>← Retour landing</a></p>
+          <p style={{ color: '#cbd5e1', fontSize: 12, margin: 0 }}>ImmoFlash Design System — usage interne · <a href="/" style={{ color: '#38bdf8', textDecoration: 'none' }}>← Retour landing</a></p>
         </div>
 
       </div>

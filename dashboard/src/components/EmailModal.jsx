@@ -249,7 +249,7 @@ function EmailModal({
                       value={emailContent?.lien_annonce || ''}
                       onChange={(e) => handleContentChange('lien_annonce', e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
-                      placeholder="https://... (laissez vide pour utiliser la page publique ImmoMatch)"
+                      placeholder="https://... (laissez vide pour utiliser la page publique ImmoFlash)"
                     />
                     <p className="text-xs text-gray-400 mt-1">URL du bouton "Voir ce bien" dans l'email</p>
                   </div>
@@ -306,7 +306,7 @@ function EmailModal({
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 flex items-start gap-3">
                       <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-amber-800 font-medium">Envoi via l'adresse ImmoMatch par défaut</p>
+                        <p className="text-sm text-amber-800 font-medium">Envoi via l'adresse ImmoFlash par défaut</p>
                         <p className="text-xs text-amber-700 mt-0.5">
                           Vous n'avez pas encore configuré votre propre adresse d'envoi.{' '}
                           <button
@@ -374,7 +374,7 @@ function EmailModal({
                   <AlertCircle size={16} className="text-blue-500 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm text-blue-800">
-                      Email envoyé depuis <span className="font-medium">{data.fallback_address}</span> (adresse ImmoMatch par défaut).
+                      Email envoyé depuis <span className="font-medium">{data.fallback_address}</span> (adresse ImmoFlash par défaut).
                     </p>
                     <button
                       onClick={() => { onClose(); navigate('/administration') }}

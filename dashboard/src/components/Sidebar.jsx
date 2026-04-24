@@ -40,7 +40,7 @@ function Sidebar({ isOpen, onClose }) {
           <h1 className="font-extrabold text-xl leading-none" style={{ letterSpacing: '-0.04em' }}>
             <span className="text-white">Immo</span><span style={{ color: '#60a5fa' }}>Match</span>
           </h1>
-          <p className="text-white/50 text-xs mt-1 truncate">{agency?.nom_court || 'ImmoMatch'}</p>
+          <p className="text-white/50 text-xs mt-1 truncate">{agency?.nom_court || 'ImmoFlash'}</p>
         </div>
         {/* Bouton fermer visible seulement sur mobile */}
         <button

@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════
-   FeatureCard — section Features ImmoMatch
+   FeatureCard — section Features ImmoFlash
    Layout : image flottante (gauche/droite) + texte
    ════════════════════════════════════════════ */
 

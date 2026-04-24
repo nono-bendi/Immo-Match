@@ -15,12 +15,12 @@ const Li = ({ children }) => (
 export default function Confidentialite() {
   return (
     <PageLayout title="Politique de confidentialité" category="Légal">
-      <P>ImmoMatch attache une grande importance à la protection de vos données personnelles. Cette politique explique quelles données nous collectons, comment nous les utilisons, et quels sont vos droits.</P>
-      <P>Elle s'applique à toute personne utilisant la plateforme ImmoMatch ou contactant ImmoMatch via notre site.</P>
+      <P>ImmoFlash attache une grande importance à la protection de vos données personnelles. Cette politique explique quelles données nous collectons, comment nous les utilisons, et quels sont vos droits.</P>
+      <P>Elle s'applique à toute personne utilisant la plateforme ImmoFlash ou contactant ImmoFlash via notre site.</P>
 
       <S>1. Responsable du traitement</S>
       <P>
-        Le responsable du traitement des données collectées via ImmoMatch est l'éditeur du site.
+        Le responsable du traitement des données collectées via ImmoFlash est l'éditeur du site.
         Contact : <a href="mailto:contact@immoflash.app" style={{ color: '#1E3A5F', fontWeight: 600 }}>contact@immoflash.app</a>
       </P>
 
@@ -35,13 +35,13 @@ export default function Confidentialite() {
       <P>Nous ne collectons aucune donnée sensible au sens de l'article 9 du RGPD.</P>
 
       <S>3. Données des prospects de vos agences</S>
-      <P>Les données de prospects et de biens que vous importez dans ImmoMatch restent sous votre responsabilité en tant que responsable de traitement. ImmoMatch agit en qualité de sous-traitant au sens du RGPD pour ces données.</P>
+      <P>Les données de prospects et de biens que vous importez dans ImmoFlash restent sous votre responsabilité en tant que responsable de traitement. ImmoFlash agit en qualité de sous-traitant au sens du RGPD pour ces données.</P>
       <P>En tant qu'agence utilisatrice, vous êtes responsable d'informer vos prospects de l'existence d'un traitement automatisé de leurs données et de recueillir leur consentement si nécessaire.</P>
 
       <S>4. Finalités du traitement</S>
       <P>Vos données sont utilisées pour :</P>
       <ul style={{ paddingLeft: 20, margin: '0 0 0.75rem' }}>
-        <Li>Créer et gérer votre compte ImmoMatch ;</Li>
+        <Li>Créer et gérer votre compte ImmoFlash ;</Li>
         <Li>Fournir les fonctionnalités de la plateforme (matching, génération d'emails, rapports) ;</Li>
         <Li>Vous envoyer des communications relatives à votre abonnement et au service ;</Li>
         <Li>Améliorer le produit et assurer sa sécurité ;</Li>
@@ -64,7 +64,7 @@ export default function Confidentialite() {
       </ul>
 
       <S>7. Partage des données</S>
-      <P>ImmoMatch ne vend, ne loue et ne partage pas vos données personnelles à des tiers à des fins commerciales.</P>
+      <P>ImmoFlash ne vend, ne loue et ne partage pas vos données personnelles à des tiers à des fins commerciales.</P>
       <P>Vos données peuvent être partagées avec :</P>
       <ul style={{ paddingLeft: 20, margin: '0 0 0.75rem' }}>
         <Li><strong>Anthropic (Claude AI)</strong> : pour la génération d'analyses qualitatives et d'emails. Les données transmises sont anonymisées et ne servent pas à l'entraînement de modèles selon les conditions d'utilisation de l'API.</Li>

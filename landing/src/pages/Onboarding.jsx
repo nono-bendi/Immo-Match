@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   Page /demarrer — Onboarding ImmoMatch
+   Page /demarrer — Onboarding ImmoFlash
    Étape 1 : Votre agence
    Étape 2 : Méthode d'import  (Hektor FTP · CSV/Excel · Démo)
    Étape 3 : Config FTP  OU  Upload fichier  (selon choix étape 2)
@@ -173,7 +173,7 @@ export default function Onboarding() {
   const [result, setResult] = useState(null)
 
   /* ── Titre de la page ── */
-  useEffect(() => { document.title = 'Démarrer — ImmoMatch' }, [])
+  useEffect(() => { document.title = 'Démarrer — ImmoFlash' }, [])
 
   /* ── Drag & drop (avant tout return conditionnel) ── */
   const MAX_FILE_SIZE = 10 * 1024 * 1024  // 10 MB

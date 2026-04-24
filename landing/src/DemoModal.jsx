@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   DemoModal — Modale d'accès à la démo ImmoMatch
+   DemoModal — Modale d'accès à la démo ImmoFlash
    S'ouvre au clic sur n'importe quel CTA de la landing.
    Crée un compte trial isolé via POST /api/start-demo puis redirige.
    ════════════════════════════════════════════════════════════════ */

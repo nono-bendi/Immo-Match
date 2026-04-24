@@ -331,7 +331,7 @@ export default function AdministrationPage() {
       const blob = await r.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = url; a.download = `immomatch_${new Date().toISOString().split('T')[0]}.xlsx`
+      a.href = url; a.download = `immoflash_${new Date().toISOString().split('T')[0]}.xlsx`
       a.click(); URL.revokeObjectURL(url)
     } catch { alert('Erreur export') }
   }
@@ -385,7 +385,7 @@ export default function AdministrationPage() {
       <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Administration</h1>
-          <p className="text-sm text-gray-400">Configuration de votre espace ImmoMatch</p>
+          <p className="text-sm text-gray-400">Configuration de votre espace ImmoFlash</p>
         </div>
         <a
           href={`${API_URL}/guide`}
@@ -554,7 +554,7 @@ export default function AdministrationPage() {
               <div className="mb-4 p-3 bg-amber-50 rounded-lg border border-amber-200 flex items-start gap-2">
                 <AlertTriangle size={15} className="text-amber-500 mt-0.5 shrink-0" />
                 <div className="text-xs text-amber-800">
-                  <span className="font-semibold">Aucun SMTP configuré</span> — les emails sont envoyés depuis l'adresse ImmoMatch par défaut.
+                  <span className="font-semibold">Aucun SMTP configuré</span> — les emails sont envoyés depuis l'adresse ImmoFlash par défaut.
                   Renseignez vos identifiants ci-dessous pour envoyer depuis votre propre adresse.
                 </div>
               </div>

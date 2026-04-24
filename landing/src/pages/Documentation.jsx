@@ -151,7 +151,7 @@ export default function Documentation() {
 
           {/* ═══ VUE D'ENSEMBLE ═══ */}
           <H2 id="apercu">Vue d'ensemble</H2>
-          <P>ImmoMatch est organisé autour de trois entités principales : les <strong>biens</strong>, les <strong>prospects</strong> et les <strong>matchings</strong>. Tout le reste — emails, rapports, agent IA — gravite autour de ces trois piliers.</P>
+          <P>ImmoFlash est organisé autour de trois entités principales : les <strong>biens</strong>, les <strong>prospects</strong> et les <strong>matchings</strong>. Tout le reste — emails, rapports, agent IA — gravite autour de ces trois piliers.</P>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.875rem', margin: '1.25rem 0' }}>
             {[
@@ -243,7 +243,7 @@ export default function Documentation() {
 
           {/* ═══ MATCHING ═══ */}
           <H2 id="matching">Le matching IA</H2>
-          <P>Le matching est le cœur d'ImmoMatch. Pour chaque prospect, l'algorithme analyse l'ensemble de votre portefeuille actif et génère un score de correspondance pour chaque bien.</P>
+          <P>Le matching est le cœur d'ImmoFlash. Pour chaque prospect, l'algorithme analyse l'ensemble de votre portefeuille actif et génère un score de correspondance pour chaque bien.</P>
 
           <H3 id="matching-score">Score /100 expliqué</H3>
           <P>Le score est composé de deux parties :</P>
@@ -304,8 +304,8 @@ export default function Documentation() {
           <H3 id="matching-lancer">Lancer un matching</H3>
           <P>Depuis <Code>Matchings → Nouveau matching</Code> :</P>
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
-            <Li><strong>Matching par prospect</strong> : sélectionnez un prospect, ImmoMatch analyse tous les biens actifs</Li>
-            <Li><strong>Matching par bien</strong> : sélectionnez un bien, ImmoMatch remonte les prospects les plus pertinents</Li>
+            <Li><strong>Matching par prospect</strong> : sélectionnez un prospect, ImmoFlash analyse tous les biens actifs</Li>
+            <Li><strong>Matching par bien</strong> : sélectionnez un bien, ImmoFlash remonte les prospects les plus pertinents</Li>
             <Li><strong>Matching global</strong> : analyse croisée de tous les prospects actifs contre tous les biens actifs (recommandé une fois par semaine)</Li>
           </ul>
 
@@ -346,7 +346,7 @@ export default function Documentation() {
 
           {/* ═══ AGENT IA ═══ */}
           <H2 id="agent">Agent IA conversationnel</H2>
-          <P>L'agent IA est une interface de dialogue intégrée à ImmoMatch. Il comprend le langage naturel et a accès à l'ensemble de votre portefeuille en temps réel.</P>
+          <P>L'agent IA est une interface de dialogue intégrée à ImmoFlash. Il comprend le langage naturel et a accès à l'ensemble de votre portefeuille en temps réel.</P>
 
           <P><strong>Exemples de questions :</strong></P>
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '1rem', margin: '0.75rem 0 1rem' }}>
@@ -368,7 +368,7 @@ export default function Documentation() {
 
           {/* ═══ RAPPORTS ═══ */}
           <H2 id="rapports">Rapports et analytics</H2>
-          <P>ImmoMatch génère un rapport mensuel disponible dans <Code>Administration → Rapports</Code>. Il inclut :</P>
+          <P>ImmoFlash génère un rapport mensuel disponible dans <Code>Administration → Rapports</Code>. Il inclut :</P>
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
             <Li><strong>Activité générale</strong> : nombre de biens actifs, de prospects, de matchings réalisés</Li>
             <Li><strong>Emails</strong> : nombre d'emails envoyés, par agent, par bien</Li>
@@ -449,7 +449,7 @@ export default function Documentation() {
             },
             {
               q: 'L\'import CSV échoue',
-              a: 'Vérifiez que votre fichier utilise bien le modèle fourni par ImmoMatch (les noms de colonnes doivent être identiques). Encodage attendu : UTF-8. Séparateur : virgule ou point-virgule. Supprimez les lignes d\'en-tête superflues.',
+              a: 'Vérifiez que votre fichier utilise bien le modèle fourni par ImmoFlash (les noms de colonnes doivent être identiques). Encodage attendu : UTF-8. Séparateur : virgule ou point-virgule. Supprimez les lignes d\'en-tête superflues.',
             },
             {
               q: 'L\'agent IA ne répond plus',

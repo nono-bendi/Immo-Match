@@ -9,7 +9,7 @@ function ScrollTop() {
 
 export default function PageLayout({ title, category, children }) {
   useEffect(() => {
-    document.title = `${title} — ImmoMatch`
+    document.title = `${title} — ImmoFlash`
   }, [title])
 
   return (

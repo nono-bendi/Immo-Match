@@ -5,11 +5,11 @@ import FeaturesSection from './FeaturesSection'
 const RemotionPlayer = lazy(() =>
   Promise.all([
     import('@remotion/player'),
-    import('./remotion/ImmoMatchVideo'),
-  ]).then(([{ Player }, { ImmoMatchVideo }]) => ({
+    import('./remotion/ImmoFlashVideo'),
+  ]).then(([{ Player }, { ImmoFlashVideo }]) => ({
     default: () => (
       <Player
-        component={ImmoMatchVideo}
+        component={ImmoFlashVideo}
         durationInFrames={3600}
         fps={120}
         compositionWidth={1280}
@@ -308,7 +308,7 @@ export default function Home() {
   /* ── FAQ DATA ── */
   const faqItems = [
     {
-      q: 'Comment ImmoMatch importe mes biens ?',
+      q: 'Comment ImmoFlash importe mes biens ?',
       a: "Depuis Hektor, un fichier Excel ou CSV, ou en saisie manuelle. L'import prend moins de 5 minutes. Aucune ligne de code, aucune intégration technique.",
     },
     {
@@ -316,12 +316,12 @@ export default function Home() {
       a: "Un score sur 100 calculé par notre IA qui croise le budget, la surface, les critères, la localisation et l'historique du prospect avec les caractéristiques du bien. Plus c'est haut, plus la probabilité de conversion est élevée.",
     },
     {
-      q: 'Est-ce que ImmoMatch rédige les emails à ma place ?',
+      q: 'Est-ce que ImmoFlash rédige les emails à ma place ?',
       a: "Oui. Pour chaque matching, l'IA génère un email personnalisé qui explique pourquoi CE bien correspond à CE prospect — avec les arguments concrets. Vous relisez, vous envoyez.",
     },
     {
       q: 'Mes données sont-elles sécurisées ?',
-      a: "ImmoMatch ne vend, ne loue et ne partage pas vos données personnelles à des tiers à des fins commerciales. Vos données restent accessibles pendant 30 jours après la fin de votre abonnement.",
+      a: "ImmoFlash ne vend, ne loue et ne partage pas vos données personnelles à des tiers à des fins commerciales. Vos données restent accessibles pendant 30 jours après la fin de votre abonnement.",
     },
     {
       q: "C'est quoi la période d'essai ?",
@@ -427,7 +427,7 @@ export default function Home() {
 
           {/* Sous-titre */}
           <p className="reveal" style={{ fontSize: 18, color: '#94a3b8', lineHeight: 1.75, maxWidth: 520, margin: '0 auto 2.75rem', fontWeight: 400 }}>
-            ImmoMatch analyse vos prospects, trouve les meilleurs
+            ImmoFlash analyse vos prospects, trouve les meilleurs
             matchings et rédige l'email. En 30 secondes.
           </p>
 
@@ -462,7 +462,7 @@ export default function Home() {
       <section style={{ background: '#f8fafc', padding: '2.5rem 1.5rem', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <p className="reveal" style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            Ils font confiance à ImmoMatch
+            Ils font confiance à ImmoFlash
           </p>
           <div className="reveal logo-marquee-wrapper">
             <div className="logo-marquee-track">
@@ -536,7 +536,7 @@ export default function Home() {
                   </svg>
                 ),
                 title: 'Vos biens sont déjà là',
-                desc: "On connecte ImmoMatch à votre logiciel métier. Vos biens se synchronisent automatiquement, vous n'avez rien à faire.",
+                desc: "On connecte ImmoFlash à votre logiciel métier. Vos biens se synchronisent automatiquement, vous n'avez rien à faire.",
               },
               {
                 color: '#1E3A5F',
@@ -612,7 +612,7 @@ export default function Home() {
               La même heure. Deux réalités.
             </h2>
             <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, maxWidth: 480, margin: '0 auto' }}>
-              Ce que font vos agents aujourd'hui — et ce qu'ImmoMatch fait à leur place.
+              Ce que font vos agents aujourd'hui — et ce qu'ImmoFlash fait à leur place.
             </p>
           </div>
 
@@ -638,7 +638,7 @@ export default function Home() {
               borderRadius: 20, padding: '2rem', position: 'relative',
             }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 1.75rem' }}>
-                Sans ImmoMatch
+                Sans ImmoFlash
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {[
@@ -681,7 +681,7 @@ export default function Home() {
               <div style={{ position: 'absolute', width: 340, height: 340, top: -130, right: -90, borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,0.11) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem', position: 'relative' }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Avec ImmoMatch</p>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Avec ImmoFlash</p>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', background: '#38bdf8', borderRadius: 999, padding: '3px 10px' }}>Solution</span>
               </div>
 
@@ -749,7 +749,7 @@ export default function Home() {
               Simple. Transparent. Sans surprise.
             </h2>
             <p style={{ color: '#94a3b8', fontSize: 15, margin: 0 }}>
-              Une vente conclue grâce à ImmoMatch couvre 2 ans d'abonnement.
+              Une vente conclue grâce à ImmoFlash couvre 2 ans d'abonnement.
             </p>
           </div>
 
@@ -913,7 +913,7 @@ export default function Home() {
             ))}
           </div>
           <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', justifyContent: 'space-between' }}>
-            <p style={{ color: '#334155', fontSize: 13, margin: 0 }}>© 2026 ImmoMatch. Tous droits réservés.</p>
+            <p style={{ color: '#334155', fontSize: 13, margin: 0 }}>© 2026 ImmoFlash. Tous droits réservés.</p>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
               {[
                 { label: 'Mentions légales', to: '/mentions-legales' },

@@ -51,7 +51,7 @@ function SkeletonRow() {
 
 function MatchingsPage() {
   const { agency } = useAgency()
-  const agencyNom = agency?.nom || 'ImmoMatch'
+  const agencyNom = agency?.nom || 'ImmoFlash'
   const [matchings, setMatchings] = useState([])
   const [loading, setLoading] = useState(true)
   const [analyzing, setAnalyzing] = useState(false)

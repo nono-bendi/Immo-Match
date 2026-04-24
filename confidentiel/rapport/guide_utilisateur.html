@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guide utilisateur — ImmoMatch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:    #1E3A5F;
+      --navy2:   #2D5A8A;
+      --blue:    #3b82f6;
+      --blue-lt: #eff6ff;
+      --green:   #10b981;
+      --green-lt:#f0fdf4;
+      --amber:   #f59e0b;
+      --amber-lt:#fffbeb;
+      --red:     #ef4444;
+      --red-lt:  #fef2f2;
+      --slate:   #64748b;
+      --border:  #e2e8f0;
+      --bg:      #f1f5f9;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: #1e293b;
+      padding: 48px 24px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── LAYOUT DEUX COLONNES ── */
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: sticky;
+      top: 32px;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .sidebar-header {
+      background: var(--navy);
+      padding: 20px;
+      color: white;
+    }
+    .sidebar-logo {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+    .sidebar-logo span { color: #60a5fa; }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: .6;
+      margin-top: 4px;
+    }
+    .sidebar-nav {
+      padding: 12px 0;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--slate);
+      text-decoration: none;
+      transition: all .12s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover {
+      background: var(--bg);
+      color: var(--navy);
+      border-left-color: var(--navy);
+    }
+    .nav-item.active {
+      background: var(--blue-lt);
+      color: var(--blue);
+      border-left-color: var(--blue);
+      font-weight: 600;
+    }
+    .nav-num {
+      width: 18px;
+      height: 18px;
+      background: var(--border);
+      color: var(--slate);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .nav-item:hover .nav-num { background: var(--navy); color: white; }
+    .nav-item.active .nav-num { background: var(--blue); color: white; }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      border-radius: 20px;
+      padding: 52px 56px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px; right: -100px;
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, rgba(96,165,250,.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .cover-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #60a5fa;
+      margin-bottom: 14px;
+    }
+    .cover h1 {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      letter-spacing: -.02em;
+    }
+    .cover-desc {
+      font-size: 15px;
+      opacity: .75;
+      max-width: 520px;
+      line-height: 1.65;
+      margin-bottom: 36px;
+    }
+    .cover-stats {
+      display: flex;
+      gap: 32px;
+    }
+    .cover-stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: #60a5fa;
+      line-height: 1;
+    }
+    .cover-stat-label {
+      font-size: 11px;
+      opacity: .65;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── SECTION CARD ── */
+    .section {
+      background: white;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 28px 36px 24px;
+      border-bottom: 1px solid var(--bg);
+    }
+    .section-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-icon-wrap svg { display: block; }
+    .section-meta { flex: 1; }
+    .section-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--slate);
+      margin-bottom: 3px;
+    }
+    .section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -.01em;
+    }
+    .section-body {
+      padding: 28px 36px 32px;
+    }
+
+    /* ── INTRO TEXT ── */
+    .intro {
+      font-size: 14px;
+      color: var(--slate);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    /* ── STEPS ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step {
+      display: flex;
+      gap: 0;
+      position: relative;
+    }
+    .step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 18px;
+    }
+    .step-circle {
+      width: 34px;
+      height: 34px;
+      background: var(--navy);
+      color: white;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .step-line {
+      width: 2px;
+      background: var(--border);
+      flex: 1;
+      margin: 6px 0;
+      min-height: 16px;
+    }
+    .step:last-child .step-line { display: none; }
+    .step-content {
+      padding-bottom: 24px;
+      padding-top: 5px;
+      flex: 1;
+    }
+    .step:last-child .step-content { padding-bottom: 0; }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: var(--slate);
+      line-height: 1.65;
+    }
+    .step-desc strong { color: #1e293b; }
+
+    /* ── GRID CARDS ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+    .info-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+    }
+    .info-card-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--slate);
+      margin-bottom: 8px;
+    }
+    .info-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .info-card-desc {
+      font-size: 12px;
+      color: var(--slate);
+      line-height: 1.6;
+    }
+
+    /* ── SCORES ── */
+    .score-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .score-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 12px;
+    }
+    .score-row.green { background: var(--green-lt); }
+    .score-row.amber { background: var(--amber-lt); }
+    .score-row.red   { background: var(--red-lt); }
+    .score-badge {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .score-badge.green { background: var(--green); }
+    .score-badge.amber { background: var(--amber); }
+    .score-badge.red   { background: var(--red); }
+    .score-info-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .score-info-title.green { color: #065f46; }
+    .score-info-title.amber { color: #92400e; }
+    .score-info-title.red   { color: #991b1b; }
+    .score-info-desc { font-size: 12px; color: var(--slate); line-height: 1.55; }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    th {
+      text-align: left;
+      padding: 9px 14px;
+      background: var(--bg);
+      color: var(--slate);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--bg);
+      color: var(--slate);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td strong { color: #1e293b; font-weight: 600; }
+
+    /* ── CALLOUTS ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .callout.tip  { background: var(--green-lt); border-left: 3px solid var(--green); }
+    .callout.info { background: var(--blue-lt);  border-left: 3px solid var(--blue); }
+    .callout.warn { background: var(--amber-lt); border-left: 3px solid var(--amber); }
+    .callout-icon {
+      width: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .callout strong { color: #1e293b; font-weight: 600; }
+
+    /* ── WORKFLOW VISUAL ── */
+    .workflow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 8px 0 24px;
+    }
+    .wf-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .wf-circle {
+      width: 52px; height: 52px;
+      background: var(--navy);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(30,58,95,.2);
+    }
+    .wf-circle svg { display: block; }
+    .wf-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--navy);
+      text-align: center;
+    }
+    .wf-arrow {
+      flex-shrink: 0;
+      width: 32px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wf-arrow svg { display: block; }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--bg); margin: 24px 0; }
+
+    /* ── FEATURE ROWS ── */
+    .feature-list { display: flex; flex-direction: column; gap: 12px; }
+    .feature-row {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+    .feature-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .feature-icon svg { display: block; }
+    .feature-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .feature-desc  { font-size: 12px; color: var(--slate); line-height: 1.6; }
+    .feature-desc strong { color: #1e293b; font-weight: 600; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      color: var(--slate);
+      font-size: 12px;
+      padding: 8px 0;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .layout { grid-template-columns: 1fr; gap: 16px; }
+      .sidebar { display: none; }
+      .cover, .section { border-radius: 0; }
+      .section { break-inside: avoid; page-break-inside: avoid; }
+    }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .cover { padding: 36px 28px; }
+      .cover h1 { font-size: 28px; }
+      .section-body, .section-header { padding-left: 24px; padding-right: 24px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* ── SEARCH ── */
+    .search-wrap { padding: 12px; border-bottom: 1px solid var(--border); }
+    .search-input {
+      width: 100%; padding: 7px 10px 7px 30px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 12px; font-family: inherit; color: #1e293b;
+      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath stroke-linecap='round' d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 9px center;
+      outline: none; transition: border-color .15s;
+    }
+    .search-input:focus { border-color: var(--navy); }
+    .search-no-result { padding: 10px 16px; font-size: 12px; color: var(--slate); display: none; }
+
+    /* ── BACK TO TOP ── */
+    #back-top {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--navy); color: white; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(30,58,95,.45); transition: transform .2s, box-shadow .2s;
+      opacity: 1; pointer-events: auto;
+    }
+    #back-top:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(30,58,95,.55); }
+
+    /* ── VISUAL MOCKUPS ── */
+    .mockup-wrap {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; margin: 20px 0;
+    }
+    .mockup-bar {
+      background: #e2e8f0; padding: 8px 14px; display: flex; gap: 6px; align-items: center;
+    }
+    .mockup-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .mockup-title { font-size: 11px; color: var(--slate); margin-left: 6px; font-weight: 500; }
+    .mockup-body { padding: 16px; }
+
+    /* Chatbot mockup */
+    .chat-screen {
+      background: linear-gradient(135deg,#080f1a,#0d1826);
+      border-radius: 10px; padding: 14px; position: relative; min-height: 160px;
+    }
+    .chat-fab {
+      position: absolute; bottom: 14px; right: 14px;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg,#6366f1,#8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(99,102,241,.5);
+    }
+    .chat-window {
+      position: absolute; bottom: 64px; right: 14px; width: 200px;
+      background: #0d1826; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1); box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+    .chat-win-header {
+      background: #162840; padding: 8px 12px; font-size: 11px; color: #7dd3fc; font-weight: 600;
+    }
+    .chat-win-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .chat-bubble-bot {
+      background: #1a2a3a; border-radius: 8px 8px 8px 2px; padding: 6px 9px;
+      font-size: 10px; color: #e2e8f0; max-width: 85%; line-height: 1.4;
+    }
+    .chat-bubble-user {
+      background: #1e4976; border-radius: 8px 8px 2px 8px; padding: 6px 9px;
+      font-size: 10px; color: #e2e8f0; max-width: 85%; line-height: 1.4; align-self: flex-end;
+    }
+
+    /* Claude usage mockup */
+    .usage-card {
+      background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; max-width: 420px;
+    }
+    .usage-card-title { font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .usage-row { margin-bottom: 12px; }
+    .usage-row-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); margin-bottom: 5px; }
+    .usage-row-label strong { color: #1e293b; }
+    .usage-bar-bg { background: #f1f5f9; border-radius: 4px; height: 7px; overflow: hidden; }
+    .usage-bar-fill { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .usage-stats { display: flex; gap: 14px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .usage-stat { flex: 1; text-align: center; }
+    .usage-stat-val { font-size: 18px; font-weight: 800; color: var(--navy); }
+    .usage-stat-lbl { font-size: 10px; color: var(--slate); margin-top: 2px; }
+
+    /* Email with logo mockup */
+    .email-mock {
+      background: white; border-radius: 10px; overflow: hidden;
+      border: 1px solid var(--border); max-width: 340px; font-size: 11px;
+    }
+    .email-mock-header {
+      background: var(--navy); padding: 14px 18px; display: flex; align-items: center; gap: 10px;
+    }
+    .email-mock-logo {
+      background: white; border-radius: 6px; padding: 5px 10px;
+      font-size: 11px; font-weight: 800; color: var(--navy); letter-spacing: -.02em;
+    }
+    .email-mock-from { color: rgba(255,255,255,.7); font-size: 10px; }
+    .email-mock-body { padding: 14px 18px; color: #334155; line-height: 1.6; }
+    .email-mock-btn {
+      display: inline-block; background: var(--navy); color: white;
+      border-radius: 6px; padding: 7px 14px; font-size: 10px; font-weight: 600; margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">Immo<span>Match</span></div>
+      <div class="sidebar-label">Guide utilisateur</div>
+      <a href="/" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:12px;font-weight:600;text-decoration:none;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        Retour au dashboard
+      </a>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" id="guide-search" type="text" placeholder="Rechercher…" autocomplete="off" />
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <a href="#workflow"     class="nav-item"><div class="nav-num">1</div>Fonctionnement</a>
+      <a href="#dashboard"   class="nav-item"><div class="nav-num">2</div>Tableau de bord</a>
+      <a href="#prospects"   class="nav-item"><div class="nav-num">3</div>Prospects</a>
+      <a href="#biens"       class="nav-item"><div class="nav-num">4</div>Biens</a>
+      <a href="#matchings"   class="nav-item"><div class="nav-num">5</div>Matchings</a>
+      <a href="#email"       class="nav-item"><div class="nav-num">6</div>Envoi d'email</a>
+      <a href="#smtp"        class="nav-item"><div class="nav-num">7</div>Config. SMTP</a>
+      <a href="#notifs"      class="nav-item"><div class="nav-num">8</div>Notifications</a>
+      <a href="#calibration" class="nav-item"><div class="nav-num">9</div>Calibration</a>
+      <a href="#rapports"    class="nav-item"><div class="nav-num">10</div>Rapports</a>
+      <a href="#logo"        class="nav-item"><div class="nav-num">11</div>Logo &amp; couleur</a>
+      <a href="#equipe"      class="nav-item"><div class="nav-num">12</div>Gestion équipe</a>
+      <a href="#claude"      class="nav-item"><div class="nav-num">13</div>Usage Claude</a>
+      <a href="#chatbot"     class="nav-item"><div class="nav-num">14</div>Assistant IA</a>
+    </nav>
+    <div id="search-no-result" class="search-no-result">Aucun résultat</div>
+  </aside>
+
+  <!-- BACK TO TOP -->
+  <button id="back-top" title="Retour en haut">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- COVER -->
+    <div class="cover">
+      <div class="cover-eyebrow">Guide utilisateur · Saint François Immobilier</div>
+      <h1>Prise en main<br>d'ImmoMatch</h1>
+      <p class="cover-desc">
+        ImmoMatch analyse automatiquement vos prospects et vos biens pour vous indiquer
+        les meilleures correspondances — avec un score et une recommandation rédigée par l'IA.
+      </p>
+      <div class="cover-stats">
+        <div>
+          <div class="cover-stat-num">100</div>
+          <div class="cover-stat-label">Score max possible</div>
+        </div>
+        <div>
+          <div class="cover-stat-num">2h</div>
+          <div class="cover-stat-label">Fréquence synchronisation</div>
+        </div>
+        <div>
+          <div class="cover-stat-num">9</div>
+          <div class="cover-stat-label">Sections dans ce guide</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. FONCTIONNEMENT -->
+    <div class="section" id="workflow">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#eff6ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582M20 20v-5h-.581M4.582 9A8 8 0 0 1 19.419 15M19.419 15A8 8 0 0 1 4.582 9" />
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 1</div>
+          <div class="section-title">Comment ça fonctionne</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">ImmoMatch suit un processus en 5 étapes. Une fois vos prospects renseignés, l'IA travaille automatiquement — vous n'intervenez que pour agir sur les résultats.</p>
+
+        <div class="workflow">
+          <div class="wf-node">
+            <div class="wf-circle">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"/>
+              </svg>
+            </div>
+            <div class="wf-label">Prospect ajouté</div>
+          </div>
+          <div class="wf-arrow">
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+              <path d="M0 6h18M13 1l5 5-5 5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wf-node">
+            <div class="wf-circle">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div class="wf-label">Bien importé</div>
+          </div>
+          <div class="wf-arrow">
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+              <path d="M0 6h18M13 1l5 5-5 5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wf-node">
+            <div class="wf-circle" style="background:#10b981;">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <div class="wf-label">Analyse IA</div>
+          </div>
+          <div class="wf-arrow">
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+              <path d="M0 6h18M13 1l5 5-5 5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wf-node">
+            <div class="wf-circle">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/>
+              </svg>
+            </div>
+            <div class="wf-label">Score + recommandation</div>
+          </div>
+          <div class="wf-arrow">
+            <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
+              <path d="M0 6h18M13 1l5 5-5 5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wf-node">
+            <div class="wf-circle" style="background:#f59e0b;">
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/>
+              </svg>
+            </div>
+            <div class="wf-label">Email prospect</div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div><strong>Synchronisation automatique.</strong> Vos biens sont récupérés automatiquement depuis votre logiciel métier. Dès qu'un nouveau bien arrive, l'analyse se lance automatiquement et une notification vous en informe.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. TABLEAU DE BORD -->
+    <div class="section" id="dashboard">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#f0fdf4;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 2</div>
+          <div class="section-title">Tableau de bord</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">La page d'accueil affiche l'essentiel de votre activité. Toutes les informations clés sont visibles sans avoir à naviguer.</p>
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Chiffre central</div>
+            <div class="info-card-title">Prospects &amp; Biens</div>
+            <div class="info-card-desc">Le total de vos prospects actifs et des biens disponibles dans votre catalogue.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Chiffre central</div>
+            <div class="info-card-title">Matchings générés</div>
+            <div class="info-card-desc">Nombre total de correspondances analysées par l'IA, incluant tous les scores calculés.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Liste prioritaire</div>
+            <div class="info-card-title">Top matchings</div>
+            <div class="info-card-desc">Les meilleures correspondances actuelles, triées par score décroissant. Ce sont les contacts à traiter en premier.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Score moyen</div>
+            <div class="info-card-title">Qualité globale</div>
+            <div class="info-card-desc">Indicateur de la compatibilité moyenne entre votre base de prospects et vos biens disponibles.</div>
+          </div>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+            </svg>
+          </div>
+          <div>Les matchings affichés en <strong>vert (score ≥ 75)</strong> sont à traiter en priorité — ils représentent une forte compatibilité entre le bien et le prospect.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. PROSPECTS -->
+    <div class="section" id="prospects">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#f5f3ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 3</div>
+          <div class="section-title">Gérer les prospects</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Un prospect bien renseigné garantit une analyse précise. Plus vous fournissez de critères, plus les matchings seront pertinents et actionnables.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Ajouter un prospect</div>
+              <div class="step-desc">Cliquez sur <strong>Nouveau prospect</strong> dans la barre latérale. Renseignez les coordonnées, le type de bien recherché, les villes et le budget maximum.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Renseigner les critères clés</div>
+              <div class="step-desc">Les champs les plus importants pour l'analyse IA : <strong>type de bien, villes cibles, budget max, exposition, stationnement, extérieur, étage</strong>. Le champ Observations permet d'ajouter des précisions libres ("proche école", "investissement locatif", etc.).</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Lancer l'analyse</div>
+              <div class="step-desc">Depuis la liste des prospects, cliquez sur l'icône d'analyse (étoile) pour lancer une comparaison avec tous les biens disponibles. Les résultats apparaissent en quelques secondes dans la page Matchings.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">4</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Consulter la fiche prospect</div>
+              <div class="step-desc">Cliquez sur le nom pour ouvrir la fiche complète. Le bouton <strong>Rapport prospect</strong> génère une fiche imprimable avec tous ses critères et l'ensemble de ses matchings annotés — utile pour un rendez-vous.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div><strong>Import en masse disponible.</strong> Vous pouvez importer un fichier Excel ou CSV exporté depuis votre logiciel via le bouton Import de la page Prospects.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. BIENS -->
+    <div class="section" id="biens">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#fff7ed;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#f97316" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 4</div>
+          <div class="section-title">Les biens immobiliers</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Les biens sont synchronisés automatiquement depuis votre logiciel métier. Vous n'avez pas à les saisir manuellement — concentrez-vous sur les renseigner avec les bonnes informations internes.</p>
+
+        <div class="feature-list">
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#eff6ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582M20 20v-5h-.581M4.582 9A8 8 0 0 1 19.419 15M19.419 15A8 8 0 0 1 4.582 9"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Synchronisation automatique</div>
+              <div class="feature-desc">ImmoMatch récupère vos annonces toutes les 2 heures. Vous pouvez aussi forcer une synchronisation depuis <strong>Paramètres → Synchronisation</strong>.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#fffbeb;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Renseigner les défauts — important</div>
+              <div class="feature-desc">Depuis la fiche d'un bien, vous pouvez noter les <strong>points négatifs internes</strong> : vis-à-vis, bruit de rue, pas de parking, rez-de-chaussée… Ces informations sont confidentielles — elles permettent à l'IA d'affiner l'analyse et ne sont jamais transmises aux clients.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#f0fdf4;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Analyser un bien</div>
+              <div class="feature-desc">Depuis la fiche d'un bien, cliquez sur <strong>Analyser pour mes prospects</strong> pour lancer une analyse ciblée. ImmoMatch identifie les prospects compatibles et génère les scores correspondants.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#f5f3ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Nouveau bien — fenêtre automatique</div>
+              <div class="feature-desc">Dès qu'un nouveau bien arrive, une notification apparaît. En cliquant dessus, une fenêtre s'ouvre avec les résultats de l'analyse et le formulaire de défauts — vous pouvez agir immédiatement.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. MATCHINGS -->
+    <div class="section" id="matchings">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#f0fdf4;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 5</div>
+          <div class="section-title">Lire et utiliser les matchings</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Chaque matching est noté de 0 à 100. Le score reflète la compatibilité globale entre un prospect et un bien selon ses critères de recherche.</p>
+
+        <div class="score-list">
+          <div class="score-row green">
+            <div class="score-badge green">85</div>
+            <div>
+              <div class="score-info-title green">Excellent — Score 75 ou plus</div>
+              <div class="score-info-desc">Forte compatibilité. Le bien correspond très bien aux critères du prospect. À contacter en priorité — probabilité de visite élevée.</div>
+            </div>
+          </div>
+          <div class="score-row amber">
+            <div class="score-badge amber">62</div>
+            <div>
+              <div class="score-info-title amber">Compatible — Score 50 à 74</div>
+              <div class="score-info-desc">Correspondance partielle. Certains critères secondaires ne sont pas remplis, mais le bien mérite d'être présenté au prospect.</div>
+            </div>
+          </div>
+          <div class="score-row red">
+            <div class="score-badge red">38</div>
+            <div>
+              <div class="score-info-title red">Partiel — Score inférieur à 50</div>
+              <div class="score-info-desc">Peu compatible. Des critères importants ne correspondent pas. À écarter ou à utiliser uniquement en l'absence d'alternative.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">Pour chaque matching, l'IA fournit trois informations :</p>
+        <table>
+          <thead>
+            <tr><th>Information</th><th>Ce que c'est</th><th>Comment l'utiliser</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Points forts</strong></td>
+              <td>Ce qui correspond entre le bien et le prospect</td>
+              <td>Arguments à mettre en avant lors de l'appel ou du rendez-vous</td>
+            </tr>
+            <tr>
+              <td><strong>Points d'attention</strong></td>
+              <td>Critères partiellement ou non remplis</td>
+              <td>Préparer les objections et adapter votre discours commercial</td>
+            </tr>
+            <tr>
+              <td><strong>Recommandation</strong></td>
+              <td>Conseil de l'IA sur la démarche à adopter</td>
+              <td>Décider si proposer maintenant, attendre ou passer au prochain</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout tip">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+            </svg>
+          </div>
+          <div>Utilisez le filtre <strong>par bien</strong> ou <strong>par prospect</strong> pour retrouver rapidement les matchings qui vous intéressent. Un clic sur un bien dans la notification ouvre directement les résultats filtrés.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. EMAIL -->
+    <div class="section" id="email">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#eff6ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 6</div>
+          <div class="section-title">Envoyer un email à un prospect</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">ImmoMatch génère automatiquement un email personnalisé à partir du matching — pré-rempli avec les points forts et une introduction adaptée au profil du prospect.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Ouvrir un matching</div>
+              <div class="step-desc">Depuis la page Matchings, cliquez sur l'icône d'enveloppe à droite d'un matching pour ouvrir le formulaire d'envoi.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Vérifier et personnaliser</div>
+              <div class="step-desc">L'email est pré-rempli avec les informations du bien et du prospect. Vous pouvez modifier l'<strong>introduction</strong> et la <strong>conclusion</strong> pour adapter le ton si nécessaire.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Prévisualiser et envoyer</div>
+              <div class="step-desc">Cliquez sur <strong>Prévisualiser</strong> pour voir le rendu final, puis <strong>Envoyer</strong>. L'email part depuis l'adresse de l'agence. Le matching est automatiquement marqué "email envoyé" pour ne pas relancer deux fois le même prospect.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div><strong>Configuration requise.</strong> L'envoi d'emails nécessite que l'adresse email de l'agence soit configurée dans Paramètres. Contactez votre administrateur si l'envoi ne fonctionne pas.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. SMTP -->
+    <div class="section" id="smtp">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#f0fdf4;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 0 0 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 7</div>
+          <div class="section-title">Configuration SMTP — Envoi d'emails</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Le SMTP est le protocole qui permet à ImmoMatch d'envoyer des emails depuis l'adresse de votre agence. Sans configuration, les emails ne partent pas. Cette section explique comment le configurer pas à pas.</p>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:0 0 12px;">Où configurer le SMTP ?</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Aller dans Administration</div>
+              <div class="step-desc">Menu latéral → <strong>Administration</strong> (réservé aux administrateurs). Puis ouvrez la section <strong>Identité de l'agence</strong>.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Remplir les champs SMTP</div>
+              <div class="step-desc">Descendez jusqu'à la section <strong>Configuration email (SMTP)</strong> et renseignez les 6 champs ci-dessous.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div></div>
+            <div class="step-content">
+              <div class="step-title">Sauvegarder</div>
+              <div class="step-desc">Cliquez sur <strong>Sauvegarder l'agence</strong>. Un message de confirmation apparaît à droite du bouton. Testez ensuite en envoyant un email depuis la page Matchings.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Les 6 champs à renseigner</h3>
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Serveur SMTP</div>
+            <div class="info-card-desc">L'adresse du serveur sortant de votre messagerie. Exemples : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.gmail.com</code> · <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">ssl0.ovh.net</code> · <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.office365.com</code></div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Port</div>
+            <div class="info-card-desc"><strong>587</strong> (recommandé — TLS/STARTTLS) · <strong>465</strong> (SSL) · <strong>25</strong> (sans chiffrement, déconseillé). Utilisez 587 par défaut.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Email d'envoi</div>
+            <div class="info-card-desc">L'adresse depuis laquelle partent les emails. Ex : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">contact@agence.fr</code>. Doit correspondre au compte SMTP.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Champ obligatoire</div>
+            <div class="info-card-title">Mot de passe d'application</div>
+            <div class="info-card-desc">⚠️ Pour Gmail : ce n'est <strong>pas</strong> votre mot de passe habituel. Il faut générer un <strong>mot de passe d'application</strong> dans les paramètres de sécurité Google (voir ci-dessous).</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Optionnel</div>
+            <div class="info-card-title">Nom d'expéditeur</div>
+            <div class="info-card-desc">Le nom affiché dans la boîte de réception du prospect. Ex : <em>Saint François Immobilier</em>. Si vide, seul l'email s'affiche.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Optionnel</div>
+            <div class="info-card-title">Email de réponse (Reply-To)</div>
+            <div class="info-card-desc">Si le prospect répond à l'email, la réponse sera envoyée à cette adresse. Utile si l'email d'envoi est un alias et que vous voulez recevoir les réponses ailleurs.</div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Cas Gmail — Mot de passe d'application</h3>
+        <div class="callout warn">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div>Google bloque les connexions avec le mot de passe habituel. Vous devez créer un <strong>mot de passe d'application</strong> dédié.</div>
+        </div>
+        <div class="steps" style="margin-top:12px;">
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">A</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Activer la validation en deux étapes</div>
+              <div class="step-desc">Sur votre compte Google → Sécurité → Validation en deux étapes. Sans cette étape, l'option mot de passe d'application n'apparaît pas.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">B</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Générer le mot de passe d'application</div>
+              <div class="step-desc">Sécurité → Mots de passe des applications → sélectionnez <strong>"Autre (nom personnalisé)"</strong> → tapez "ImmoMatch" → cliquez Générer. Google vous donne un code de 16 caractères.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle" style="font-size:10px;">C</div></div>
+            <div class="step-content">
+              <div class="step-title">Copier ce code dans ImmoMatch</div>
+              <div class="step-desc">Collez le code de 16 caractères (sans espaces) dans le champ <strong>Mot de passe d'application</strong> d'ImmoMatch. Serveur : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12px;">smtp.gmail.com</code> — Port : <strong>587</strong>.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Références par fournisseur</h3>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Fournisseur</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Serveur SMTP</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Port</th>
+              <th style="text-align:left;padding:10px 14px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--border);">Authentification</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 14px;font-weight:600;">Gmail</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.gmail.com</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Mot de passe d'application Google</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);background:#fafafa;">
+              <td style="padding:10px 14px;font-weight:600;">OVH</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">ssl0.ovh.net</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe OVH</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 14px;font-weight:600;">Office 365</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.office365.com</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe Microsoft</td>
+            </tr>
+            <tr style="background:#fafafa;">
+              <td style="padding:10px 14px;font-weight:600;">Ionos / 1&1</td>
+              <td style="padding:10px 14px;font-family:monospace;color:#3b82f6;">smtp.ionos.fr</td>
+              <td style="padding:10px 14px;">587</td>
+              <td style="padding:10px 14px;">Email + mot de passe Ionos</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout info" style="margin-top:16px;">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div><strong>Erreur "Authentification SMTP" ?</strong> Vérifiez que vous utilisez bien un <em>mot de passe d'application</em> (pas votre mot de passe habituel) et que la validation en deux étapes est activée sur votre compte email.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. NOTIFICATIONS -->
+    <div class="section" id="notifs">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#fef2f2;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 7</div>
+          <div class="section-title">Notifications</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">L'icône de cloche en haut à droite de l'application affiche toutes les alertes importantes. Un badge rouge indique le nombre de notifications non lues.</p>
+
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Déclencheur</th><th>Action recommandée</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Nouveau bien</strong></td>
+              <td>Un bien vient d'être importé</td>
+              <td>Cliquer pour ouvrir la fenêtre d'analyse — renseigner les défauts si nécessaire</td>
+            </tr>
+            <tr>
+              <td><strong>Nouveaux matchings</strong></td>
+              <td>Une analyse vient de se terminer</td>
+              <td>Cliquer pour accéder aux résultats filtrés par bien</td>
+            </tr>
+            <tr>
+              <td><strong>Synchronisation</strong></td>
+              <td>La synchronisation est terminée</td>
+              <td>Vérifier le nombre de biens récupérés, relancer si nécessaire</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 8. CALIBRATION -->
+    <div class="section" id="calibration">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#faf5ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 1 0 0 4m0-4a2 2 0 1 1 0 4m-6 8a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 1 0 0-4m0 4a2 2 0 1 1 0-4m0 4v2m0-6V4"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 8</div>
+          <div class="section-title">Calibration — améliorer la précision</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">La calibration permet de donner votre avis sur les matchings pour améliorer la précision de l'IA au fil du temps. Plus vous l'utilisez, plus les scores se rapprochent de votre réalité terrain.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Accéder à la calibration</div>
+              <div class="step-desc">Cliquez sur <strong>Calibration</strong> dans le menu de navigation. L'application vous présente des matchings récents un par un.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Évaluer la pertinence</div>
+              <div class="step-desc">Pour chaque matching, indiquez s'il vous semble <strong>pertinent</strong> (le bien correspond vraiment au prospect) ou <strong>non pertinent</strong>. Ajoutez un commentaire pour préciser si besoin.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Impact progressif</div>
+              <div class="step-desc">Vos retours sont pris en compte pour affiner les critères de l'IA. L'amélioration est progressive — quelques évaluations par semaine suffisent.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+            </svg>
+          </div>
+          <div><strong>5 minutes par semaine suffisent.</strong> Évaluez 5 à 10 matchings régulièrement plutôt que tout en une fois — le résultat sera plus stable et fiable.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. RAPPORTS -->
+    <div class="section" id="rapports">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#fff7ed;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#f97316" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 9</div>
+          <div class="section-title">Rapports</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">ImmoMatch génère deux types de rapports accessibles directement depuis l'application, imprimables ou sauvegardables en PDF.</p>
+
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Accès : Paramètres → Mes données</div>
+            <div class="info-card-title">Rapport mensuel</div>
+            <div class="info-card-desc">KPIs du mois en cours avec comparaison au mois précédent — prospects, biens, matchings, score moyen. Inclut le top 10 des matchings et les nouveaux biens analysés.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Accès : fiche prospect → bouton Rapport</div>
+            <div class="info-card-title">Rapport prospect</div>
+            <div class="info-card-desc">Fiche complète avec critères de recherche et l'ensemble des matchings annotés (points forts, points d'attention, recommandation). Idéal à imprimer avant un rendez-vous.</div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div>Les rapports s'ouvrent dans un nouvel onglet. Pour les sauvegarder en PDF : <strong>Ctrl+P</strong> (ou Cmd+P sur Mac) puis sélectionnez <strong>"Enregistrer en PDF"</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. LOGO & COULEUR -->
+    <div class="section" id="logo">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#fdf4ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 0 1 2.828 0L16 16m-2-2 1.586-1.586a2 2 0 0 1 2.828 0L20 14m-6-6h.01M6 20h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 11</div>
+          <div class="section-title">Logo &amp; couleur de l'agence</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Le logo et la couleur principale de l'agence ne sont pas que décoratifs — ils sont intégrés dans les emails envoyés aux prospects et dans les rapports PDF. Une configuration soignée renforce l'image professionnelle de l'agence.</p>
+
+        <div class="feature-list">
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#fdf4ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Logo dans les emails</div>
+              <div class="feature-desc">Chaque email envoyé à un prospect affiche le logo de l'agence en haut du message. Cela remplace l'expéditeur générique et donne un rendu professionnel immédiat. Format accepté : PNG, JPG, SVG. Taille max : 2 Mo.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#fff7ed;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f97316" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Logo dans les rapports PDF</div>
+              <div class="feature-desc">Le rapport mensuel et les rapports prospect affichent également le logo en en-tête. Si aucun logo n'est configuré, le nom de l'agence est utilisé à la place.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#eff6ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Fond coloré derrière le logo</div>
+              <div class="feature-desc">Si votre logo est blanc (sur fond transparent), cochez l'option <strong>Fond coloré derrière le logo dans les emails</strong>. Cela ajoute automatiquement un rectangle de la couleur principale pour que le logo soit visible sur fond blanc.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#f0fdf4;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v12a4 4 0 0 1-4 4zm0 0h12a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 0 1 2.828 0l2.829 2.829a2 2 0 0 1 0 2.828l-8.486 8.485M7 17h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Couleur principale</div>
+              <div class="feature-desc">La couleur choisie est utilisée dans les boutons d'action des emails, les barres d'accentuation des rapports, et les éléments graphiques de l'interface. Entrez un code hexadécimal (ex : <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;">#1E3A5F</code>) ou utilisez le sélecteur de couleur.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div><strong>Où configurer ?</strong> Administration → Identité de l'agence → section Logo. Vous pouvez uploader un fichier directement ou coller une URL d'image hébergée.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. GESTION ÉQUIPE -->
+    <div class="section" id="equipe">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#eff6ff;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 12</div>
+          <div class="section-title">Gestion de l'équipe</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">Chaque agent de l'agence peut avoir son propre accès à ImmoMatch. L'administrateur crée et gère les comptes depuis la page Administration.</p>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:0 0 12px;">Ajouter un agent</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Administration → Section Équipe</div>
+              <div class="step-desc">Cliquez sur <strong>+ Ajouter un agent</strong>. Renseignez le prénom et nom, l'email (qui servira d'identifiant de connexion) et un mot de passe provisoire.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Choisir le rôle</div>
+              <div class="step-desc">Deux rôles disponibles : <strong>Agent</strong> (accès standard, peut voir et utiliser l'application) et <strong>Admin</strong> (accès complet, peut modifier la configuration, l'équipe et les paramètres avancés).</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div></div>
+            <div class="step-content">
+              <div class="step-title">Communiquer les accès</div>
+              <div class="step-desc">Transmettez l'email et le mot de passe provisoire à l'agent. Il pourra se connecter et changer son mot de passe depuis Administration → Mon compte.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Les trois rôles</h3>
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Rôle</div>
+            <div class="info-card-title">Admin</div>
+            <div class="info-card-desc">Accès complet. Peut configurer l'agence, le SMTP, le FTP, gérer l'équipe, voir l'usage Claude, lancer et supprimer des analyses. Un seul admin par agence recommandé.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Rôle</div>
+            <div class="info-card-title">Agent</div>
+            <div class="info-card-desc">Accès standard. Peut consulter les prospects, biens, matchings, envoyer des emails et calibrer les scores. Ne peut pas modifier la configuration de l'agence.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Rôle</div>
+            <div class="info-card-title">Démo</div>
+            <div class="info-card-desc">Accès lecture seule. Les actions destructives sont bloquées (pas d'envoi d'email, pas de suppression, pas de reset). Utile pour présenter l'outil à un prospect ou un partenaire.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Sécurité</div>
+            <div class="info-card-title">Changer de mot de passe</div>
+            <div class="info-card-desc">Chaque utilisateur peut changer son propre mot de passe depuis Administration → Mon compte. L'admin peut également réinitialiser le mot de passe d'un agent depuis la liste de l'équipe.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. USAGE CLAUDE -->
+    <div class="section" id="claude">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#fef3c7;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 13</div>
+          <div class="section-title">Usage Claude — L'IA derrière ImmoMatch</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">ImmoMatch utilise Claude (Anthropic) pour analyser les matchings, générer les emails et faire fonctionner l'assistant IA. Chaque appel consomme des tokens (unités de traitement). L'usage est suivi par mois pour votre agence.</p>
+
+        <div class="mockup-wrap">
+          <div class="mockup-bar">
+            <div class="mockup-dot" style="background:#ef4444"></div>
+            <div class="mockup-dot" style="background:#f59e0b"></div>
+            <div class="mockup-dot" style="background:#10b981"></div>
+            <span class="mockup-title">Administration → Usage Claude</span>
+          </div>
+          <div class="mockup-body">
+            <!-- Reproduction exacte du widget AdministrationPage.jsx -->
+            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:16px;padding:20px;max-width:420px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+                  <span style="font-size:14px;font-weight:600;color:#374151;">Usage Claude — 2026-04</span>
+                </div>
+                <span style="font-size:14px;font-weight:700;color:#4b5563;">87 / 3 000 appels</span>
+              </div>
+              <div style="width:100%;background:#e5e7eb;border-radius:9999px;height:8px;margin-bottom:12px;">
+                <div style="width:2.9%;height:8px;border-radius:9999px;background:#10b981;"></div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:12px;color:#6b7280;">
+                <span>142 500 tokens entrants</span>
+                <span>38 200 tokens sortants</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-list">
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#fef3c7;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0-2 2h-2a2 2 0 0 0-2-2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Voir l'usage du mois</div>
+              <div class="feature-desc">Administration → section <strong>Usage Claude</strong>. Vous voyez le nombre d'appels, les tokens consommés (entrée + sortie) et une estimation du coût mensuel. Le compteur se réinitialise le 1er de chaque mois.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#f0fdf4;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Ce qui consomme des tokens</div>
+              <div class="feature-desc">Principalement : les analyses de matching (1 appel par prospect analysé), les aperçus d'email (1 appel par prévisualisation) et les conversations avec l'assistant IA. La calibration seule ne consomme pas de tokens.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#eff6ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 1 1 21 9z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Clé API Claude</div>
+              <div class="feature-desc">La clé API est configurée par l'administrateur dans Paramètres → Clé API Anthropic. Sans clé valide, les analyses et l'assistant IA ne fonctionnent pas. La clé est masquée après saisie pour des raisons de sécurité.</div>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="feature-icon" style="background:#fdf4ff;">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#a855f7" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="feature-title">Limite d'analyse globale</div>
+              <div class="feature-desc">Pour éviter une consommation excessive lors d'une analyse globale, un maximum de prospects est traité par session. Si vous avez plus de prospects, relancez l'analyse en plusieurs fois ou analysez prospect par prospect.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. ASSISTANT IA (CHATBOT) -->
+    <div class="section" id="chatbot">
+      <div class="section-header">
+        <div class="section-icon-wrap" style="background:#e0f2fe;">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-3 3v-3z"/>
+          </svg>
+        </div>
+        <div class="section-meta">
+          <div class="section-eyebrow">Section 14</div>
+          <div class="section-title">Assistant IA — Le chatbot ImmoMatch</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <p class="intro">ImmoMatch intègre un assistant IA conversationnel accessible depuis toutes les pages (bouton en bas à droite). Il répond à vos questions sur l'activité de l'agence en temps réel, sans quitter votre page.</p>
+
+        <div style="display:flex;gap:20px;align-items:flex-end;flex-wrap:wrap;margin:20px 0;">
+
+          <!-- Fenêtre chat exacte -->
+          <div style="width:260px;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.18),0 0 0 1px rgba(99,102,241,.12);background:#f8fafc;display:flex;flex-direction:column;">
+            <!-- Header gradient #4338ca → #6d28d9 -->
+            <div style="background:linear-gradient(135deg,#4338ca,#6d28d9);padding:12px 14px;display:flex;align-items:center;gap:8px;">
+              <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;">
+                <!-- SVG robot identique à BotFace (viewBox 40x40) -->
+                <svg width="22" height="22" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="20" y1="3" x2="20" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="20" cy="2.5" r="2" fill="#a5f3fc"/>
+                  <rect x="7" y="9" width="26" height="22" rx="8" fill="white" fill-opacity=".95"/>
+                  <rect x="4" y="15" width="3.5" height="7" rx="1.5" fill="white" fill-opacity=".6"/>
+                  <rect x="32.5" y="15" width="3.5" height="7" rx="1.5" fill="white" fill-opacity=".6"/>
+                  <rect x="12.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/>
+                  <rect x="22.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/>
+                  <circle cx="14" cy="17.5" r="1" fill="white" fill-opacity=".7"/>
+                  <circle cx="24" cy="17.5" r="1" fill="white" fill-opacity=".7"/>
+                  <path d="M14.5 26 Q20 30.5 25.5 26" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <circle cx="11" cy="25" r="1.5" fill="#f9a8d4" fill-opacity=".7"/>
+                  <circle cx="29" cy="25" r="1.5" fill="#f9a8d4" fill-opacity=".7"/>
+                </svg>
+              </div>
+              <div style="flex:1;">
+                <div style="color:white;font-weight:600;font-size:13px;">Assistant IA</div>
+                <div style="color:rgba(255,255,255,.65);font-size:10px;">Saint François Immo</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <span style="width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 5px rgba(52,211,153,.7);display:inline-block;"></span>
+                <span style="font-size:10px;color:rgba(255,255,255,.7);">En ligne</span>
+              </div>
+            </div>
+            <!-- Zone messages -->
+            <div style="padding:12px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(to bottom,#f0f4ff,#f8fafc);">
+              <div style="display:flex;gap:6px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <svg width="14" height="14" viewBox="0 0 40 40" fill="none"><rect x="7" y="9" width="26" height="22" rx="8" fill="white" fill-opacity=".9"/><rect x="12.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/><rect x="22.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/><path d="M14.5 26 Q20 30.5 25.5 26" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                </div>
+                <div style="background:white;border-radius:4px 12px 12px 12px;padding:8px 10px;font-size:11px;color:#1e293b;line-height:1.5;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:85%;">Bonjour ! Posez-moi une question sur votre activité.</div>
+              </div>
+              <div style="display:flex;gap:6px;flex-direction:row-reverse;">
+                <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#0f172a,#1e293b);flex-shrink:0;"></div>
+                <div style="background:#4f46e5;border-radius:12px 4px 12px 12px;padding:8px 10px;font-size:11px;color:white;line-height:1.5;max-width:85%;">Combien de matchings cette semaine ?</div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                  <svg width="14" height="14" viewBox="0 0 40 40" fill="none"><rect x="7" y="9" width="26" height="22" rx="8" fill="white" fill-opacity=".9"/><rect x="12.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/><rect x="22.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/><path d="M14.5 26 Q20 30.5 25.5 26" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                </div>
+                <div style="background:white;border-radius:4px 12px 12px 12px;padding:8px 10px;font-size:11px;color:#1e293b;line-height:1.5;box-shadow:0 1px 3px rgba(0,0,0,.08);max-width:85%;">Cette semaine : <strong>12 nouveaux matchings</strong>, dont 4 avec un score ≥ 80.</div>
+              </div>
+            </div>
+            <!-- Input -->
+            <div style="padding:10px 12px;border-top:1px solid #e2e8f0;display:flex;gap:6px;align-items:center;background:#f8fafc;">
+              <div style="flex:1;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:7px 10px;font-size:11px;color:#94a3b8;">Posez votre question…</div>
+              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#4338ca,#6d28d9);display:flex;align-items:center;justify-content:center;">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton flottant avec vrai SVG robot -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="position:relative;width:56px;height:56px;">
+              <div style="position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 0deg,#6366f1,#8b5cf6,#06b6d4,#10b981,#6366f1);filter:blur(1px);"></div>
+              <div style="position:relative;z-index:1;width:52px;height:52px;margin:2px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(99,102,241,.45);">
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="20" y1="3" x2="20" y2="9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="20" cy="2.5" r="2" fill="#a5f3fc"/>
+                  <rect x="7" y="9" width="26" height="22" rx="8" fill="white" fill-opacity=".95"/>
+                  <rect x="4" y="15" width="3.5" height="7" rx="1.5" fill="white" fill-opacity=".6"/>
+                  <rect x="32.5" y="15" width="3.5" height="7" rx="1.5" fill="white" fill-opacity=".6"/>
+                  <rect x="12.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/>
+                  <rect x="22.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5"/>
+                  <circle cx="14" cy="17.5" r="1" fill="white" fill-opacity=".7"/>
+                  <circle cx="24" cy="17.5" r="1" fill="white" fill-opacity=".7"/>
+                  <path d="M14.5 26 Q20 30.5 25.5 26" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" fill="none"/>
+                  <circle cx="11" cy="25" r="1.5" fill="#f9a8d4" fill-opacity=".7"/>
+                  <circle cx="29" cy="25" r="1.5" fill="#f9a8d4" fill-opacity=".7"/>
+                </svg>
+              </div>
+              <div style="position:absolute;top:2px;right:2px;width:11px;height:11px;border-radius:50%;background:#34d399;border:2px solid white;box-shadow:0 0 6px rgba(52,211,153,.7);"></div>
+            </div>
+            <div style="font-size:10px;color:#64748b;text-align:center;">Bouton flottant<br>bas à droite</div>
+          </div>
+
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:0 0 12px;">Comment y accéder ?</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-left"><div class="step-circle">1</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Cliquer sur le bouton flottant</div>
+              <div class="step-desc">Le bouton animé avec une icône de robot est visible en <strong>bas à droite</strong> de toutes les pages. Cliquez dessus pour ouvrir la fenêtre de chat.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">2</div><div class="step-line"></div></div>
+            <div class="step-content">
+              <div class="step-title">Poser une question en langage naturel</div>
+              <div class="step-desc">Tapez votre question comme vous l'écririez à un collègue. L'assistant comprend le contexte de votre agence et interroge directement votre base de données.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-left"><div class="step-circle">3</div></div>
+            <div class="step-content">
+              <div class="step-title">Obtenir une réponse en quelques secondes</div>
+              <div class="step-desc">L'assistant récupère les données en temps réel et vous répond avec les chiffres à jour. Vous pouvez poser des questions de suivi dans la même conversation.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="font-size:13px;font-weight:700;color:#1e293b;margin:20px 0 12px;">Exemples de questions</h3>
+        <div class="grid-2">
+          <div class="info-card">
+            <div class="info-card-label">Activité &amp; stats</div>
+            <div class="info-card-title">Suivi en temps réel</div>
+            <div class="info-card-desc">
+              "Combien de matchings cette semaine ?"<br>
+              "Quels sont les 5 meilleurs matchings du mois ?"<br>
+              "Combien de nouveaux biens depuis lundi ?"<br>
+              "Quel est le score moyen de l'agence ?"
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Relances &amp; prospects</div>
+            <div class="info-card-title">Qui contacter</div>
+            <div class="info-card-desc">
+              "Quels prospects n'ont pas encore été contactés ?"<br>
+              "Qui relancer cette semaine ?"<br>
+              "Combien de prospects actifs ?"<br>
+              "Y a-t-il des matchings sans email envoyé ?"
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Configuration</div>
+            <div class="info-card-title">Vérifier l'état de l'app</div>
+            <div class="info-card-desc">
+              "Le SMTP est-il bien configuré ?"<br>
+              "Quand a eu lieu la dernière synchronisation ?"<br>
+              "Y a-t-il eu des erreurs de sync ?"
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-label">Navigation</div>
+            <div class="info-card-title">Aide &amp; orientation</div>
+            <div class="info-card-desc">
+              "Comment envoyer un email à un prospect ?"<br>
+              "Comment ajouter un agent ?"<br>
+              "Où configurer le FTP ?"<br>
+              "Comment calibrer les scores ?"
+            </div>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#3b82f6" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/>
+            </svg>
+          </div>
+          <div><strong>L'assistant ne devine pas.</strong> Il interroge directement votre base de données — prospects, biens, matchings, configuration — et vous donne des réponses factuelles. Si une information n'est pas dans ImmoMatch, il vous le dira clairement.</div>
+        </div>
+
+        <div class="callout warn" style="margin-top:12px;">
+          <div class="callout-icon">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+          </div>
+          <div>Chaque échange avec l'assistant consomme des tokens Claude. Pour des questions simples, préférez naviguer directement dans l'application. Reservez l'assistant pour les questions de synthèse ou d'analyse.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">ImmoMatch · Guide utilisateur · Saint François Immobilier · Confidentiel</div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  // ── Highlight nav on scroll ─────────────────────────
+  const sections = document.querySelectorAll('.section[id]')
+  const navItems = document.querySelectorAll('.nav-item')
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'))
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`)
+        if (active) active.classList.add('active')
+      }
+    })
+  }, { threshold: 0.3 })
+  sections.forEach(s => observer.observe(s))
+
+  // ── Back to top ─────────────────────────────────────
+  const backTop = document.getElementById('back-top')
+  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }))
+
+  // ── Search ──────────────────────────────────────────
+  const searchInput = document.getElementById('guide-search')
+  const noResult    = document.getElementById('search-no-result')
+  const allNavItems = document.querySelectorAll('#sidebar-nav .nav-item')
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase()
+    if (!q) {
+      allNavItems.forEach(n => n.style.display = '')
+      sections.forEach(s => s.style.display = '')
+      noResult.style.display = 'none'
+      return
+    }
+    let found = 0
+    allNavItems.forEach(n => {
+      const match = n.textContent.toLowerCase().includes(q)
+      n.style.display = match ? '' : 'none'
+    })
+    sections.forEach(s => {
+      const text = s.textContent.toLowerCase()
+      const match = text.includes(q)
+      s.style.display = match ? '' : 'none'
+      if (match) found++
+    })
+    noResult.style.display = found === 0 ? 'block' : 'none'
+  })
+</script>
+</body>
+</html>

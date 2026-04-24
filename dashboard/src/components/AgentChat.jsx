@@ -412,7 +412,7 @@ export default function AgentChat() {
             <div style={{ flex: 1 }}>
               <div style={{ color: 'white', fontWeight: 600, fontSize: 14 }}>Assistant IA</div>
               <div style={{ color: 'rgba(255,255,255,.65)', fontSize: 11 }}>
-                {agency?.nom_court || 'ImmoMatch'}
+                {agency?.nom_court || 'ImmoFlash'}
               </div>
             </div>
             {/* Indicateur online */}

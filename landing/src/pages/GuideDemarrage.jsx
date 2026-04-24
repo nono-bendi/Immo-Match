@@ -117,12 +117,12 @@ export default function GuideDemarrage() {
       {/* ── Étape 1 ── */}
       <div id="compte">
         <Step number={1} title="Créer votre compte" time="2 min">
-          <P>Votre compte ImmoMatch est créé par l'équipe lors de votre démo ou de votre souscription. Vous recevez un email avec vos identifiants :</P>
+          <P>Votre compte ImmoFlash est créé par l'équipe lors de votre démo ou de votre souscription. Vous recevez un email avec vos identifiants :</P>
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
             <Li><strong>Email</strong> : votre adresse professionnelle</Li>
             <Li><strong>Mot de passe</strong> : temporaire, à changer dès la première connexion</Li>
           </ul>
-          <Action>→ Rendez-vous sur votre espace ImmoMatch et connectez-vous avec ces identifiants.</Action>
+          <Action>→ Rendez-vous sur votre espace ImmoFlash et connectez-vous avec ces identifiants.</Action>
           <Tip>Si vous n'avez pas reçu vos identifiants, vérifiez vos spams ou écrivez à contact@immoflash.app.</Tip>
         </Step>
       </div>
@@ -145,7 +145,7 @@ export default function GuideDemarrage() {
       {/* ── Étape 3 ── */}
       <div id="smtp">
         <Step number={3} title="Configurer l'envoi d'emails (SMTP)" time="5 min">
-          <P>Pour envoyer des emails depuis votre adresse professionnelle, ImmoMatch a besoin de vos paramètres SMTP. Rendez-vous dans <strong>Administration → Configuration email</strong>.</P>
+          <P>Pour envoyer des emails depuis votre adresse professionnelle, ImmoFlash a besoin de vos paramètres SMTP. Rendez-vous dans <strong>Administration → Configuration email</strong>.</P>
 
           <P><strong>Paramètres à renseigner :</strong></P>
           <div style={{ overflowX: 'auto', margin: '0 0 1rem' }}>
@@ -180,19 +180,19 @@ export default function GuideDemarrage() {
             Si vous utilisez Gmail, vous devez créer un <strong>mot de passe d'application</strong> (pas votre mot de passe Google habituel).
             Allez dans : Compte Google → Sécurité → Validation en 2 étapes → Mots de passe des applications.
           </Warning>
-          <Tip>Après enregistrement, ImmoMatch envoie un email de test à votre adresse. Vérifiez qu'il arrive correctement avant de passer à la suite.</Tip>
+          <Tip>Après enregistrement, ImmoFlash envoie un email de test à votre adresse. Vérifiez qu'il arrive correctement avant de passer à la suite.</Tip>
         </Step>
       </div>
 
       {/* ── Étape 4 ── */}
       <div id="biens">
         <Step number={4} title="Importer vos biens" time="5–10 min">
-          <P>Vos biens sont le cœur d'ImmoMatch. Plus la fiche est complète, plus le matching est précis.</P>
+          <P>Vos biens sont le cœur d'ImmoFlash. Plus la fiche est complète, plus le matching est précis.</P>
 
           <P><strong>Option A — Import depuis un fichier CSV ou Excel :</strong></P>
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
             <Li>Rendez-vous dans <strong>Biens → Importer</strong></Li>
-            <Li>Téléchargez le modèle CSV fourni par ImmoMatch</Li>
+            <Li>Téléchargez le modèle CSV fourni par ImmoFlash</Li>
             <Li>Remplissez-le avec vos données (référence, type, prix, surface, ville, description…)</Li>
             <Li>Importez le fichier — les biens apparaissent instantanément</Li>
           </ul>
@@ -275,7 +275,7 @@ export default function GuideDemarrage() {
           <P><strong>Depuis la page Matchings :</strong></P>
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
             <Li>Cliquez sur <strong>Nouveau matching</strong></Li>
-            <Li>Sélectionnez un prospect (ou laissez ImmoMatch analyser toute la base)</Li>
+            <Li>Sélectionnez un prospect (ou laissez ImmoFlash analyser toute la base)</Li>
             <Li>Cliquez sur <strong>Lancer l'analyse</strong></Li>
             <Li>L'IA analyse les correspondances en quelques secondes</Li>
           </ul>
@@ -296,7 +296,7 @@ export default function GuideDemarrage() {
       {/* ── Étape 7 ── */}
       <div id="email">
         <Step number={7} title="Envoyer votre première proposition" time="2 min">
-          <P>Pour chaque matching, ImmoMatch génère automatiquement un email de proposition personnalisé. Voici comment l'envoyer :</P>
+          <P>Pour chaque matching, ImmoFlash génère automatiquement un email de proposition personnalisé. Voici comment l'envoyer :</P>
 
           <ul style={{ paddingLeft: 20, margin: '0 0 1rem' }}>
             <Li>Depuis la page de résultats du matching, cliquez sur un bien pour ouvrir sa fiche</Li>
@@ -324,7 +324,7 @@ export default function GuideDemarrage() {
       {/* ── Étape 8 ── */}
       <div id="suite">
         <Step number={8} title="La suite — aller plus loin" time="">
-          <P>Félicitations — vous avez effectué votre premier cycle complet sur ImmoMatch. Voici ce que vous pouvez explorer ensuite :</P>
+          <P>Félicitations — vous avez effectué votre premier cycle complet sur ImmoFlash. Voici ce que vous pouvez explorer ensuite :</P>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', margin: '1rem 0' }}>
             {[

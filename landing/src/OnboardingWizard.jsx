@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   OnboardingWizard — Wizard d'onboarding ImmoMatch
+   OnboardingWizard — Wizard d'onboarding ImmoFlash
    3 étapes : Compte → Import choice → Fichier (si hektor/csv)
    POST /api/onboard → JWT → redirect dashboard connecté
    ════════════════════════════════════════════════════════════════ */

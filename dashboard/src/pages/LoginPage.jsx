@@ -287,7 +287,7 @@ function LoginPage() {
             <Sparkles size={17} color="#1E3A5F" />
           </div>
           <span style={{ color: 'white', fontWeight: 700, fontSize: '16px', letterSpacing: '-0.02em' }}>
-            ImmoMatch
+            ImmoFlash
           </span>
         </div>
 
@@ -315,7 +315,7 @@ function LoginPage() {
                 {isLogin ? 'Bon retour 👋' : 'Créer un compte'}
               </h1>
               <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>
-                {isLogin ? 'Accédez à votre espace' : 'Rejoignez ImmoMatch'}
+                {isLogin ? 'Accédez à votre espace' : 'Rejoignez ImmoFlash'}
               </p>
             </div>
 
@@ -432,7 +432,7 @@ function LoginPage() {
 
           {/* Footer */}
           <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '11px', marginTop: '16px' }}>
-            © 2026 ImmoMatch
+            © 2026 ImmoFlash
           </p>
         </div>
       </div>

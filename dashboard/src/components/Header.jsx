@@ -35,7 +35,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
   const { user } = useAuth()
   const isDemo = user?.role === 'demo'
   const [derniereAnalyse, setDerniereAnalyse] = useState(null)
-  const page = PAGES[location.pathname] || { title: 'ImmoMatch', subtitle: '' }
+  const page = PAGES[location.pathname] || { title: 'ImmoFlash', subtitle: '' }
 
   useEffect(() => {
     apiFetch(`/stats`)
