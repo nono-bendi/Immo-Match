@@ -313,14 +313,14 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
   <meta name="color-scheme" content="light only" />
   <title>Proposition immobilière</title>
 </head>
-<body style="margin:0;padding:0;background:#F3F4F6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
 
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3F4F6;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FFFFFF;">
     <tr>
-      <td align="center" style="padding:16px 0;">
+      <td align="center" style="padding:0;">
 
         <table role="presentation" width="720" cellpadding="0" cellspacing="0" border="0"
-               style="width:100%;max-width:720px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+               style="width:100%;max-width:720px;background:#FFFFFF;overflow:hidden;">
 
           {logo_block}
 
