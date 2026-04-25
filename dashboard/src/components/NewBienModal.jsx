@@ -104,6 +104,11 @@ function NewBienModal({ bienId, onClose }) {
                     {bien.surface && <span className="flex items-center gap-1"><Maximize size={12} />{bien.surface} m²</span>}
                     {bien.pieces && <span className="flex items-center gap-1"><Home size={12} />{bien.pieces} pièces</span>}
                   </div>
+                  {bien.nom_agence && (
+                    <div className="flex items-center gap-1 mt-1 text-white/70 text-xs">
+                      <Building2 size={11} />{bien.nom_agence}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -114,6 +119,11 @@ function NewBienModal({ bienId, onClose }) {
                   <span className="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse" /> Nouveau bien
                 </span>
                 <h2 className="text-lg font-bold text-white">{loadingBien ? '...' : `${bien?.type} à ${bien?.ville}`}</h2>
+                {bien?.nom_agence && (
+                  <p className="flex items-center gap-1 text-white/70 text-xs mt-0.5">
+                    <Building2 size={11} />{bien.nom_agence}
+                  </p>
+                )}
               </div>
               <button onClick={onClose} className="p-1.5 bg-white/20 hover:bg-white/40 rounded-full transition-all">
                 <X size={16} className="text-white" />
