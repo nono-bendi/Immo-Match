@@ -377,6 +377,13 @@ export default function AdministrationPage() {
   const roleBadge = r => r === 'admin' ? 'Administrateur' : r === 'demo' ? 'Démo' : 'Agent'
   const roleBadgeColor = r => r === 'admin' ? 'bg-amber-100 text-amber-700' : r === 'demo' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
 
+  const PLAN_LABELS = {
+    agence:  { label: 'Plan Agence',  price: '49€/mois',  color: 'bg-sky-100 text-sky-700 border-sky-200' },
+    cabinet: { label: 'Plan Cabinet', price: '89€/mois',  color: 'bg-violet-100 text-violet-700 border-violet-200' },
+    reseau:  { label: 'Plan Réseau',  price: '179€/mois', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+  }
+  const planInfo = PLAN_LABELS[user?.agency_plan_id] || PLAN_LABELS.agence
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-4xl mx-auto space-y-4 pb-24">
@@ -412,11 +419,17 @@ export default function AdministrationPage() {
             <p className="font-semibold text-white text-lg">{user?.nom || 'Utilisateur'}</p>
             <p className="text-sm text-white/70">{user?.email}</p>
           </div>
-          <span className={`px-3 py-1.5 text-sm font-medium rounded-full flex items-center gap-1.5 ${
-            isAdmin ? 'bg-amber-400 text-amber-900' : 'bg-white/20 text-white'}`}>
-            {isAdmin ? <Crown size={14} /> : <Home size={14} />}
-            {isAdmin ? 'Admin' : 'Agent'}
-          </span>
+          <div className="flex flex-col items-end gap-2">
+            <span className={`px-3 py-1.5 text-sm font-medium rounded-full flex items-center gap-1.5 ${
+              isAdmin ? 'bg-amber-400 text-amber-900' : 'bg-white/20 text-white'}`}>
+              {isAdmin ? <Crown size={14} /> : <Home size={14} />}
+              {isAdmin ? 'Admin' : 'Agent'}
+            </span>
+            <span className={`px-3 py-1 text-xs font-semibold rounded-full border flex items-center gap-1.5 ${planInfo.color}`}>
+              <Star size={11} />
+              {planInfo.label} · {planInfo.price}
+            </span>
+          </div>
         </div>
 
         {/* Changement de mot de passe */}

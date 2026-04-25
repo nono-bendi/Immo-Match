@@ -210,6 +210,7 @@ def get_me(current_user: dict = Depends(get_current_user)):
         "role": current_user["role"],
         "is_trial": bool(current_user.get("is_trial")),
         "trial_expires_at": current_user.get("trial_expires_at"),
+        "agency_plan_id": current_user.get("agency_plan_id", "agence"),
     }
 
 
