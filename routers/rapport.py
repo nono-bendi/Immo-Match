@@ -246,7 +246,7 @@ def rapport_mensuel(mois: Optional[str] = None, current_user: dict = Depends(get
 <div class="page">
   <div class="header">
     <div class="header-top">
-      <div class="logo">Immo<span>Match</span></div>
+      <div class="logo">Immo<span>Flash</span></div>
       <span class="badge">Rapport mensuel</span>
     </div>
     <h1>Activité de {mois_label}</h1>
@@ -311,7 +311,7 @@ def rapport_mensuel(mois: Optional[str] = None, current_user: dict = Depends(get
   </div>
 
   <div class="footer">
-    ImmoMatch · Rapport confidentiel · {now.strftime('%d/%m/%Y')}
+    ImmoFlash · Rapport confidentiel · {now.strftime('%d/%m/%Y')}
   </div>
 </div>
 </body>
@@ -484,7 +484,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
 <div class="page">
   <div class="header">
     <div class="header-top">
-      <div class="logo">Immo<span>Match</span></div>
+      <div class="logo">Immo<span>Flash</span></div>
       <span class="badge">Rapport prospect</span>
     </div>
     <div class="prospect-name">{p["nom"]}</div>
@@ -521,7 +521,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
       {matching_cards if matching_cards else '<div class="no-match"><p>Aucun matching pour ce prospect.</p></div>'}
     </div>
   </div>
-  <div class="footer">ImmoMatch · Rapport confidentiel · {now.strftime('%d/%m/%Y')} · {p["nom"]}</div>
+  <div class="footer">ImmoFlash · Rapport confidentiel · {now.strftime('%d/%m/%Y')} · {p["nom"]}</div>
 </div>
 </body>
 </html>'''
