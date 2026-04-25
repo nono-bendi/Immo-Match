@@ -7,16 +7,16 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from agencies_db import get_db_path, AGENCIES_DB_PATH
+from agencies_db import get_db_path, AGENCIES_DB_PATH, get_monthly_usage, increment_monthly_usage
 from routers.auth import get_current_user
-from plans import get_plan
+from plans import get_plan, check_quota
 
 
 # ── Chargement du guide utilisateur ──────────────────────────────────────────
 
 def _load_guide_text() -> str:
     """Lit le guide HTML et en extrait le texte brut par section."""
-    guide_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "rapport", "guide_utilisateur.html")
+    guide_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "confidentiel", "rapport", "guide_utilisateur.html")
     try:
         with open(guide_path, encoding="utf-8") as f:
             html = f.read()
@@ -883,6 +883,9 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=404, detail="Agence introuvable")
 
     plan = get_plan(current_user.get("agency_plan_id", "agence"))
+    usage = get_monthly_usage(current_user["agency_slug"])
+    check_quota(current_user.get("agency_plan_id", "agence"), "max_questions_ia_mois", usage["questions_ia_count"])
+
     plan_line = f"L'utilisateur connecté est sur le plan {plan['plan_name'].upper()} ({plan['price_eur_month']}€/mois).\n\n"
     system_prompt = plan_line + SYSTEM_PROMPT
 
@@ -937,6 +940,7 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
                 try:
                     from agencies_db import track_claude_usage
                     track_claude_usage(body.agency_slug, total_input, total_output)
+                    increment_monthly_usage(body.agency_slug, "questions_ia_count")
                 except Exception:
                     pass
                 break

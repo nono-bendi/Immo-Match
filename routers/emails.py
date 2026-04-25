@@ -11,6 +11,8 @@ from fastapi.responses import JSONResponse
 
 from config import SMTP_BASE, SMTP_FALLBACK, EmailRequest, _email_rate, APP_BASE_URL
 from routers.auth import get_current_user
+from agencies_db import get_monthly_usage, increment_monthly_usage
+from plans import check_quota
 
 router = APIRouter()
 
@@ -210,7 +212,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     if points_forts_block:
         analyse_block = f"""
         <tr>
-          <td style="padding:0 40px 24px 40px;">
+          <td style="padding:0 20px 20px 20px;">
             <div style="background:#FAFAFA;border-radius:12px;padding:20px;border:1px solid #E5E7EB;">
               <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:{color};">Pourquoi ce bien pour vous ?</p>
               {points_forts_block}
@@ -230,7 +232,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         logo_border = "" if logo_fond_colore else "border-bottom:1px solid #E5E7EB;"
         logo_block = f"""
         <tr>
-          <td style="padding:24px 40px;background:{logo_bg};{logo_border}">
+          <td style="padding:24px 20px;background:{logo_bg};{logo_border}">
             <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}" height="70"
                  style="display:block;border:0;height:70px;width:auto;" />
           </td>
@@ -239,7 +241,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     else:
         logo_block = f"""
         <tr>
-          <td style="padding:28px 40px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
+          <td style="padding:28px 20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
             <p style="margin:0;font-size:20px;font-weight:700;color:{color};">{escape(agency.get('agency_nom', 'Agence Immobilière'))}</p>
           </td>
         </tr>
@@ -249,9 +251,9 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     if has_image:
         image_block = f"""
         <tr>
-          <td style="padding:0 40px 24px 40px;">
-            <img src="{safe_image_url}" alt="{bien_type} à {bien_ville}" width="520"
-                 style="display:block;width:100%;max-width:520px;height:auto;border:0;border-radius:12px;" />
+          <td style="padding:0 0 20px 0;">
+            <img src="{safe_image_url}" alt="{bien_type} à {bien_ville}" width="720"
+                 style="display:block;width:100%;height:auto;border:0;" />
           </td>
         </tr>
         """
@@ -262,7 +264,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     if has_annonce:
         cta_block = f"""
         <tr>
-          <td align="center" style="padding:16px 40px 40px 40px;">
+          <td align="center" style="padding:16px 20px 36px 20px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td align="center" style="border-radius:12px;background:{color};background-image:linear-gradient(180deg,{color_light} 0%,{color_dark} 100%);box-shadow:0 6px 20px rgba(0,0,0,0.18);">
@@ -308,23 +310,23 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="color-scheme" content="light" />
+  <meta name="color-scheme" content="light only" />
   <title>Proposition immobilière</title>
 </head>
 <body style="margin:0;padding:0;background:#F3F4F6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F3F4F6;">
     <tr>
-      <td align="center" style="padding:32px 16px;">
+      <td align="center" style="padding:16px 0;">
 
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-               style="width:100%;max-width:600px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <table role="presentation" width="720" cellpadding="0" cellspacing="0" border="0"
+               style="width:100%;max-width:720px;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
 
           {logo_block}
 
           <!-- Header Band -->
           <tr>
-            <td style="background:{color};padding:22px 40px;">
+            <td style="background:{color};padding:22px 20px;">
               <p style="margin:0;color:#FFFFFF;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;">
                 Sélectionné pour vous
               </p>
@@ -333,7 +335,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           <!-- Intro -->
           <tr>
-            <td style="padding:32px 40px 24px 40px;">
+            <td style="padding:28px 20px 20px 20px;">
               <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#374151;">
                 Bonjour {safe_html_text(salutation)},
               </p>
@@ -345,7 +347,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           <!-- Property Card -->
           <tr>
-            <td style="padding:0 40px 24px 40px;">
+            <td style="padding:0 20px 20px 20px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                      style="border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;">
                 <tr>
@@ -394,7 +396,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           <!-- Closing -->
           <tr>
-            <td style="padding:0 40px 32px 40px;">
+            <td style="padding:0 20px 28px 20px;">
               <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#374151;">
                 {safe_html_text(conclusion_text)}
               </p>
@@ -406,7 +408,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           <!-- Signature -->
           <tr>
-            <td style="padding:0 40px 32px 40px;">
+            <td style="padding:0 20px 28px 20px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="border-left:3px solid {color};padding-left:16px;">
@@ -425,7 +427,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           <!-- Footer -->
           <tr>
-            <td style="background:#F9FAFB;padding:20px 40px;border-top:1px solid #E5E7EB;">
+            <td style="background:#F9FAFB;padding:20px;border-top:1px solid #E5E7EB;">
               <p style="margin:0;font-size:11px;line-height:1.6;color:#9CA3AF;text-align:center;">
                 Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.<br />
                 Pour ne plus recevoir nos propositions, répondez STOP à cet email.
@@ -515,6 +517,10 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
         return JSONResponse(status_code=429, content={"error": "Trop d'emails envoyés, attendez 1 minute"})
     _email_rate[uid].append(now)
 
+    # Quota mensuel emails
+    usage = get_monthly_usage(_user["agency_slug"])
+    check_quota(_user.get("agency_plan_id", "agence"), "max_emails_mois", usage["emails_count"])
+
     # Construire la config SMTP : agence en priorité, SMTP de secours sinon
     agency_smtp_user = (_user.get("smtp_user") or "").strip()
     agency_smtp_pass = (_user.get("smtp_password") or "").strip()
@@ -570,6 +576,7 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
             server.login(smtp_cfg["user"], smtp_cfg["password"])
             server.send_message(msg)
 
+        increment_monthly_usage(_user["agency_slug"], "emails_count")
         return {
             "success": True,
             "message": f"Email envoyé à {data.to_email}",

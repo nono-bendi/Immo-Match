@@ -7,7 +7,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 
 from config import _analyse_all_lock, COOLDOWN_SECONDS
-from agencies_db import get_db_path
+from agencies_db import get_db_path, get_monthly_usage, increment_monthly_usage
+from plans import check_quota
 from routers.auth import get_current_user, require_not_demo
 from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif
 
@@ -937,6 +938,8 @@ def get_historique(current_user: dict = Depends(get_current_user)):
 
 @router.post("/matching/run/{prospect_id}")
 def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
+    usage = get_monthly_usage(current_user["agency_slug"])
+    check_quota(current_user.get("agency_plan_id", "agence"), "max_matchings_mois", usage["matchings_count"])
     db_path = get_db_path(current_user["agency_slug"])
     settings = get_settings_values(db_path)
     max_biens = settings['max_biens_par_prospect']
@@ -1083,6 +1086,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
 
         conn.close()
 
+        increment_monthly_usage(current_user["agency_slug"], "matchings_count")
         return {
             "message": f"Analyse terminée, {nb_matchings} matching(s) trouvé(s)",
             "matchings_count": nb_matchings,
@@ -1095,6 +1099,8 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
 
 @router.post("/matching/run-all")
 def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
+    usage = get_monthly_usage(current_user["agency_slug"])
+    check_quota(current_user.get("agency_plan_id", "agence"), "max_matchings_mois", usage["matchings_count"])
     if not _analyse_all_lock.acquire(blocking=False):
         return {"error": "Une analyse est déjà en cours, veuillez patienter"}
     db_path = get_db_path(current_user["agency_slug"])
@@ -1211,6 +1217,7 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
     finally:
         _analyse_all_lock.release()
 
+    increment_monthly_usage(current_user["agency_slug"], "matchings_count")
     return {
         "message": f"Analyse terminée ! {total_matchings} matchings trouvés",
         "details": {
@@ -1224,7 +1231,12 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
 @router.post("/matching/run-by-bien/{bien_id}")
 def run_matching_by_bien(bien_id: int, _user: dict = Depends(require_not_demo), current_user: dict = Depends(get_current_user)):
     """Analyse un bien contre tous les prospects compatibles."""
-    return _core_analyser_bien(bien_id, db_path=get_db_path(current_user["agency_slug"]))
+    usage = get_monthly_usage(current_user["agency_slug"])
+    check_quota(current_user.get("agency_plan_id", "agence"), "max_matchings_mois", usage["matchings_count"])
+    result = _core_analyser_bien(bien_id, db_path=get_db_path(current_user["agency_slug"]))
+    if "error" not in result:
+        increment_monthly_usage(current_user["agency_slug"], "matchings_count")
+    return result
 
 
 @router.get("/debug/prefiltre/{prospect_id}")
