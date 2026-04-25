@@ -431,7 +431,8 @@ def get_matchings(
                p.destination as prospect_destination, p.criteres as prospect_criteres,
                p.stationnement as prospect_stationnement, p.exterieur as prospect_exterieur,
                b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix,
-               b.surface as bien_surface, b.pieces as bien_pieces, b.photos as bien_photos
+               b.surface as bien_surface, b.pieces as bien_pieces, b.photos as bien_photos,
+               b.lien_annonce as lien_annonce
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
@@ -516,7 +517,8 @@ def get_matchings_by_date(date_analyse: str, current_user: dict = Depends(get_cu
     matchings = conn.execute('''
         SELECT m.*,
                p.nom as prospect_nom, p.budget_max as prospect_budget, p.mail as prospect_mail, p.telephone as prospect_tel,
-               b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix, b.surface as bien_surface, b.pieces as bien_pieces, b.id as bien_id
+               b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix, b.surface as bien_surface, b.pieces as bien_pieces, b.id as bien_id,
+               b.lien_annonce as lien_annonce
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id

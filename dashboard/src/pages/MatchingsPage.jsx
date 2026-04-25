@@ -319,7 +319,9 @@ function MatchingsPage() {
           points_forts: content.points_forts || null,
           points_attention: content.points_attention || null,
           recommandation: content.recommandation || null,
-          lien_annonce: content.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
+          lien_annonce: content.lien_annonce || null,
+          bien_id: match.bien_id,
+          agency_slug: agency?.slug,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: content.intro || null,
           custom_conclusion: content.conclusion || null
@@ -407,7 +409,9 @@ function MatchingsPage() {
           points_forts: emailContent.points_forts || null,
           points_attention: emailContent.points_attention || null,
           recommandation: emailContent.recommandation || null,
-          lien_annonce: emailContent.lien_annonce || `${API_URL}/public/bien/${agency?.slug}/${match.bien_id}`,
+          lien_annonce: emailContent.lien_annonce || null,
+          bien_id: match.bien_id,
+          agency_slug: agency?.slug,
           bien_image_url: getFirstPhotoUrl(match.bien_photos),
           custom_intro: emailContent.intro || null,
           custom_conclusion: emailContent.conclusion || null
