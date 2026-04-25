@@ -261,8 +261,8 @@ def rapport_mensuel(mois: Optional[str] = None, current_user: dict = Depends(get
         var token = new URLSearchParams(window.location.search).get('token') || '';
         var prec = document.getElementById('nav-prec');
         var suiv = document.getElementById('nav-suiv');
-        if (prec) prec.href = '/rapport/mensuel?mois={mois_prec}&token=' + token;
-        if (suiv && !suiv.classList.contains('disabled')) suiv.href = '/rapport/mensuel?mois={mois_suiv}&token=' + token;
+        if (prec) prec.href = '/api/rapport/mensuel?mois={mois_prec}&token=' + token;
+        if (suiv && !suiv.classList.contains('disabled')) suiv.href = '/api/rapport/mensuel?mois={mois_suiv}&token=' + token;
       }})();
     </script>
   </div>
