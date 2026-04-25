@@ -152,6 +152,8 @@ function MatchingsPage() {
 
   const cancelAnalysis = () => {
     cancelAnalysisRef.current = true
+    setShowOverlay(false)
+    setAnalyzing(false)
   }
 
   const runGlobalAnalysis = async () => {
