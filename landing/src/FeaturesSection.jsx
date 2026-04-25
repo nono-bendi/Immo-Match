@@ -160,8 +160,8 @@ function ChatMock() {
 
   const MSGS = [
     { r: 'bot',  t: 'Bonjour ! Comment puis-je vous aider ?' },
-    { r: 'user', t: "Combien de biens avec une piscine dans mon catalogue ?" },
-    { r: 'bot',  t: "Vous avez 29 biens avec piscine 🏊\n• Fréjus — 165 000 €\n• Saint-Raphaël — 220 000 €\n• Saint-Raphaël — 231 000 €" },
+    { r: 'user', t: "J'ai rentré un T3 à 245 000 € ce matin — qui dans mes prospects pourrait être intéressé ?" },
+    { r: 'bot',  t: "3 prospects correspondent à ce bien :\n• Marie D. — budget 230–260 k€, cherche T3\n• Paul & Sophie L. — budget 240 k€, secteur centre\n• Ahmed B. — demande active depuis 3 semaines" },
   ]
   const FULL = MSGS[2].t
 
