@@ -1005,7 +1005,13 @@ export default function AdministrationPage() {
       {/* 8. DONNÉES                                                        */}
       {/* ══════════════════════════════════════════════════════════════════ */}
       <Section title="Données" icon={Database}>
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+          <button
+            onClick={() => window.open(`${API_URL}/rapport/mensuel?token=${token}`, '_blank')}
+            className="flex items-center gap-2 px-5 py-3 bg-[#1E3A5F] text-white text-sm font-medium rounded-xl hover:bg-[#2D5A8A] transition-colors">
+            <FileText size={17} /> Rapport mensuel
+          </button>
+
           <button onClick={handleExport}
             className="flex items-center gap-2 px-5 py-3 bg-emerald-600 text-white text-sm font-medium rounded-xl hover:bg-emerald-700 transition-colors">
             <Download size={17} /> Exporter en Excel
