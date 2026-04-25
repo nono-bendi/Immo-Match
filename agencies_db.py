@@ -68,11 +68,24 @@ def init_agencies_db():
     ''')
     conn.commit()
 
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS monthly_usage (
+            agency_slug     TEXT NOT NULL,
+            year_month      TEXT NOT NULL,
+            matchings_count     INTEGER DEFAULT 0,
+            emails_count        INTEGER DEFAULT 0,
+            questions_ia_count  INTEGER DEFAULT 0,
+            PRIMARY KEY (agency_slug, year_month)
+        )
+    ''')
+    conn.commit()
+
     # ── Migration : colonnes ajoutées après la création initiale ──────────────
     for col, definition in [
         ("logo_fond_colore", "INTEGER DEFAULT 0"),
         ("smtp_server", "TEXT DEFAULT 'smtp.gmail.com'"),
         ("smtp_port", "INTEGER DEFAULT 587"),
+        ("plan_id", "TEXT DEFAULT 'agence'"),
     ]:
         try:
             conn.execute(f"ALTER TABLE agencies ADD COLUMN {col} {definition}")
@@ -223,7 +236,8 @@ def get_user_with_agency(email: str) -> dict | None:
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
-            a.smtp_server, a.smtp_port
+            a.smtp_server, a.smtp_port,
+            a.plan_id       AS agency_plan_id
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.email = ?
@@ -251,7 +265,8 @@ def get_user_by_id(user_id: int) -> dict | None:
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
-            a.smtp_server, a.smtp_port
+            a.smtp_server, a.smtp_port,
+            a.plan_id       AS agency_plan_id
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.id = ?
@@ -302,6 +317,36 @@ def track_claude_usage(agency_slug: str, input_tokens: int, output_tokens: int):
             input_tokens  = input_tokens + excluded.input_tokens,
             output_tokens = output_tokens + excluded.output_tokens
     """, (agency_slug, ym, input_tokens, output_tokens))
+    conn.commit()
+    conn.close()
+
+
+def get_monthly_usage(agency_slug: str, year_month: str = None) -> dict:
+    """Retourne les compteurs d'usage mensuel (matchings, emails, questions IA)."""
+    from datetime import datetime
+    ym = year_month or datetime.now().strftime("%Y-%m")
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    row = conn.execute(
+        "SELECT matchings_count, emails_count, questions_ia_count FROM monthly_usage WHERE agency_slug=? AND year_month=?",
+        (agency_slug, ym)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return {"matchings_count": 0, "emails_count": 0, "questions_ia_count": 0, "year_month": ym}
+    return {"matchings_count": row[0], "emails_count": row[1], "questions_ia_count": row[2], "year_month": ym}
+
+
+def increment_monthly_usage(agency_slug: str, resource: str, amount: int = 1):
+    """Incrémente un compteur mensuel. resource: 'matchings_count', 'emails_count', 'questions_ia_count'."""
+    from datetime import datetime
+    ym = datetime.now().strftime("%Y-%m")
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    conn.execute(f"""
+        INSERT INTO monthly_usage (agency_slug, year_month, {resource})
+        VALUES (?, ?, ?)
+        ON CONFLICT(agency_slug, year_month) DO UPDATE SET
+            {resource} = {resource} + excluded.{resource}
+    """, (agency_slug, ym, amount))
     conn.commit()
     conn.close()
 

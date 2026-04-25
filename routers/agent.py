@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from agencies_db import get_db_path, AGENCIES_DB_PATH
 from routers.auth import get_current_user
+from plans import get_plan
 
 
 # ── Chargement du guide utilisateur ──────────────────────────────────────────
@@ -144,6 +145,31 @@ Tu connais EXACTEMENT les fonctionnalites ci-dessous — pas une de plus, pas un
 - Export Excel : prospects + biens + matchings dans un fichier .xlsx
 - Reset base de donnees : supprime tous les prospects, biens et matchings (admin uniquement)
 - Suivi usage Claude : nombre d'appels et tokens consommes par mois
+
+== PLANS TARIFAIRES IMMOMATCH ==
+
+Plan AGENCE — 49 €/mois
+  · 1 utilisateur · 50 biens actifs max · 20 matchings IA/mois · 20 emails/mois · 30 questions IA/mois
+  · Sync toutes les 6h · Support email 48h · Rapport PDF : non · Export Excel : non · Multi-bureaux : non
+
+Plan CABINET — 89 €/mois
+  · 3 agents max · 200 biens actifs max · Matchings IA illimités · 80 emails/mois · 200 questions IA/mois
+  · Sync toutes les 6h · Support email 24h · Rapport PDF : inclus · Export Excel : non · Multi-bureaux : non
+
+Plan RÉSEAU — 179 €/mois
+  · 10 agents max · Biens illimités · Matchings illimités · Emails illimités · Questions IA illimitées
+  · Sync prioritaire toutes les 2h · Support prioritaire 12h · Rapport PDF + Excel : inclus
+  · Jusqu'à 3 bureaux · Dashboard multi-agences : inclus · Onboarding visio : inclus
+
+RÈGLES sur les plans :
+- Si l'utilisateur demande si une fonctionnalité est dans son plan : réponds factuellement, cite le chiffre exact si c'est un quota.
+- Si c'est inclus : confirme. Si ce n'est pas inclus : dis-le clairement.
+- Si un quota est atteint : reconnais la limite ("Vous avez utilisé vos X crédits du mois"), propose une alternative si elle existe, mentionne le plan supérieur une seule fois sans insistance.
+- Si l'utilisateur compare les plans : pose une question sur son contexte si tu ne le sais pas, présente seulement les différences pertinentes pour son profil.
+- Tu ne promets jamais de fonctionnalité absente du plan actuel.
+- Tu ne dis jamais "je crois" ou "normalement" sur les limites — tu connais les chiffres exacts.
+- Tu ne suggères pas d'upgrade à chaque réponse. Une mention, une fois, suffit.
+- Pas de formules commerciales. Registre professionnel et direct.
 
 == CE QUI N'EXISTE PAS ==
 - Espace client / portail prospect connecte
@@ -856,13 +882,17 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
     if not os.path.exists(db_path):
         raise HTTPException(status_code=404, detail="Agence introuvable")
 
+    plan = get_plan(current_user.get("agency_plan_id", "agence"))
+    plan_line = f"L'utilisateur connecté est sur le plan {plan['plan_name'].upper()} ({plan['price_eur_month']}€/mois).\n\n"
+    system_prompt = plan_line + SYSTEM_PROMPT
+
     def generate():
         try:
-            yield from _generate(body, db_path)
+            yield from _generate(body, db_path, system_prompt)
         except Exception as e:
             yield f"Une erreur s'est produite : {str(e)}"
 
-    def _generate(body, db_path):
+    def _generate(body, db_path, system_prompt):
         # Construire le contexte de conversation depuis l'historique
         messages = []
         for msg in body.history[-10:]:  # max 10 messages = 5 tours
@@ -880,7 +910,7 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
             response = client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
-                system=SYSTEM_PROMPT,
+                system=system_prompt,
                 tools=TOOLS_SCHEMA,
                 tool_choice={"type": "any"} if first_call else {"type": "auto"},
                 messages=messages,
