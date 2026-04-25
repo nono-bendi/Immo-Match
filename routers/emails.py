@@ -536,7 +536,7 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
             "port":      SMTP_FALLBACK["port"],
             "user":      SMTP_FALLBACK["user"],
             "password":  SMTP_FALLBACK["password"],
-            "from_name": f"{agency_nom} via ImmoMatch" if agency_nom else SMTP_FALLBACK["from_name"],
+            "from_name": f"{agency_nom} via ImmoFlash" if agency_nom else SMTP_FALLBACK["from_name"],
             "reply_to":  (_user.get("agency_email") or SMTP_FALLBACK["user"]),
         }
     else:

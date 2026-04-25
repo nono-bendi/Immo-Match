@@ -154,46 +154,6 @@ def init_agencies_db():
         ))
         conn.commit()
 
-    # ── Agence Démo (compte démo public) ─────────────────────────────────────
-    if not conn.execute("SELECT id FROM agencies WHERE slug = 'demo'").fetchone():
-        # SMTP dédié démo — configurer DEMO_SMTP_USER/DEMO_SMTP_PASSWORD dans .env
-        # Ne jamais copier les creds d'une vraie agence ici
-        conn.execute('''
-            INSERT INTO agencies
-                (slug, nom, nom_court, nom_filtre, adresse, telephone, email,
-                 logo_url, couleur_primaire, smtp_user, smtp_password,
-                 smtp_from_name, smtp_reply_to, smtp_server, smtp_port)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            'demo',
-            'Agence Démo Immobilier',
-            'Démo Immo',
-            'DEMO',
-            'Var, France',
-            '',
-            'demo@immowatch.fr',
-            '',
-            '#2C5F8A',
-            os.getenv('DEMO_SMTP_USER', ''),
-            os.getenv('DEMO_SMTP_PASSWORD', ''),
-            os.getenv('DEMO_SMTP_FROM_NAME', 'Agence Démo Immobilier'),
-            os.getenv('DEMO_SMTP_REPLY_TO', os.getenv('DEMO_SMTP_USER', '')),
-            os.getenv('DEMO_SMTP_SERVER', 'smtp.gmail.com'),
-            int(os.getenv('DEMO_SMTP_PORT', '587')),
-        ))
-        conn.commit()
-
-    # Créer le user démo si absent
-    if not conn.execute("SELECT id FROM users WHERE email = 'demo@immowatch.fr'").fetchone():
-        demo_agency = conn.execute("SELECT id FROM agencies WHERE slug = 'demo'").fetchone()
-        if demo_agency:
-            pw_hash = bcrypt.hashpw(b"demo", bcrypt.gensalt()).decode()
-            conn.execute(
-                "INSERT INTO users (email, password_hash, nom, role, agency_id) VALUES (?, ?, ?, ?, ?)",
-                ("demo@immowatch.fr", pw_hash, "Compte Demo", "admin", demo_agency[0])
-            )
-            conn.commit()
-
     conn.close()
 
 

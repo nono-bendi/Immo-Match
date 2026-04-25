@@ -42,7 +42,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # ── Route racine ──────────────────────────────────────────────────────────────
 @app.get("/")
 def accueil():
-    return {"message": "API ImmoMatch OK"}
+    return {"message": "API ImmoFlash OK"}
 
 
 # ── Startup event ─────────────────────────────────────────────────────────────

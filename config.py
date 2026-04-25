@@ -25,7 +25,7 @@ SMTP_FALLBACK = {
     "port":      int(os.getenv("SMTP_FALLBACK_PORT", "587")),
     "user":      os.getenv("SMTP_FALLBACK_USER", ""),
     "password":  os.getenv("SMTP_FALLBACK_PASSWORD", ""),
-    "from_name": os.getenv("SMTP_FALLBACK_FROM_NAME", "ImmoMatch"),
+    "from_name": os.getenv("SMTP_FALLBACK_FROM_NAME", "ImmoFlash"),
 }
 
 # ── Configuration Auth ────────────────────────────────────────────────────────
