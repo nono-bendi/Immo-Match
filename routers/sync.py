@@ -180,7 +180,7 @@ def sync_hektor_ftp(db_path: str = None):
                 """, (
                     'new_bien',
                     f'Nouveau bien — {d["type_bien"]} a {d["ville"]}',
-                    f'{d["prix"]}EUR - Ajoutez des notes avant analyse',
+                    f'{d["nom_agence"]} · {d["prix"]}EUR - Ajoutez des notes avant analyse',
                     f'/nouveau-bien/{nouveau_id}',
                     datetime.now().isoformat()
                 ))
