@@ -180,6 +180,7 @@ function HistoriquePage() {
         totalProspects={totalProspects}
         currentProspect={currentProspectIndex}
         currentProspectName={currentProspectName}
+        onCancel={() => setShowOverlay(false)}
       />
       {/* Header */}
       <div className="flex items-center justify-between mb-6">

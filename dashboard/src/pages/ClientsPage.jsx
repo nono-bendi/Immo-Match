@@ -128,6 +128,11 @@ function ClientsPage() {
     fetchProspects()
   }
 
+  const cancelAnalyzing = () => {
+    setAnalyzing(false)
+    setAnalyzingProspect(null)
+  }
+
   const handleAnalyze = async (prospect) => {
     setAnalyzing(true)
     setAnalyzingProspect(prospect)
@@ -301,6 +306,7 @@ function ClientsPage() {
         totalProspects={1}
         currentProspect={1}
         currentProspectName={analyzingProspect?.nom || ''}
+        onCancel={cancelAnalyzing}
       />
 
       {/* Modal de résultat */}

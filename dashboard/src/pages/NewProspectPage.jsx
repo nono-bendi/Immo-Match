@@ -271,11 +271,12 @@ function NewProspectPage() {
       )}
 
       {/* Overlay d'analyse */}
-      <AnalysisOverlay 
+      <AnalysisOverlay
         isVisible={showOverlay}
         totalProspects={1}
         currentProspect={1}
         currentProspectName={newProspectName}
+        onCancel={() => setShowOverlay(false)}
       />
 
       {/* Header */}

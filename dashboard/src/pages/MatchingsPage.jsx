@@ -558,7 +558,7 @@ function MatchingsPage() {
         currentProspect={currentProspectIndex}
         currentProspectName={currentProspectName}
         isCompleted={overlayCompleted}
-        onCancel={totalProspects > 1 ? cancelAnalysis : undefined}
+        onCancel={cancelAnalysis}
       />
 
       {/* Header */}
