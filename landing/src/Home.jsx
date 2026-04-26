@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import FeaturesSection from './FeaturesSection'
+import ContactModal from './components/ContactModal'
 
 const RemotionPlayer = lazy(() =>
   Promise.all([
@@ -138,6 +139,7 @@ export default function Home() {
 
   const isMobile = useIsMobile()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
   const navigate = useNavigate()
 
   const openDemo = (e) => { e?.preventDefault(); setMenuOpen(false); navigate('/demarrer') }
@@ -299,7 +301,7 @@ export default function Home() {
       title: 'Contact',
       links: [
         { label: 'contact@immoflash.app', href: 'mailto:contact@immoflash.app' },
-        { label: 'Support', href: 'mailto:contact@immoflash.app' },
+        { label: 'Support', onClick: () => setContactOpen(true) },
       ],
     },
   ]
@@ -830,9 +832,9 @@ export default function Home() {
             </h2>
             <p style={{ color: '#64748b', fontSize: 15, margin: 0 }}>
               Pas trouvé la réponse ?{' '}
-              <a href="mailto:contact@immoflash.app" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 500 }}>
+              <button onClick={() => setContactOpen(true)} style={{ background: 'none', border: 'none', padding: 0, color: '#38bdf8', textDecoration: 'none', fontWeight: 500, cursor: 'pointer', fontSize: 'inherit' }}>
                 Écrivez-nous.
-              </a>
+              </button>
             </p>
           </div>
           <div className="reveal">
@@ -892,7 +894,13 @@ export default function Home() {
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {col.links.map(link => (
                     <li key={link.label}>
-                      {link.internal ? (
+                      {link.onClick ? (
+                        <button onClick={link.onClick} style={{ background: 'none', border: 'none', padding: 0, color: '#475569', fontSize: 14, textDecoration: 'none', cursor: 'pointer', transition: 'color 150ms' }}
+                          onMouseEnter={e => (e.target.style.color = '#94a3b8')}
+                          onMouseLeave={e => (e.target.style.color = '#475569')}>
+                          {link.label}
+                        </button>
+                      ) : link.internal ? (
                         <Link to={link.href} style={{ color: '#475569', fontSize: 14, textDecoration: 'none', transition: 'color 150ms' }}
                           onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
                           onMouseLeave={e => (e.currentTarget.style.color = '#475569')}>
@@ -930,6 +938,8 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      <ContactModal isOpen={contactOpen} onClose={() => setContactOpen(false)} />
     </>
   )
 }

@@ -3,13 +3,57 @@
 # Route sans authentification : /public/bien/{agency_slug}/{bien_id}
 # ════════════════════════════════════════════════════════════════════════════
 
+import smtplib
 import sqlite3
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from fastapi import APIRouter
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from html import escape
+from pydantic import BaseModel
 from agencies_db import get_db_path, AGENCIES_DB_PATH
+from config import SMTP_FALLBACK
 
 router = APIRouter()
+
+CONTACT_DEST = "noabendiaf@gmail.com"
+
+
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    sujet: str
+    message: str
+
+
+@router.post("/api/contact")
+def contact_form(form: ContactForm):
+    if not SMTP_FALLBACK.get("user") or not SMTP_FALLBACK.get("password"):
+        return JSONResponse({"ok": False, "error": "smtp_missing"}, status_code=503)
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = f"[ImmoFlash Support] {form.sujet} — {form.name}"
+    msg["From"] = f"ImmoFlash Contact <{SMTP_FALLBACK['user']}>"
+    msg["To"] = CONTACT_DEST
+    msg["Reply-To"] = form.email
+
+    body = f"""Nouveau message depuis le formulaire de contact ImmoFlash.
+
+De : {form.name} <{form.email}>
+Sujet : {form.sujet}
+
+{form.message}
+"""
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        with smtplib.SMTP(SMTP_FALLBACK["server"], SMTP_FALLBACK["port"]) as s:
+            s.starttls()
+            s.login(SMTP_FALLBACK["user"], SMTP_FALLBACK["password"])
+            s.sendmail(SMTP_FALLBACK["user"], CONTACT_DEST, msg.as_string())
+        return {"ok": True}
+    except Exception as e:
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
