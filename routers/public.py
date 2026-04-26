@@ -406,6 +406,8 @@ def _render_page(bien: dict, agency: dict) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <title>{titre} — {ag_nom}</title>
   <meta name="description" content="{type_b} à {ville}{' — ' + prix if prix else ''}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

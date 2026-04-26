@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, BarChart2, CheckCircle, AlertCircle, AlertTriangle, Target, Loader2, X, Home, Euro, Maximize2, BedDouble, MapPin } from 'lucide-react'
 import { apiFetch } from '../api'
-import { API_URL } from '../config'
 import { useAuth } from '../contexts/AuthContext'
 
 function formatPrix(prix) {
@@ -123,15 +122,12 @@ export default function CalibrationPage() {
   const [scoreAvis, setScoreAvis] = useState(null)
   const [commentaire, setCommentaire] = useState('')
 
-  useEffect(() => { if (token) loadMatchings(token) }, [token])
+  useEffect(() => { if (token) loadMatchings() }, [token])
 
-  const loadMatchings = async (authToken) => {
-    console.log('[CAL] authToken:', authToken ? authToken.substring(0,15) : 'NULL');
-    console.log('[CAL] localStorage:', localStorage.getItem('token') ? 'EXISTS' : 'NULL');
+  const loadMatchings = async () => {
     setLoading(true)
     try {
-      const t = authToken || localStorage.getItem('token')
-      const res = await fetch(API_URL + '/calibration/matchings', { headers: { Authorization: 'Bearer ' + t } })
+      const res = await apiFetch('/calibration/matchings')
       const data = await res.json()
       if (!Array.isArray(data)) return
       setMatchings(data)
