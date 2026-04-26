@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="115" fill="#1E3A5F"/>
-  <text x="256" y="360" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="310" text-anchor="middle" fill="#38bdf8" letter-spacing="-8">IF</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#1E3A5F"/>
+  <text x="50" y="76"
+        font-family="Arial Black, Impact, sans-serif"
+        font-weight="900"
+        font-size="66"
+        text-anchor="middle"
+        fill="#38bdf8"
+        textLength="76"
+        lengthAdjust="spacingAndGlyphs">IF</text>
 </svg>
