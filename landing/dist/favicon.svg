@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#1E3A5F"/>
-  <!-- lettre I -->
-  <rect x="14" y="16" width="14" height="68" rx="3" fill="#38bdf8"/>
-  <!-- lettre F — barre verticale -->
-  <rect x="38" y="16" width="14" height="68" rx="3" fill="#38bdf8"/>
-  <!-- lettre F — barre du haut -->
-  <rect x="52" y="16" width="34" height="14" rx="3" fill="#38bdf8"/>
-  <!-- lettre F — barre du milieu -->
-  <rect x="52" y="45" width="24" height="12" rx="3" fill="#38bdf8"/>
+  <!-- fond transparent, lettres IF navy -->
+  <!-- I -->
+  <rect x="6"  y="6" width="17" height="88" rx="5" fill="#1E3A5F"/>
+  <!-- F barre verticale -->
+  <rect x="35" y="6" width="17" height="88" rx="5" fill="#1E3A5F"/>
+  <!-- F barre du haut -->
+  <rect x="52" y="6" width="42" height="17" rx="5" fill="#1E3A5F"/>
+  <!-- F barre du milieu -->
+  <rect x="52" y="42" width="31" height="15" rx="5" fill="#1E3A5F"/>
 </svg>
