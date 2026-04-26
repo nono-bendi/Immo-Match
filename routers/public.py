@@ -389,6 +389,18 @@ def _render_page(bien: dict, agency: dict) -> str:
     }});
     L.marker([{lat}, {lng}], {{icon}}).addTo(map);"""
 
+    btn_call_html = (
+        f'<a href="tel:{ag_tel}" class="btn-call-pill">'
+        f'<svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">'
+        f'<path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.27.67-.36 1.02-.24'
+        f" 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71"
+        f' 3 4.5c0-.55.45-1 1-1H8c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01L6.6 10.8z"/>'
+        f"</svg>Appeler</a>"
+    ) if ag_tel else ""
+    prix_row_html = (
+        f'<div class="prix-row"><div class="prix-main">{prix}</div>{btn_call_html}</div>'
+    ) if prix else ""
+
     return f"""<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -620,7 +632,7 @@ def _render_page(bien: dict, agency: dict) -> str:
       <h1 class="titre">{titre}</h1>
       {"" if not ville else f'<p class="loc"><svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M10 2a6 6 0 016 6c0 4.5-6 10-6 10S4 12.5 4 8a6 6 0 016-6zm0 4a2 2 0 100 4 2 2 0 000-4z"/></svg>{ville}</p>'}
       <div class="divider"></div>
-      {"" if not prix else f'<div class="prix-row"><div class="prix-main">{prix}</div>{"" if not ag_tel else f\'<a href="tel:{ag_tel}" class="btn-call-pill"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.29 21 3 13.71 3 4.5c0-.55.45-1 1-1H8c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.01L6.6 10.8z"/></svg>Appeler</a>\'}</div>'}
+      {prix_row_html}
       {f'<div class="feats">{feats_html}</div>' if feats_html else ""}
 
       {desc_html}
