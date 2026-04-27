@@ -224,10 +224,11 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
         if not exclu and types_incompatibles(client.get("bien"), bien.get("type")):
             exclu = True
 
-        # Filtre budget (très souple)
+        # Filtre budget (fourchette min et max)
         if not exclu and client.get("budget") and bien.get("prix"):
             budget_max_tolere = client["budget"] * (budget_max_tolerance / 100)
-            if bien["prix"] > budget_max_tolere:
+            budget_min_tolere = client["budget"] * (budget_min_tolerance / 100)
+            if bien["prix"] > budget_max_tolere or bien["prix"] < budget_min_tolere:
                 exclu = True
 
         # Filtre géographique

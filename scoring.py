@@ -344,6 +344,21 @@ RÈGLES IMPORTANTES :
 - Raisonne sur l'ensemble, pas critère par critère
 - Si le bien a des "Points négatifs" renseignés : évalue leur impact réel sur CE prospect selon sa destination. Pénalise le score qualitatif en conséquence et mentionne le point négatif pertinent dans points_attention
 
+DONNÉES STRUCTURÉES — RÈGLE ABSOLUE :
+- Les données structurées du bien (Étage, Extérieur, Stationnement, Orientation, DPE) sont AUTORITAIRES et définitives.
+- La description textuelle peut mentionner des détails — tu NE dois JAMAIS l'utiliser pour contredire les données structurées.
+- Si la description dit "ascenseur" mais que Étage indique "sans ascenseur" → les données structurées ont raison, cite-les.
+- N'infère JAMAIS une orientation, une vue ou une caractéristique absente des données structurées, même si la description le suggère.
+- Dans points_forts et points_attention, base-toi UNIQUEMENT sur les données structurées + champ "Points négatifs". Jamais sur des interprétations de la description.
+
+CRITÈRES DEMANDÉS MANQUANTS — PÉNALISATION OBLIGATOIRE :
+- Si le prospect a renseigné Extérieur (ex: "Balcon, Terrasse") et que le bien n'a AUCUN extérieur → pénalité forte (-8 à -10 pts)
+- Si le prospect a renseigné Étage avec ascenseur et que le bien n'a PAS d'ascenseur → pénalité (-6 à -8 pts)
+- Si le prospect a renseigné Stationnement et que le bien n'en a pas → pénalité (-5 à -7 pts)
+- 2 critères demandés absents → score plafonné à 18/40 maximum
+- 3+ critères demandés absents → score plafonné à 12/40 maximum
+- Ces pénalités s'appliquent même si le reste du bien est excellent : un bien parfait qui manque 2 critères explicitement demandés ne peut pas dépasser 18/40
+
 ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 - SURFACE ET PRIX : une grande surface ou un prix élevé ne sont PAS des qualités en soi — évalue l'adéquation avec le besoin du prospect, pas la valeur absolue du bien. Un studio parfait pour un pied-à-terre mérite 35+ même si petit.
 - DPE : utilise une échelle linéaire stricte — A/B = excellent (+), C = correct (neutre), D = attention (-), E/F/G = pénalité significative (--). Ne permets jamais qu'un DPE E score mieux qu'un DPE D pour le même profil.
