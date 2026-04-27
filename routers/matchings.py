@@ -1036,15 +1036,15 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
         )[:max_matchings]
 
         # Transaction atomique : si une INSERT échoue, le DELETE est annulé
-        biens_a_analyser_ids = [b["id"] for b in biens_filtres]
-        placeholders = ",".join("?" * len(biens_a_analyser_ids))
         now_iso = datetime.now().isoformat()
         nb_matchings = 0
         try:
             conn.execute("BEGIN")
+            # Supprimer TOUS les anciens matchings non-refusés pour ce prospect
+            # (et non seulement ceux du lot en cours) pour éviter des résultats périmés
             conn.execute(
-                f"DELETE FROM matchings WHERE prospect_id = ? AND bien_id IN ({placeholders})",
-                [prospect_id] + biens_a_analyser_ids
+                "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect != 'refused')",
+                (prospect_id,)
             )
             for r in resultats:
                 bien_match = next((b for b in biens_filtres if b["id"] == r["bien_id"]), None)
@@ -1177,15 +1177,14 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
                 continue  # On garde les anciens matchings, on ne touche pas à la DB
 
             # Transaction par prospect : DELETE + INSERT atomiques
-            biens_ids = [b["id"] for b in biens_filtres]
-            placeholders = ",".join("?" * len(biens_ids))
             now_iso = datetime.now().isoformat()
             conn = sqlite3.connect(db_path)
             try:
                 conn.execute("BEGIN")
+                # Supprimer TOUS les anciens matchings non-refusés pour éviter les résultats périmés
                 conn.execute(
-                    f"DELETE FROM matchings WHERE prospect_id = ? AND bien_id IN ({placeholders})",
-                    [prospect["id"]] + biens_ids
+                    "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect != 'refused')",
+                    (prospect["id"],)
                 )
                 max_matchings = int(settings.get('max_matchings_par_prospect', 5))
                 resultats_filtres = sorted(
