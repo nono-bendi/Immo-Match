@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage'
 import ClientsPage from './pages/ClientsPage'
 import BiensPage from './pages/BiensPage'
 import MatchingsPage from './pages/MatchingsPage'
+import MatchingsPageV2 from './pages/MatchingsPageV2'
 import HistoriquePage from './pages/HistoriquePage'
 import SettingsPage from './pages/SettingsPage'
 import AdministrationPage from './pages/AdministrationPage'
@@ -90,6 +91,7 @@ function AppRoutes() {
                   <Route path="/clients/nouveau" element={<NewProspectPage />} />
                   <Route path="/biens" element={<BiensPage />} />
                   <Route path="/matchings" element={<MatchingsPage />} />
+                  <Route path="/matchings-v2" element={<MatchingsPageV2 />} />
                   <Route path="/historique" element={<HistoriquePage />} />
                   <Route path="/parametres" element={<SettingsPage />} />
                   <Route path="/administration" element={<AdministrationPage />} />
