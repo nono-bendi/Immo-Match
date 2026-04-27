@@ -3,6 +3,7 @@ from logger import get_logger
 log = get_logger('matchings')
 import os
 import json
+import re
 from datetime import datetime
 from fastapi import APIRouter, Depends
 
@@ -145,14 +146,29 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
         # "Tous biens" = pas de filtre
         if "tous" in tp:
             return False
+
+        # Bien parking/box : seuls les chercheurs explicites de parking sont compatibles
+        if ("parking" in tb or "box" in tb) and not any(k in tp for k in ["parking", "box", "garage"]):
+            return True
+
         for mot_p, exclusions in INCOMPATIBLES_TYPE.items():
             if mot_p in tp:
                 for exclu in exclusions:
                     if exclu in tb:
                         return True
+
         # Maison cherche maison : exclure appartement et local
         if ("maison" in tp or "villa" in tp) and ("appartement" in tb or "local" in tb or "immeuble" in tb):
             return True
+
+        # Bien maison/villa : incompatible si prospect cherche uniquement un T-type (T2, T3…)
+        # sans mention de "maison" ou "villa" → il veut un appartement, pas une maison
+        if ("maison" in tb or "villa" in tb):
+            cherche_t_type = bool(re.search(r'\bt[1-5]\b', tp)) or "appartement" in tp or "studio" in tp
+            cherche_maison = "maison" in tp or "villa" in tp
+            if cherche_t_type and not cherche_maison:
+                return True
+
         return False
 
     # Définir les zones géographiques (villes proches entre elles)
