@@ -143,6 +143,8 @@ def construire_contexte_bien(bien):
     if bien.get("terrasse") == 1: exterieurs.append("terrasse")
     if bien.get("nb_balcons") and bien["nb_balcons"] > 0:
         exterieurs.append(f"{bien['nb_balcons']} balcon(s)")
+    if bien.get("exterieur"):
+        exterieurs.append(bien["exterieur"])
     exterieur_str = ", ".join(exterieurs) if exterieurs else "Aucun"
 
     # Stationnement
