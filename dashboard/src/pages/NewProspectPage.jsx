@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus } from 'lucide-react'
 import Modal from '../components/Modal'
@@ -19,27 +19,23 @@ function NewProspectPage() {
   // États pour l'overlay d'analyse
   const [showOverlay, setShowOverlay] = useState(false)
   
-  const [formData, setFormData] = useState({
-    nom: '',
-    mail: '',
-    telephone: '',
-    domicile: '',
-    bien: [],
-    villes: [],
-    quartiers: '',
-    quartiersExclus: '',
-    budget_max: '',
-    surface_min: '',
-    pieces_min: '',
-    etat: [],
-    expo: [],
-    stationnement: '',
-    exterieur: [],
-    etage: [],
-    copro: '',
-    destination: '',
-    observation: ''
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('immoflash_new_prospect_draft')
+      if (saved) return JSON.parse(saved)
+    } catch {}
+    return {
+      nom: '', mail: '', telephone: '', domicile: '',
+      bien: [], villes: [], quartiers: [], quartiersExclus: '',
+      budget_max: '', surface_min: '', pieces_min: '',
+      etat: [], expo: [], stationnement: '', exterieur: [],
+      etage: [], copro: '', destination: '', observation: ''
+    }
   })
+
+  useEffect(() => {
+    sessionStorage.setItem('immoflash_new_prospect_draft', JSON.stringify(formData))
+  }, [formData])
 
   const villesSuggestions = [
     'Fréjus', 'Saint-Raphaël', 'Le Muy', 'Roquebrune-sur-Argens', 
@@ -81,7 +77,25 @@ function NewProspectPage() {
     { value: 'Jardin', label: 'Jardin' },
     { value: 'Piscine', label: 'Piscine' },
     { value: 'Vue mer', label: 'Vue mer' },
-    { value: 'Au calme', label: 'Au calme' }
+    { value: 'Mer à pied', label: 'Mer à pied' },
+    { value: 'Tout à pied', label: 'Tout à pied' },
+    { value: 'Au calme', label: 'Au calme' },
+    { value: 'Cuisine fermée', label: 'Cuisine fermée' },
+    { value: 'Contemporain', label: 'Contemporain' },
+  ]
+
+  const quartiersOptions = [
+    { value: 'Port Fréjus', label: 'Port Fréjus' },
+    { value: 'Centre historique', label: 'Centre historique' },
+    { value: 'Les Arènes', label: 'Les Arènes' },
+    { value: 'Villepey', label: 'Villepey' },
+    { value: 'Saint-Aygulf', label: 'Saint-Aygulf' },
+    { value: 'Valescure', label: 'Valescure' },
+    { value: 'Santa Lucia', label: 'Santa Lucia' },
+    { value: 'Boulouris', label: 'Boulouris' },
+    { value: 'Agay', label: 'Agay' },
+    { value: 'Bord de mer', label: 'Bord de mer' },
+    { value: 'Résidentiel calme', label: 'Résidentiel calme' },
   ]
 
   const etageOptions = [
@@ -179,6 +193,7 @@ function NewProspectPage() {
       ...formData,
       bien: formData.bien.join(', '),
       villes: formData.villes.join(', '),
+      quartiers: formData.quartiers.join(', '),
       etat: formData.etat.join(', '),
       expo: formData.expo.join(', '),
       exterieur: formData.exterieur.join(', '),
@@ -205,6 +220,7 @@ function NewProspectPage() {
       } else {
         setNewProspectId(data.id)
         setNewProspectName(formData.nom)
+        sessionStorage.removeItem('immoflash_new_prospect_draft')
         setShowAnalyzePrompt(true)
       }
     } catch {
@@ -453,16 +469,28 @@ function NewProspectPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers souhaités</label>
-                <input
-                  type="text"
-                  value={formData.quartiers}
-                  onChange={(e) => handleChange('quartiers', e.target.value)}
-                  placeholder="Ex: Centre historique, Plage..."
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quartiers souhaités
+                  <span className="text-gray-400 font-normal ml-2">(plusieurs choix possibles)</span>
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {quartiersOptions.map(option => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleMultiSelect('quartiers', option.value)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        formData.quartiers.includes(option.value)
+                          ? 'bg-[#1E3A5F] text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers à éviter</label>

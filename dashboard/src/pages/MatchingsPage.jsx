@@ -57,6 +57,7 @@ function MatchingsPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [search, setSearch] = useState('')
   const [filterScore, setFilterScore] = useState('all')
+  const [sortBy, setSortBy] = useState('score')
   const [expandedProspect, setExpandedProspect] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
@@ -358,7 +359,9 @@ function MatchingsPage() {
       return
     }
 
-    const initialEmailContent = buildDefaultEmailContent(match)
+    const draftKey = `emailDraft_${match.id}`
+    const savedDraft = sessionStorage.getItem(draftKey)
+    const initialEmailContent = savedDraft ? JSON.parse(savedDraft) : buildDefaultEmailContent(match)
     setEmailContent(initialEmailContent)
     setPendingEmail({ match, prospectMail, prospectNom })
 
@@ -421,6 +424,8 @@ function MatchingsPage() {
       const result = await response.json()
       
       if (result.success) {
+        // Supprimer le brouillon email
+        sessionStorage.removeItem(`emailDraft_${match.id}`)
         // Marquer comme envoyé dans la BDD
         await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
         
@@ -465,20 +470,20 @@ function MatchingsPage() {
     setPendingEmail(null)
   }
 
-  // Ferme la modal
+  // Sauvegarde le brouillon email dans sessionStorage quand le contenu change
+  useEffect(() => {
+    if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail) {
+      sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [emailContent])
+
+  // Ferme la modal (le brouillon est conservé en sessionStorage)
   const closeEmailModal = () => {
     setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false })
     setPendingEmail(null)
     setPreviewHtml(null)
-    setEmailContent({
-      subject: '',
-      intro: '',
-      points_forts: '',
-      points_attention: '',
-      recommandation: '',
-      conclusion: '',
-      lien_annonce: ''
-    })
+    setEmailContent({ subject: '', intro: '', points_forts: '', points_attention: '', recommandation: '', conclusion: '', lien_annonce: '' })
   }
 
   // Filtrer les matchings
@@ -528,8 +533,14 @@ function MatchingsPage() {
   }, {})
 
   const prospectGroups = Object.values(groupedByProspect).sort((a, b) => {
-    // Tri par score pondéré (score × complétude du profil)
-    // Un prospect avec peu de critères renseignés est pénalisé en affichage
+    if (sortBy === 'recent') {
+      const dateA = Math.max(...a.matchings.map(m => new Date(m.date_analyse).getTime()))
+      const dateB = Math.max(...b.matchings.map(m => new Date(m.date_analyse).getTime()))
+      return dateB - dateA
+    }
+    if (sortBy === 'alpha') {
+      return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
+    }
     const maxPondereA = Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
     const maxPondereB = Math.max(...b.matchings.map(m => m.score_pondere ?? m.score))
     return maxPondereB - maxPondereA
@@ -647,6 +658,26 @@ function MatchingsPage() {
                 }`}
               >
                 {filter.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 border-l border-gray-200 pl-4 ml-2">
+            {[
+              { value: 'score',  label: 'Meilleur score' },
+              { value: 'recent', label: 'Plus récent' },
+              { value: 'alpha',  label: 'A → Z' },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { setSortBy(opt.value); setCurrentPage(1) }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  sortBy === opt.value
+                    ? 'bg-[#1E3A5F]/10 text-[#1E3A5F] font-semibold'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {opt.label}
               </button>
             ))}
           </div>
