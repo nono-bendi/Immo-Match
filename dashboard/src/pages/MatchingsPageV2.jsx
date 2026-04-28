@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, Lightbulb, ChevronRight } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, Lightbulb, ThumbsUp, Share2, Bookmark } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -8,226 +8,231 @@ import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
 
 // ─── utils ────────────────────────────────────────────────────────────────────
+const ini = (n) => { if (!n) return '??'; const p = n.trim().split(' ').filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase() }
+const bul = (t) => (t || '').split('\n').map(l => l.replace(/^[-•]\s*/, '').trim()).filter(Boolean)
+const mon = (v) => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
+const dt = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''
+const fPhoto = (s) => { if (!s || typeof s !== 'string') return null; return s.split('|').map(u => u.trim()).find(u => /^https?:\/\//i.test(u)) || null }
 
-const initials = (n) => {
-  if (!n) return '??'
-  const p = n.trim().split(' ').filter(Boolean)
-  return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase()
+const AV_PAL = [['#4f46e5','#7c3aed'],['#0891b2','#06b6d4'],['#059669','#10b981'],['#dc2626','#f97316'],['#9333ea','#ec4899'],['#0d9488','#0ea5e9']]
+const avP = (n) => AV_PAL[(n||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % AV_PAL.length]
+
+const sC = (s) => s >= 75
+  ? { c1:'#6366f1', c2:'#8b5cf6', label:'Excellent', glow:'rgba(99,102,241,0.4)', trackColor:'rgba(99,102,241,0.15)' }
+  : s >= 50
+    ? { c1:'#f59e0b', c2:'#f97316', label:'Bon match', glow:'rgba(245,158,11,0.4)', trackColor:'rgba(245,158,11,0.15)' }
+    : { c1:'#ef4444', c2:'#f43f5e', label:'Faible', glow:'rgba(239,68,68,0.4)', trackColor:'rgba(239,68,68,0.15)' }
+
+// ─── Floating background gems ──────────────────────────────────────────────────
+function Gem({ style, color, size, rot = 0 }) {
+  return (
+    <div style={{
+      position: 'absolute', pointerEvents: 'none',
+      width: size, height: size,
+      background: `linear-gradient(135deg, ${color}55 0%, ${color}18 100%)`,
+      border: `1px solid ${color}40`,
+      borderRadius: '18%',
+      transform: `rotate(${rot}deg)`,
+      filter: `blur(0.3px)`,
+      boxShadow: `0 0 20px ${color}20, inset 0 1px 0 ${color}30`,
+      ...style,
+    }} />
+  )
 }
-const bullets = (t) => (t || '').split('\n').map(l => l.replace(/^[-•]\s*/, '').trim()).filter(Boolean)
-const money = (v) => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
-const shortDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''
-const firstPhoto = (s) => {
-  if (!s || typeof s !== 'string') return null
-  return s.split('|').map(u => u.trim()).find(u => /^https?:\/\//i.test(u)) || null
-}
 
-// Avatar palette — stable per name
-const AV = [['#6366f1','#8b5cf6'],['#0ea5e9','#06b6d4'],['#10b981','#059669'],['#f97316','#ef4444'],['#ec4899','#a855f7'],['#14b8a6','#0ea5e9']]
-const avGrad = (n) => AV[(n||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0) % AV.length]
-
-// Score palette
-const scoreP = (s) =>
-  s >= 75 ? { c1:'#6366f1', c2:'#8b5cf6', label:'Excellent', pill:'rgba(99,102,241,0.1)', text:'#6366f1' }
-  : s >= 50 ? { c1:'#f59e0b', c2:'#f97316', label:'Bon match', pill:'rgba(245,158,11,0.1)', text:'#d97706' }
-  : { c1:'#ef4444', c2:'#f43f5e', label:'Faible', pill:'rgba(239,68,68,0.1)', text:'#dc2626' }
-
-// ─── Design atoms ─────────────────────────────────────────────────────────────
-
-function ScoreRing({ score, size = 60 }) {
-  const p = scoreP(score)
+// ─── Score ring (center column) ────────────────────────────────────────────────
+function ScoreRing({ score, size = 110 }) {
+  const c = sC(score)
   const inner = Math.round(size * 0.72)
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <div style={{
-        width: size, height: size, borderRadius: '50%', position: 'relative', flexShrink: 0,
-        background: `conic-gradient(from -90deg, ${p.c1} 0% ${score}%, #e2e8f0 ${score}% 100%)`,
+        width: size, height: size, borderRadius: '50%', position: 'relative',
+        background: `conic-gradient(from -90deg, ${c.c1} 0% ${score}%, rgba(255,255,255,0.07) ${score}% 100%)`,
+        boxShadow: `0 0 32px ${c.glow}, 0 0 60px ${c.glow}`,
       }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{
-            width: inner, height: inner, borderRadius: '50%', background: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: inner, height: inner, borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(15,20,40,0.95), rgba(20,15,50,0.9))',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            border: `1px solid rgba(255,255,255,0.06)`,
           }}>
-            <span style={{ fontSize: Math.round(size * 0.28), fontWeight: 900, color: p.c1, letterSpacing: -0.5, lineHeight: 1 }}>
-              {score}
-            </span>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 1 }}>Score</div>
+            <div style={{ fontSize: 30, fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: -1 }}>{score}</div>
           </div>
         </div>
       </div>
-      <span style={{
-        fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1,
-        color: p.text, background: p.pill, borderRadius: 9999, padding: '3px 9px',
-        whiteSpace: 'nowrap',
-      }}>{p.label}</span>
+      <div style={{
+        fontSize: 9, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase',
+        color: c.c1, background: c.trackColor,
+        border: `1px solid ${c.c1}50`, borderRadius: 9999, padding: '4px 14px',
+      }}>{c.label}</div>
     </div>
   )
 }
 
-function Avatar({ name, size = 48 }) {
-  const [a, b] = avGrad(name)
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: '50%', flexShrink: 0,
-      background: `linear-gradient(135deg, ${a}, ${b})`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      color: '#fff', fontSize: Math.round(size * 0.33), fontWeight: 800, letterSpacing: -0.5,
-      boxShadow: `0 4px 14px ${a}50`,
-    }}>
-      {initials(name)}
-    </div>
-  )
-}
-
-function MatchChip({ match, selected, onClick }) {
-  const p = scoreP(match.score)
+// ─── Hexagonal gem badge (right column) ────────────────────────────────────────
+function GemBadge({ score, ville, prix, selected, onClick }) {
+  const c = sC(score)
   return (
     <button onClick={onClick} style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '5px 12px', borderRadius: 9999,
-      border: `1.5px solid ${selected ? p.c1 : '#e2e8f0'}`,
-      background: selected ? p.pill : '#fff',
-      cursor: 'pointer', whiteSpace: 'nowrap',
-      transition: 'border-color 0.15s, background 0.15s',
-      fontSize: 12,
+      display: 'flex', alignItems: 'center', gap: 10,
+      padding: '6px 10px 6px 6px', borderRadius: 12,
+      background: selected ? 'rgba(255,255,255,0.08)' : 'transparent',
+      border: `1px solid ${selected ? 'rgba(255,255,255,0.15)' : 'transparent'}`,
+      cursor: 'pointer', transition: 'all 0.2s', width: '100%', textAlign: 'left',
     }}>
-      <span style={{ fontWeight: 800, color: p.c1 }}>{match.score}</span>
-      <span style={{ width: 1, height: 10, background: '#e2e8f0' }} />
-      <span style={{ color: '#64748b', fontWeight: 500 }}>{match.bien_ville}</span>
-      <span style={{ color: '#94a3b8' }}>·</span>
-      <span style={{ color: '#475569', fontWeight: 600 }}>{money(match.bien_prix)}</span>
-      {match.date_email_envoye && <Send size={9} style={{ color: '#10b981', flexShrink: 0 }} />}
-      {match.statut_prospect === 'refused' && <XCircle size={9} style={{ color: '#ef4444', flexShrink: 0 }} />}
+      {/* Hexagon gem */}
+      <div style={{
+        width: 44, height: 44, flexShrink: 0,
+        background: `linear-gradient(135deg, ${c.c1}, ${c.c2})`,
+        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        filter: `drop-shadow(0 2px 8px ${c.c1}70)`,
+      }}>
+        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{score}</span>
+      </div>
+      {/* Info */}
+      <div style={{ minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.85)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {ville}
+        </div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: 500 }}>{mon(prix)}</div>
+      </div>
     </button>
   )
 }
 
-// ─── Bien detail card ─────────────────────────────────────────────────────────
-
-function BienCard({ match, mail, nom, onPropose, onRefuse, sending }) {
-  const p = scoreP(match.score)
-  const photo = firstPhoto(match.bien_photos)
-  const forts = bullets(match.points_forts).slice(0, 4)
-  const atts = bullets(match.points_attention).slice(0, 3)
+// ─── Expanded bien detail ──────────────────────────────────────────────────────
+function BienDetail({ match, mail, nom, onPropose, onRefuse, sending }) {
+  const photo = fPhoto(match.bien_photos)
+  const forts = bul(match.points_forts).slice(0, 4)
+  const atts = bul(match.points_attention).slice(0, 3)
   const refused = match.statut_prospect === 'refused'
+  const c = sC(match.score)
 
   return (
     <div style={{
-      marginTop: 14, borderRadius: 16, overflow: 'hidden',
-      border: '1px solid #e2e8f0',
-      background: '#fff',
-      boxShadow: '0 2px 16px rgba(15,23,42,0.06)',
+      borderTop: '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(0,0,0,0.15)',
     }}>
+      {/* Photo + analysis */}
+      <div style={{ display: 'grid', gridTemplateColumns: photo ? '240px 1fr' : '1fr', minHeight: 180 }}>
+        {/* Photo */}
+        {photo && (
+          <div style={{
+            background: `linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${photo}) center/cover no-repeat`,
+            borderRight: '1px solid rgba(255,255,255,0.06)',
+          }} />
+        )}
 
-      {/* Bien header */}
-      <div style={{
-        position: 'relative',
-        background: photo
-          ? `linear-gradient(180deg, rgba(15,23,42,0.05) 0%, rgba(15,23,42,0.6) 100%), url(${photo}) center/cover no-repeat`
-          : `linear-gradient(135deg, ${p.c1}14 0%, ${p.c2}08 100%)`,
-        padding: '16px 18px',
-        minHeight: photo ? 96 : 'auto',
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
+        {/* Analysis */}
+        <div style={{ padding: '18px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {/* Left: forts + attention */}
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: photo ? '#fff' : '#0f172a', letterSpacing: -0.3 }}>
-              {match.bien_type}
-            </div>
-            <div style={{ fontSize: 12, color: photo ? 'rgba(255,255,255,0.7)' : '#64748b', marginTop: 2, fontWeight: 500 }}>
-              📍 {match.bien_ville}
-              {match.bien_surface ? ` · ${match.bien_surface} m²` : ''}
-              {match.bien_pieces ? ` · ${match.bien_pieces} p.` : ''}
-            </div>
+            {forts.length > 0 && (
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                  <Zap size={11} style={{ color: '#10b981' }} />
+                  <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: 1.5 }}>Points forts</span>
+                </div>
+                {forts.map((f, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 4, fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55 }}>
+                    <span style={{ color: '#10b981', flexShrink: 0 }}>•</span>
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {atts.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                  <AlertTriangle size={11} style={{ color: '#f59e0b' }} />
+                  <span style={{ fontSize: 9, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1.5 }}>Attention</span>
+                </div>
+                {atts.map((a, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 4, fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55 }}>
+                    <span style={{ color: '#f59e0b', flexShrink: 0 }}>•</span>
+                    <span>{a}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!forts.length && !atts.length && (
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Analyse non disponible</div>
+            )}
           </div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: photo ? '#fff' : '#0f172a', letterSpacing: -0.8, flexShrink: 0 }}>
-            {money(match.bien_prix)}
-          </div>
+
+          {/* Right: recommandation */}
+          {match.recommandation && (
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 12, padding: '14px 14px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
+                <Lightbulb size={11} style={{ color: c.c1 }} />
+                <span style={{ fontSize: 9, fontWeight: 800, color: c.c1, textTransform: 'uppercase', letterSpacing: 1.5 }}>Recommandation</span>
+              </div>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
+                {match.recommandation}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Action bar */}
+      <div style={{
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        padding: '12px 20px',
+        display: 'flex', alignItems: 'center', gap: 10,
+        background: 'rgba(0,0,0,0.1)',
+      }}>
+        {/* Secondary actions */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {[
+            { icon: <ThumbsUp size={14} />, title: refused ? 'Annuler refus' : 'Refuser', action: onRefuse, active: refused },
+            { icon: <XCircle size={14} />, title: 'Marquer non intéressé', action: onRefuse, hidden: true },
+          ].filter(a => !a.hidden).map((a, i) => (
+            <button key={i} onClick={a.action} title={a.title} style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: a.active ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${a.active ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.1)'}`,
+              color: a.active ? '#f87171' : 'rgba(255,255,255,0.45)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', transition: 'all 0.15s',
+            }}>
+              {a.icon}
+            </button>
+          ))}
         </div>
 
         {/* Status tags */}
-        {(refused || match.date_email_envoye) && (
-          <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
-            {refused && <span style={{ fontSize: 10, fontWeight: 700, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 9999, padding: '2px 9px' }}>Non intéressé</span>}
-            {match.date_email_envoye && <span style={{ fontSize: 10, fontWeight: 700, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '2px 9px' }}>✓ Proposé le {shortDate(match.date_email_envoye)}</span>}
-          </div>
+        {match.date_email_envoye && (
+          <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 9999, padding: '3px 10px' }}>
+            ✓ Proposé le {dt(match.date_email_envoye)}
+          </span>
         )}
-      </div>
+        {refused && (
+          <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 9999, padding: '3px 10px' }}>
+            Non intéressé
+          </span>
+        )}
 
-      {/* Analysis sections */}
-      {(forts.length > 0 || atts.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: forts.length && atts.length ? '1fr 1fr' : '1fr', borderTop: '1px solid #f1f5f9' }}>
-          {forts.length > 0 && (
-            <div style={{ padding: '14px 16px', borderRight: atts.length ? '1px solid #f1f5f9' : 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                <Zap size={11} style={{ color: '#10b981' }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: 1 }}>Points forts</span>
-              </div>
-              {forts.map((f, i) => (
-                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
-                  <span style={{ color: '#10b981', flexShrink: 0, marginTop: 1 }}>•</span>
-                  <span>{f}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {atts.length > 0 && (
-            <div style={{ padding: '14px 16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                <AlertTriangle size={11} style={{ color: '#f59e0b' }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1 }}>Attention</span>
-              </div>
-              {atts.map((a, i) => (
-                <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, fontSize: 11, color: '#475569', lineHeight: 1.55 }}>
-                  <span style={{ color: '#f59e0b', flexShrink: 0, marginTop: 1 }}>•</span>
-                  <span>{a}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {match.recommandation && (
-        <div style={{ padding: '12px 16px', borderTop: '1px solid #f1f5f9', background: '#fafbff' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
-            <Lightbulb size={11} style={{ color: '#8b5cf6' }} />
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#8b5cf6', textTransform: 'uppercase', letterSpacing: 1 }}>Recommandation</span>
-          </div>
-          <p style={{ fontSize: 11, color: '#475569', lineHeight: 1.65, margin: 0, fontStyle: 'italic' }}>
-            {match.recommandation}
-          </p>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: 8 }}>
-        <button onClick={onRefuse} style={{
-          padding: '8px 14px', borderRadius: 10,
-          background: refused ? 'rgba(239,68,68,0.08)' : 'transparent',
-          color: refused ? '#dc2626' : '#94a3b8',
-          border: `1px solid ${refused ? 'rgba(239,68,68,0.25)' : '#e2e8f0'}`,
-          fontSize: 12, fontWeight: 600, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
-          transition: 'all 0.15s',
-        }}>
-          <XCircle size={12} />
-          {refused ? 'Annuler' : 'Refuser'}
-        </button>
-
+        {/* Primary CTA */}
         <button onClick={onPropose} disabled={!mail || sending} style={{
-          flex: 1, padding: '8px 0', borderRadius: 10,
-          background: !mail ? '#f1f5f9'
-            : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-          color: !mail ? '#94a3b8' : '#fff',
-          border: 'none',
-          fontSize: 13, fontWeight: 700, cursor: mail ? 'pointer' : 'default',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-          boxShadow: mail ? '0 4px 14px rgba(99,102,241,0.35)' : 'none',
-          transition: 'opacity 0.2s, box-shadow 0.2s',
+          marginLeft: 'auto',
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 24px', borderRadius: 12,
+          background: !mail ? 'rgba(255,255,255,0.06)' : `linear-gradient(135deg, ${c.c1}, ${c.c2})`,
+          color: !mail ? 'rgba(255,255,255,0.3)' : '#fff',
+          border: 'none', fontSize: 13, fontWeight: 700,
+          cursor: mail ? 'pointer' : 'default',
+          boxShadow: mail ? `0 4px 20px ${c.glow}` : 'none',
           letterSpacing: -0.2,
+          transition: 'opacity 0.2s',
         }}>
           <Send size={13} />
           {sending ? 'Envoi…' : match.date_email_envoye ? 'Renvoyer' : 'Envoyer la sélection'}
@@ -237,13 +242,10 @@ function BienCard({ match, mail, nom, onPropose, onRefuse, sending }) {
   )
 }
 
-// ─── Prospect card ────────────────────────────────────────────────────────────
-
+// ─── Prospect card ─────────────────────────────────────────────────────────────
 function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing }) {
-  const [open, setOpen] = useState(false)
   const [selId, setSelId] = useState(null)
   const [hovered, setHovered] = useState(false)
-  const panelRef = useRef(null)
 
   const sorted = [...group.matchings].sort((a, b) => {
     const rA = a.statut_prospect === 'refused' ? 1 : 0
@@ -252,121 +254,134 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
   })
 
   const best = sorted[0]
-  const sel = selId ? sorted.find(m => m.id === selId) || best : best
+  const sel = selId ? sorted.find(m => m.id === selId) || best : null
 
-  const toggle = () => {
-    if (!open) setSelId(best?.id ?? null)
-    setOpen(o => !o)
-  }
-
-  const clickChip = (m) => {
-    setSelId(m.id)
-    if (!open) setOpen(true)
-  }
+  const [a, b] = avP(group.prospect_nom)
 
   return (
     <div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: '#fff',
         borderRadius: 20,
-        border: '1px solid #f1f5f9',
-        boxShadow: hovered || open
-          ? '0 12px 40px rgba(15,23,42,0.10), 0 1px 3px rgba(15,23,42,0.04)'
-          : '0 2px 12px rgba(15,23,42,0.05)',
-        transform: hovered && !open ? 'translateY(-2px)' : 'translateY(0)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: `1px solid ${hovered ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
+        boxShadow: hovered ? '0 20px 60px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.25)',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+        transition: 'all 0.25s ease',
         overflow: 'hidden',
       }}
     >
-      {/* ── Header ── */}
-      <div onClick={toggle} style={{ padding: '18px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 }}>
-        <Avatar name={group.prospect_nom} size={48} />
+      {/* ── 3-column header ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 1fr', gap: 0 }}>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', letterSpacing: -0.5, marginBottom: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {group.prospect_nom}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
-            <span style={{
-              fontSize: 11, fontWeight: 600, color: '#64748b',
-              background: '#f1f5f9', borderRadius: 9999, padding: '2px 9px',
+        {/* LEFT: Prospect info */}
+        <div style={{ padding: '20px 20px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+            {/* Avatar */}
+            <div style={{
+              width: 46, height: 46, borderRadius: '50%', flexShrink: 0,
+              background: `linear-gradient(135deg, ${a}, ${b})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 15, fontWeight: 800, color: '#fff',
+              boxShadow: `0 4px 16px ${a}60`,
             }}>
-              {money(group.prospect_budget)}
-            </span>
+              {ini(group.prospect_nom)}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', letterSpacing: -0.4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {group.prospect_nom}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2, fontWeight: 500 }}>
+                {mon(group.prospect_budget)}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{
-              fontSize: 11, fontWeight: 600,
-              background: 'rgba(99,102,241,0.08)', color: '#6366f1',
-              borderRadius: 9999, padding: '2px 9px',
+              fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+              background: 'rgba(99,102,241,0.15)', color: '#a5b4fc',
+              border: '1px solid rgba(99,102,241,0.25)', borderRadius: 9999, padding: '3px 10px',
             }}>
               {group.matchings.length} bien{group.matchings.length > 1 ? 's' : ''}
             </span>
+
+            <button
+              onClick={e => onRunSingle(e, group.prospect_id, group.prospect_nom)}
+              disabled={analyzing}
+              title="Relancer l'analyse"
+              style={{
+                width: 28, height: 28, borderRadius: 8,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.35)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+            >
+              <RefreshCw size={12} />
+            </button>
           </div>
         </div>
 
-        {/* Score ring */}
-        {best && <ScoreRing score={best.score} size={58} />}
+        {/* CENTER: Score ring */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px 10px',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(0,0,0,0.1)',
+        }}>
+          {best && <ScoreRing score={best.score} size={110} />}
+        </div>
 
-        {/* Refresh */}
-        <button
-          onClick={e => { e.stopPropagation(); onRunSingle(e, group.prospect_id, group.prospect_nom) }}
-          disabled={analyzing}
-          title="Relancer l'analyse"
-          style={{
-            width: 34, height: 34, borderRadius: 10,
-            border: '1px solid #e2e8f0', background: '#f8fafc',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#94a3b8', flexShrink: 0,
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#475569' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#94a3b8' }}
-        >
-          <RefreshCw size={13} />
-        </button>
-
-        {/* Chevron */}
-        <ChevronRight size={16} style={{
-          color: '#cbd5e1', flexShrink: 0,
-          transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-          transition: 'transform 0.25s ease',
-        }} />
+        {/* RIGHT: Gem badges */}
+        <div style={{ padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+          {sorted.slice(0, 4).map(m => (
+            <GemBadge
+              key={m.id}
+              score={m.score}
+              ville={m.bien_ville}
+              prix={m.bien_prix}
+              selected={sel?.id === m.id}
+              onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
+            />
+          ))}
+          {sorted.length > 4 && (
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', paddingLeft: 6, marginTop: 2 }}>
+              +{sorted.length - 4} autre{sorted.length - 4 > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Chip strip ── */}
-      <div style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 14, display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
-        {sorted.map(m => (
-          <MatchChip key={m.id} match={m} selected={open && sel?.id === m.id} onClick={() => clickChip(m)} />
-        ))}
-      </div>
-
-      {/* ── Expanded panel (animated) ── */}
+      {/* ── Expanded bien ── */}
       <div style={{
-        maxHeight: open ? '1000px' : '0px',
-        opacity: open ? 1 : 0,
+        maxHeight: sel ? '800px' : '0px',
+        opacity: sel ? 1 : 0,
         overflow: 'hidden',
-        transition: 'max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
+        transition: 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease',
       }}>
         {sel && (
-          <div style={{ padding: '0 20px 20px' }} ref={panelRef}>
-            <BienCard
-              match={sel}
-              mail={group.prospect_mail}
-              nom={group.prospect_nom}
-              sending={sendingEmail === sel.id}
-              onPropose={() => onPropose(sel, group.prospect_mail, group.prospect_nom)}
-              onRefuse={() => onRefuse(sel)}
-            />
-          </div>
+          <BienDetail
+            match={sel}
+            mail={group.prospect_mail}
+            nom={group.prospect_nom}
+            sending={sendingEmail === sel.id}
+            onPropose={() => onPropose(sel, group.prospect_mail, group.prospect_nom)}
+            onRefuse={() => onRefuse(sel)}
+          />
         )}
       </div>
     </div>
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
+// ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MatchingsPageV2() {
   const { agency } = useAgency()
   const agencyNom = agency?.nom || 'ImmoFlash'
@@ -396,31 +411,13 @@ export default function MatchingsPageV2() {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [emailContent, setEmailContent] = useState({ subject: '', intro: '', points_forts: '', points_attention: '', recommandation: '', conclusion: '', lien_annonce: '' })
 
-  const getFirstPhotoUrl = (p) => firstPhoto(p)
+  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre échange, j'ai identifié un bien qui pourrait vous intéresser.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
-  const buildDefault = (m) => ({
-    subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`,
-    intro: 'Suite à notre échange, j\'ai identifié un bien qui pourrait vous intéresser.',
-    points_forts: m.points_forts || '', points_attention: m.points_attention || '',
-    recommandation: m.recommandation || '',
-    conclusion: 'Ce bien vous intéresse ? N\'hésitez pas à me contacter pour organiser une visite.',
-    lien_annonce: m.lien_annonce || '',
-  })
-
-  const fetchData = () => {
-    setLoading(true)
-    return apiFetch('/matchings').then(r => r.json()).then(data => {
-      setMatchings(Array.isArray(data) ? data : [])
-      setLoading(false)
-    }).catch(() => setLoading(false))
-  }
+  const fetchData = () => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }
   useEffect(() => { fetchData() }, [])
 
-  // ── Analysis ──────────────────────────────────────────────────────────────
-
   const runGlobal = async () => {
-    cancelRef.current = false
-    setAnalyzing(true); setShowOverlay(true); setCurrentProspectIndex(0)
+    cancelRef.current = false; setAnalyzing(true); setShowOverlay(true); setCurrentProspectIndex(0)
     try {
       const prospects = await apiFetch('/prospects').then(r => r.json())
       if (!Array.isArray(prospects) || !prospects.length) { setShowOverlay(false); setAnalyzing(false); return }
@@ -431,43 +428,33 @@ export default function MatchingsPageV2() {
         try { await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' }).then(r => r.json()) } catch {}
       }
       setShowOverlay(false); await fetchData()
-      if (!cancelRef.current) {
-        const d = await apiFetch('/matchings').then(r => r.json())
-        if (d.some(m => m.score >= 80)) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 3000) }
-      }
+      if (!cancelRef.current) { const d = await apiFetch('/matchings').then(r => r.json()); if (d.some(m => m.score >= 80)) { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 3000) } }
     } catch { setShowOverlay(false) }
     setAnalyzing(false)
   }
 
   const runSingle = async (e, id, nom) => {
-    e.stopPropagation()
-    setAnalyzing(true); setShowOverlay(true); setOverlayCompleted(false)
+    e.stopPropagation(); setAnalyzing(true); setShowOverlay(true); setOverlayCompleted(false)
     setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName(nom || '')
-    try {
-      const d = await apiFetch(`/matching/run/${id}`, { method: 'POST' }).then(r => r.json())
-      if (d.error) alert('Erreur: ' + d.error); else await fetchData()
-    } catch { alert('Erreur lors de l\'analyse') }
-    setOverlayCompleted(true)
-    setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
+    try { const d = await apiFetch(`/matching/run/${id}`, { method: 'POST' }).then(r => r.json()); if (d.error) alert('Erreur: ' + d.error); else await fetchData() } catch { alert("Erreur lors de l'analyse") }
+    setOverlayCompleted(true); setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
   }
 
-  // ── Email ─────────────────────────────────────────────────────────────────
-
   const openEmail = (match, mail, nom) => {
-    if (!mail) { setEmailModal({ isOpen: true, type: 'error', data: { error: 'Pas d\'email enregistré.' }, isLoading: false }); return }
+    if (!mail) { setEmailModal({ isOpen: true, type: 'error', data: { error: "Pas d'email enregistré." }, isLoading: false }); return }
     const draft = sessionStorage.getItem(`emailDraft_${match.id}`)
     const init = draft ? JSON.parse(draft) : buildDefault(match)
     setEmailContent(init); setPendingEmail({ match, prospectMail: mail, prospectNom: nom })
     loadPreview(match, mail, nom, init)
-    setEmailModal({ isOpen: true, type: 'confirm', data: { prospectNom: nom, prospectMail: mail, bienType: match.bien_type, bienVille: match.bien_ville, bienPrix: money(match.bien_prix) }, isLoading: false })
+    setEmailModal({ isOpen: true, type: 'confirm', data: { prospectNom: nom, prospectMail: mail, bienType: match.bien_type, bienVille: match.bien_ville, bienPrix: mon(match.bien_prix) }, isLoading: false })
   }
 
   const loadPreview = async (match, mail, nom, content) => {
     setPreviewLoading(true); setPreviewHtml(null)
     try {
-      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, subject: content.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: money(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: getFirstPhotoUrl(match.bien_photos), custom_intro: content.intro, custom_conclusion: content.conclusion }) })
-      const res = await r.json()
-      setPreviewHtml(res.success ? res.html : `<div style="padding:20px;color:red">${res.error}</div>`)
+      const ph = fPhoto(match.bien_photos)
+      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, subject: content.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: ph, custom_intro: content.intro, custom_conclusion: content.conclusion }) })
+      const res = await r.json(); setPreviewHtml(res.success ? res.html : `<div style="padding:20px;color:red">${res.error}</div>`)
     } catch (err) { setPreviewHtml(`<div style="padding:20px;color:red">Erreur: ${err.message}</div>`) }
     setPreviewLoading(false)
   }
@@ -477,33 +464,21 @@ export default function MatchingsPageV2() {
     const { match, prospectMail, prospectNom } = pendingEmail
     setEmailModal(p => ({ ...p, isLoading: true })); setSendingEmail(match.id)
     try {
-      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: money(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: getFirstPhotoUrl(match.bien_photos), custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion }) }).then(r => r.json())
-      if (res.success) {
-        sessionStorage.removeItem(`emailDraft_${match.id}`)
-        await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
-        setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, date_email_envoye: new Date().toISOString() } : m))
-        setEmailModal({ isOpen: true, type: 'success', data: { prospectNom, bienType: match.bien_type, bienVille: match.bien_ville, via_fallback: res.via_fallback, fallback_address: res.fallback_address }, isLoading: false })
-      } else { setEmailModal({ isOpen: true, type: 'error', data: { error: res.error || 'Erreur envoi' }, isLoading: false }) }
+      const ph = fPhoto(match.bien_photos)
+      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: ph, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion }) }).then(r => r.json())
+      if (res.success) { sessionStorage.removeItem(`emailDraft_${match.id}`); await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, date_email_envoye: new Date().toISOString() } : m)); setEmailModal({ isOpen: true, type: 'success', data: { prospectNom, bienType: match.bien_type, bienVille: match.bien_ville, via_fallback: res.via_fallback, fallback_address: res.fallback_address }, isLoading: false }) }
+      else { setEmailModal({ isOpen: true, type: 'error', data: { error: res.error || 'Erreur envoi' }, isLoading: false }) }
     } catch { setEmailModal({ isOpen: true, type: 'error', data: { error: 'Erreur de connexion' }, isLoading: false }) }
     setSendingEmail(null); setPendingEmail(null)
   }
 
-  useEffect(() => {
-    if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail)
-      sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent))
-  }, [emailContent])
-
+  useEffect(() => { if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail) sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent)) }, [emailContent])
   const closeEmail = () => { setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false }); setPendingEmail(null); setPreviewHtml(null) }
 
   const handleRefuse = async (match) => {
     const refused = match.statut_prospect === 'refused'
-    try {
-      await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) })
-      setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m))
-    } catch {}
+    try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
   }
-
-  // ── Filter + group ────────────────────────────────────────────────────────
 
   const filtered = matchings.filter(m => {
     const s = search.toLowerCase()
@@ -516,9 +491,8 @@ export default function MatchingsPageV2() {
   })
 
   const grouped = filtered.reduce((acc, m) => {
-    if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_tel: m.prospect_tel, matchings: [] }
-    acc[m.prospect_id].matchings.push(m)
-    return acc
+    if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
+    acc[m.prospect_id].matchings.push(m); return acc
   }, {})
 
   const groups = Object.values(grouped).sort((a, b) => {
@@ -527,175 +501,109 @@ export default function MatchingsPageV2() {
     return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
   })
 
-  // ─────────────────────────────────────────────────────────────────────────
-
-  const SCORE_FILTERS = [
-    { v: 'all', label: 'Tous', color: '#475569', active: '#0f172a' },
-    { v: 'high', label: '75+', color: '#6366f1', active: '#6366f1' },
-    { v: 'medium', label: '50–74', color: '#f59e0b', active: '#d97706' },
-    { v: 'low', label: '< 50', color: '#ef4444', active: '#dc2626' },
-  ]
-
+  // ─── render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{ maxWidth: 820, margin: '0 auto', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-      <Confetti show={showConfetti} />
-      <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
-      <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
+    <div style={{ margin: '-24px', minHeight: '100vh', position: 'relative', background: 'linear-gradient(135deg, #0d0f1f 0%, #12102e 40%, #0d1520 100%)', overflow: 'hidden', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
 
-      {/* ── Page header ──────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 28 }}>
-        {/* Top row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => navigate('/matchings')}
-            title="Retour ancienne vue"
-            style={{ width: 36, height: 36, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', flexShrink: 0, transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#cbd5e1' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0' }}
-          >
+      {/* Floating background gems */}
+      <Gem style={{ top: '8%',  left: -55 }} color="#4f46e5" size={110} rot={25} />
+      <Gem style={{ top: '32%', left: -40 }} color="#7c3aed" size={75}  rot={-18} />
+      <Gem style={{ top: '62%', left: -50 }} color="#0891b2" size={90}  rot={42} />
+      <Gem style={{ bottom: '8%', left: 10 }} color="#f97316" size={55}  rot={30} />
+      <Gem style={{ top: '5%',  right: -55 }} color="#6366f1" size={100} rot={-28} />
+      <Gem style={{ top: '42%', right: -45 }} color="#ec4899" size={80}  rot={20} />
+      <Gem style={{ bottom: '12%', right: -30 }} color="#8b5cf6" size={65} rot={-12} />
+
+      {/* Content */}
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 900, margin: '0 auto', padding: '24px 24px 40px' }}>
+
+        <Confetti show={showConfetti} />
+        <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
+        <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
+
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/matchings')} style={{ width: 36, height: 36, borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.45)', flexShrink: 0, transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.12)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}>
             <ArrowLeft size={15} />
           </button>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', letterSpacing: -0.8, margin: 0 }}>Matchings</h1>
-              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>
-                Nouveau
-              </span>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.8, margin: 0 }}>Matchings</h1>
+              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 9px' }}>Nouveau</span>
             </div>
-            <p style={{ fontSize: 12, color: '#94a3b8', margin: '4px 0 0', fontWeight: 500 }}>
-              {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matching${filtered.length > 1 ? 's' : ''}`}
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: '4px 0 0', fontWeight: 500 }}>
+              {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
             </p>
           </div>
 
-          <button
-            onClick={runGlobal}
-            disabled={analyzing}
-            style={{
-              marginLeft: 'auto',
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '10px 20px', borderRadius: 12,
-              background: analyzing ? '#f1f5f9' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              color: analyzing ? '#94a3b8' : '#fff',
-              border: 'none', fontSize: 13, fontWeight: 700,
-              cursor: analyzing ? 'default' : 'pointer',
-              boxShadow: analyzing ? 'none' : '0 4px 16px rgba(99,102,241,0.38)',
-              transition: 'all 0.2s', letterSpacing: -0.2,
-            }}
-          >
-            {analyzing
-              ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />
-              : <Sparkles size={14} />}
-            {analyzing ? 'Analyse en cours…' : 'Analyser'}
+          <button onClick={runGlobal} disabled={analyzing} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 7, padding: '10px 20px', borderRadius: 12, background: analyzing ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: analyzing ? 'rgba(255,255,255,0.35)' : '#fff', border: 'none', fontSize: 13, fontWeight: 700, cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzing ? 'none' : '0 4px 20px rgba(99,102,241,0.5)', transition: 'all 0.2s', letterSpacing: -0.2 }}>
+            {analyzing ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={14} />}
+            {analyzing ? 'Analyse…' : 'Analyser'}
           </button>
         </div>
 
-        {/* Filters row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          {/* Search */}
+        {/* ── Filters ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flex: '0 1 220px', minWidth: 140 }}>
-            <Search size={13} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
-            <input
-              type="text"
-              placeholder="Prospect ou ville…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
-                width: '100%', paddingLeft: 34, paddingRight: 12, height: 38,
-                border: '1.5px solid #e2e8f0', borderRadius: 10,
-                fontSize: 13, color: '#334155', background: '#fff',
-                outline: 'none', boxSizing: 'border-box',
-                transition: 'border-color 0.15s',
-              }}
-              onFocus={e => e.target.style.borderColor = '#6366f1'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-            />
+            <Search size={13} style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', pointerEvents: 'none' }} />
+            <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', paddingLeft: 34, paddingRight: 12, height: 38, border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, fontSize: 13, color: '#fff', background: 'rgba(255,255,255,0.07)', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.15s' }}
+              onFocus={e => e.target.style.borderColor = 'rgba(99,102,241,0.6)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'} />
           </div>
 
-          {/* Score pills */}
           <div style={{ display: 'flex', gap: 5 }}>
-            {SCORE_FILTERS.map(f => (
+            {[{ v:'all',label:'Tous' },{ v:'high',label:'75+' },{ v:'medium',label:'50–74' },{ v:'low',label:'< 50' }].map(f => (
               <button key={f.v} onClick={() => setFilterScore(f.v)} style={{
                 height: 34, padding: '0 14px', borderRadius: 9999,
-                background: filterScore === f.v ? f.color : '#fff',
-                color: filterScore === f.v ? '#fff' : '#64748b',
-                border: `1.5px solid ${filterScore === f.v ? f.color : '#e2e8f0'}`,
-                fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                transition: 'all 0.15s',
+                background: filterScore === f.v ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)',
+                color: filterScore === f.v ? '#a5b4fc' : 'rgba(255,255,255,0.45)',
+                border: `1px solid ${filterScore === f.v ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s',
               }}>{f.label}</button>
             ))}
           </div>
 
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            style={{
-              height: 36, padding: '0 12px', borderRadius: 10,
-              border: '1.5px solid #e2e8f0', background: '#fff',
-              fontSize: 12, color: '#64748b', fontWeight: 500,
-              outline: 'none', cursor: 'pointer',
-            }}
-          >
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ height: 36, padding: '0 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.07)', fontSize: 12, color: 'rgba(255,255,255,0.6)', outline: 'none', cursor: 'pointer' }}>
             <option value="score">Meilleur score</option>
             <option value="recent">Plus récent</option>
             <option value="alpha">A → Z</option>
           </select>
         </div>
 
-        {filterBienId && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, padding: '10px 16px', marginTop: 12, fontSize: 13 }}>
-            <span style={{ color: '#4f46e5', fontWeight: 600 }}>Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
-            <button onClick={() => navigate('/matchings-v2')} style={{ color: '#6366f1', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}>Voir tout →</button>
+        {/* ── Cards ── */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', height: 140 }} />
+            ))}
+          </div>
+        ) : groups.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+            <div style={{ fontSize: 52, marginBottom: 16 }}>✨</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 8 }}>Aucun matching trouvé</div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 28 }}>{search || filterScore !== 'all' ? 'Essaie d\'élargir les filtres.' : 'Lance une analyse pour trouver des correspondances.'}</p>
+            <button onClick={runGlobal} disabled={analyzing} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '11px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 20px rgba(99,102,241,0.5)' }}>
+              <Sparkles size={15} /> Lancer l'analyse
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {groups.map(g => (
+              <ProspectCard key={g.prospect_id} group={g} onRunSingle={runSingle} onPropose={(m, mail, nom) => openEmail(m, mail, nom)} onRefuse={handleRefuse} sendingEmail={sendingEmail} analyzing={analyzing} />
+            ))}
           </div>
         )}
       </div>
 
-      {/* ── Cards ────────────────────────────────────────────────────────── */}
-      {loading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {[...Array(4)].map((_, i) => (
-            <div key={i} style={{ background: '#fff', borderRadius: 20, border: '1px solid #f1f5f9', padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#f1f5f9' }} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ height: 16, width: '35%', borderRadius: 8, background: '#f1f5f9' }} />
-                <div style={{ height: 12, width: '20%', borderRadius: 8, background: '#f8fafc' }} />
-              </div>
-              <div style={{ width: 58, height: 58, borderRadius: '50%', background: '#f1f5f9' }} />
-            </div>
-          ))}
-        </div>
-      ) : groups.length === 0 ? (
-        <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #f1f5f9', padding: '72px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 52, marginBottom: 16 }}>✨</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', letterSpacing: -0.5, marginBottom: 8 }}>Aucun matching trouvé</div>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 28, lineHeight: 1.6 }}>
-            {search || filterScore !== 'all'
-              ? 'Essaie d\'élargir les filtres.'
-              : 'Lance une analyse pour trouver des correspondances.'}
-          </p>
-          <button onClick={runGlobal} disabled={analyzing} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '11px 24px', borderRadius: 12, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', border: 'none', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}>
-            <Sparkles size={15} /> Lancer l'analyse
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {groups.map(g => (
-            <ProspectCard
-              key={g.prospect_id}
-              group={g}
-              onRunSingle={runSingle}
-              onPropose={(match, mail, nom) => openEmail(match, mail, nom)}
-              onRefuse={handleRefuse}
-              sendingEmail={sendingEmail}
-              analyzing={analyzing}
-            />
-          ))}
-        </div>
-      )}
-
       <style>{`
         @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
-        ::-webkit-scrollbar { display: none }
+        input::placeholder { color: rgba(255,255,255,0.3) }
+        select option { background: #1a1a3e; color: #fff }
+        ::-webkit-scrollbar { width: 4px } ::-webkit-scrollbar-track { background: transparent } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px }
       `}</style>
     </div>
   )
