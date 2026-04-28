@@ -493,105 +493,114 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', background: 'linear-gradient(145deg,#eef2f9 0%,#e8edf8 35%,#f0f4ff 65%,#eaf1fb 100%)', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
-      {/* Blobs décoratifs de fond */}
-      <div style={{ position: 'absolute', top: -120, right: -80, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(30,58,95,0.07) 0%,transparent 65%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: 0, left: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '40%', left: '30%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(16,185,129,0.04) 0%,transparent 65%)', pointerEvents: 'none' }} />
-      {/* Motif de points */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.07) 1px,transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', opacity: 0.7 }} />
+    // ── Fond sombre halo condensé ──────────────────────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', background: '#080f1e', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
 
-    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
-      <Confetti show={showConfetti} />
-      <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
-      <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
+      {/* Orbes halo animées */}
+      <div style={{ position: 'absolute', top: '-15%', left: '-8%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.95) 0%,rgba(45,90,138,0.5) 35%,transparent 70%)', filter: 'blur(72px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '-8%', right: '-12%', width: '50%', height: '60%', background: 'radial-gradient(ellipse at center,rgba(79,70,229,0.6) 0%,rgba(99,102,241,0.3) 40%,transparent 70%)', filter: 'blur(80px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-5%', left: '5%', width: '42%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.5) 0%,rgba(20,184,166,0.25) 40%,transparent 70%)', filter: 'blur(65px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-8%', right: '-5%', width: '38%', height: '45%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.45) 0%,rgba(139,92,246,0.22) 40%,transparent 70%)', filter: 'blur(55px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '45%', left: '35%', width: '30%', height: '35%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.3) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
 
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-gray-100 transition-all" title="Retour ancienne vue">
-          <ArrowLeft size={19} />
-        </button>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
+      {/* Grille de points */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.055) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none' }} />
+
+      <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
+        <Confetti show={showConfetti} />
+        <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
+        <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/matchings')} title="Retour ancienne vue"
+            style={{ padding: 8, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color='rgba(255,255,255,0.5)' }}
+          ><ArrowLeft size={19} /></button>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', margin: 0 }}>Matchings</h1>
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
+            </div>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 3, marginBottom: 0 }}>
+              {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
+            </p>
           </div>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
-          </p>
-        </div>
 
-        {/* Bouton Analyser — avec animation hover */}
-        <button
-          onClick={runGlobal}
-          disabled={analyzing}
-          onMouseEnter={() => setAnalyzeHover(true)}
-          onMouseLeave={() => setAnalyzeHover(false)}
-          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? '#6b7280' : (analyzeHover ? '#2D5A8A' : '#1E3A5F'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: 'none', cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzeHover && !analyzing ? '0 6px 20px rgba(30,58,95,0.4)' : '0 4px 14px rgba(30,58,95,0.25)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.7 : 1 }}
-        >
-          {analyzing ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} />}
-          {analyzing ? 'Analyse en cours…' : 'Analyser'}
-        </button>
-      </div>
-
-      {/* Filtres */}
-      <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <div className="relative flex-1 max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
-        </div>
-        <div className="flex gap-1.5">
-          {[{ v: 'all', label: 'Tous' }, { v: 'high', label: '75+' }, { v: 'medium', label: '50–74' }, { v: 'low', label: '< 50' }].map(f => (
-            <button key={f.v} onClick={() => setFilterScore(f.v)}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-          className="ml-auto text-sm text-gray-500 bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none cursor-pointer">
-          <option value="recent">Plus récents</option>
-          <option value="score">Meilleur score</option>
-          <option value="alpha">A → Z</option>
-        </select>
-      </div>
-
-      {filterBienId && (
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
-          <span className="text-blue-700">Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
-          <button onClick={() => navigate('/matchings-v2')} className="text-blue-500 hover:underline">Voir tout</button>
-        </div>
-      )}
-
-      {/* Cartes */}
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <div key={i} className="bg-white rounded-2xl border border-gray-200 h-64 animate-pulse" />)}
-        </div>
-      ) : groups.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
-          <div style={{ fontSize: 48, marginBottom: 12 }}>✨</div>
-          <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
-          <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
-          <button onClick={runGlobal} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl inline-flex items-center gap-2">
-            <Sparkles size={16} /> Lancer l'analyse
+          <button
+            onClick={runGlobal}
+            disabled={analyzing}
+            onMouseEnter={() => setAnalyzeHover(true)}
+            onMouseLeave={() => setAnalyzeHover(false)}
+            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? 'rgba(107,114,128,0.5)' : (analyzeHover ? 'rgba(45,90,138,0.9)' : 'rgba(30,58,95,0.85)'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: '1px solid rgba(255,255,255,0.12)', cursor: analyzing ? 'default' : 'pointer', backdropFilter: 'blur(8px)', boxShadow: analyzeHover && !analyzing ? '0 6px 24px rgba(30,58,95,0.6),0 0 0 1px rgba(96,165,250,0.2)' : '0 4px 14px rgba(0,0,0,0.3)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.6 : 1 }}
+          >
+            {analyzing ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} />}
+            {analyzing ? 'Analyse en cours…' : 'Analyser'}
           </button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {groups.map((g, idx) => (
-            <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0}
-              onRunSingle={runSingle}
-              onPropose={(m, mail, nom) => openEmail(m, mail, nom)}
-              onRefuse={handleRefuse}
-              sendingEmail={sendingEmail}
-              analyzing={analyzing}
+
+        {/* Filtres */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', flex: '1', maxWidth: 320 }}>
+            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} />
+            <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 16, paddingTop: 10, paddingBottom: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 12, fontSize: 13, color: '#fff', outline: 'none', backdropFilter: 'blur(6px)', boxSizing: 'border-box' }}
+              onFocus={e => { e.target.style.borderColor='rgba(96,165,250,0.4)'; e.target.style.background='rgba(255,255,255,0.1)' }}
+              onBlur={e => { e.target.style.borderColor='rgba(255,255,255,0.11)'; e.target.style.background='rgba(255,255,255,0.07)' }}
             />
-          ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[{ v: 'all', label: 'Tous' }, { v: 'high', label: '75+' }, { v: 'medium', label: '50–74' }, { v: 'low', label: '< 50' }].map(f => (
+              <button key={f.v} onClick={() => setFilterScore(f.v)}
+                style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s', background: filterScore === f.v ? 'rgba(30,58,95,0.9)' : 'rgba(255,255,255,0.07)', color: filterScore === f.v ? '#fff' : 'rgba(255,255,255,0.55)', border: filterScore === f.v ? '1px solid rgba(96,165,250,0.35)' : '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(6px)' }}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+            style={{ marginLeft: 'auto', fontSize: 13, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 12, padding: '10px 14px', cursor: 'pointer', backdropFilter: 'blur(6px)', outline: 'none' }}>
+            <option value="recent" style={{ background: '#1a2540' }}>Plus récents</option>
+            <option value="score" style={{ background: '#1a2540' }}>Meilleur score</option>
+            <option value="alpha" style={{ background: '#1a2540' }}>A → Z</option>
+          </select>
         </div>
-      )}
-    </div>
+
+        {filterBienId && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 16, fontSize: 13 }}>
+            <span style={{ color: '#93c5fd' }}>Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
+            <button onClick={() => navigate('/matchings-v2')} style={{ color: '#60a5fa', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>Voir tout</button>
+          </div>
+        )}
+
+        {/* Cartes */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[...Array(3)].map((_, i) => <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.07)', height: 260, animation: 'pulse 1.5s ease-in-out infinite' }} />)}
+          </div>
+        ) : groups.length === 0 ? (
+          <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '64px 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>✨</div>
+            <p style={{ fontWeight: 700, color: '#fff', marginBottom: 6, fontSize: 16 }}>Aucun matching</p>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>Lance une analyse pour trouver des correspondances</p>
+            <button onClick={runGlobal} style={{ padding: '10px 22px', background: 'rgba(30,58,95,0.9)', color: '#fff', fontWeight: 700, borderRadius: 12, border: '1px solid rgba(96,165,250,0.3)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+              <Sparkles size={16} /> Lancer l'analyse
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {groups.map((g, idx) => (
+              <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0}
+                onRunSingle={runSingle}
+                onPropose={(m, mail, nom) => openEmail(m, mail, nom)}
+                onRefuse={handleRefuse}
+                sendingEmail={sendingEmail}
+                analyzing={analyzing}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
