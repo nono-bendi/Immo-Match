@@ -66,11 +66,9 @@ function AuroraBackground() {
   )
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', background: '#f0f9ff', pointerEvents: 'none' }}>
-      {blob({ width: 900, height: 900, top: '-20%', left: '-12%',  background: '#7dd3fc', filter: 'blur(140px)', opacity: 0.55, animation: 'aurora1 20s ease-in-out infinite' })}
-      {blob({ width: 750, height: 750, top: '15%',  right: '-16%', background: '#93c5fd', filter: 'blur(120px)', opacity: 0.50, animation: 'aurora2 25s ease-in-out infinite' })}
-      {blob({ width: 650, height: 650, bottom: '0%',left: '25%',   background: '#67e8f9', filter: 'blur(130px)', opacity: 0.55, animation: 'aurora3 18s ease-in-out infinite' })}
-      {blob({ width: 500, height: 500, top: '5%',   left: '38%',   background: '#c4b5fd', filter: 'blur(100px)', opacity: 0.28, animation: 'aurora4 22s ease-in-out infinite' })}
-      {blob({ width: 450, height: 450, top: '50%',  left: '8%',    background: '#5eead4', filter: 'blur( 95px)', opacity: 0.38, animation: 'aurora1 28s ease-in-out infinite reverse' })}
+      {blob({ width: 700, height: 700, top: '-15%', left: '-10%',  background: '#7dd3fc', filter: 'blur(80px)', opacity: 0.55, animation: 'aurora1 20s ease-in-out infinite', willChange: 'transform' })}
+      {blob({ width: 600, height: 600, top: '20%',  right: '-12%', background: '#93c5fd', filter: 'blur(70px)', opacity: 0.50, animation: 'aurora2 25s ease-in-out infinite', willChange: 'transform' })}
+      {blob({ width: 550, height: 550, bottom: '0%',left: '28%',   background: '#67e8f9', filter: 'blur(75px)', opacity: 0.52, animation: 'aurora3 18s ease-in-out infinite', willChange: 'transform' })}
     </div>
   )
 }
