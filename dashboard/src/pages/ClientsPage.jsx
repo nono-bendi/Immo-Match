@@ -186,12 +186,13 @@ function ClientsPage() {
     }
   }
 
-  const actifs = prospects.filter(p => !p.archive).filter(p =>
+  const sorted = [...prospects].sort((a, b) => b.id - a.id)
+  const actifs = sorted.filter(p => !p.archive).filter(p =>
     p.nom?.toLowerCase().includes(search.toLowerCase()) ||
     p.villes?.toLowerCase().includes(search.toLowerCase()) ||
     p.bien?.toLowerCase().includes(search.toLowerCase())
   )
-  const archives = prospects.filter(p => p.archive).filter(p =>
+  const archives = sorted.filter(p => p.archive).filter(p =>
     p.nom?.toLowerCase().includes(search.toLowerCase()) ||
     p.villes?.toLowerCase().includes(search.toLowerCase()) ||
     p.bien?.toLowerCase().includes(search.toLowerCase())
@@ -321,15 +322,15 @@ function ClientsPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Clients</h1>
-          <p className="text-sm text-gray-400">
-            {actifs.length} prospect{actifs.length !== 1 ? 's' : ''} actif{actifs.length !== 1 ? 's' : ''}
-            {archives.length > 0 && <span className="ml-1 text-gray-300">· {archives.length} archivé{archives.length !== 1 ? 's' : ''}</span>}
-          </p>
-        </div>
+        <div className="flex items-center gap-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1E3A5F]">Clients</h1>
+            <p className="text-sm text-gray-400">
+              {actifs.length} prospect{actifs.length !== 1 ? 's' : ''} actif{actifs.length !== 1 ? 's' : ''}
+              {archives.length > 0 && <span className="ml-1 text-gray-300">· {archives.length} archivé{archives.length !== 1 ? 's' : ''}</span>}
+            </p>
+          </div>
 
-        <div className="flex items-center gap-4">
           <div className="relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -337,18 +338,18 @@ function ClientsPage() {
               placeholder="Rechercher un client..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-72 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
             />
           </div>
-
-          <a
-            href="/clients/nouveau"
-            className="px-4 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press flex items-center gap-2"
-          >
-            <span className="text-lg">+</span>
-            Nouveau prospect
-          </a>
         </div>
+
+        <a
+          href="/clients/nouveau"
+          className="px-4 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press flex items-center gap-2"
+        >
+          <span className="text-lg">+</span>
+          Nouveau prospect
+        </a>
       </div>
 
       {/* Table prospects actifs */}
