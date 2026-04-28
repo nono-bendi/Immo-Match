@@ -493,18 +493,18 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond sombre halo condensé ──────────────────────────────────────────────
-    <div style={{ margin: '-24px', padding: '32px 24px', background: '#080f1e', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+    // ── Fond clair halo condensé ───────────────────────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', background: '#f4f7ff', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
 
-      {/* Orbes halo animées */}
-      <div style={{ position: 'absolute', top: '-15%', left: '-8%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.95) 0%,rgba(45,90,138,0.5) 35%,transparent 70%)', filter: 'blur(72px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '-8%', right: '-12%', width: '50%', height: '60%', background: 'radial-gradient(ellipse at center,rgba(79,70,229,0.6) 0%,rgba(99,102,241,0.3) 40%,transparent 70%)', filter: 'blur(80px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-5%', left: '5%', width: '42%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.5) 0%,rgba(20,184,166,0.25) 40%,transparent 70%)', filter: 'blur(65px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-8%', right: '-5%', width: '38%', height: '45%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.45) 0%,rgba(139,92,246,0.22) 40%,transparent 70%)', filter: 'blur(55px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '45%', left: '35%', width: '30%', height: '35%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.3) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
+      {/* Orbes halo animées — pastel sur blanc */}
+      <div style={{ position: 'absolute', top: '-15%', left: '-8%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.13) 0%,rgba(45,90,138,0.07) 40%,transparent 70%)', filter: 'blur(72px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '-8%', right: '-12%', width: '50%', height: '60%', background: 'radial-gradient(ellipse at center,rgba(99,102,241,0.18) 0%,rgba(129,140,248,0.09) 40%,transparent 70%)', filter: 'blur(80px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-5%', left: '5%', width: '42%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.14) 0%,rgba(20,184,166,0.07) 40%,transparent 70%)', filter: 'blur(65px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-8%', right: '-5%', width: '38%', height: '45%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.13) 0%,rgba(139,92,246,0.07) 40%,transparent 70%)', filter: 'blur(55px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '45%', left: '35%', width: '30%', height: '35%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.1) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
 
-      {/* Grille de points */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.055) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none' }} />
+      {/* Grille de points sombres */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.06) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
         <Confetti show={showConfetti} />
@@ -514,16 +514,16 @@ export default function MatchingsPageV2() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/matchings')} title="Retour ancienne vue"
-            style={{ padding: 8, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='#fff' }}
-            onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color='rgba(255,255,255,0.5)' }}
+            style={{ padding: 8, borderRadius: 12, background: 'rgba(255,255,255,0.7)', border: '1px solid #e2e8f0', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1E3A5F' }}
+            onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.7)'; e.currentTarget.style.color='#64748b' }}
           ><ArrowLeft size={19} /></button>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', margin: 0 }}>Matchings</h1>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1E3A5F', letterSpacing: '-0.02em', margin: 0 }}>Matchings</h1>
               <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 3, marginBottom: 0 }}>
+            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 3, marginBottom: 0 }}>
               {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
             </p>
           </div>
@@ -533,7 +533,7 @@ export default function MatchingsPageV2() {
             disabled={analyzing}
             onMouseEnter={() => setAnalyzeHover(true)}
             onMouseLeave={() => setAnalyzeHover(false)}
-            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? 'rgba(107,114,128,0.5)' : (analyzeHover ? 'rgba(45,90,138,0.9)' : 'rgba(30,58,95,0.85)'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: '1px solid rgba(255,255,255,0.12)', cursor: analyzing ? 'default' : 'pointer', backdropFilter: 'blur(8px)', boxShadow: analyzeHover && !analyzing ? '0 6px 24px rgba(30,58,95,0.6),0 0 0 1px rgba(96,165,250,0.2)' : '0 4px 14px rgba(0,0,0,0.3)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.6 : 1 }}
+            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? '#6b7280' : (analyzeHover ? '#2D5A8A' : '#1E3A5F'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: 'none', cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzeHover && !analyzing ? '0 6px 24px rgba(30,58,95,0.45)' : '0 4px 14px rgba(30,58,95,0.25)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.7 : 1 }}
           >
             {analyzing ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} />}
             {analyzing ? 'Analyse en cours…' : 'Analyser'}
@@ -543,26 +543,26 @@ export default function MatchingsPageV2() {
         {/* Filtres */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flex: '1', maxWidth: 320 }}>
-            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.35)', pointerEvents: 'none' }} />
+            <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
-              style={{ width: '100%', paddingLeft: 36, paddingRight: 16, paddingTop: 10, paddingBottom: 10, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 12, fontSize: 13, color: '#fff', outline: 'none', backdropFilter: 'blur(6px)', boxSizing: 'border-box' }}
-              onFocus={e => { e.target.style.borderColor='rgba(96,165,250,0.4)'; e.target.style.background='rgba(255,255,255,0.1)' }}
-              onBlur={e => { e.target.style.borderColor='rgba(255,255,255,0.11)'; e.target.style.background='rgba(255,255,255,0.07)' }}
+              style={{ width: '100%', paddingLeft: 36, paddingRight: 16, paddingTop: 10, paddingBottom: 10, background: 'rgba(255,255,255,0.8)', border: '1px solid #e2e8f0', borderRadius: 12, fontSize: 13, color: '#1E3A5F', outline: 'none', backdropFilter: 'blur(6px)', boxSizing: 'border-box' }}
+              onFocus={e => { e.target.style.borderColor='#1E3A5F'; e.target.style.background='#fff' }}
+              onBlur={e => { e.target.style.borderColor='#e2e8f0'; e.target.style.background='rgba(255,255,255,0.8)' }}
             />
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             {[{ v: 'all', label: 'Tous' }, { v: 'high', label: '75+' }, { v: 'medium', label: '50–74' }, { v: 'low', label: '< 50' }].map(f => (
               <button key={f.v} onClick={() => setFilterScore(f.v)}
-                style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s', background: filterScore === f.v ? 'rgba(30,58,95,0.9)' : 'rgba(255,255,255,0.07)', color: filterScore === f.v ? '#fff' : 'rgba(255,255,255,0.55)', border: filterScore === f.v ? '1px solid rgba(96,165,250,0.35)' : '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(6px)' }}>
+                style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s', background: filterScore === f.v ? '#1E3A5F' : 'rgba(255,255,255,0.8)', color: filterScore === f.v ? '#fff' : '#64748b', border: filterScore === f.v ? '1px solid #1E3A5F' : '1px solid #e2e8f0', backdropFilter: 'blur(6px)' }}>
                 {f.label}
               </button>
             ))}
           </div>
           <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-            style={{ marginLeft: 'auto', fontSize: 13, color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.11)', borderRadius: 12, padding: '10px 14px', cursor: 'pointer', backdropFilter: 'blur(6px)', outline: 'none' }}>
-            <option value="recent" style={{ background: '#1a2540' }}>Plus récents</option>
-            <option value="score" style={{ background: '#1a2540' }}>Meilleur score</option>
-            <option value="alpha" style={{ background: '#1a2540' }}>A → Z</option>
+            style={{ marginLeft: 'auto', fontSize: 13, color: '#64748b', background: 'rgba(255,255,255,0.8)', border: '1px solid #e2e8f0', borderRadius: 12, padding: '10px 14px', cursor: 'pointer', backdropFilter: 'blur(6px)', outline: 'none' }}>
+            <option value="recent">Plus récents</option>
+            <option value="score">Meilleur score</option>
+            <option value="alpha">A → Z</option>
           </select>
         </div>
 
@@ -576,14 +576,14 @@ export default function MatchingsPageV2() {
         {/* Cartes */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[...Array(3)].map((_, i) => <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 20, border: '1px solid rgba(255,255,255,0.07)', height: 260, animation: 'pulse 1.5s ease-in-out infinite' }} />)}
+            {[...Array(3)].map((_, i) => <div key={i} style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 20, border: '1px solid #e8eef5', height: 260, animation: 'pulse 1.5s ease-in-out infinite' }} />)}
           </div>
         ) : groups.length === 0 ? (
-          <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '64px 16px', textAlign: 'center' }}>
+          <div style={{ background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', border: '1px solid #e8eef5', borderRadius: 24, padding: '64px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✨</div>
-            <p style={{ fontWeight: 700, color: '#fff', marginBottom: 6, fontSize: 16 }}>Aucun matching</p>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>Lance une analyse pour trouver des correspondances</p>
-            <button onClick={runGlobal} style={{ padding: '10px 22px', background: 'rgba(30,58,95,0.9)', color: '#fff', fontWeight: 700, borderRadius: 12, border: '1px solid rgba(96,165,250,0.3)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+            <p style={{ fontWeight: 700, color: '#1E3A5F', marginBottom: 6, fontSize: 16 }}>Aucun matching</p>
+            <p style={{ fontSize: 14, color: '#94a3b8', marginBottom: 20 }}>Lance une analyse pour trouver des correspondances</p>
+            <button onClick={runGlobal} style={{ padding: '10px 22px', background: '#1E3A5F', color: '#fff', fontWeight: 700, borderRadius: 12, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
               <Sparkles size={16} /> Lancer l'analyse
             </button>
           </div>
