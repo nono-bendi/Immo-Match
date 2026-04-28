@@ -21,6 +21,7 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes blob2        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-70px,30px) scale(1.08)} 66%{transform:translate(50px,-60px) scale(1.05)} }
     @keyframes blob3        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,60px) scale(0.92)} 66%{transform:translate(-60px,-30px) scale(1.1)} }
     @keyframes shimmerWave  { 0%{opacity:0.12;transform:skewX(-12deg) translateX(-120%)} 100%{opacity:0.28;transform:skewX(-12deg) translateX(220%)} }
+    @keyframes waveScroll   { from{transform:translateX(0)} to{transform:translateX(-100vw)} }
   `
   document.head.appendChild(s)
 }
@@ -54,68 +55,40 @@ const POSTIT_PAL = [
 ]
 const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
-// ─── WaveCanvas — Canvas 2D, pas WebGL ────────────────────────────────────────
-function WaveCanvas() {
-  const canvasRef = useRef(null)
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let animId, t = 0
-
-    const setSize = () => {
-      canvas.width  = window.innerWidth
-      canvas.height = window.innerHeight
+// ─── WaveBackground — SVG pur, pas WebGL, pas Canvas ──────────────────────────
+function WaveBackground() {
+  const VW = 1440, VH = 400
+  const mkPath = (yPct, aPct, n) => {
+    const Y = yPct * VH, A = aPct * VH, P = VW / n
+    let d = `M0,${Y}`
+    for (let i = 0; i < n; i++) {
+      const x = i * P
+      d += ` Q${x + P * 0.25},${Y - A} ${x + P * 0.5},${Y}`
+      d += ` Q${x + P * 0.75},${Y + A} ${x + P},${Y}`
     }
-    setSize()
-    window.addEventListener('resize', setSize)
-
-    const WAVES = [
-      { amp: 55, freq: 0.006, speed: 0.016, phase: 0,   y: 0.55, color: 'rgba(6,182,212,0.50)'  },
-      { amp: 40, freq: 0.010, speed: 0.012, phase: 2.1, y: 0.65, color: 'rgba(14,116,144,0.48)' },
-      { amp: 65, freq: 0.004, speed: 0.020, phase: 4.3, y: 0.75, color: 'rgba(8,145,178,0.42)'  },
-      { amp: 30, freq: 0.013, speed: 0.009, phase: 1.0, y: 0.45, color: 'rgba(30,58,95,0.44)'   },
-      { amp: 50, freq: 0.008, speed: 0.014, phase: 3.7, y: 0.85, color: 'rgba(2,132,199,0.38)'  },
-      { amp: 35, freq: 0.007, speed: 0.018, phase: 5.5, y: 0.93, color: 'rgba(12,74,110,0.55)'  },
-    ]
-
-    const draw = () => {
-      const w = canvas.width, h = canvas.height
-      const bg = ctx.createLinearGradient(0, 0, w, h)
-      bg.addColorStop(0,   '#0c4a6e')
-      bg.addColorStop(0.4, '#0e7490')
-      bg.addColorStop(0.75,'#164e63')
-      bg.addColorStop(1,   '#1E3A5F')
-      ctx.fillStyle = bg
-      ctx.fillRect(0, 0, w, h)
-
-      WAVES.forEach(wv => {
-        ctx.beginPath()
-        ctx.moveTo(0, h)
-        for (let x = 0; x <= w + 4; x += 4) {
-          const y = wv.y * h
-            + Math.sin(x * wv.freq        + t * wv.speed        + wv.phase) * wv.amp
-            + Math.sin(x * wv.freq * 2.1  + t * wv.speed * 0.7  + wv.phase) * wv.amp * 0.38
-            + Math.sin(x * wv.freq * 0.45 + t * wv.speed * 1.5)             * wv.amp * 0.22
-          ctx.lineTo(x, y)
-        }
-        ctx.lineTo(w, h)
-        ctx.closePath()
-        ctx.fillStyle = wv.color
-        ctx.fill()
-      })
-
-      t++
-      animId = requestAnimationFrame(draw)
-    }
-    draw()
-    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', setSize) }
-  }, [])
+    return d + ` L${VW},${VH} L0,${VH} Z`
+  }
+  const WAVES = [
+    { yPct: 0.52, aPct: 0.09, n: 5, dur: '10s', delay: '0s',   color: 'rgba(6,182,212,0.52)'  },
+    { yPct: 0.63, aPct: 0.07, n: 4, dur: '14s', delay: '-4s',  color: 'rgba(14,116,144,0.47)' },
+    { yPct: 0.74, aPct: 0.11, n: 6, dur:  '8s', delay: '-2s',  color: 'rgba(8,145,178,0.44)'  },
+    { yPct: 0.43, aPct: 0.06, n: 3, dur: '18s', delay: '-7s',  color: 'rgba(30,58,95,0.52)'   },
+    { yPct: 0.84, aPct: 0.08, n: 5, dur: '12s', delay: '-5s',  color: 'rgba(2,132,199,0.40)'  },
+    { yPct: 0.92, aPct: 0.05, n: 4, dur: '16s', delay: '-9s',  color: 'rgba(12,74,110,0.58)'  },
+  ]
+  const svgStyle = { width: '100vw', height: '60vh', flexShrink: 0, display: 'block' }
   return (
-    <canvas
-      ref={canvasRef}
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'block', pointerEvents: 'none', zIndex: 0 }}
-    />
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: 'linear-gradient(160deg,#0c4a6e 0%,#0e7490 45%,#155e75 100%)' }}>
+      {WAVES.map((w, i) => {
+        const path = mkPath(w.yPct, w.aPct, w.n)
+        return (
+          <div key={i} style={{ position: 'absolute', bottom: 0, left: 0, display: 'flex', animation: `waveScroll ${w.dur} linear infinite`, animationDelay: w.delay }}>
+            <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" style={svgStyle}><path d={path} fill={w.color} /></svg>
+            <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" style={svgStyle}><path d={path} fill={w.color} /></svg>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
@@ -562,8 +535,8 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#0c4a6e' }}>
-      <WaveCanvas />
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+      <WaveBackground />
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1, isolation: 'isolate' }}>
       <Confetti show={showConfetti} />
