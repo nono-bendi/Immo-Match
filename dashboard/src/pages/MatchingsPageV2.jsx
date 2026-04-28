@@ -54,6 +54,71 @@ const POSTIT_PAL = [
 ]
 const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
+// ─── WaveCanvas — Canvas 2D, pas WebGL ────────────────────────────────────────
+function WaveCanvas() {
+  const canvasRef = useRef(null)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animId, t = 0
+
+    const setSize = () => {
+      canvas.width  = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    setSize()
+    window.addEventListener('resize', setSize)
+
+    const WAVES = [
+      { amp: 55, freq: 0.006, speed: 0.016, phase: 0,   y: 0.55, color: 'rgba(6,182,212,0.50)'  },
+      { amp: 40, freq: 0.010, speed: 0.012, phase: 2.1, y: 0.65, color: 'rgba(14,116,144,0.48)' },
+      { amp: 65, freq: 0.004, speed: 0.020, phase: 4.3, y: 0.75, color: 'rgba(8,145,178,0.42)'  },
+      { amp: 30, freq: 0.013, speed: 0.009, phase: 1.0, y: 0.45, color: 'rgba(30,58,95,0.44)'   },
+      { amp: 50, freq: 0.008, speed: 0.014, phase: 3.7, y: 0.85, color: 'rgba(2,132,199,0.38)'  },
+      { amp: 35, freq: 0.007, speed: 0.018, phase: 5.5, y: 0.93, color: 'rgba(12,74,110,0.55)'  },
+    ]
+
+    const draw = () => {
+      const w = canvas.width, h = canvas.height
+      const bg = ctx.createLinearGradient(0, 0, w, h)
+      bg.addColorStop(0,   '#0c4a6e')
+      bg.addColorStop(0.4, '#0e7490')
+      bg.addColorStop(0.75,'#164e63')
+      bg.addColorStop(1,   '#1E3A5F')
+      ctx.fillStyle = bg
+      ctx.fillRect(0, 0, w, h)
+
+      WAVES.forEach(wv => {
+        ctx.beginPath()
+        ctx.moveTo(0, h)
+        for (let x = 0; x <= w + 4; x += 4) {
+          const y = wv.y * h
+            + Math.sin(x * wv.freq        + t * wv.speed        + wv.phase) * wv.amp
+            + Math.sin(x * wv.freq * 2.1  + t * wv.speed * 0.7  + wv.phase) * wv.amp * 0.38
+            + Math.sin(x * wv.freq * 0.45 + t * wv.speed * 1.5)             * wv.amp * 0.22
+          ctx.lineTo(x, y)
+        }
+        ctx.lineTo(w, h)
+        ctx.closePath()
+        ctx.fillStyle = wv.color
+        ctx.fill()
+      })
+
+      t++
+      animId = requestAnimationFrame(draw)
+    }
+    draw()
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', setSize) }
+  }, [])
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'block', pointerEvents: 'none', zIndex: 0 }}
+    />
+  )
+}
+
 // ─── Count-up ──────────────────────────────────────────────────────────────────
 function useCountUp(target, duration = 900) {
   const [v, setV] = useState(0)
@@ -396,30 +461,6 @@ export default function MatchingsPageV2() {
   const [currentProspectIndex, setCurrentProspectIndex] = useState(0)
   const [currentProspectName, setCurrentProspectName]   = useState('')
   const cancelRef  = useRef(false)
-  const vantaRef   = useRef(null)
-  const vantaEffect = useRef(null)
-
-  useEffect(() => {
-    let effect = null
-    import('vanta/dist/vanta.waves.min').then(mod => {
-      import('three').then(THREE => {
-        effect = (mod.default || mod)(({
-          el: vantaRef.current,
-          THREE,
-          color: 0x06b6d4,
-          shininess: 60,
-          waveHeight: 18,
-          waveSpeed: 0.7,
-          zoom: 0.9,
-          mouseControls: true,
-          touchControls: false,
-          gyroControls: false,
-        }))
-        vantaEffect.current = effect
-      })
-    })
-    return () => { if (vantaEffect.current) { vantaEffect.current.destroy(); vantaEffect.current = null } }
-  }, [])
 
   const [emailModal, setEmailModal]     = useState({ isOpen: false, type: 'confirm', data: null, isLoading: false })
   const [pendingEmail, setPendingEmail] = useState(null)
@@ -521,24 +562,25 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div ref={vantaRef} style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#06b6d4' }}>
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#0c4a6e' }}>
+      <WaveCanvas />
 
-    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1, isolation: 'isolate' }}>
       <Confetti show={showConfetti} />
       <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-gray-100 transition-all" title="Retour ancienne vue">
+        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl transition-all" style={{ color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }} onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.22)'; e.currentTarget.style.color='#fff' }} onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='rgba(255,255,255,0.7)' }} title="Retour ancienne vue">
           <ArrowLeft size={19} />
         </button>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
+            <h1 className="text-2xl font-bold text-white">Matchings</h1>
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
           </div>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
             {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
           </p>
         </div>
