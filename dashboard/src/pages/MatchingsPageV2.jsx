@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
-import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -15,9 +14,13 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
   const s = document.createElement('style')
   s.id = 'immo-kf'
   s.textContent = `
-    @keyframes blobPulse { 0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1} }
-    @keyframes slideUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes btnShimmer{ 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes slideUp      { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes btnShimmer   { 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes bgShift      { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes blob1        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-40px) scale(1.12)} 66%{transform:translate(-30px,50px) scale(0.95)} }
+    @keyframes blob2        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-70px,30px) scale(1.08)} 66%{transform:translate(50px,-60px) scale(1.05)} }
+    @keyframes blob3        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,60px) scale(0.92)} 66%{transform:translate(-60px,-30px) scale(1.1)} }
+    @keyframes shimmerWave  { 0%{opacity:0.12;transform:skewX(-12deg) translateX(-120%)} 100%{opacity:0.28;transform:skewX(-12deg) translateX(220%)} }
   `
   document.head.appendChild(s)
 }
@@ -392,7 +395,31 @@ export default function MatchingsPageV2() {
   const [totalProspects, setTotalProspects]     = useState(0)
   const [currentProspectIndex, setCurrentProspectIndex] = useState(0)
   const [currentProspectName, setCurrentProspectName]   = useState('')
-  const cancelRef = useRef(false)
+  const cancelRef  = useRef(false)
+  const vantaRef   = useRef(null)
+  const vantaEffect = useRef(null)
+
+  useEffect(() => {
+    let effect = null
+    import('vanta/dist/vanta.waves.min').then(mod => {
+      import('three').then(THREE => {
+        effect = (mod.default || mod)(({
+          el: vantaRef.current,
+          THREE,
+          color: 0x06b6d4,
+          shininess: 60,
+          waveHeight: 18,
+          waveSpeed: 0.7,
+          zoom: 0.9,
+          mouseControls: true,
+          touchControls: false,
+          gyroControls: false,
+        }))
+        vantaEffect.current = effect
+      })
+    })
+    return () => { if (vantaEffect.current) { vantaEffect.current.destroy(); vantaEffect.current = null } }
+  }, [])
 
   const [emailModal, setEmailModal]     = useState({ isOpen: false, type: 'confirm', data: null, isLoading: false })
   const [pendingEmail, setPendingEmail] = useState(null)
@@ -494,46 +521,7 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#06b6d4' }}>
-
-      <ShaderGradientCanvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
-        <ShaderGradient
-          animate="on"
-          axesHelper="off"
-          bgColor1="#000000"
-          bgColor2="#000000"
-          brightness={1.2}
-          cAzimuthAngle={170}
-          cDistance={4.41}
-          cPolarAngle={70}
-          cameraZoom={1}
-          color1="#06b6d4"
-          color2="#6bf5ff"
-          color3="#ffffff"
-          destination="onCanvas"
-          embedMode="off"
-          envPreset="city"
-          grain="off"
-          lightType="3d"
-          pixelDensity={1}
-          positionX={0}
-          positionY={0.9}
-          positionZ={-0.3}
-          reflection={0.1}
-          rotationX={45}
-          rotationY={0}
-          rotationZ={0}
-          shader="defaults"
-          type="waterPlane"
-          uAmplitude={0}
-          uDensity={1.2}
-          uFrequency={0}
-          uSpeed={0.2}
-          uStrength={3.4}
-          uTime={0}
-          wireframe={false}
-        />
-      </ShaderGradientCanvas>
+    <div ref={vantaRef} style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#06b6d4' }}>
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
