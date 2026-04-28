@@ -90,8 +90,8 @@ function AppRoutes() {
                   <Route path="/clients" element={<ClientsPage />} />
                   <Route path="/clients/nouveau" element={<NewProspectPage />} />
                   <Route path="/biens" element={<BiensPage />} />
-                  <Route path="/matchings" element={<MatchingsPage />} />
-                  <Route path="/matchings-v2" element={<MatchingsPageV2 />} />
+                  <Route path="/matchings" element={<MatchingsPageV2 />} />
+                  <Route path="/matchings-v1" element={<MatchingsPage />} />
                   <Route path="/historique" element={<HistoriquePage />} />
                   <Route path="/parametres" element={<SettingsPage />} />
                   <Route path="/administration" element={<AdministrationPage />} />

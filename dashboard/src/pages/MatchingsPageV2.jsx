@@ -525,7 +525,7 @@ export default function MatchingsPageV2() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-white/60 transition-all" title="Retour ancienne vue">
+        <button onClick={() => navigate('/matchings-v1')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-white/60 transition-all" title="Ancienne vue">
           <ArrowLeft size={19} />
         </button>
         <div>
