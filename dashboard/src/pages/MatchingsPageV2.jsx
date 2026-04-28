@@ -58,18 +58,18 @@ const POSTIT_PAL = [
 ]
 const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
-// ─── AuroraBackground — ShaderGradient-like, zéro WebGL ──────────────────────
+// ─── AuroraBackground — ShaderGradient-like, position:fixed → visible au scroll
 function AuroraBackground() {
   const blob = (style) => (
     <div style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', ...style }} />
   )
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#04101a' }}>
-      {blob({ width: 900, height: 900, top: '-25%', left: '-15%',  background: '#0891b2', filter: 'blur(130px)', opacity: 0.60, animation: 'aurora1 20s ease-in-out infinite' })}
-      {blob({ width: 750, height: 750, top: '20%',  right: '-18%', background: '#1d4ed8', filter: 'blur(110px)', opacity: 0.55, animation: 'aurora2 25s ease-in-out infinite' })}
-      {blob({ width: 650, height: 650, bottom:'-22%',left: '28%',  background: '#0e7490', filter: 'blur(120px)', opacity: 0.65, animation: 'aurora3 18s ease-in-out infinite' })}
-      {blob({ width: 500, height: 500, top: '8%',   left: '42%',   background: '#6d28d9', filter: 'blur( 90px)', opacity: 0.30, animation: 'aurora4 22s ease-in-out infinite' })}
-      {blob({ width: 420, height: 420, top: '55%',  left: '10%',   background: '#0284c7', filter: 'blur( 80px)', opacity: 0.40, animation: 'aurora1 28s ease-in-out infinite reverse' })}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', background: '#04101a', pointerEvents: 'none' }}>
+      {blob({ width: 900, height: 900, top: '-20%', left: '-12%',  background: '#0891b2', filter: 'blur(130px)', opacity: 0.62, animation: 'aurora1 20s ease-in-out infinite' })}
+      {blob({ width: 750, height: 750, top: '15%',  right: '-16%', background: '#1d4ed8', filter: 'blur(110px)', opacity: 0.55, animation: 'aurora2 25s ease-in-out infinite' })}
+      {blob({ width: 650, height: 650, bottom: '0%',left: '25%',   background: '#0e7490', filter: 'blur(120px)', opacity: 0.65, animation: 'aurora3 18s ease-in-out infinite' })}
+      {blob({ width: 500, height: 500, top: '5%',   left: '38%',   background: '#6d28d9', filter: 'blur( 90px)', opacity: 0.32, animation: 'aurora4 22s ease-in-out infinite' })}
+      {blob({ width: 450, height: 450, top: '50%',  left: '8%',    background: '#0284c7', filter: 'blur( 85px)', opacity: 0.42, animation: 'aurora1 28s ease-in-out infinite reverse' })}
     </div>
   )
 }
@@ -517,10 +517,10 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
       <AuroraBackground />
 
-    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1, isolation: 'isolate' }}>
+    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
       <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
