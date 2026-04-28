@@ -186,7 +186,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     has_annonce = is_valid_http_url(annonce_url)
     safe_annonce_url = escape(annonce_url) if has_annonce else ""
 
-    default_intro = "Suite à notre échange, j'ai identifié un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
+    default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
     intro_text = fix_mojibake((data.custom_intro or "").strip()) or default_intro
 
     default_conclusion = "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite ou obtenir plus d'informations."
@@ -452,7 +452,7 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
     agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
 
     salutation = format_salutation(data.to_name)
-    default_intro = "Suite à notre échange concernant votre projet immobilier, j'ai le plaisir de vous présenter un bien susceptible de correspondre à vos critères de recherche."
+    default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
     intro_text = fix_mojibake((data.custom_intro or "").strip()) or default_intro
     default_conclusion = "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite ou obtenir plus d'informations."
     conclusion_text = fix_mojibake((data.custom_conclusion or "").strip()) or default_conclusion
