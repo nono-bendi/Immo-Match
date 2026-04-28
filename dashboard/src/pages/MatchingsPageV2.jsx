@@ -21,7 +21,10 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes blob2        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-70px,30px) scale(1.08)} 66%{transform:translate(50px,-60px) scale(1.05)} }
     @keyframes blob3        { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,60px) scale(0.92)} 66%{transform:translate(-60px,-30px) scale(1.1)} }
     @keyframes shimmerWave  { 0%{opacity:0.12;transform:skewX(-12deg) translateX(-120%)} 100%{opacity:0.28;transform:skewX(-12deg) translateX(220%)} }
-    @keyframes waveScroll   { from{transform:translateX(0)} to{transform:translateX(-100vw)} }
+    @keyframes aurora1 { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(90px,-70px) scale(1.12)} 70%{transform:translate(-50px,90px) scale(0.93)} }
+    @keyframes aurora2 { 0%,100%{transform:translate(0,0) scale(1)} 35%{transform:translate(-110px,55px) scale(1.09)} 65%{transform:translate(70px,-95px) scale(1.06)} }
+    @keyframes aurora3 { 0%,100%{transform:translate(0,0) scale(1)} 45%{transform:translate(65px,80px) scale(0.90)} 75%{transform:translate(-90px,-45px) scale(1.14)} }
+    @keyframes aurora4 { 0%,100%{transform:translate(0,0) scale(1)} 30%{transform:translate(-60px,-100px) scale(1.16)} 70%{transform:translate(100px,60px) scale(0.87)} }
   `
   document.head.appendChild(s)
 }
@@ -55,39 +58,18 @@ const POSTIT_PAL = [
 ]
 const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
-// ─── WaveBackground — SVG pur, pas WebGL, pas Canvas ──────────────────────────
-function WaveBackground() {
-  const VW = 1440, VH = 400
-  const mkPath = (yPct, aPct, n) => {
-    const Y = yPct * VH, A = aPct * VH, P = VW / n
-    let d = `M0,${Y}`
-    for (let i = 0; i < n; i++) {
-      const x = i * P
-      d += ` Q${x + P * 0.25},${Y - A} ${x + P * 0.5},${Y}`
-      d += ` Q${x + P * 0.75},${Y + A} ${x + P},${Y}`
-    }
-    return d + ` L${VW},${VH} L0,${VH} Z`
-  }
-  const WAVES = [
-    { yPct: 0.52, aPct: 0.09, n: 5, dur: '10s', delay: '0s',   color: 'rgba(6,182,212,0.52)'  },
-    { yPct: 0.63, aPct: 0.07, n: 4, dur: '14s', delay: '-4s',  color: 'rgba(14,116,144,0.47)' },
-    { yPct: 0.74, aPct: 0.11, n: 6, dur:  '8s', delay: '-2s',  color: 'rgba(8,145,178,0.44)'  },
-    { yPct: 0.43, aPct: 0.06, n: 3, dur: '18s', delay: '-7s',  color: 'rgba(30,58,95,0.52)'   },
-    { yPct: 0.84, aPct: 0.08, n: 5, dur: '12s', delay: '-5s',  color: 'rgba(2,132,199,0.40)'  },
-    { yPct: 0.92, aPct: 0.05, n: 4, dur: '16s', delay: '-9s',  color: 'rgba(12,74,110,0.58)'  },
-  ]
-  const svgStyle = { width: '100vw', height: '60vh', flexShrink: 0, display: 'block' }
+// ─── AuroraBackground — ShaderGradient-like, zéro WebGL ──────────────────────
+function AuroraBackground() {
+  const blob = (style) => (
+    <div style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', ...style }} />
+  )
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: 'linear-gradient(160deg,#0c4a6e 0%,#0e7490 45%,#155e75 100%)' }}>
-      {WAVES.map((w, i) => {
-        const path = mkPath(w.yPct, w.aPct, w.n)
-        return (
-          <div key={i} style={{ position: 'absolute', bottom: 0, left: 0, display: 'flex', animation: `waveScroll ${w.dur} linear infinite`, animationDelay: w.delay }}>
-            <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" style={svgStyle}><path d={path} fill={w.color} /></svg>
-            <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" style={svgStyle}><path d={path} fill={w.color} /></svg>
-          </div>
-        )
-      })}
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#04101a' }}>
+      {blob({ width: 900, height: 900, top: '-25%', left: '-15%',  background: '#0891b2', filter: 'blur(130px)', opacity: 0.60, animation: 'aurora1 20s ease-in-out infinite' })}
+      {blob({ width: 750, height: 750, top: '20%',  right: '-18%', background: '#1d4ed8', filter: 'blur(110px)', opacity: 0.55, animation: 'aurora2 25s ease-in-out infinite' })}
+      {blob({ width: 650, height: 650, bottom:'-22%',left: '28%',  background: '#0e7490', filter: 'blur(120px)', opacity: 0.65, animation: 'aurora3 18s ease-in-out infinite' })}
+      {blob({ width: 500, height: 500, top: '8%',   left: '42%',   background: '#6d28d9', filter: 'blur( 90px)', opacity: 0.30, animation: 'aurora4 22s ease-in-out infinite' })}
+      {blob({ width: 420, height: 420, top: '55%',  left: '10%',   background: '#0284c7', filter: 'blur( 80px)', opacity: 0.40, animation: 'aurora1 28s ease-in-out infinite reverse' })}
     </div>
   )
 }
@@ -536,7 +518,7 @@ export default function MatchingsPageV2() {
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
-      <WaveBackground />
+      <AuroraBackground />
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1, isolation: 'isolate' }}>
       <Confetti show={showConfetti} />
