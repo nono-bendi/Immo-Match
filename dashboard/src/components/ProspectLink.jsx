@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 import { apiFetch } from '../api'
 import ProspectModal from './ProspectModal'
@@ -28,7 +28,7 @@ function ProspectLink({ prospect, children, className = '' }) {
     <>
       <button
         onClick={(e) => { e.stopPropagation(); setShowModal(true) }}
-        className={`text-[#1E3A5F] hover:text-[#2D5A8A] hover:underline font-medium cursor-pointer ${className}`}
+        className={`text-[#2563eb] hover:text-[#3b82f6] hover:underline font-medium cursor-pointer ${className}`}
       >
         {children || prospect.nom || 'Sans nom'}
       </button>

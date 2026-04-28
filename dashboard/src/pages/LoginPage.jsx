@@ -1,4 +1,4 @@
-// =====================================================
+﻿// =====================================================
 // src/pages/LoginPage.jsx — Immersive fullscreen
 // =====================================================
 
@@ -217,7 +217,7 @@ function LoginPage() {
           font-family:inherit; font-size:14px; font-weight:600;
           cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
           transition: all 0.18s ease;
-          background: white; color: #1E3A5F;
+          background: white; color: #2563eb;
           box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
         .sbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 28px rgba(0,0,0,0.3); }
@@ -284,7 +284,7 @@ function LoginPage() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
           }}>
-            <Sparkles size={17} color="#1E3A5F" />
+            <Sparkles size={17} color="#2563eb" />
           </div>
           <span style={{ color: 'white', fontWeight: 700, fontSize: '16px', letterSpacing: '-0.02em' }}>
             ImmoFlash
@@ -381,7 +381,7 @@ function LoginPage() {
               <button type="submit" className="sbtn" disabled={loading} style={{ marginTop: '6px' }}>
                 {loading ? (
                   <>
-                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(30,58,95,0.3)', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                    <div style={{ width: '14px', height: '14px', border: '2px solid rgba(37,99,235,0.3)', borderTopColor: '#2563eb', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                     {isLogin ? 'Connexion...' : 'Création...'}
                   </>
                 ) : (

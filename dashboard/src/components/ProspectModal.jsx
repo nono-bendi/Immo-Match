@@ -1,4 +1,4 @@
-import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
+﻿import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
 import { API_URL } from '../config'
 
 function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
@@ -19,7 +19,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
       <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-100" onClick={e => e.stopPropagation()}>
         
         {/* Header avec dégradé subtil */}
-        <div className="p-8 text-white relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${gradientFrom || '#1E3A5F'}, ${gradientTo || '#2D5A8A'})` }}>
+        <div className="p-8 text-white relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${gradientFrom || '#2563eb'}, ${gradientTo || '#3b82f6'})` }}>
           {/* Cercle décoratif */}
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full"></div>
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full"></div>
@@ -71,8 +71,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
             
             {/* Colonne gauche - Recherche */}
             <div>
-              <h3 className="text-xs font-bold text-[#1E3A5F] uppercase tracking-widest mb-4 flex items-center gap-2">
-                <span className="w-8 h-0.5 bg-[#1E3A5F] rounded-full"></span>
+              <h3 className="text-xs font-bold text-[#2563eb] uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="w-8 h-0.5 bg-[#2563eb] rounded-full"></span>
                 Recherche
               </h3>
               <div className="space-y-2">
@@ -83,7 +83,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Type de bien</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.bien}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.bien}</p>
                     </div>
                   </div>
                 )}
@@ -95,7 +95,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Villes</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.villes}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.villes}</p>
                     </div>
                   </div>
                 )}
@@ -107,7 +107,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Quartiers</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.quartiers}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.quartiers}</p>
                     </div>
                   </div>
                 )}
@@ -119,7 +119,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Budget max</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{formatBudget(prospect.budget_max)}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{formatBudget(prospect.budget_max)}</p>
                     </div>
                   </div>
                 )}
@@ -131,7 +131,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Destination</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.destination}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.destination}</p>
                     </div>
                   </div>
                 )}
@@ -140,8 +140,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
 
             {/* Colonne droite - Critères */}
             <div>
-              <h3 className="text-xs font-bold text-[#1E3A5F] uppercase tracking-widest mb-4 flex items-center gap-2">
-                <span className="w-8 h-0.5 bg-[#1E3A5F] rounded-full"></span>
+              <h3 className="text-xs font-bold text-[#2563eb] uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="w-8 h-0.5 bg-[#2563eb] rounded-full"></span>
                 Critères
               </h3>
               <div className="space-y-2">
@@ -152,7 +152,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Critères</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.criteres}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.criteres}</p>
                     </div>
                   </div>
                 )}
@@ -164,7 +164,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">État</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.etat}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.etat}</p>
                     </div>
                   </div>
                 )}
@@ -176,7 +176,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Exposition</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.expo}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.expo}</p>
                     </div>
                   </div>
                 )}
@@ -188,7 +188,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Stationnement</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.stationnement}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.stationnement}</p>
                     </div>
                   </div>
                 )}
@@ -200,7 +200,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Copropriété</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.copro}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.copro}</p>
                     </div>
                   </div>
                 )}
@@ -212,7 +212,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Extérieur</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.exterieur}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.exterieur}</p>
                     </div>
                   </div>
                 )}
@@ -224,7 +224,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                     </div>
                     <div>
                       <p className="text-[10px] text-gray-400 uppercase tracking-wide">Étage</p>
-                      <p className="text-sm font-semibold text-[#1E3A5F]">{prospect.etage}</p>
+                      <p className="text-sm font-semibold text-[#2563eb]">{prospect.etage}</p>
                     </div>
                   </div>
                 )}
@@ -245,7 +245,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
         <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
           <button
             onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1E3A5F] bg-white border border-gray-200 rounded-xl hover:bg-[#1E3A5F] hover:text-white hover:border-[#1E3A5F] transition-all"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#2563eb] bg-white border border-gray-200 rounded-xl hover:bg-[#2563eb] hover:text-white hover:border-[#2563eb] transition-all"
           >
             <FileBarChart size={15} />
             Rapport prospect

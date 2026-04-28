@@ -1,4 +1,4 @@
-import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, SlidersHorizontal, ShieldCheck } from 'lucide-react'
+﻿import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, SlidersHorizontal, ShieldCheck } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useAgency } from '../contexts/AgencyContext'
@@ -28,7 +28,7 @@ function Sidebar({ isOpen, onClose }) {
     <aside className={`
       fixed lg:sticky top-0 left-0 z-40
       w-64 h-screen
-      bg-gradient-to-b from-[#1E3A5F] to-[#152a45]
+      bg-gradient-to-b from-[#2563eb] to-[#1e40af]
       px-4 py-6 flex flex-col shadow-2xl shrink-0
       transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -65,7 +65,7 @@ function Sidebar({ isOpen, onClose }) {
                   onClick={onClose}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white text-[#1E3A5F] shadow-lg shadow-black/10 font-semibold"
+                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white text-[#2563eb] shadow-lg shadow-black/10 font-semibold"
                       : "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
                   }
                 >
@@ -99,7 +99,7 @@ function Sidebar({ isOpen, onClose }) {
         </NavLink>
 
         <div className="flex items-center gap-3 px-3 py-3 mt-3 bg-white/5 rounded-xl">
-          <div className="w-9 h-9 bg-[#2D5A8A] rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+          <div className="w-9 h-9 bg-[#3b82f6] rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
             {getInitials(user?.nom)}
           </div>
           <div className="flex-1 min-w-0">

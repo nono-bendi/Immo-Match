@@ -581,7 +581,7 @@ function MatchingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings IA</h1>
+          <h1 className="text-2xl font-bold text-[#2563eb]">Matchings IA</h1>
           <p className="text-sm text-gray-400 mt-1">
             {matchings.length} matchings • {prospectGroups.length} prospects
           </p>
@@ -639,13 +639,13 @@ function MatchingsPage() {
               placeholder="Rechercher un prospect ou une ville..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1) }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all"
             />
           </div>
           
           <div className="flex items-center gap-2">
             {[
-              { value: 'all',    label: 'Tous',   activeClass: 'bg-[#1E3A5F] text-white',        inactiveClass: 'bg-gray-100 text-gray-500 hover:bg-gray-200' },
+              { value: 'all',    label: 'Tous',   activeClass: 'bg-[#2563eb] text-white',        inactiveClass: 'bg-gray-100 text-gray-500 hover:bg-gray-200' },
               { value: 'high',   label: '75+',    activeClass: 'bg-emerald-500 text-white',       inactiveClass: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
               { value: 'medium', label: '50-74',  activeClass: 'bg-amber-500 text-white',         inactiveClass: 'bg-amber-50 text-amber-700 hover:bg-amber-100' },
               { value: 'low',    label: '< 50',   activeClass: 'bg-red-500 text-white',           inactiveClass: 'bg-red-50 text-red-600 hover:bg-red-100' },
@@ -673,7 +673,7 @@ function MatchingsPage() {
                 onClick={() => { setSortBy(opt.value); setCurrentPage(1) }}
                 className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   sortBy === opt.value
-                    ? 'bg-[#1E3A5F]/10 text-[#1E3A5F] font-semibold'
+                    ? 'bg-[#2563eb]/10 text-[#2563eb] font-semibold'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -701,12 +701,12 @@ function MatchingsPage() {
           <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <TrendingUp size={32} className="text-gray-300 animate-float" />
           </div>
-          <h2 className="text-lg font-semibold text-[#1E3A5F] mb-2">Aucun matching trouvé</h2>
+          <h2 className="text-lg font-semibold text-[#2563eb] mb-2">Aucun matching trouvé</h2>
           <p className="text-gray-400 mb-4">Lancez une analyse pour trouver des correspondances</p>
           <button
             onClick={runGlobalAnalysis}
             disabled={analyzing}
-            className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press inline-flex items-center gap-2"
+            className="px-5 py-2.5 bg-[#2563eb] text-white font-medium rounded-xl btn-press inline-flex items-center gap-2"
           >
             <Sparkles size={18} />
             Lancer l'analyse
@@ -739,7 +739,7 @@ function MatchingsPage() {
                   onClick={() => setExpandedProspect(isExpanded ? null : group.prospect_id)}
                 >
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#2563eb] to-[#3b82f6] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                       {getInitials(group.prospect_nom)}
                     </div>
                     <div>
@@ -794,7 +794,7 @@ function MatchingsPage() {
                     >
                       <RefreshCw size={16} className="text-gray-600 icon-spin" />
                     </button>
-                    <div className={`p-2 rounded-lg transition-all ${isExpanded ? 'bg-[#1E3A5F] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className={`p-2 rounded-lg transition-all ${isExpanded ? 'bg-[#2563eb] text-white' : 'bg-gray-100 text-gray-600'}`}>
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
                   </div>
@@ -921,11 +921,11 @@ function MatchingsPage() {
                                     </p>
                                   </div>
                                   <div className="bg-[#DCE7F3] rounded-lg p-2 hover:bg-[#c5d9ed] transition-colors">
-                                    <div className="flex items-center gap-1 text-[#1E3A5F] font-medium text-xs mb-1">
+                                    <div className="flex items-center gap-1 text-[#2563eb] font-medium text-xs mb-1">
                                       <Lightbulb size={10} />
                                       Recommandation
                                     </div>
-                                    <p className="text-xs text-[#2D5A8A]">
+                                    <p className="text-xs text-[#3b82f6]">
                                       {match.recommandation || 'Aucune'}
                                     </p>
                                   </div>

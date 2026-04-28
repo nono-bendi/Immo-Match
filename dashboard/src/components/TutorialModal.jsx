@@ -1,4 +1,4 @@
-// =====================================================
+﻿// =====================================================
 // src/components/TutorialModal.jsx — v3
 // =====================================================
 
@@ -84,10 +84,10 @@ function SlideWelcome({ active, userName }) {
         transform: step >= 1 ? 'scale(1) translateY(0)' : 'scale(0.4) translateY(24px)',
         transition: 'opacity 0.55s cubic-bezier(.34,1.6,.64,1), transform 0.55s cubic-bezier(.34,1.6,.64,1)',
         padding: '12px 20px', borderRadius: '20px',
-        background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+        background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: step >= 1
-          ? '0 0 0 8px rgba(30,58,95,0.15), 0 0 0 16px rgba(30,58,95,0.07), 0 8px 32px rgba(30,58,95,0.5)'
+          ? '0 0 0 8px rgba(37,99,235,0.15), 0 0 0 16px rgba(37,99,235,0.07), 0 8px 32px rgba(37,99,235,0.5)'
           : 'none',
         animation: step >= 1 ? 'logoPulse 2.5s ease-in-out infinite' : 'none',
       }}>
@@ -178,10 +178,10 @@ function SlideProspect({ active }) {
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px 20px 14px', borderBottom: '1px solid #f3f4f6' }}>
-          <div style={{ width: '32px', height: '32px', background: '#1E3A5F15', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <User size={16} color="#1E3A5F" />
+          <div style={{ width: '32px', height: '32px', background: '#2563eb15', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <User size={16} color="#2563eb" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '15px', color: '#1E3A5F' }}>Nouveau prospect</span>
+          <span style={{ fontWeight: 600, fontSize: '15px', color: '#2563eb' }}>Nouveau prospect</span>
         </div>
 
         <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -209,7 +209,7 @@ function SlideProspect({ active }) {
               {types.map(t => (
                 <span key={t} style={{
                   padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
-                  background: t === 'Maison' && step >= 4 ? '#1E3A5F' : '#f3f4f6',
+                  background: t === 'Maison' && step >= 4 ? '#2563eb' : '#f3f4f6',
                   color: t === 'Maison' && step >= 4 ? 'white' : '#6b7280',
                   transition: 'all 0.3s ease',
                 }}>{t}</span>
@@ -224,7 +224,7 @@ function SlideProspect({ active }) {
               {step >= 5 && (
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '4px',
-                  padding: '5px 10px', background: '#1E3A5F', color: 'white',
+                  padding: '5px 10px', background: '#2563eb', color: 'white',
                   borderRadius: '8px', fontSize: '13px', fontWeight: 500,
                   animation: 'popIn 0.35s cubic-bezier(.34,1.56,.64,1)',
                 }}>
@@ -259,9 +259,9 @@ function SlideProspect({ active }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '7px',
-              background: step >= 7 ? '#10b981' : '#1E3A5F',
+              background: step >= 7 ? '#10b981' : '#2563eb',
               transition: 'background 0.5s ease',
-              boxShadow: step >= 7 ? '0 4px 16px rgba(16,185,129,0.4)' : '0 4px 16px rgba(30,58,95,0.3)',
+              boxShadow: step >= 7 ? '0 4px 16px rgba(16,185,129,0.4)' : '0 4px 16px rgba(37,99,235,0.3)',
             }}>
               {step >= 7
                 ? <><CheckCircle2 size={16} /> Prospect enregistré !</>
@@ -354,7 +354,7 @@ function SlideMatching({ active }) {
           transition: 'box-shadow 0.4s ease, border-color 0.4s ease',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-            <div style={{ width: '28px', height: '28px', background: '#1E3A5F12', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '28px', height: '28px', background: '#2563eb12', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {icon}
             </div>
             <div>
@@ -384,7 +384,7 @@ function SlideMatching({ active }) {
       <div style={{ position: 'relative', width: '100%', height: '220px' }}>
         <CardBien
           side="left"
-          icon={<User size={14} color="#1E3A5F" />}
+          icon={<User size={14} color="#2563eb" />}
           tag="Prospect" name="M. Dupont"
           rows={[{ l: 'Budget', v: '280 000 €' }, { l: 'Ville', v: 'Fréjus' }]}
         />
@@ -452,7 +452,7 @@ function SlideMatching({ active }) {
 
         <CardBien
           side="right"
-          icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E3A5F" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
+          icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
           tag="Bien" name="Maison • Fréjus"
           rows={[{ l: 'Prix', v: '265 000 €' }, { l: 'Surface', v: '98 m²' }]}
         />
@@ -505,7 +505,7 @@ function SlideEmail({ active }) {
 
         {/* Header gradient — 2 lignes pour ne pas compresser */}
         <div style={{
-          background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+          background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
           padding: '14px 18px 12px',
           display: 'flex', flexDirection: 'column', gap: '10px',
         }}>
@@ -530,7 +530,7 @@ function SlideEmail({ active }) {
                 flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
                 padding: '6px 0', borderRadius: '6px',
                 background: activeTab === id ? 'white' : 'transparent',
-                color: activeTab === id ? '#1E3A5F' : 'rgba(255,255,255,0.7)',
+                color: activeTab === id ? '#2563eb' : 'rgba(255,255,255,0.7)',
                 fontSize: '12px', fontWeight: 500,
                 transition: 'background 0.4s ease, color 0.4s ease',
                 cursor: 'default',
@@ -554,7 +554,7 @@ function SlideEmail({ active }) {
                     {['#f87171','#fbbf24','#34d399'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
                   </div>
                   <span style={{ fontSize: '10px', color: '#9ca3af' }}>Aperçu de l'email</span>
-                  <span style={{ fontSize: '10px', color: '#1E3A5F', fontWeight: 500 }}>Personnaliser</span>
+                  <span style={{ fontSize: '10px', color: '#2563eb', fontWeight: 500 }}>Personnaliser</span>
                 </div>
                 <div style={{ background: 'white', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <p style={{ fontSize: '13px', color: '#374151', margin: 0 }}>Bonjour M. Dupont,</p>
@@ -565,7 +565,7 @@ function SlideEmail({ active }) {
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px', background: '#f9fafb' }}>
                     <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '2px' }}>Sélectionné pour vous</div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>Maison à Fréjus</div>
-                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#1E3A5F', margin: '2px 0 4px' }}>265 000 €</div>
+                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#2563eb', margin: '2px 0 4px' }}>265 000 €</div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <span style={{ fontSize: '11px', color: '#6b7280' }}>98 m²</span>
                       <span style={{ fontSize: '11px', color: '#6b7280' }}>4 pièces</span>
@@ -591,7 +591,7 @@ function SlideEmail({ active }) {
               {/* Boutons */}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <div style={{ flex: 1, padding: '9px', border: '1px solid #e5e7eb', borderRadius: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>Annuler</div>
-                <div style={{ flex: 1, padding: '9px', background: '#1E3A5F', borderRadius: '10px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                <div style={{ flex: 1, padding: '9px', background: '#2563eb', borderRadius: '10px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                   <Send size={12} /> Continuer
                 </div>
               </div>
@@ -604,12 +604,12 @@ function SlideEmail({ active }) {
               <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '11px 13px' }}>
                 <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px' }}>Destinataire</div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>M. Dupont</div>
-                <div style={{ fontSize: '12px', color: '#1E3A5F' }}>m.dupont@gmail.com</div>
+                <div style={{ fontSize: '12px', color: '#2563eb' }}>m.dupont@gmail.com</div>
               </div>
               <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '11px 13px' }}>
                 <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px' }}>Bien proposé</div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Maison à Fréjus</div>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#1E3A5F' }}>265 000 €</div>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: '#2563eb' }}>265 000 €</div>
               </div>
               <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '11px 13px' }}>
                 <p style={{ fontSize: '12px', color: '#92400e', margin: 0 }}>
@@ -696,7 +696,7 @@ function SlideBiens({ active }) {
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               {['Tous', 'Saint François', 'Partenaires'].map((t, i) => (
-                <span key={t} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', background: i === 0 ? '#1E3A5F' : '#f3f4f6', color: i === 0 ? 'white' : '#6b7280' }}>{t}</span>
+                <span key={t} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', background: i === 0 ? '#2563eb' : '#f3f4f6', color: i === 0 ? 'white' : '#6b7280' }}>{t}</span>
               ))}
             </div>
           </div>
@@ -901,7 +901,7 @@ function SlideCalibration({ active }) {
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#111827' }}>Calibration</div>
                 <div style={{ fontSize: '11px', color: '#9ca3af' }}>Évaluez la pertinence des matchings</div>
               </div>
-              <div style={{ background: '#1E3A5F', color: 'white', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ background: '#2563eb', color: 'white', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 Résultats · 4
               </div>
@@ -909,7 +909,7 @@ function SlideCalibration({ active }) {
             {/* Barre de progression globale */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1, height: '6px', background: '#f3f4f6', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: '2%', background: '#1E3A5F', borderRadius: '99px', transition: 'width 0.8s ease' }} />
+                <div style={{ height: '100%', width: '2%', background: '#2563eb', borderRadius: '99px', transition: 'width 0.8s ease' }} />
               </div>
               <span style={{ fontSize: '11px', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>4 évalués / 171 · <b style={{ color: '#374151' }}>2%</b></span>
             </div>
@@ -918,7 +918,7 @@ function SlideCalibration({ active }) {
           {/* Card matching — fond navy comme la vraie app */}
           <div style={{
             ...fade(2),
-            background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+            background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)',
             padding: '11px 14px',
             display: 'flex', gap: '10px', alignItems: 'center',
           }}>

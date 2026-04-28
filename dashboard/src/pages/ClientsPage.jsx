@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProspectModal from '../components/ProspectModal'
@@ -209,11 +209,11 @@ function ClientsPage() {
     >
       <td className="p-4">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${archived ? 'bg-gray-400' : 'bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A]'}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${archived ? 'bg-gray-400' : 'bg-gradient-to-br from-[#2563eb] to-[#3b82f6]'}`}>
             {prospect.nom ? (() => { const p = prospect.nom.trim().split(' ').filter(x=>x); return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase() })() : '?'}
           </div>
           <div>
-            <p className="font-semibold text-[#1E3A5F]">{prospect.nom || 'Sans nom'}</p>
+            <p className="font-semibold text-[#2563eb]">{prospect.nom || 'Sans nom'}</p>
             <p className="text-xs text-gray-400">{prospect.mail || '-'}</p>
           </div>
         </div>
@@ -225,7 +225,7 @@ function ClientsPage() {
         <span className="text-sm text-gray-600">{prospect.villes || <span className='text-gray-300'>—</span>}</span>
       </td>
       <td className="p-4">
-        <span className="text-sm font-medium text-[#1E3A5F]">{formatBudget(prospect.budget_max)}</span>
+        <span className="text-sm font-medium text-[#2563eb]">{formatBudget(prospect.budget_max)}</span>
       </td>
       <td className="p-4">
         {prospect.destination ? (() => {
@@ -258,7 +258,7 @@ function ClientsPage() {
             className="p-2 rounded-lg hover:bg-[#DCE7F3] transition-all"
             title="Voir"
           >
-            <Eye size={18} className="text-[#2D5A8A] icon-bounce" />
+            <Eye size={18} className="text-[#3b82f6] icon-bounce" />
           </button>
           {!archived && (
             <button
@@ -322,7 +322,7 @@ function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Clients</h1>
+          <h1 className="text-2xl font-bold text-[#2563eb]">Clients</h1>
           <p className="text-sm text-gray-400">
             {actifs.length} prospect{actifs.length !== 1 ? 's' : ''} actif{actifs.length !== 1 ? 's' : ''}
             {archives.length > 0 && <span className="ml-1 text-gray-300">· {archives.length} archivé{archives.length !== 1 ? 's' : ''}</span>}
@@ -337,13 +337,13 @@ function ClientsPage() {
               placeholder="Rechercher un client..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all"
             />
           </div>
 
           <a
             href="/clients/nouveau"
-            className="px-4 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press flex items-center gap-2"
+            className="px-4 py-2.5 bg-[#2563eb] text-white font-medium rounded-xl btn-press flex items-center gap-2"
           >
             <span className="text-lg">+</span>
             Nouveau prospect
@@ -374,11 +374,11 @@ function ClientsPage() {
             <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Users size={32} className="text-gray-300 animate-float" />
             </div>
-            <h2 className="text-lg font-semibold text-[#1E3A5F] mb-2">Aucun prospect actif</h2>
+            <h2 className="text-lg font-semibold text-[#2563eb] mb-2">Aucun prospect actif</h2>
             <p className="text-gray-400 mb-4">Ajoutez votre premier prospect pour commencer</p>
             <a
               href="/clients/nouveau"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2563eb] text-white font-medium rounded-xl btn-press"
             >
               <span className="text-lg">+</span>
               Nouveau prospect
@@ -459,7 +459,7 @@ function ClientsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-bounce-in">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[#1E3A5F]">Modifier le prospect</h2>
+              <h2 className="text-xl font-bold text-[#2563eb]">Modifier le prospect</h2>
               <button onClick={() => setEditingProspect(null)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
                 <X size={20} className="text-gray-400" />
               </button>
@@ -469,47 +469,47 @@ function ClientsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                  <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                  <input type="text" value={editingProspect.telephone || ''} onChange={(e) => handleEditChange('telephone', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.telephone || ''} onChange={(e) => handleEditChange('telephone', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input type="email" value={editingProspect.mail || ''} onChange={(e) => handleEditChange('mail', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="email" value={editingProspect.mail || ''} onChange={(e) => handleEditChange('mail', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Domicile</label>
-                  <input type="text" value={editingProspect.domicile || ''} onChange={(e) => handleEditChange('domicile', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.domicile || ''} onChange={(e) => handleEditChange('domicile', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Type de bien</label>
-                  <input type="text" value={editingProspect.bien || ''} onChange={(e) => handleEditChange('bien', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.bien || ''} onChange={(e) => handleEditChange('bien', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Villes</label>
-                  <input type="text" value={editingProspect.villes || ''} onChange={(e) => handleEditChange('villes', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.villes || ''} onChange={(e) => handleEditChange('villes', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Budget max</label>
-                  <input type="number" value={editingProspect.budget_max || ''} onChange={(e) => handleEditChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="number" value={editingProspect.budget_max || ''} onChange={(e) => handleEditChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Destination</label>
-                  <input type="text" value={editingProspect.destination || ''} onChange={(e) => handleEditChange('destination', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  <input type="text" value={editingProspect.destination || ''} onChange={(e) => handleEditChange('destination', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 transition-all" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Observations</label>
-                <textarea value={editingProspect.observation || ''} onChange={(e) => handleEditChange('observation', e.target.value)} rows={3} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 resize-none transition-all" />
+                <textarea value={editingProspect.observation || ''} onChange={(e) => handleEditChange('observation', e.target.value)} rows={3} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 resize-none transition-all" />
               </div>
             </div>
 
             <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
               <button onClick={() => setEditingProspect(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
-              <button onClick={handleSaveEdit} disabled={saving} className="px-4 py-2 bg-[#1E3A5F] text-white rounded-lg btn-press disabled:opacity-50 flex items-center gap-2">
+              <button onClick={handleSaveEdit} disabled={saving} className="px-4 py-2 bg-[#2563eb] text-white rounded-lg btn-press disabled:opacity-50 flex items-center gap-2">
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={18} />}
                 Sauvegarder
               </button>
@@ -526,7 +526,7 @@ function ClientsPage() {
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} className="text-red-500 animate-shake" />
               </div>
-              <h2 className="text-xl font-bold text-[#1E3A5F] mb-2">Supprimer ce prospect ?</h2>
+              <h2 className="text-xl font-bold text-[#2563eb] mb-2">Supprimer ce prospect ?</h2>
               <p className="text-gray-500 mb-6">Cette action est irréversible. Les matchings associés seront également supprimés.</p>
               <div className="flex gap-3">
                 <button onClick={() => setDeleteConfirm(null)} className="flex-1 px-4 py-2 border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">Annuler</button>

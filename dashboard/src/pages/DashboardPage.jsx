@@ -94,7 +94,7 @@ function KpiCard({ icon: Icon, label, value, custom, badge, barPct, iconColor, i
       {/* Valeur */}
       <div style={{ marginBottom: 4 }}>
         {custom || (
-          <p style={{ fontSize: 32, fontWeight: 800, color: valueColor || '#1E3A5F', lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
+          <p style={{ fontSize: 32, fontWeight: 800, color: valueColor || '#2563eb', lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
             <Counter to={value} />
           </p>
         )}
@@ -175,7 +175,7 @@ export default function DashboardPage() {
       <AlertTriangle size={24} style={{ color: '#f87171' }} />
       <p style={{ fontWeight: 600, color: '#374151' }}>{`Backend inaccessible — vérifiez que FastAPI tourne sur ${API_URL}`}</p>
       <button onClick={() => window.location.reload()}
-        style={{ padding: '8px 18px', background: '#1E3A5F', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none' }}>
+        style={{ padding: '8px 18px', background: '#2563eb', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none' }}>
         Réessayer
       </button>
     </div>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                 <Zap size={15} className="sec-icon-svg" />
               </div>
               <div>
-                <h2 className="section-title" style={{ fontSize: 14, fontWeight: 700, color: '#1E3A5F', marginBottom: 1 }}>À contacter en priorité</h2>
+                <h2 className="section-title" style={{ fontSize: 14, fontWeight: 700, color: '#2563eb', marginBottom: 1 }}>À contacter en priorité</h2>
                 <p className="section-sub" style={{ fontSize: 11, color: '#94a3b8' }}>{stats?.top_matchings?.length || 0} meilleurs matchs — agissez maintenant</p>
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
                   <Activity size={14} className="sec-icon-svg" />
                 </div>
                 <div>
-                  <h2 className="section-title" style={{ fontSize: 13, fontWeight: 700, color: '#1E3A5F' }}>Qualité des matchs</h2>
+                  <h2 className="section-title" style={{ fontSize: 13, fontWeight: 700, color: '#2563eb' }}>Qualité des matchs</h2>
                   <p className="section-sub" style={{ fontSize: 11, color: '#94a3b8' }}>Meilleur score par prospect</p>
                 </div>
               </div>
@@ -415,7 +415,7 @@ export default function DashboardPage() {
                 <div className="sec-icon sec-icon--blue">
                   <Building2 size={14} className="sec-icon-svg" />
                 </div>
-                <h2 className="section-title" style={{ fontSize: 13, fontWeight: 700, color: '#1E3A5F' }}>Biens les plus demandés</h2>
+                <h2 className="section-title" style={{ fontSize: 13, fontWeight: 700, color: '#2563eb' }}>Biens les plus demandés</h2>
               </div>
               <button onClick={() => navigate('/biens')}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                       color: i === 0 ? '#F5C518' : i === 1 ? '#A8A9AD' : i === 2 ? '#CD7F32' : '#cbd5e1'
                     }}>#{i+1}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="row-name" style={{ fontSize: 12, fontWeight: 600, color: '#1E3A5F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p className="row-name" style={{ fontSize: 12, fontWeight: 600, color: '#2563eb', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {b.type} · {b.ville}
                       </p>
                       <p className="row-sub">{fmt(b.prix)}{b.surface ? ` · ${b.surface}m²` : ''}</p>
@@ -462,7 +462,7 @@ export default function DashboardPage() {
               <BarChart2 size={14} className="sec-icon-svg" />
             </div>
             <div>
-              <h2 className="section-title" style={{ fontSize: 14, fontWeight: 700, color: '#1E3A5F' }}>Évolution du score IA</h2>
+              <h2 className="section-title" style={{ fontSize: 14, fontWeight: 700, color: '#2563eb' }}>Évolution du score IA</h2>
               <p className="section-sub" style={{ fontSize: 11, color: '#94a3b8' }}>Score moyen par session d'analyse</p>
             </div>
           </div>
@@ -494,8 +494,8 @@ export default function DashboardPage() {
             <AreaChart data={stats.evolution} margin={{ top: 8, right: 24, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#1E3A5F" stopOpacity={0.09} />
-                  <stop offset="95%" stopColor="#1E3A5F" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.09} />
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} tickLine={false} axisLine={false}
@@ -504,10 +504,10 @@ export default function DashboardPage() {
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
               <ReferenceLine y={75} stroke="#10b981" strokeDasharray="5 4" strokeWidth={1.5} />
               <ReferenceLine y={50} stroke="#f59e0b" strokeDasharray="5 4" strokeWidth={1.5} />
-              <Area type="monotone" dataKey="score_moyen" stroke="#1E3A5F" strokeWidth={2.5}
+              <Area type="monotone" dataKey="score_moyen" stroke="#2563eb" strokeWidth={2.5}
                 fill="url(#areaGrad)"
-                dot={{ fill: '#1E3A5F', r: 3.5, strokeWidth: 2, stroke: '#fff' }}
-                activeDot={{ r: 6, fill: '#1E3A5F', stroke: '#fff', strokeWidth: 2 }} />
+                dot={{ fill: '#2563eb', r: 3.5, strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 6, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
         ) : (

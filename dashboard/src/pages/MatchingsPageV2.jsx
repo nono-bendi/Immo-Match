@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -37,7 +37,7 @@ const dt     = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeri
 const fPhoto = (s) => { if (!s || typeof s !== 'string') return null; return s.split('|').map(u => u.trim()).find(u => /^https?:\/\//i.test(u)) || null }
 
 const AV_PAL = [
-  ['#1E3A5F', '#2D5A8A'], ['#0e7490', '#06b6d4'], ['#047857', '#10b981'],
+  ['#2563eb', '#3b82f6'], ['#0e7490', '#06b6d4'], ['#047857', '#10b981'],
   ['#b45309', '#f59e0b'], ['#5b21b6', '#a78bfa'], ['#1d4ed8', '#60a5fa'],
 ]
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
@@ -127,9 +127,9 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
           <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#2563eb', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#1E3A5F', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
+            <span style={{ fontSize: 12, color: '#2563eb', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
             {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{pieces}p</span></>}
           </div>
@@ -137,7 +137,7 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
       </button>
       {/* Bouton ouvrir modal bien */}
       <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: '#f8fafc', border: '1px solid #edf1f7', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
-        onMouseEnter={e => { e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.borderColor='#bfdbfe' }}
+        onMouseEnter={e => { e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.color='#2563eb'; e.currentTarget.style.borderColor='#bfdbfe' }}
         onMouseLeave={e => { e.currentTarget.style.background='#f8fafc'; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor='#edf1f7' }}
       ><ExternalLink size={12} /></button>
     </div>
@@ -170,7 +170,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 
   return (
     <div style={{ borderTop: '1px solid #e5e7eb' }}>
-      <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'linear-gradient(135deg,#0f1e30 0%,#1E3A5F 50%,#2D5A8A 100%)', padding: '28px 30px' }}>
+      <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'linear-gradient(135deg,#0f1e30 0%,#2563eb 50%,#3b82f6 100%)', padding: '28px 30px' }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle,rgba(96,165,250,0.22) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle,rgba(167,139,250,0.18) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
 
@@ -251,7 +251,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
             disabled={!mail || sending}
             onMouseEnter={() => setSendHover(true)}
             onMouseLeave={() => setSendHover(false)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 26px', borderRadius: 11, background: mail ? (sendHover ? '#2D5A8A' : '#1E3A5F') : '#f3f4f6', color: mail ? '#fff' : '#9ca3af', border: 'none', fontSize: 14, fontWeight: 700, cursor: mail ? 'pointer' : 'default', boxShadow: mail ? (sendHover ? '0 6px 20px rgba(30,58,95,0.45)' : '0 4px 14px rgba(30,58,95,0.35)') : 'none', transform: mail && sendHover ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 26px', borderRadius: 11, background: mail ? (sendHover ? '#3b82f6' : '#2563eb') : '#f3f4f6', color: mail ? '#fff' : '#9ca3af', border: 'none', fontSize: 14, fontWeight: 700, cursor: mail ? 'pointer' : 'default', boxShadow: mail ? (sendHover ? '0 6px 20px rgba(37,99,235,0.45)' : '0 4px 14px rgba(37,99,235,0.35)') : 'none', transform: mail && sendHover ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)' }}>
             <Send size={15} />{sending ? 'Envoi…' : match.date_email_envoye ? 'Renvoyer' : 'Envoyer la sélection →'}
           </button>
         </div>
@@ -300,9 +300,9 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
       )}
       {bienModal && <BienModal bien={bienModal} onClose={() => setBienModal(null)} />}
 
-      <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #edf1f7', boxShadow: '0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s ease,transform 0.2s ease' }}
-        onMouseEnter={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 16px 44px rgba(30,58,95,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
-        onMouseLeave={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
+      <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #edf1f7', boxShadow: '0 1px 0 #e8eef5,0 8px 32px rgba(37,99,235,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s ease,transform 0.2s ease' }}
+        onMouseEnter={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 16px 44px rgba(37,99,235,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
+        onMouseLeave={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 8px 32px rgba(37,99,235,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 210px 1.2fr', minHeight: 250 }}>
 
@@ -319,7 +319,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
                 </div>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#1E3A5F', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: '#2563eb', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
                 <div style={{ fontSize: 13, color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 7 }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
                   <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
@@ -339,7 +339,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
                 <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Cherche</div>
                 <span style={{ fontSize: 11, color: '#94a3b8' }}>›</span>
               </div>
-              <div style={{ fontSize: 15, color: '#1E3A5F', lineHeight: 1.4, fontWeight: 500 }}>
+              <div style={{ fontSize: 15, color: '#2563eb', lineHeight: 1.4, fontWeight: 500 }}>
                 <span style={{ fontWeight: 700 }}>{mainType}</span>
                 {zones !== '—' && <> à <span style={{ fontWeight: 700 }}>{zones}</span></>}
               </div>
@@ -349,11 +349,11 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
               <div>
                 <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>Budget</div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#1E3A5F', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.prospect_budget)}</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#2563eb', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.prospect_budget)}</div>
               </div>
               <button onClick={e => onRunSingle(e, group.prospect_id, group.prospect_nom)} disabled={analyzing} title="Relancer l'analyse"
                 style={{ width: 34, height: 34, borderRadius: 11, border: '1px solid #e8eef5', background: '#fbfcfe', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.borderColor='#bfdbfe' }}
+                onMouseEnter={e => { e.currentTarget.style.color='#2563eb'; e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.borderColor='#bfdbfe' }}
                 onMouseLeave={e => { e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background='#fbfcfe'; e.currentTarget.style.borderColor='#e8eef5' }}
               ><RefreshCw size={14} /></button>
             </div>
@@ -361,7 +361,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
 
           {/* ── CENTRE — ScoreRing ── */}
           <div style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', borderRight: '1px solid #f3f4f6', background: 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)', position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.05) 1px,transparent 1px)', backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(37,99,235,0.05) 1px,transparent 1px)', backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
             <div style={{ position: 'relative' }}>{best && <ScoreRing score={best.score} size={140} />}</div>
           </div>
 
@@ -527,12 +527,12 @@ export default function MatchingsPageV2() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-white/60 transition-all" title="Retour ancienne vue">
+        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#2563eb] hover:bg-white/60 transition-all" title="Retour ancienne vue">
           <ArrowLeft size={19} />
         </button>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
+            <h1 className="text-2xl font-bold text-[#2563eb]">Matchings</h1>
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
           </div>
           <p className="text-sm text-gray-400 mt-0.5">
@@ -546,7 +546,7 @@ export default function MatchingsPageV2() {
           disabled={analyzing}
           onMouseEnter={() => setAnalyzeHover(true)}
           onMouseLeave={() => setAnalyzeHover(false)}
-          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? '#6b7280' : (analyzeHover ? '#2D5A8A' : '#1E3A5F'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: 'none', cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzeHover && !analyzing ? '0 6px 20px rgba(30,58,95,0.4)' : '0 4px 14px rgba(30,58,95,0.25)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.7 : 1 }}
+          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? '#6b7280' : (analyzeHover ? '#3b82f6' : '#2563eb'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: 'none', cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzeHover && !analyzing ? '0 6px 20px rgba(37,99,235,0.4)' : '0 4px 14px rgba(37,99,235,0.25)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.7 : 1 }}
         >
           {analyzing ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} />}
           {analyzing ? 'Analyse en cours…' : 'Analyser'}
@@ -558,12 +558,12 @@ export default function MatchingsPageV2() {
         <div className="relative flex-1 max-w-sm">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
+            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]" />
         </div>
         <div className="flex gap-1.5">
           {[{ v: 'all', label: 'Tous' }, { v: 'high', label: '75+' }, { v: 'medium', label: '50–74' }, { v: 'low', label: '< 50' }].map(f => (
             <button key={f.v} onClick={() => setFilterScore(f.v)}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#2563eb] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
               {f.label}
             </button>
           ))}
@@ -591,9 +591,9 @@ export default function MatchingsPageV2() {
       ) : groups.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
           <div style={{ fontSize: 48, marginBottom: 12 }}>✨</div>
-          <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
+          <p className="font-semibold text-[#2563eb] mb-1">Aucun matching</p>
           <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
-          <button onClick={runGlobal} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl inline-flex items-center gap-2">
+          <button onClick={runGlobal} className="px-5 py-2.5 bg-[#2563eb] text-white font-semibold rounded-xl inline-flex items-center gap-2">
             <Sparkles size={16} /> Lancer l'analyse
           </button>
         </div>

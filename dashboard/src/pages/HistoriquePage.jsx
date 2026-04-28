@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Clock, Calendar, Users, Building2, TrendingUp, ChevronDown, ChevronUp, Sparkles, Star } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
@@ -185,7 +185,7 @@ function HistoriquePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Historique</h1>
+          <h1 className="text-2xl font-bold text-[#2563eb]">Historique</h1>
           <p className="text-sm text-gray-400">{historique.length} analyse{historique.length > 1 ? 's' : ''} effectuée{historique.length > 1 ? 's' : ''}</p>
         </div>
           <SparkleButton onClick={runGlobalAnalysis} disabled={analyzing}>
@@ -209,9 +209,9 @@ function HistoriquePage() {
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock size={32} className="text-gray-400" />
           </div>
-          <h2 className="text-lg font-semibold text-[#1E3A5F] mb-2">Aucune analyse</h2>
+          <h2 className="text-lg font-semibold text-[#2563eb] mb-2">Aucune analyse</h2>
           <p className="text-gray-400 mb-4">Lancez votre première analyse IA</p>
-          <button onClick={() => navigate('/matchings')} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl hover:bg-[#2D5A8A] transition-colors">
+          <button onClick={() => navigate('/matchings')} className="px-5 py-2.5 bg-[#2563eb] text-white font-medium rounded-xl hover:bg-[#3b82f6] transition-colors">
             Lancer une analyse
           </button>
         </div>
@@ -234,7 +234,7 @@ function HistoriquePage() {
                       <div className="flex items-center gap-4">
                         {/* Icône + badge nb séries */}
                         <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A] rounded-xl flex items-center justify-center">
+                          <div className="w-11 h-11 bg-gradient-to-br from-[#2563eb] to-[#3b82f6] rounded-xl flex items-center justify-center">
                             <Calendar size={18} className="text-white" />
                           </div>
                           {session.isMulti && (
@@ -247,7 +247,7 @@ function HistoriquePage() {
                         {/* Date */}
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-semibold text-[#1E3A5F] capitalize">{formatDate(session.date)}</p>
+                            <p className="font-semibold text-[#2563eb] capitalize">{formatDate(session.date)}</p>
                             {session.isMulti && (
                               <span className="text-[10px] font-semibold bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full whitespace-nowrap">
                                 Analyse complète · {session.batches.length} séries
@@ -284,7 +284,7 @@ function HistoriquePage() {
                             {session.isMulti ? 'moyenne' : 'meilleur'}
                           </span>
                         </div>
-                        <div className={`p-2 rounded-lg transition-colors ${isExpanded ? 'bg-[#1E3A5F] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                        <div className={`p-2 rounded-lg transition-colors ${isExpanded ? 'bg-[#2563eb] text-white' : 'bg-gray-100 text-gray-400'}`}>
                           {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </div>
                       </div>
@@ -311,8 +311,8 @@ function HistoriquePage() {
                                   onClick={e => { e.stopPropagation(); selectBatch(batch.date_complete) }}
                                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
                                     isActive
-                                      ? 'bg-[#1E3A5F] text-white border-[#1E3A5F] shadow-sm'
-                                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#1E3A5F] hover:text-[#1E3A5F]'
+                                      ? 'bg-[#2563eb] text-white border-[#2563eb] shadow-sm'
+                                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#2563eb] hover:text-[#2563eb]'
                                   }`}
                                 >
                                   <span className="font-semibold">Série {session.batches.length - bi}</span>
@@ -333,7 +333,7 @@ function HistoriquePage() {
                       <div className="p-5">
                         {loadingDetails ? (
                           <div className="text-center py-6">
-                            <div className="w-6 h-6 border-2 border-[#1E3A5F] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                            <div className="w-6 h-6 border-2 border-[#2563eb] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                             <p className="text-sm text-gray-400">Chargement...</p>
                           </div>
                         ) : currentDetails.length === 0 ? (
@@ -360,7 +360,7 @@ function HistoriquePage() {
                             ).map((group, gIndex) => (
                               <div key={gIndex} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                                 <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-                                  <ProspectLink prospect={group.prospect} className="font-semibold text-[#1E3A5F] text-sm">
+                                  <ProspectLink prospect={group.prospect} className="font-semibold text-[#2563eb] text-sm">
                                     {group.prospect.nom}
                                   </ProspectLink>
                                   <span className="text-xs text-gray-400">Budget : {formatBudget(group.prospect.budget_max)}</span>

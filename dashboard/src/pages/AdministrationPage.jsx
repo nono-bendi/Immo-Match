@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import {
   Save, Eye, EyeOff, Cpu, Building2, Sliders, User, Database,
   AlertTriangle, Download, Trash2, Check, RefreshCw, Loader2,
@@ -22,8 +22,8 @@ function Section({ title, icon: Icon, badge, defaultOpen = false, children }) {
         className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          {Icon && <Icon size={20} className="text-[#1E3A5F] shrink-0" />}
-          <span className="font-semibold text-[#1E3A5F]">{title}</span>
+          {Icon && <Icon size={20} className="text-[#2563eb] shrink-0" />}
+          <span className="font-semibold text-[#2563eb]">{title}</span>
           {badge && (
             <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full flex items-center gap-1">
               <Crown size={11} />{badge}
@@ -52,7 +52,7 @@ function Input({ className = '', ...props }) {
   return (
     <input
       {...props}
-      className={`w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] ${className}`}
+      className={`w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] ${className}`}
     />
   )
 }
@@ -95,7 +95,7 @@ export default function AdministrationPage() {
   // ── Agency form (admin only) ──────────────────────────────────────────────
   const [agencyForm, setAgencyForm] = useState({
     nom: '', nom_court: '', nom_filtre: '', adresse: '', telephone: '', email: '',
-    logo_url: '', couleur_primaire: '#1E3A5F', logo_fond_colore: 0,
+    logo_url: '', couleur_primaire: '#2563eb', logo_fond_colore: 0,
     smtp_user: '', smtp_password: '', smtp_from_name: '', smtp_reply_to: '',
     smtp_server: 'smtp.gmail.com', smtp_port: 587
   })
@@ -161,7 +161,7 @@ export default function AdministrationPage() {
         setAgencyForm({
           nom: d.nom || '', nom_court: d.nom_court || '', nom_filtre: d.nom_filtre || '',
           adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '',
-          logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0,
+          logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#2563eb', logo_fond_colore: d.logo_fond_colore || 0,
           smtp_user: d.smtp_user || '', smtp_password: d.smtp_password || '',
           smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || '',
           smtp_server: d.smtp_server || 'smtp.gmail.com', smtp_port: d.smtp_port || 587
@@ -391,14 +391,14 @@ export default function AdministrationPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Administration</h1>
+          <h1 className="text-2xl font-bold text-[#2563eb]">Administration</h1>
           <p className="text-sm text-gray-400">Configuration de votre espace ImmoFlash</p>
         </div>
         <a
           href={`${API_URL}/guide`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] hover:bg-[#2D5A8A] text-white text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#2563eb] hover:bg-[#3b82f6] text-white text-sm font-medium rounded-lg transition-colors"
         >
           <FileText size={15} />
           Guide utilisateur
@@ -411,8 +411,8 @@ export default function AdministrationPage() {
       <Section title="Mon compte" icon={User} defaultOpen>
 
         {/* Avatar */}
-        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-xl mb-6">
-          <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1E3A5F] font-bold text-xl shadow-lg">
+        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#2563eb] to-[#3b82f6] rounded-xl mb-6">
+          <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#2563eb] font-bold text-xl shadow-lg">
             {user?.nom ? user.nom.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??'}
           </div>
           <div className="flex-1">
@@ -466,7 +466,7 @@ export default function AdministrationPage() {
             </Field>
           </div>
           <button type="submit" disabled={savingPw}
-            className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-lg hover:bg-[#2D5A8A] transition-colors disabled:opacity-50 flex items-center gap-2">
+            className="px-5 py-2.5 bg-[#2563eb] text-white font-medium rounded-lg hover:bg-[#3b82f6] transition-colors disabled:opacity-50 flex items-center gap-2">
             {savingPw ? <><Loader2 size={16} className="animate-spin" />Modification...</> : <><Check size={16} />Modifier le mot de passe</>}
           </button>
         </form>
@@ -502,7 +502,7 @@ export default function AdministrationPage() {
                     <span className="text-xs text-gray-400">ou</span>
                     <button type="button" onClick={() => logoRef.current?.click()}
                       disabled={logoUploading}
-                      className="px-3 py-1.5 text-xs font-medium bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2D5A8A] disabled:opacity-50 flex items-center gap-1.5">
+                      className="px-3 py-1.5 text-xs font-medium bg-[#2563eb] text-white rounded-lg hover:bg-[#3b82f6] disabled:opacity-50 flex items-center gap-1.5">
                       {logoUploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                       {logoUploading ? 'Upload...' : 'Uploader un fichier'}
                     </button>
@@ -513,7 +513,7 @@ export default function AdministrationPage() {
                     <input type="checkbox"
                       checked={!!agencyForm.logo_fond_colore}
                       onChange={e => chgA('logo_fond_colore', e.target.checked ? 1 : 0)}
-                      className="w-4 h-4 accent-[#1E3A5F]" />
+                      className="w-4 h-4 accent-[#2563eb]" />
                     Fond coloré derrière le logo dans les emails
                     <span className="text-xs text-gray-400">(recommandé si le logo est blanc)</span>
                   </label>
@@ -530,7 +530,7 @@ export default function AdministrationPage() {
                     className="w-12 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5" />
                   <Input value={agencyForm.couleur_primaire}
                     onChange={e => chgA('couleur_primaire', e.target.value)}
-                    placeholder="#1E3A5F" className="font-mono w-36" />
+                    placeholder="#2563eb" className="font-mono w-36" />
                   <div className="w-10 h-10 rounded-lg border border-gray-200 flex-shrink-0"
                     style={{ background: agencyForm.couleur_primaire }} />
                 </div>
@@ -560,7 +560,7 @@ export default function AdministrationPage() {
 
             {/* SMTP */}
             <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3 mt-2">
-              <Mail size={16} className="text-[#1E3A5F]" /> Configuration email (SMTP)
+              <Mail size={16} className="text-[#2563eb]" /> Configuration email (SMTP)
             </h3>
 
             {!agencyForm.smtp_user || !agencyForm.smtp_password ? (
@@ -616,7 +616,7 @@ export default function AdministrationPage() {
               <Toast msg={agencyMsg.text} ok={agencyMsg.ok} />
               <button onClick={saveAgency} disabled={savingAgency}
                 className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
-                  ${savingAgency ? 'bg-gray-400' : 'bg-[#1E3A5F] hover:bg-[#2D5A8A]'}`}>
+                  ${savingAgency ? 'bg-gray-400' : 'bg-[#2563eb] hover:bg-[#3b82f6]'}`}>
                 {savingAgency ? <><Loader2 size={16} className="animate-spin" />Sauvegarde...</> : <><Save size={16} />Sauvegarder l'agence</>}
               </button>
             </div>
@@ -650,7 +650,7 @@ export default function AdministrationPage() {
                         <Field label="Rôle">
                           <select value={editData.role || a.role}
                             onChange={e => setEditData(p => ({ ...p, role: e.target.value }))}
-                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20">
+                            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20">
                             <option value="agent">Agent</option>
                             <option value="admin">Admin</option>
                             <option value="demo">Démo</option>
@@ -666,7 +666,7 @@ export default function AdministrationPage() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveAgent(a.id)}
-                          className="px-4 py-2 bg-[#1E3A5F] text-white text-sm font-medium rounded-lg hover:bg-[#2D5A8A] flex items-center gap-1.5">
+                          className="px-4 py-2 bg-[#2563eb] text-white text-sm font-medium rounded-lg hover:bg-[#3b82f6] flex items-center gap-1.5">
                           <Check size={14} /> Enregistrer
                         </button>
                         <button onClick={() => { setEditId(null); setEditData({}) }}
@@ -690,7 +690,7 @@ export default function AdministrationPage() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-3 px-4 py-3">
-                      <div className="w-9 h-9 bg-[#1E3A5F]/10 rounded-full flex items-center justify-center text-[#1E3A5F] font-semibold text-sm flex-shrink-0">
+                      <div className="w-9 h-9 bg-[#2563eb]/10 rounded-full flex items-center justify-center text-[#2563eb] font-semibold text-sm flex-shrink-0">
                         {a.nom.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -705,7 +705,7 @@ export default function AdministrationPage() {
                       </span>
                       <div className="flex items-center gap-1 shrink-0">
                         <button onClick={() => { setEditId(a.id); setEditData({ nom: a.nom, role: a.role }) }}
-                          className="p-1.5 text-gray-400 hover:text-[#1E3A5F] hover:bg-gray-100 rounded-lg transition-colors">
+                          className="p-1.5 text-gray-400 hover:text-[#2563eb] hover:bg-gray-100 rounded-lg transition-colors">
                           <Pencil size={15} />
                         </button>
                         {a.id !== user?.id && (
@@ -739,7 +739,7 @@ export default function AdministrationPage() {
                   </Field>
                   <Field label="Rôle">
                     <select value={newAgent.role} onChange={e => setNewAgent(p => ({ ...p, role: e.target.value }))}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20">
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20">
                       <option value="agent">Agent</option>
                       <option value="admin">Admin</option>
                       <option value="demo">Démo</option>
@@ -758,7 +758,7 @@ export default function AdministrationPage() {
               </div>
             ) : (
               <button onClick={() => setShowAddAgent(true)}
-                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-[#1E3A5F] hover:text-[#1E3A5F] transition-colors flex items-center justify-center gap-2">
+                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-[#2563eb] hover:text-[#2563eb] transition-colors flex items-center justify-center gap-2">
                 <UserPlus size={16} /> Ajouter un compte
               </button>
             )}
@@ -794,15 +794,15 @@ export default function AdministrationPage() {
               return (
                 <button key={m.id} type="button" onClick={() => chg('model', m.id)}
                   className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                    active ? 'border-[#1E3A5F] bg-[#DCE7F3]/60' : 'border-gray-200 hover:border-gray-300'}`}>
+                    active ? 'border-[#2563eb] bg-[#DCE7F3]/60' : 'border-gray-200 hover:border-gray-300'}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'bg-[#1E3A5F] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'bg-[#2563eb] text-white' : 'bg-gray-100 text-gray-600'}`}>
                       <MI size={20} />
                     </div>
-                    {active && <div className="w-5 h-5 bg-[#1E3A5F] rounded-full flex items-center justify-center"><Check size={12} className="text-white" /></div>}
+                    {active && <div className="w-5 h-5 bg-[#2563eb] rounded-full flex items-center justify-center"><Check size={12} className="text-white" /></div>}
                   </div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-semibold text-[#1E3A5F] text-sm">{m.name}</p>
+                    <p className="font-semibold text-[#2563eb] text-sm">{m.name}</p>
                     {m.best && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Recommandé</span>}
                   </div>
                   <p className="text-xs text-gray-500">{m.desc}</p>
@@ -894,18 +894,18 @@ export default function AdministrationPage() {
         </div>
 
         {/* Max matchings */}
-        <div className="p-4 rounded-xl border" style={{ background: 'rgba(30,58,95,0.06)', borderColor: 'rgba(30,58,95,0.2)' }}>
+        <div className="p-4 rounded-xl border" style={{ background: 'rgba(37,99,235,0.06)', borderColor: 'rgba(37,99,235,0.2)' }}>
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold text-[#1E3A5F]">Matchings max par prospect</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(30,58,95,0.55)' }}>Seuls les N meilleurs scores sont affichés</p>
+              <p className="text-sm font-semibold text-[#2563eb]">Matchings max par prospect</p>
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(37,99,235,0.55)' }}>Seuls les N meilleurs scores sont affichés</p>
             </div>
-            <span className="text-lg font-extrabold text-[#1E3A5F]">{settings.max_matchings_par_prospect}</span>
+            <span className="text-lg font-extrabold text-[#2563eb]">{settings.max_matchings_par_prospect}</span>
           </div>
           <input type="range" min="1" max="9" step="1" value={settings.max_matchings_par_prospect}
             onChange={e => chg('max_matchings_par_prospect', +e.target.value)}
             className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-            style={{ accentColor: '#1E3A5F', background: 'rgba(30,58,95,0.2)' }} />
+            style={{ accentColor: '#2563eb', background: 'rgba(37,99,235,0.2)' }} />
         </div>
       </Section>
 
@@ -947,7 +947,7 @@ export default function AdministrationPage() {
           </div>
           <div className="flex items-center gap-2">
             <select value={settings.sync_interval_hours} onChange={e => chg('sync_interval_hours', e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20">
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20">
               {[1,2,4,6,12,24].map(h => <option key={h} value={h}>Toutes les {h}h</option>)}
             </select>
           </div>
@@ -957,7 +957,7 @@ export default function AdministrationPage() {
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input type="checkbox" checked={!!settings.analyse_auto_import}
               onChange={e => chg('analyse_auto_import', e.target.checked)}
-              className="w-4 h-4 accent-[#1E3A5F]" />
+              className="w-4 h-4 accent-[#2563eb]" />
             Lancer l'analyse automatiquement après import
           </label>
         </div>
@@ -981,7 +981,7 @@ export default function AdministrationPage() {
         {/* Sync manuelle */}
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3 flex-wrap">
           <button onClick={handleSync} disabled={syncing}
-            className="px-4 py-2.5 bg-[#1E3A5F] text-white text-sm font-medium rounded-xl hover:bg-[#2D5A8A] disabled:opacity-50 flex items-center gap-2">
+            className="px-4 py-2.5 bg-[#2563eb] text-white text-sm font-medium rounded-xl hover:bg-[#3b82f6] disabled:opacity-50 flex items-center gap-2">
             {syncing ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />}
             {syncing ? 'Synchronisation...' : 'Lancer manuellement'}
           </button>
@@ -1008,7 +1008,7 @@ export default function AdministrationPage() {
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <button
             onClick={() => window.open(`${API_URL}/rapport/mensuel?token=${token}`, '_blank')}
-            className="flex items-center gap-2 px-5 py-3 bg-[#1E3A5F] text-white text-sm font-medium rounded-xl hover:bg-[#2D5A8A] transition-colors">
+            className="flex items-center gap-2 px-5 py-3 bg-[#2563eb] text-white text-sm font-medium rounded-xl hover:bg-[#3b82f6] transition-colors">
             <FileText size={17} /> Rapport mensuel
           </button>
 
@@ -1048,7 +1048,7 @@ export default function AdministrationPage() {
         <Toast msg={settingsMsg.text} ok={settingsMsg.ok} />
         <button onClick={saveSettings} disabled={savingSettings}
           className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
-            ${savingSettings ? 'bg-gray-400' : 'bg-[#1E3A5F] hover:bg-[#2D5A8A]'}`}>
+            ${savingSettings ? 'bg-gray-400' : 'bg-[#2563eb] hover:bg-[#3b82f6]'}`}>
           {savingSettings ? <><Loader2 size={16} className="animate-spin" />Sauvegarde...</> : <><Save size={16} />Sauvegarder les paramètres</>}
         </button>
       </div>

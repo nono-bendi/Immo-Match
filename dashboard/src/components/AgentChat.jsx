@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { X, Send, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAgency } from '../contexts/AgencyContext'
@@ -277,7 +277,7 @@ function Message({ msg, dark, onNavigate, biens }) {
         width: 28, height: 28, borderRadius: '50%',
         background: isBot
           ? 'linear-gradient(135deg,#4f46e5,#7c3aed)'
-          : dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
+          : dark ? 'linear-gradient(135deg,#2563eb,#3b82f6)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: isBot ? '0 2px 8px rgba(99,102,241,.4)' : 'none',
       }}>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Building2, MapPin, Maximize, Home, X, Euro,
@@ -121,17 +121,17 @@ function BienModal({ bien, onClose }) {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-3 bg-gray-50 rounded-xl">
               <Euro size={20} className="mx-auto text-emerald-600 mb-1" />
-              <p className="text-lg font-bold text-[#1E3A5F]">{formatPrix(bien.prix)}</p>
+              <p className="text-lg font-bold text-[#2563eb]">{formatPrix(bien.prix)}</p>
               <p className="text-xs text-gray-400">Prix</p>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-xl">
               <Maximize size={20} className="mx-auto text-blue-600 mb-1" />
-              <p className="text-lg font-bold text-[#1E3A5F]">{bien.surface || '-'} m²</p>
+              <p className="text-lg font-bold text-[#2563eb]">{bien.surface || '-'} m²</p>
               <p className="text-xs text-gray-400">Surface</p>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-xl">
               <Home size={20} className="mx-auto text-violet-600 mb-1" />
-              <p className="text-lg font-bold text-[#1E3A5F]">{bien.pieces || '-'} pièces</p>
+              <p className="text-lg font-bold text-[#2563eb]">{bien.pieces || '-'} pièces</p>
               <p className="text-xs text-gray-400">{bien.chambres ? `${bien.chambres} ch.` : ''}</p>
             </div>
           </div>
@@ -215,12 +215,12 @@ function BienModal({ bien, onClose }) {
                 value={lien}
                 onChange={e => { setLien(e.target.value); setLienSaved(false) }}
                 placeholder="https://www.site-agence.fr/annonce/..."
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#2563eb] bg-white"
               />
               <button
                 onClick={saveLien}
                 disabled={lienSaving}
-                className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#2563eb] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all"
               >
                 {lienSaving ? <Loader2 size={14} className="animate-spin" /> : lienSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
                 {lienSaved ? 'Sauvegardé' : 'Sauvegarder'}
@@ -255,7 +255,7 @@ function BienModal({ bien, onClose }) {
             <button
               onClick={lancerAnalyse}
               disabled={analyseState === 'loading'}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl font-medium text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#2563eb] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl font-medium text-sm transition-all"
             >
               {analyseState === 'loading' ? (
                 <><Loader2 size={16} className="animate-spin" />Analyse en cours...</>
@@ -292,7 +292,7 @@ function BienModal({ bien, onClose }) {
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {photos.map((photo, idx) => (
                   <img key={idx} src={photo} alt={`Photo ${idx + 1}`}
-                    className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all hover:scale-105 ${idx === currentPhoto ? 'border-[#1E3A5F]' : 'border-transparent hover:border-gray-300'}`}
+                    className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all hover:scale-105 ${idx === currentPhoto ? 'border-[#2563eb]' : 'border-transparent hover:border-gray-300'}`}
                     onClick={() => setCurrentPhoto(idx)}
                   />
                 ))}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import {
   X, Building2, Euro, Maximize, Home,
   AlertCircle, Sparkles, Loader2, CheckCircle2, ChevronRight, Save
@@ -233,7 +233,7 @@ function NewBienModal({ bienId, onClose }) {
           <button
             onClick={handleAnalyser}
             disabled={analyseState === 'loading'}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#2563eb] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-all"
           >
             {analyseState === 'loading'
               ? <><Loader2 size={15} className="animate-spin" />Analyse en cours...</>

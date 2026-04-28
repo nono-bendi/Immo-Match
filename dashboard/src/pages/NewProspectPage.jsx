@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus } from 'lucide-react'
 import Modal from '../components/Modal'
@@ -254,7 +254,7 @@ function NewProspectPage() {
                 </svg>
               </div>
               
-              <h3 className="text-xl font-bold text-[#1E3A5F] mb-2">Prospect enregistré !</h3>
+              <h3 className="text-xl font-bold text-[#2563eb] mb-2">Prospect enregistré !</h3>
               <p className="text-gray-600 mb-6">
                 <strong>{newProspectName}</strong> a été ajouté avec succès.
                 <br /><br />
@@ -273,7 +273,7 @@ function NewProspectPage() {
                 </button>
                 <button
                   onClick={runAnalysis}
-                  className="px-6 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[#2563eb] text-white font-semibold rounded-xl hover:bg-[#3b82f6] transition-colors flex items-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -304,7 +304,7 @@ function NewProspectPage() {
           <ArrowLeft size={20} className="text-gray-600" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Nouveau prospect</h1>
+          <h1 className="text-2xl font-bold text-[#2563eb]">Nouveau prospect</h1>
           <p className="text-sm text-gray-400">Remplissez les informations du client</p>
         </div>
       </div>
@@ -314,8 +314,8 @@ function NewProspectPage() {
         {/* Section: Informations de base */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <User size={20} className="text-[#1E3A5F]" />
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">Informations de contact</h2>
+            <User size={20} className="text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#2563eb]">Informations de contact</h2>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -327,7 +327,7 @@ function NewProspectPage() {
                 value={formData.nom}
                 onChange={(e) => handleChange('nom', e.target.value)}
                 placeholder="Ex: Mr et Mme Dupont"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
               />
             </div>
             <div>
@@ -337,7 +337,7 @@ function NewProspectPage() {
                 value={formData.telephone}
                 onChange={(e) => handleChange('telephone', e.target.value)}
                 placeholder="06 12 34 56 78"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
               />
             </div>
             <div>
@@ -347,7 +347,7 @@ function NewProspectPage() {
                 value={formData.mail}
                 onChange={(e) => handleChange('mail', e.target.value)}
                 placeholder="email@exemple.com"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
               />
             </div>
             <div>
@@ -357,7 +357,7 @@ function NewProspectPage() {
                 value={formData.domicile}
                 onChange={(e) => handleChange('domicile', e.target.value)}
                 placeholder="Ville actuelle"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
               />
             </div>
           </div>
@@ -366,8 +366,8 @@ function NewProspectPage() {
         {/* Section: Recherche immobilière */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Home size={20} className="text-[#1E3A5F]" />
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">Recherche immobilière</h2>
+            <Home size={20} className="text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#2563eb]">Recherche immobilière</h2>
           </div>
           
           <div className="space-y-4">
@@ -385,7 +385,7 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('bien', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.bien.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -394,7 +394,7 @@ function NewProspectPage() {
                 ))}
               </div>
               {formData.bien.length > 0 && (
-                <p className="text-sm text-[#1E3A5F] mt-2">
+                <p className="text-sm text-[#2563eb] mt-2">
                   Sélection : {formData.bien.join(', ')}
                 </p>
               )}
@@ -412,7 +412,7 @@ function NewProspectPage() {
                   {formData.villes.map(ville => (
                     <span 
                       key={ville}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1E3A5F] text-white text-sm rounded-lg"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#2563eb] text-white text-sm rounded-lg"
                     >
                       {ville}
                       <button
@@ -434,13 +434,13 @@ function NewProspectPage() {
                   onChange={(e) => setVilleInput(e.target.value)}
                   onKeyDown={handleVilleKeyDown}
                   placeholder="Tapez une ville et appuyez sur Entrée..."
-                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                  className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
                 />
                 <button
                   type="button"
                   onClick={() => addVille(villeInput)}
                   disabled={!villeInput.trim()}
-                  className="px-4 py-2.5 bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2D5A8A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2.5 bg-[#2563eb] text-white rounded-lg hover:bg-[#3b82f6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Plus size={20} />
                 </button>
@@ -451,7 +451,7 @@ function NewProspectPage() {
                   <button
                     type="button"
                     onClick={() => addVille('Tout secteur')}
-                    className="px-3 py-1.5 bg-[#1E3A5F]/10 text-[#1E3A5F] text-sm font-medium rounded-lg hover:bg-[#1E3A5F]/20 transition-colors border border-[#1E3A5F]/20"
+                    className="px-3 py-1.5 bg-[#2563eb]/10 text-[#2563eb] text-sm font-medium rounded-lg hover:bg-[#2563eb]/20 transition-colors border border-[#2563eb]/20"
                   >
                     + Tout secteur
                   </button>
@@ -483,7 +483,7 @@ function NewProspectPage() {
                       onClick={() => handleMultiSelect('quartiers', option.value)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         formData.quartiers.includes(option.value)
-                          ? 'bg-[#1E3A5F] text-white'
+                          ? 'bg-[#2563eb] text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
@@ -499,7 +499,7 @@ function NewProspectPage() {
                   value={formData.quartiersExclus}
                   onChange={(e) => handleChange('quartiersExclus', e.target.value)}
                   placeholder="Ex: Centre-ville, Zone industrielle..."
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
                 />
               </div>
             </div>
@@ -514,7 +514,7 @@ function NewProspectPage() {
                     value={formData.budget_max}
                     onChange={(e) => handleChange('budget_max', e.target.value)}
                     placeholder="250000"
-                    className="w-full px-4 py-2.5 pr-8 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                    className="w-full px-4 py-2.5 pr-8 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
                 </div>
@@ -527,7 +527,7 @@ function NewProspectPage() {
                     value={formData.surface_min}
                     onChange={(e) => handleChange('surface_min', e.target.value)}
                     placeholder="50"
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">m²</span>
                 </div>
@@ -537,7 +537,7 @@ function NewProspectPage() {
                 <select
                   value={formData.pieces_min}
                   onChange={(e) => handleChange('pieces_min', e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] bg-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] bg-white"
                 >
                   <option value="">Indifférent</option>
                   <option value="1">1 pièce</option>
@@ -550,7 +550,7 @@ function NewProspectPage() {
             </div>
 
             {formData.budget_max && (
-              <p className="text-sm text-[#1E3A5F]">
+              <p className="text-sm text-[#2563eb]">
                 Budget : {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(formData.budget_max)}
                 {formData.surface_min && ` • Surface min : ${formData.surface_min}m²`}
                 {formData.pieces_min && ` • ${formData.pieces_min} pièces min`}
@@ -562,8 +562,8 @@ function NewProspectPage() {
         {/* Section: Critères spécifiques */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Settings size={20} className="text-[#1E3A5F]" />
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">Critères spécifiques</h2>
+            <Settings size={20} className="text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#2563eb]">Critères spécifiques</h2>
             <span className="text-sm text-gray-400">(optionnel)</span>
           </div>
           
@@ -578,7 +578,7 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('etat', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.etat.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -598,7 +598,7 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('expo', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.expo.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -618,7 +618,7 @@ function NewProspectPage() {
                     onClick={() => handleChange('stationnement', formData.stationnement === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.stationnement === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -638,7 +638,7 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('exterieur', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.exterieur.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -658,7 +658,7 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('etage', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.etage.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -678,7 +678,7 @@ function NewProspectPage() {
                     onClick={() => handleChange('copro', formData.copro === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.copro === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -693,8 +693,8 @@ function NewProspectPage() {
         {/* Section: Projet */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Target size={20} className="text-[#1E3A5F]" />
-            <h2 className="text-lg font-semibold text-[#1E3A5F]">Projet</h2>
+            <Target size={20} className="text-[#2563eb]" />
+            <h2 className="text-lg font-semibold text-[#2563eb]">Projet</h2>
           </div>
           
           <div className="space-y-4">
@@ -708,7 +708,7 @@ function NewProspectPage() {
                     onClick={() => handleChange('destination', formData.destination === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.destination === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'bg-[#2563eb] text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -730,7 +730,7 @@ function NewProspectPage() {
                 onChange={(e) => handleChange('observation', e.target.value)}
                 placeholder="Informations complémentaires, contraintes particulières, délais, financement..."
                 rows={4}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] resize-none"
               />
             </div>
           </div>
@@ -750,7 +750,7 @@ function NewProspectPage() {
             <button
               type="submit"
               disabled={saving || !formData.nom || formData.bien.length === 0 || formData.villes.length === 0 || !formData.budget_max}
-              className="px-6 py-3 bg-[#1E3A5F] text-white font-semibold rounded-xl hover:bg-[#2D5A8A] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="px-6 py-3 bg-[#2563eb] text-white font-semibold rounded-xl hover:bg-[#3b82f6] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               {saving ? (
                 <>
