@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -40,7 +40,7 @@ function EmailModal({
 
       <div className={`relative bg-white rounded-2xl shadow-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`}>
         {type === 'confirm' && (
-          <div className="bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-6 py-4 shrink-0">
+          <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] px-6 py-4 shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -57,7 +57,7 @@ function EmailModal({
                   onClick={() => setActiveTab('preview')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'preview'
-                      ? 'bg-white text-[#2563eb]'
+                      ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -68,7 +68,7 @@ function EmailModal({
                   onClick={() => setActiveTab('edit')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'edit'
-                      ? 'bg-white text-[#2563eb]'
+                      ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -79,7 +79,7 @@ function EmailModal({
                   onClick={() => setActiveTab('confirm')}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'confirm'
-                      ? 'bg-white text-[#2563eb]'
+                      ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -127,7 +127,7 @@ function EmailModal({
                   {previewLoading ? (
                     <div className="h-[500px] flex items-center justify-center bg-gray-50 rounded-xl">
                       <div className="text-center">
-                        <div className="w-8 h-8 border-3 border-[#2563eb] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                        <div className="w-8 h-8 border-3 border-[#1E3A5F] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                         <p className="text-gray-500 text-sm">Génération de l'aperçu...</p>
                       </div>
                     </div>
@@ -144,7 +144,7 @@ function EmailModal({
                         </div>
                         <button
                           onClick={() => setActiveTab('edit')}
-                          className="text-xs text-[#2563eb] hover:text-[#3b82f6] font-medium flex items-center gap-1"
+                          className="text-xs text-[#1E3A5F] hover:text-[#2D5A8A] font-medium flex items-center gap-1"
                         >
                           <Edit3 size={12} />
                           Personnaliser
@@ -172,7 +172,7 @@ function EmailModal({
                     </button>
                     <button
                       onClick={() => setActiveTab('confirm')}
-                      className="flex-1 px-4 py-3 bg-[#2563eb] text-white rounded-xl font-medium hover:bg-[#3b82f6] transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-3 bg-[#1E3A5F] text-white rounded-xl font-medium hover:bg-[#2D5A8A] transition-colors flex items-center justify-center gap-2"
                     >
                       <Send size={16} />
                       Continuer
@@ -197,7 +197,7 @@ function EmailModal({
                       type="text"
                       value={emailContent?.subject || ''}
                       onChange={(e) => handleContentChange('subject', e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                     />
                   </div>
 
@@ -207,7 +207,7 @@ function EmailModal({
                       value={emailContent?.intro || ''}
                       onChange={(e) => handleContentChange('intro', e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
                       placeholder="Suite à notre échange, j'ai identifié un bien qui pourrait vous intéresser..."
                     />
                     <p className="text-xs text-gray-400 mt-1">Texte après "Bonjour [Nom],"</p>
@@ -224,7 +224,7 @@ function EmailModal({
                       value={emailContent?.points_forts || ''}
                       onChange={(e) => handleContentChange('points_forts', e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
                       placeholder="Séparez chaque point par un saut de ligne"
                     />
                     <p className="text-xs text-gray-400 mt-1">Un point par ligne</p>
@@ -236,7 +236,7 @@ function EmailModal({
                       value={emailContent?.conclusion || ''}
                       onChange={(e) => handleContentChange('conclusion', e.target.value)}
                       rows={2}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] resize-none"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
                       placeholder="Ce bien vous intéresse ? N'hésitez pas à me contacter..."
                     />
                     <p className="text-xs text-gray-400 mt-1">Texte avant "À très bientôt,"</p>
@@ -248,7 +248,7 @@ function EmailModal({
                       type="url"
                       value={emailContent?.lien_annonce || ''}
                       onChange={(e) => handleContentChange('lien_annonce', e.target.value)}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb]"
+                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                       placeholder="https://... (laissez vide pour utiliser la page publique ImmoFlash)"
                     />
                     <p className="text-xs text-gray-400 mt-1">URL du bouton "Voir ce bien" dans l'email</p>
@@ -265,7 +265,7 @@ function EmailModal({
                     <button
                       onClick={() => { onRegeneratePreview(); setActiveTab('preview') }}
                       disabled={previewLoading}
-                      className="flex-1 px-4 py-3 bg-[#2563eb] text-white rounded-xl font-medium hover:bg-[#3b82f6] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 px-4 py-3 bg-[#1E3A5F] text-white rounded-xl font-medium hover:bg-[#2D5A8A] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {previewLoading ? (
                         <>
@@ -288,7 +288,7 @@ function EmailModal({
                   <div className="bg-gray-50 rounded-xl p-4 mb-4">
                     <p className="text-sm text-gray-500 mb-1">Destinataire</p>
                     <p className="font-medium text-gray-900">{data.prospectNom}</p>
-                    <p className="text-sm text-[#2563eb]">{data.prospectMail}</p>
+                    <p className="text-sm text-[#1E3A5F]">{data.prospectMail}</p>
                   </div>
 
                   <div className="bg-gray-50 rounded-xl p-4 mb-4">
@@ -299,7 +299,7 @@ function EmailModal({
                   <div className="bg-gray-50 rounded-xl p-4 mb-4">
                     <p className="text-sm text-gray-500 mb-1">Bien proposé</p>
                     <p className="font-medium text-gray-900">{data.bienType} à {data.bienVille}</p>
-                    <p className="text-sm text-[#2563eb] font-semibold">{data.bienPrix}</p>
+                    <p className="text-sm text-[#1E3A5F] font-semibold">{data.bienPrix}</p>
                   </div>
 
                   {!smtpConfigured && (

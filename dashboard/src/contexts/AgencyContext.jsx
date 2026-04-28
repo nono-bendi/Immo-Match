@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { API_URL } from '../config'
 
 const AgencyContext = createContext(null)
@@ -19,7 +19,7 @@ export function AgencyProvider({ children }) {
         const data = await res.json()
         setAgency(data)
         // Injecter la couleur primaire comme CSS variable
-        document.documentElement.style.setProperty('--color-primary', data.couleur_primaire || '#2563eb')
+        document.documentElement.style.setProperty('--color-primary', data.couleur_primaire || '#1E3A5F')
       }
     } catch {
       // silencieux

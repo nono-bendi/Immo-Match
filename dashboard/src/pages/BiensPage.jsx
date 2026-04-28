@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
@@ -244,7 +244,7 @@ function BiensPage() {
                 Supprimer ce bien ?
               </p>
               <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
-                <strong style={{ color: '#2563eb' }}>{confirmDelete.type} · {confirmDelete.ville}</strong> sera définitivement supprimé. Cette action est irréversible.
+                <strong style={{ color: '#1E3A5F' }}>{confirmDelete.type} · {confirmDelete.ville}</strong> sera définitivement supprimé. Cette action est irréversible.
               </p>
             </div>
             {/* Boutons */}
@@ -282,7 +282,7 @@ function BiensPage() {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#2563eb]">Biens</h1>
+          <h1 className="text-2xl font-bold text-[#1E3A5F]">Biens</h1>
           <p className="text-sm text-gray-400">
             {biens.filter(b => b.statut !== 'vendu').length} actifs
             {biens.some(b => b.statut === 'vendu') && (
@@ -304,7 +304,7 @@ function BiensPage() {
               placeholder="Rechercher un bien..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
             />
           </div>
 
@@ -320,7 +320,7 @@ function BiensPage() {
                   onClick={() => setFilterAgence(opt.key)}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                     filterAgence === opt.key
-                      ? 'bg-[#2563eb] text-white shadow-sm'
+                      ? 'bg-[#1E3A5F] text-white shadow-sm'
                       : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -367,11 +367,11 @@ function BiensPage() {
           <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Building2 size={40} className="text-gray-300 animate-float" />
           </div>
-          <h2 className="text-xl font-bold text-[#2563eb] mb-2">Aucun bien disponible</h2>
+          <h2 className="text-xl font-bold text-[#1E3A5F] mb-2">Aucun bien disponible</h2>
           <p className="text-gray-400 mb-6 max-w-md mx-auto">
             En attente des données Hektor. Importez le fichier des biens pour commencer le matching avec vos prospects.
           </p>
-          <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#2563eb] text-white font-medium rounded-xl btn-press cursor-pointer">
+          <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press cursor-pointer">
             <Upload size={20} />
             Importer le fichier des biens
             <input
@@ -401,9 +401,9 @@ function BiensPage() {
                       className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none group"
                       onClick={() => handleSort(field)}
                     >
-                      <span className={`inline-flex items-center gap-1 hover:text-[#2563eb] transition-colors ${active ? 'text-[#2563eb]' : ''}`}>
+                      <span className={`inline-flex items-center gap-1 hover:text-[#1E3A5F] transition-colors ${active ? 'text-[#1E3A5F]' : ''}`}>
                         {label}
-                        <Icon size={13} className={active ? 'text-[#2563eb]' : 'text-gray-300 group-hover:text-gray-400'} />
+                        <Icon size={13} className={active ? 'text-[#1E3A5F]' : 'text-gray-300 group-hover:text-gray-400'} />
                       </span>
                     </th>
                   )
@@ -427,7 +427,7 @@ function BiensPage() {
                         {/* Miniature ou icône */}
                         {firstPhoto ? (
                           <div 
-                            className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#2563eb]/30 transition-all hover:scale-105"
+                            className="w-12 h-12 rounded-xl bg-gray-100 overflow-hidden cursor-pointer hover:ring-2 hover:ring-[#1E3A5F]/30 transition-all hover:scale-105"
                             onClick={() => openModal(bien)}
                           >
                             <img 
@@ -448,7 +448,7 @@ function BiensPage() {
                         <div>
                           <button 
                             onClick={() => openModal(bien)}
-                            className="font-semibold text-[#2563eb] hover:text-[#3b82f6] hover:underline text-left transition-colors"
+                            className="font-semibold text-[#1E3A5F] hover:text-[#2D5A8A] hover:underline text-left transition-colors"
                           >
                             {bien.type || 'Bien'}
                           </button>
@@ -479,7 +479,7 @@ function BiensPage() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="text-sm font-semibold text-[#2563eb]">{formatPrix(bien.prix)}</span>
+                      <span className="text-sm font-semibold text-[#1E3A5F]">{formatPrix(bien.prix)}</span>
                     </td>
                     <td className="p-4">
                       {bien.etat ? (() => {
@@ -500,7 +500,7 @@ function BiensPage() {
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => openModal(bien)}
-                          className="p-2 rounded-lg hover:bg-[#DCE7F3] text-gray-400 hover:text-[#2563eb] transition-all"
+                          className="p-2 rounded-lg hover:bg-[#DCE7F3] text-gray-400 hover:text-[#1E3A5F] transition-all"
                           title="Voir"
                         >
                           <Eye size={16} className="icon-bounce" />

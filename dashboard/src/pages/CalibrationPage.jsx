@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, BarChart2, CheckCircle, AlertCircle, AlertTriangle, Target, Loader2, X, Home, Euro, Maximize2, BedDouble, MapPin } from 'lucide-react'
 import { apiFetch } from '../api'
 import { useAuth } from '../contexts/AuthContext'
@@ -78,21 +78,21 @@ function BienDetailModal({ m, onClose }) {
 
         <div className="p-5 space-y-3">
           <div>
-            <h3 className="font-bold text-[#2563eb] text-lg">{m.bien_type} · {m.bien_ville}</h3>
+            <h3 className="font-bold text-[#1E3A5F] text-lg">{m.bien_type} · {m.bien_ville}</h3>
             {m.quartier && <p className="text-sm text-gray-400 flex items-center gap-1 mt-0.5"><MapPin size={12} />{m.quartier}</p>}
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-gray-50 rounded-xl p-3 text-center">
               <Euro size={14} className="mx-auto text-gray-400 mb-1" />
-              <p className="text-sm font-bold text-[#2563eb]">{formatPrix(m.bien_prix)}</p>
+              <p className="text-sm font-bold text-[#1E3A5F]">{formatPrix(m.bien_prix)}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 text-center">
               <Maximize2 size={14} className="mx-auto text-gray-400 mb-1" />
-              <p className="text-sm font-bold text-[#2563eb]">{m.surface ? `${m.surface} m²` : '—'}</p>
+              <p className="text-sm font-bold text-[#1E3A5F]">{m.surface ? `${m.surface} m²` : '—'}</p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 text-center">
               <BedDouble size={14} className="mx-auto text-gray-400 mb-1" />
-              <p className="text-sm font-bold text-[#2563eb]">{m.chambres ? `${m.chambres} ch.` : '—'}</p>
+              <p className="text-sm font-bold text-[#1E3A5F]">{m.chambres ? `${m.chambres} ch.` : '—'}</p>
             </div>
           </div>
           {m.etat && <p className="text-sm text-gray-600"><span className="font-medium">État :</span> {m.etat}</p>}
@@ -187,7 +187,7 @@ export default function CalibrationPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={32} className="animate-spin text-[#2563eb]" />
+        <Loader2 size={32} className="animate-spin text-[#1E3A5F]" />
       </div>
     )
   }
@@ -208,11 +208,11 @@ export default function CalibrationPage() {
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[#2563eb]">Résultats de calibration</h1>
+            <h1 className="text-2xl font-bold text-[#1E3A5F]">Résultats de calibration</h1>
             <p className="text-gray-400 text-sm mt-1">{evaluated} matchings évalués sur {total}</p>
           </div>
           <button onClick={() => setView('calibration')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#2563eb] text-white rounded-xl text-sm font-medium hover:bg-[#1e40af] transition-colors">
+            className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-xl text-sm font-medium hover:bg-[#152a45] transition-colors">
             <ChevronLeft size={16} /> Retour
           </button>
         </div>
@@ -228,7 +228,7 @@ export default function CalibrationPage() {
             <div>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Pertinence</h2>
               <div className="grid grid-cols-3 gap-4">
-                <StatCard label="Évalués" value={stats.total} color="#2563eb" />
+                <StatCard label="Évalués" value={stats.total} color="#1E3A5F" />
                 <StatCard label="Pertinents" value={`${Math.round((stats.pertinents/stats.total)*100)}%`} sub={`${stats.pertinents} / ${stats.total}`} color="#10b981" />
                 <StatCard label="Non pertinents" value={`${Math.round((stats.non_pertinents/stats.total)*100)}%`} sub={`${stats.non_pertinents} / ${stats.total}`} color="#ef4444" />
               </div>
@@ -250,8 +250,8 @@ export default function CalibrationPage() {
                 </div>
               </div>
             )}
-            <div className="bg-[#2563eb]/5 border border-[#2563eb]/10 rounded-2xl p-5">
-              <h2 className="text-sm font-semibold text-[#2563eb] mb-3 flex items-center gap-2">
+            <div className="bg-[#1E3A5F]/5 border border-[#1E3A5F]/10 rounded-2xl p-5">
+              <h2 className="text-sm font-semibold text-[#1E3A5F] mb-3 flex items-center gap-2">
                 <Target size={16} /> Ce que ça nous dit
                 {stats.total < 10 && <span className="ml-auto text-xs text-amber-500 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">{stats.total} éval. · résultats préliminaires</span>}
               </h2>
@@ -282,11 +282,11 @@ export default function CalibrationPage() {
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#2563eb]">Calibration</h1>
+          <h1 className="text-2xl font-bold text-[#1E3A5F]">Calibration</h1>
           <p className="text-sm text-gray-400 mt-0.5">Évaluez la pertinence des matchings</p>
         </div>
         <button onClick={async () => { await loadStats(); setView('results') }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#2563eb] text-white rounded-xl text-sm font-medium hover:bg-[#1e40af] transition-colors">
+          className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-xl text-sm font-medium hover:bg-[#152a45] transition-colors">
           <BarChart2 size={16} /> Résultats {evaluated > 0 && <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-xs">{evaluated}</span>}
         </button>
       </div>
@@ -294,10 +294,10 @@ export default function CalibrationPage() {
       <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-5">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-600">{evaluated} évalués sur {total}</span>
-          <span className="text-sm font-bold text-[#2563eb]">{progress}%</span>
+          <span className="text-sm font-bold text-[#1E3A5F]">{progress}%</span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          <div className="h-full bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
@@ -311,7 +311,7 @@ export default function CalibrationPage() {
             <button key={item.id} onClick={() => setCurrentIdx(i)}
               title={`${item.bien_type || 'Bien'} · ${item.prospect_nom}`}
               className={`w-6 h-6 rounded-full shrink-0 transition-all border-2 ${
-                i === currentIdx ? 'bg-[#2563eb] border-[#2563eb] scale-125'
+                i === currentIdx ? 'bg-[#1E3A5F] border-[#1E3A5F] scale-125'
                 : item.pertinent === 1 ? 'bg-emerald-400 border-emerald-400'
                 : item.pertinent === 0 ? 'bg-red-400 border-red-400'
                 : 'bg-gray-200 border-gray-200 hover:bg-gray-300'
@@ -338,7 +338,7 @@ export default function CalibrationPage() {
             </div>
           </button>
 
-          <div className="flex-1 bg-gradient-to-r from-[#2563eb] to-[#3b82f6] px-5 py-4 flex flex-col justify-between">
+          <div className="flex-1 bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] px-5 py-4 flex flex-col justify-between">
             <div>
               <p className="text-white/50 text-xs uppercase tracking-wide mb-0.5">{currentIdx + 1} / {total}</p>
               <h2 className="text-white font-bold text-base leading-tight">{m.prospect_nom}</h2>
@@ -416,7 +416,7 @@ export default function CalibrationPage() {
 
           <input type="text" value={commentaire} onChange={e => setCommentaire(e.target.value)}
             placeholder="Commentaire optionnel (ex : trop petit, mauvais quartier…)"
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 focus:border-[#2563eb] text-gray-600 placeholder-gray-300" />
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] text-gray-600 placeholder-gray-300" />
 
           <div className="flex gap-3 pt-1">
             <button onClick={save} disabled={saving || (pertinent === null && scoreAvis === null)}
@@ -424,7 +424,7 @@ export default function CalibrationPage() {
               {saving ? <Loader2 size={15} className="animate-spin" /> : 'Sauvegarder'}
             </button>
             <button onClick={saveAndNext} disabled={saving || (pertinent === null && scoreAvis === null) || currentIdx === total - 1}
-              className="flex-1 py-2.5 bg-[#2563eb] hover:bg-[#1e40af] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-40">
+              className="flex-1 py-2.5 bg-[#1E3A5F] hover:bg-[#152a45] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-40">
               {saving ? <Loader2 size={15} className="animate-spin" /> : <>Suivant <ChevronRight size={15} /></>}
             </button>
           </div>

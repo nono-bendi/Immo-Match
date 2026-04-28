@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted, onCancel }) {
   const [elapsedTime, setElapsedTime] = useState(0)
@@ -49,7 +49,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
   }
 
   return (
-    <div className="fixed inset-0 bg-[#2563eb]/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-[#1E3A5F]/80 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center relative">
 
         {/* Croix d'annulation */}
@@ -69,8 +69,8 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
         <div className="relative w-32 h-40 mx-auto mb-4">
           <style>{`
             .loader-container {
-              --fill-color: #2563eb;
-              --shine-color: #2563eb33;
+              --fill-color: #1E3A5F;
+              --shine-color: #1E3A5F33;
               transform: scale(0.6);
               width: 100px;
               height: 100px;
@@ -161,13 +161,13 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
         </div>
 
         {/* Titre */}
-        <h2 className="text-xl font-bold text-[#2563eb] mb-1">Analyse en cours</h2>
+        <h2 className="text-xl font-bold text-[#1E3A5F] mb-1">Analyse en cours</h2>
         <p className="text-gray-500 mb-6 text-sm">L'IA analyse les correspondances...</p>
 
         {/* Prospect en cours */}
         {currentProspectName && (
           <div className="bg-[#DCE7F3] rounded-lg px-4 py-2 mb-4">
-            <p className="text-sm text-[#2563eb] font-medium">
+            <p className="text-sm text-[#1E3A5F] font-medium">
               {currentProspectName}
             </p>
           </div>
@@ -181,7 +181,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>

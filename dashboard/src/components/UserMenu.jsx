@@ -1,4 +1,4 @@
-﻿// =====================================================
+// =====================================================
 // src/components/UserMenu.jsx - LIEN PARAMÈTRES CORRIGÉ
 // =====================================================
 
@@ -49,7 +49,7 @@ function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors"
       >
-        <div className="w-9 h-9 bg-[#2563eb] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+        <div className="w-9 h-9 bg-[#1E3A5F] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
           {getInitials(user?.nom)}
         </div>
         <div className="hidden md:block text-left">

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { X, MapPin, Euro, Maximize, Home, Building2, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { apiFetch } from '../api'
 
@@ -56,7 +56,7 @@ function BienLink({ bien, children, className = '' }) {
     <>
       <button
         onClick={(e) => { e.stopPropagation(); setShowModal(true) }}
-        className={`text-[#2563eb] hover:text-[#3b82f6] hover:underline font-medium cursor-pointer text-left ${className}`}
+        className={`text-[#1E3A5F] hover:text-[#2D5A8A] hover:underline font-medium cursor-pointer text-left ${className}`}
       >
         {displayName}
       </button>
@@ -135,7 +135,7 @@ function BienLink({ bien, children, className = '' }) {
             <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="p-8 flex items-center justify-center">
-                  <Loader2 size={24} className="animate-spin text-[#2563eb]" />
+                  <Loader2 size={24} className="animate-spin text-[#1E3A5F]" />
                 </div>
               ) : (
                 <div className="p-6 space-y-4">
@@ -143,17 +143,17 @@ function BienLink({ bien, children, className = '' }) {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center p-3 bg-gray-50 rounded-xl">
                       <Euro size={20} className="mx-auto text-emerald-600 mb-1" />
-                      <p className="text-lg font-bold text-[#2563eb]">{formatBudget(data.prix)}</p>
+                      <p className="text-lg font-bold text-[#1E3A5F]">{formatBudget(data.prix)}</p>
                       <p className="text-xs text-gray-400">Prix</p>
                     </div>
                     <div className="text-center p-3 bg-gray-50 rounded-xl">
                       <Maximize size={20} className="mx-auto text-blue-600 mb-1" />
-                      <p className="text-lg font-bold text-[#2563eb]">{data.surface || '-'} m²</p>
+                      <p className="text-lg font-bold text-[#1E3A5F]">{data.surface || '-'} m²</p>
                       <p className="text-xs text-gray-400">Surface</p>
                     </div>
                     <div className="text-center p-3 bg-gray-50 rounded-xl">
                       <Home size={20} className="mx-auto text-violet-600 mb-1" />
-                      <p className="text-lg font-bold text-[#2563eb]">{data.pieces || '-'} pièces</p>
+                      <p className="text-lg font-bold text-[#1E3A5F]">{data.pieces || '-'} pièces</p>
                       <p className="text-xs text-gray-400">{data.chambres ? `${data.chambres} ch.` : ''}</p>
                     </div>
                   </div>
@@ -353,7 +353,7 @@ function BienLink({ bien, children, className = '' }) {
                             src={photo}
                             alt={`Photo ${idx + 1}`}
                             className={`w-16 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all ${
-                              idx === currentPhoto ? 'border-[#2563eb]' : 'border-transparent hover:border-gray-300'
+                              idx === currentPhoto ? 'border-[#1E3A5F]' : 'border-transparent hover:border-gray-300'
                             }`}
                             onClick={() => setCurrentPhoto(idx)}
                           />

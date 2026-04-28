@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, Settings, SlidersHorizontal, Menu, ShieldCheck } from 'lucide-react'
 import NotificationBell from './NotificationBell'
@@ -70,16 +70,16 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
         }
         .hdr-guide:hover {
-          color: #2563eb !important; border-color: #2563eb !important;
+          color: #1E3A5F !important; border-color: #1E3A5F !important;
           background: #f0f5fb !important; transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(37,99,235,0.1);
+          box-shadow: 0 4px 12px rgba(30,58,95,0.1);
         }
         .hdr-guide:active { transform: translateY(0); }
       `}</style>
 
       <header
         className="hdr-wrap sticky top-0 z-40 flex items-center justify-between bg-white border-b border-[#e8eef5] px-4 md:px-9"
-        style={{ height: 64, boxShadow: '0 1px 0 #e8eef5, 0 4px 24px rgba(37,99,235,0.04)' }}
+        style={{ height: 64, boxShadow: '0 1px 0 #e8eef5, 0 4px 24px rgba(30,58,95,0.04)' }}
       >
 
         {/* ── Gauche : hamburger (mobile) + titre ── */}
@@ -88,7 +88,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           {/* Hamburger — visible seulement sur mobile */}
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-[#2563eb] hover:bg-gray-100 transition-colors"
+            className="lg:hidden flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl text-[#1E3A5F] hover:bg-gray-100 transition-colors"
           >
             <Menu size={20} />
           </button>
@@ -97,7 +97,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           {Icon && (
             <div
               className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-[13px] items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)', boxShadow: '0 4px 14px rgba(37,99,235,0.22)' }}
+              style={{ background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)', boxShadow: '0 4px 14px rgba(30,58,95,0.22)' }}
             >
               <Icon size={19} color="white" strokeWidth={2} />
             </div>
@@ -105,7 +105,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
 
           {/* Titre + sous-titre */}
           <div key={location.pathname} className="hdr-title min-w-0">
-            <h1 className="text-lg md:text-2xl font-extrabold text-[#2563eb] leading-none tracking-tight truncate" style={{ letterSpacing: '-0.04em' }}>
+            <h1 className="text-lg md:text-2xl font-extrabold text-[#1E3A5F] leading-none tracking-tight truncate" style={{ letterSpacing: '-0.04em' }}>
               {page.title}
             </h1>
             <p className="hidden sm:block text-xs text-[#94a3b8] mt-0.5 truncate">{page.subtitle}</p>
@@ -142,7 +142,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
             >
               <div
                 className="w-7 h-7 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #2563eb, #3b82f6)' }}
+                style={{ background: 'linear-gradient(135deg, #1E3A5F, #2D5A8A)' }}
               >
                 <Clock size={13} color="white" />
               </div>
@@ -150,7 +150,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
                 <p className="text-[10px] text-[#94a3b8] font-semibold uppercase leading-none mb-0.5" style={{ letterSpacing: '0.06em' }}>
                   Dernière analyse
                 </p>
-                <p className="text-[13px] font-bold text-[#2563eb] leading-none" style={{ letterSpacing: '-0.01em' }}>
+                <p className="text-[13px] font-bold text-[#1E3A5F] leading-none" style={{ letterSpacing: '-0.01em' }}>
                   {analyseLabel}
                 </p>
               </div>

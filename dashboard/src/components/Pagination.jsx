@@ -1,4 +1,4 @@
-﻿import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function Pagination({ currentPage, totalPages, onChange, totalItems, itemsPerPage }) {
   if (totalPages <= 1) return null
@@ -17,7 +17,7 @@ export default function Pagination({ currentPage, totalPages, onChange, totalIte
       <button
         onClick={() => onChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-9 h-9 flex items-center justify-center rounded-xl text-[#2563eb] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#f0f5fb] dark:text-slate-300 dark:hover:bg-white/5 transition-all"
+        className="w-9 h-9 flex items-center justify-center rounded-xl text-[#1E3A5F] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#f0f5fb] dark:text-slate-300 dark:hover:bg-white/5 transition-all"
       >
         <ChevronLeft size={17} strokeWidth={2.5} />
       </button>
@@ -34,7 +34,7 @@ export default function Pagination({ currentPage, totalPages, onChange, totalIte
             onClick={() => onChange(page)}
             className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-700 transition-all
               ${page === currentPage
-                ? 'bg-[#2563eb] text-white font-bold shadow-md shadow-[#2563eb]/30 scale-105'
+                ? 'bg-[#1E3A5F] text-white font-bold shadow-md shadow-[#1E3A5F]/30 scale-105'
                 : 'text-slate-500 hover:bg-[#f0f5fb] dark:text-slate-400 dark:hover:bg-white/5 font-medium'
               }`}
           >
@@ -47,7 +47,7 @@ export default function Pagination({ currentPage, totalPages, onChange, totalIte
       <button
         onClick={() => onChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-9 h-9 flex items-center justify-center rounded-xl text-[#2563eb] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#f0f5fb] dark:text-slate-300 dark:hover:bg-white/5 transition-all"
+        className="w-9 h-9 flex items-center justify-center rounded-xl text-[#1E3A5F] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#f0f5fb] dark:text-slate-300 dark:hover:bg-white/5 transition-all"
       >
         <ChevronRight size={17} strokeWidth={2.5} />
       </button>

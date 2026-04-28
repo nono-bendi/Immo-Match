@@ -1,4 +1,4 @@
-﻿import { CheckCircle, AlertTriangle, HelpCircle, X } from 'lucide-react'
+import { CheckCircle, AlertTriangle, HelpCircle, X } from 'lucide-react'
 
 function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', confirmText = 'OK', cancelText = 'Annuler', showCancel = false }) {
   if (!isOpen) return null
@@ -41,12 +41,12 @@ function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', conf
             )}
             {(type === 'info' || type === 'confirm') && (
               <div className="animate-pulse-slow">
-                <HelpCircle size={48} className="text-[#2563eb]" />
+                <HelpCircle size={48} className="text-[#1E3A5F]" />
               </div>
             )}
           </div>
           
-          <h3 className="text-xl font-bold text-[#2563eb] mb-2">{title}</h3>
+          <h3 className="text-xl font-bold text-[#1E3A5F] mb-2">{title}</h3>
           <p className="text-gray-600 whitespace-pre-line">{message}</p>
           
           {/* Buttons */}
@@ -66,7 +66,7 @@ function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', conf
                   ? 'bg-red-500 text-white hover:bg-red-600'
                   : type === 'warning'
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-[#2563eb] text-white hover:bg-[#3b82f6]'
+                  : 'bg-[#1E3A5F] text-white hover:bg-[#2D5A8A]'
               }`}
             >
               {confirmText}

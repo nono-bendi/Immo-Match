@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 /* ============================================================
    DARK MODE — DEEP NAVY ÉLÉGANT
@@ -105,8 +105,8 @@
 /* Bas de sidebar */
 .dark aside .border-t      { border-color: rgba(255,255,255,0.06) !important; }
 .dark aside .bg-white\/5   { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.06) !important; }
-.dark aside .bg-\[\#3b82f6\] {
-  background: #2563eb !important;
+.dark aside .bg-\[\#2D5A8A\] {
+  background: #1e3a5f !important;
   border: 1px solid rgba(255,255,255,0.12) !important;
 }
 
@@ -136,14 +136,14 @@
 }
 
 /* Bouton Nouvelle analyse — sobre, juste un peu plus clair */
-.dark header button.bg-\[\#2563eb\],
-.dark header button[class*="bg-\[#2563eb\]"] {
+.dark header button.bg-\[\#1E3A5F\],
+.dark header button[class*="bg-\[#1E3A5F\]"] {
   background: #1e4976 !important;
   border: 1px solid rgba(255,255,255,0.1) !important;
   color: white !important;
   box-shadow: none !important;
 }
-.dark header button.bg-\[\#2563eb\]:hover {
+.dark header button.bg-\[\#1E3A5F\]:hover {
   background: #245a8c !important;
   filter: none !important;
 }
@@ -207,19 +207,19 @@
 .dark .text-gray-400 { color: rgba(255,255,255,0.4) !important; }
 
 /* Brand — cyan uniquement sur les éléments qui en ont besoin */
-.dark .text-\[\#2563eb\],
-.dark .text-\[\#3b82f6\] { color: #7dd3fc !important; }
+.dark .text-\[\#1E3A5F\],
+.dark .text-\[\#2D5A8A\] { color: #7dd3fc !important; }
 
 /* ── BOUTONS BRAND ─────────────────────────────────────── */
-.dark .bg-\[\#2563eb\] {
+.dark .bg-\[\#1E3A5F\] {
   background: #1e4976 !important;
   color: white !important;
   box-shadow: none !important;
   border: 1px solid rgba(255,255,255,0.1) !important;
 }
-.dark .bg-\[\#2563eb\]:hover { background: #245a8c !important; }
-.dark .bg-\[\#2563eb\]\/10  { background: rgba(255,255,255,0.06) !important; }
-.dark .hover\:bg-\[\#3b82f6\]:hover { background: #245a8c !important; }
+.dark .bg-\[\#1E3A5F\]:hover { background: #245a8c !important; }
+.dark .bg-\[\#1E3A5F\]\/10  { background: rgba(255,255,255,0.06) !important; }
+.dark .hover\:bg-\[\#2D5A8A\]:hover { background: #245a8c !important; }
 
 /* ── BORDURES ──────────────────────────────────────────── */
 .dark .border,
@@ -389,7 +389,7 @@
 .animate-slide-in { animation: slide-in-right 0.3s ease-out forwards; }
 
 .btn-press { transition: all 0.15s ease; }
-.btn-press:hover  { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+.btn-press:hover  { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,58,95,0.25); }
 .btn-press:active { transform: translateY(0); }
 
 .card-hover { transition: all 0.2s ease; }
@@ -412,13 +412,13 @@
 .icon-pop:active { transform: scale(0.95); }
 
 .btn-sparkle {
-  position: relative; padding: 14px 28px; background: #2563eb;
+  position: relative; padding: 14px 28px; background: #1E3A5F;
   font-size: 15px; font-weight: 600; color: #fff;
-  border: 2px solid #2563eb; border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+  border: 2px solid #1E3A5F; border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(30,58,95,0.3);
   transition: all 0.3s ease-in-out; cursor: pointer; overflow: visible;
 }
-.btn-sparkle:hover { background: transparent; color: #2563eb; }
+.btn-sparkle:hover { background: transparent; color: #1E3A5F; }
 .btn-sparkle:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-sparkle .star-1,.btn-sparkle .star-2,.btn-sparkle .star-3,
 .btn-sparkle .star-4,.btn-sparkle .star-5,.btn-sparkle .star-6 {
@@ -430,7 +430,7 @@
 .btn-sparkle:hover .star-1{top:-59%;left:5%;opacity:1}.btn-sparkle:hover .star-2{top:-35%;left:15%;opacity:1}
 .btn-sparkle:hover .star-3{top:100%;left:10%;opacity:1}.btn-sparkle:hover .star-4{top:-30%;left:85%;opacity:1}
 .btn-sparkle:hover .star-5{top:70%;left:90%;opacity:1}.btn-sparkle:hover .star-6{top:90%;left:100%;opacity:1}
-.btn-sparkle .fil0{fill:#2563eb}
+.btn-sparkle .fil0{fill:#1E3A5F}
 .dark .btn-sparkle:hover { color: #fff; }
 .dark .btn-sparkle:hover .fil0 { fill: #fff; }
 .btn-sparkle:disabled .star-1,.btn-sparkle:disabled .star-2,.btn-sparkle:disabled .star-3,
@@ -438,7 +438,7 @@
 
 .btn-send {
   font-family: inherit; font-size: 12px; font-weight: 600;
-  background: #2563eb; color: white; padding: 0.5em 0.9em;
+  background: #1E3A5F; color: white; padding: 0.5em 0.9em;
   display: flex; align-items: center; justify-content: center; gap: 0.4em;
   border: none; border-radius: 10px; overflow: hidden;
   transition: all 0.3s ease-in-out; cursor: pointer; width: 90px; height: 32px;
@@ -446,7 +446,7 @@
 .btn-send span{display:block;transition:all 0.3s ease-in-out;white-space:nowrap}
 .btn-send .svg-wrapper{display:flex;align-items:center;justify-content:center;transition:all 0.3s ease-in-out}
 .btn-send svg{display:block;transform-origin:center;transition:transform 0.3s ease-in-out;width:14px;height:14px}
-.btn-send:hover{background:#3b82f6}
+.btn-send:hover{background:#2D5A8A}
 .btn-send:hover .svg-wrapper{animation:fly-1 0.6s ease-in-out infinite alternate}
 .btn-send:hover svg{transform:rotate(45deg) scale(1.3)}
 .btn-send:hover span{opacity:0;position:absolute}
@@ -477,7 +477,7 @@
 /* Carte sélectionnée = fond très légèrement différent + fine bordure blanche */
 .dark .cursor-pointer.rounded-xl.bg-blue-50,
 .dark .cursor-pointer.rounded-xl[class*="border-blue"],
-.dark .cursor-pointer.rounded-xl[class*="border-\[#2563eb\]"],
+.dark .cursor-pointer.rounded-xl[class*="border-\[#1E3A5F\]"],
 .dark .cursor-pointer.rounded-lg.bg-blue-50 {
   background: #152035 !important;
   border-color: rgba(255,255,255,0.18) !important;
@@ -576,8 +576,8 @@
 .dark .hover\:bg-\[\#c5d9ed\]:hover {
   background-color: rgba(255,255,255,0.08) !important;
 }
-.dark .text-\[\#2563eb\] { color: #7dd3fc !important; }
-.dark .text-\[\#3b82f6\] { color: #93c5fd !important; }
+.dark .text-\[\#1E3A5F\] { color: #7dd3fc !important; }
+.dark .text-\[\#2D5A8A\] { color: #93c5fd !important; }
 
 /* ── 2. Carte modèle IA sélectionnée ─────────────────────── */
 /* from-[#DCE7F3] to-[#c5d9ed] = gradient light → dark override */
@@ -587,8 +587,8 @@
 .dark .to-\[\#c5d9ed\] {
   --tw-gradient-to: #162840 !important;
 }
-/* Border sélectionnée border-[#2563eb] → cyan discret */
-.dark .border-\[\#2563eb\] {
+/* Border sélectionnée border-[#1E3A5F] → cyan discret */
+.dark .border-\[\#1E3A5F\] {
   border-color: rgba(125,211,252,0.3) !important;
 }
 /* Hover carte non sélectionnée */
@@ -598,8 +598,8 @@
 .dark .hover\:shadow-md:hover {
   box-shadow: 0 0 0 1px rgba(255,255,255,0.07), 0 4px 16px rgba(0,0,0,0.4) !important;
 }
-/* Icône dans carte sélectionnée bg-[#2563eb] → reste navy */
-/* (déjà géré par .dark .bg-[#2563eb]) */
+/* Icône dans carte sélectionnée bg-[#1E3A5F] → reste navy */
+/* (déjà géré par .dark .bg-[#1E3A5F]) */
 
 /* ── 3. Tolérance budget — sliders ────────────────────────── */
 /* Fond rouge */
@@ -630,7 +630,7 @@
 /* Thumb couleur via accent */
 .dark [class*="accent-red"]     { accent-color: #fca5a5 !important; }
 .dark [class*="accent-emerald"] { accent-color: #6ee7b7 !important; }
-.dark [class*="accent-\[\#2563eb\]"] { accent-color: #7dd3fc !important; }
+.dark [class*="accent-\[\#1E3A5F\]"] { accent-color: #7dd3fc !important; }
 
 /* ── 4. Séparateurs entre lignes clients/biens ────────────── */
 /* divide-y divide-gray-50 et border-b border-gray-50 */
@@ -663,7 +663,7 @@
 .dark .hover\:bg-\[\#DCE7F3\]:hover {
   background-color: rgba(255,255,255,0.08) !important;
 }
-.dark .hover\:text-\[\#2563eb\]:hover { color: #7dd3fc !important; }
+.dark .hover\:text-\[\#1E3A5F\]:hover { color: #7dd3fc !important; }
 /* hover:bg-amber-50 (bouton éditer) */
 .dark .hover\:bg-amber-50:hover {
   background-color: rgba(251,191,36,0.1) !important;
@@ -745,7 +745,7 @@
   background: #6ee7b7 !important;
   border-color: rgba(52,211,153,0.3) !important;
 }
-/* Track bleu (bg-gray-200 accent-[#2563eb]) */
+/* Track bleu (bg-gray-200 accent-[#1E3A5F]) */
 .dark input.bg-gray-200 {
   background: rgba(255,255,255,0.1) !important;
 }
@@ -813,8 +813,8 @@
 .dark .border-amber-100 { border-color: rgba(251,191,36,0.12) !important; }
 .dark .text-amber-900 { color: #fcd34d !important; }
 
-/* Séparateurs titres (trait horizontal bg-[#2563eb]) */
-.dark .bg-\[\#2563eb\].rounded-full.w-8 {
+/* Séparateurs titres (trait horizontal bg-[#1E3A5F]) */
+.dark .bg-\[\#1E3A5F\].rounded-full.w-8 {
   background-color: rgba(125,211,252,0.4) !important;
 }
 
@@ -848,13 +848,13 @@
 .dark .text-amber-600   { color: #fbbf24 !important; }
 .dark .text-red-600     { color: #f87171 !important; }
 
-/* Chevron actif bg-[#2563eb] (déjà géré) + bg-gray-100 inactif */
+/* Chevron actif bg-[#1E3A5F] (déjà géré) + bg-gray-100 inactif */
 .dark .bg-gray-100.text-gray-400.rounded-lg {
   background-color: rgba(255,255,255,0.06) !important;
   color: rgba(255,255,255,0.4) !important;
 }
 
-/* Icône calendrier gradient from-[#2563eb] to-[#3b82f6] → garde navy, ok */
+/* Icône calendrier gradient from-[#1E3A5F] to-[#2D5A8A] → garde navy, ok */
 
 /* ============================================================
    CORRECTIONS PRÉCISES — ProspectModal + HistoriquePage
@@ -883,8 +883,8 @@
   border: 1px solid rgba(255,255,255,0.05) !important;
 }
 
-/* Trait titre RECHERCHE / CRITÈRES : w-8 h-0.5 bg-[#2563eb] */
-.dark .w-8.bg-\[\#2563eb\] {
+/* Trait titre RECHERCHE / CRITÈRES : w-8 h-0.5 bg-[#1E3A5F] */
+.dark .w-8.bg-\[\#1E3A5F\] {
   background-color: rgba(125,211,252,0.35) !important;
 }
 /* Labels uppercase tracking-wide text-gray-400 */
@@ -892,8 +892,8 @@
 .dark .tracking-widest.text-gray-400 {
   color: rgba(255,255,255,0.3) !important;
 }
-/* Valeurs text-[#2563eb] dans les cartes */
-.dark .space-y-2 .text-\[\#2563eb\] {
+/* Valeurs text-[#1E3A5F] dans les cartes */
+.dark .space-y-2 .text-\[\#1E3A5F\] {
   color: #e2e8f0 !important;
 }
 
@@ -1067,7 +1067,7 @@
 }
 .dv3-kpi-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+  box-shadow: 0 12px 32px rgba(30,58,95,0.12);
 }
 
 /* ── Dashboard Hero & Command Center ───────────────────── */
@@ -1142,11 +1142,11 @@
   border-radius: inherit;
   padding: 1.5px;
   background: linear-gradient(90deg,
-    rgba(37,99,235,0.08) 0%,
-    rgba(37,99,235,0.35) 40%,
+    rgba(30,58,95,0.08) 0%,
+    rgba(30,58,95,0.35) 40%,
     rgba(45,90,138,0.5) 50%,
-    rgba(37,99,235,0.35) 60%,
-    rgba(37,99,235,0.08) 100%
+    rgba(30,58,95,0.35) 60%,
+    rgba(30,58,95,0.08) 100%
   );
   background-size: 200% 100%;
   animation: border-travel 3s linear infinite;
@@ -1188,8 +1188,8 @@
   transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
 .section-card:hover {
-  border-color: rgba(37,99,235,0.18);
-  box-shadow: 0 4px 24px rgba(37,99,235,0.07);
+  border-color: rgba(30,58,95,0.18);
+  box-shadow: 0 4px 24px rgba(30,58,95,0.07);
 }
 
 /* Lignes de matching — indicateur score animé */
@@ -1306,8 +1306,8 @@
   transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
 .section-card:hover {
-  border-color: rgba(37,99,235,0.14);
-  box-shadow: 0 4px 20px rgba(37,99,235,0.06);
+  border-color: rgba(30,58,95,0.14);
+  box-shadow: 0 4px 20px rgba(30,58,95,0.06);
 }
 
 /* Rows hover CSS (pas de useState) */
@@ -1350,7 +1350,7 @@
   border-color: rgba(255,255,255,0.12) !important;
 }
 
-/* Valeur principale dans les KPI (color:#2563eb inline) */
+/* Valeur principale dans les KPI (color:#1E3A5F inline) */
 .dark .grid.grid-cols-4 > div p,
 .dark .grid.grid-cols-4 > div span {
   color: #f1f5f9 !important;
@@ -1391,7 +1391,7 @@
   border-bottom-color: rgba(255,255,255,0.05) !important;
 }
 
-/* Titres h2 inline (color:#2563eb) dans les sections */
+/* Titres h2 inline (color:#1E3A5F) dans les sections */
 .dark .section-card h2[style*="1E3A5F"],
 .dark .section-card h2[style*="1e3a5f"] {
   color: #e2e8f0 !important;
@@ -1419,7 +1419,7 @@
 }
 .dark .dash-match-row:hover { background: #132339 !important; }
 
-/* Noms prospects (color:#2563eb inline) */
+/* Noms prospects (color:#1E3A5F inline) */
 .dark .dash-match-row p[style*="1E3A5F"],
 .dark .dash-match-row p[style*="1e3a5f"] { color: #e2e8f0 !important; }
 /* Infos secondaires */
@@ -1500,7 +1500,7 @@
 }
 .kpi-card-wrap:hover {
   transform: translateY(-3px) !important;
-  box-shadow: 0 8px 28px rgba(37,99,235,0.09) !important;
+  box-shadow: 0 8px 28px rgba(30,58,95,0.09) !important;
 }
 /* Fond de l'icône passe à iconColor au hover de la CARTE */
 .kpi-card-wrap:hover .kpi-icon-wrap {
@@ -1599,7 +1599,7 @@
   flex-shrink: 0; transition: background 0.25s ease;
 }
 .sec-icon--navy  { background: #dce7f3; }
-.sec-icon--navy  .sec-icon-svg { color: #2563eb; }
+.sec-icon--navy  .sec-icon-svg { color: #1E3A5F; }
 
 .sec-icon--violet { background: #f5f3ff; }
 .sec-icon--violet .sec-icon-svg { color: #7c3aed; }
@@ -1627,14 +1627,14 @@
 /* ── Bouton "Tout voir" ──────────────────────────────────── */
 .sec-link-btn {
   display: flex; align-items: center; gap: 4px;
-  font-size: 12px; font-weight: 600; color: #3b82f6;
+  font-size: 12px; font-weight: 600; color: #2D5A8A;
   background: none; border: none; cursor: pointer;
   transition: color 0.2s;
 }
 .dark .sec-link-btn { color: #60a5fa !important; }
 
 /* ── Noms dans les lignes (prospect, bien) ───────────────── */
-.row-name { color: #2563eb; }
+.row-name { color: #1E3A5F; }
 .dark .row-name { color: #e2e8f0 !important; }
 
 /* ── Infos secondaires dans les lignes ──────────────────── */
@@ -1655,14 +1655,14 @@
 .dark .dist-track { background: rgba(255,255,255,0.07) !important; }
 
 .dist-nb {
-  font-size: 11px; font-weight: 700; color: #2563eb;
+  font-size: 11px; font-weight: 700; color: #1E3A5F;
   width: 20px; text-align: right;
 }
 .dark .dist-nb { color: rgba(255,255,255,0.55) !important; }
 
 /* ── Score global "59.1/100" dans Qualité ───────────────── */
 .sec-score-val {
-  font-size: 14px; font-weight: 800; color: #2563eb;
+  font-size: 14px; font-weight: 800; color: #1E3A5F;
 }
 .dark .sec-score-val { color: #e2e8f0 !important; }
 
@@ -1746,7 +1746,7 @@
 }
 .dark header .hdr-chip p:first-child { color: rgba(255,255,255,0.35) !important; }
 .dark header .hdr-chip p:last-child  { color: #e2e8f0 !important; }
-.dark header .hdr-chip > div:first-child { background: linear-gradient(135deg, #2563eb, #3b82f6) !important; }
+.dark header .hdr-chip > div:first-child { background: linear-gradient(135deg, #1E3A5F, #2D5A8A) !important; }
 
 /* ── Fix border-gray-50 dark mode (trait blanc première ligne) ── */
 .dark .border-gray-50,

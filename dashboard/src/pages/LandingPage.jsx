@@ -1,4 +1,4 @@
-﻿// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
 // LandingPage.jsx — ImmoFlash · SaaS Commercial
 // Hero · Preuves · Features · Pricing Stripe-ready · FAQ · CTA
 // ══════════════════════════════════════════════════════════════
@@ -103,7 +103,7 @@ function AppPreview() {
       </div>
       {rows.map((r,i)=>(
         <div key={r.n} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 18px',borderBottom:i<rows.length-1?'1px solid rgba(255,255,255,0.04)':'none'}}>
-          <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#2563eb,#3b82f6)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#60a5fa',border:'1px solid rgba(96,165,250,0.2)',flexShrink:0}}>{r.i}</div>
+          <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#1E3A5F,#2D5A8A)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#60a5fa',border:'1px solid rgba(96,165,250,0.2)',flexShrink:0}}>{r.i}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,fontWeight:600,color:'#f1f5f9',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{r.n}</div>
             <div style={{fontSize:10,color:'rgba(255,255,255,0.28)',marginTop:1}}>{r.b}</div>
@@ -190,7 +190,7 @@ function Navbar({ onLogin }) {
   return (
     <nav className="lp-wrap" style={{ position:'sticky', top:0, zIndex:50, background:'rgba(10,21,32,0.92)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.05)', padding:'0 40px', height:64, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
       <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-        <div style={{ width:34, height:34, borderRadius:9, background:'linear-gradient(135deg,#2563eb,#3b82f6)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 12px rgba(37,99,235,0.5)' }}>
+        <div style={{ width:34, height:34, borderRadius:9, background:'linear-gradient(135deg,#1E3A5F,#2D5A8A)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 12px rgba(30,58,95,0.5)' }}>
           <Shuffle size={16} color="#60a5fa" strokeWidth={2.5}/>
         </div>
         <span style={{ fontSize:18, fontWeight:800, color:'#f1f5f9', letterSpacing:'-0.05em' }}>
@@ -636,7 +636,7 @@ function Footer() {
   return (
     <footer className="lp-wrap" style={{ background:'#060d17', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'24px 40px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-        <div style={{ width:26, height:26, borderRadius:7, background:'linear-gradient(135deg,#2563eb,#3b82f6)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ width:26, height:26, borderRadius:7, background:'linear-gradient(135deg,#1E3A5F,#2D5A8A)', display:'flex', alignItems:'center', justifyContent:'center' }}>
           <Shuffle size={12} color="#60a5fa" strokeWidth={2.5}/>
         </div>
         <span style={{ fontSize:14, fontWeight:800, color:'rgba(255,255,255,0.25)', letterSpacing:'-0.04em' }}>
