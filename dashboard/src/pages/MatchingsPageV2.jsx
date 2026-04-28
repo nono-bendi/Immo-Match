@@ -113,33 +113,42 @@ function BienDetail({ match, mail, nom, onPropose, onRefuse, sending }) {
   const c = sC(match.score)
 
   return (
-    <div style={{
-      borderTop: '1px solid rgba(255,255,255,0.07)',
-      background: 'rgba(0,0,0,0.15)',
-    }}>
-      {/* Photo + analysis */}
-      <div style={{ display: 'grid', gridTemplateColumns: photo ? '240px 1fr' : '1fr', minHeight: 180 }}>
-        {/* Photo */}
-        {photo && (
-          <div style={{
-            background: `linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.4)), url(${photo}) center/cover no-repeat`,
-            borderRight: '1px solid rgba(255,255,255,0.06)',
-          }} />
-        )}
+    <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+      {/* Photo AS BACKGROUND — text overlaid on top */}
+      <div style={{
+        position: 'relative',
+        minHeight: 200,
+        background: photo
+          ? `linear-gradient(135deg, rgba(8,10,28,0.88) 0%, rgba(8,10,28,0.60) 100%), url(${photo}) center/cover no-repeat`
+          : 'rgba(8,10,28,0.5)',
+        padding: '20px 24px',
+      }}>
+        {/* Row 1: bien title + price */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: '#fff', letterSpacing: -0.4 }}>{match.bien_type}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 3, fontWeight: 500 }}>
+              {match.bien_ville}{match.bien_surface ? ` · ${match.bien_surface} m²` : ''}{match.bien_pieces ? ` · ${match.bien_pieces} p.` : ''}
+            </div>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.8, flexShrink: 0 }}>
+            {mon(match.bien_prix)}
+          </div>
+        </div>
 
-        {/* Analysis */}
-        <div style={{ padding: '18px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          {/* Left: forts + attention */}
+        {/* Row 2: analysis in 2 columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+          {/* Left: points forts + attention */}
           <div>
             {forts.length > 0 && (
               <div style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                  <Zap size={11} style={{ color: '#10b981' }} />
-                  <span style={{ fontSize: 9, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: 1.5 }}>Points forts</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <Zap size={12} style={{ color: '#34d399' }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: 1.2 }}>Points forts</span>
                 </div>
                 {forts.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 4, fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55 }}>
-                    <span style={{ color: '#10b981', flexShrink: 0 }}>•</span>
+                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5, fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    <span style={{ color: '#34d399', flexShrink: 0, marginTop: 1 }}>•</span>
                     <span>{f}</span>
                   </div>
                 ))}
@@ -147,35 +156,35 @@ function BienDetail({ match, mail, nom, onPropose, onRefuse, sending }) {
             )}
             {atts.length > 0 && (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                  <AlertTriangle size={11} style={{ color: '#f59e0b' }} />
-                  <span style={{ fontSize: 9, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1.5 }}>Attention</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <AlertTriangle size={12} style={{ color: '#fbbf24' }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: 1.2 }}>Attention</span>
                 </div>
                 {atts.map((a, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 4, fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55 }}>
-                    <span style={{ color: '#f59e0b', flexShrink: 0 }}>•</span>
+                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 5, fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+                    <span style={{ color: '#fbbf24', flexShrink: 0, marginTop: 1 }}>•</span>
                     <span>{a}</span>
                   </div>
                 ))}
               </div>
             )}
             {!forts.length && !atts.length && (
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Analyse non disponible</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Analyse non disponible</div>
             )}
           </div>
 
-          {/* Right: recommandation */}
+          {/* Right: recommandation — floating card on the photo */}
           {match.recommandation && (
             <div style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 12, padding: '14px 14px',
+              background: 'rgba(15,20,50,0.75)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 14,
+              padding: '14px 16px',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                <Lightbulb size={11} style={{ color: c.c1 }} />
-                <span style={{ fontSize: 9, fontWeight: 800, color: c.c1, textTransform: 'uppercase', letterSpacing: 1.5 }}>Recommandation</span>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                Recommandation
               </div>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.65, margin: 0 }}>
                 {match.recommandation}
               </p>
             </div>
