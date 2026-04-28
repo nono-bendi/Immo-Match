@@ -1,7 +1,7 @@
 import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
 import { API_URL } from '../config'
 
-function ProspectModal({ prospect, onClose }) {
+function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
   if (!prospect) return null
 
   const formatBudget = (budget) => {
@@ -19,7 +19,7 @@ function ProspectModal({ prospect, onClose }) {
       <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-100" onClick={e => e.stopPropagation()}>
         
         {/* Header avec dégradé subtil */}
-        <div className="bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A] p-8 text-white relative overflow-hidden">
+        <div className="p-8 text-white relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${gradientFrom || '#1E3A5F'}, ${gradientTo || '#2D5A8A'})` }}>
           {/* Cercle décoratif */}
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full"></div>
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full"></div>
