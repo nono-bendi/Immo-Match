@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -493,20 +494,40 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond clair halo condensé — version intense ─────────────────────────────
-    <div style={{ margin: '-24px', padding: '32px 24px', background: '#f0f4ff', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+    // ── Fond ShaderGradient ────────────────────────────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#dce8ff' }}>
 
-      {/* Orbes halo — intensité maximale en mode clair */}
-      <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '70%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.38) 0%,rgba(45,90,138,0.20) 40%,transparent 68%)', filter: 'blur(48px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '-10%', right: '-14%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(99,102,241,0.42) 0%,rgba(129,140,248,0.22) 40%,transparent 68%)', filter: 'blur(52px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-8%', left: '3%', width: '48%', height: '55%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.36) 0%,rgba(20,184,166,0.18) 40%,transparent 68%)', filter: 'blur(44px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-6%', width: '44%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.38) 0%,rgba(139,92,246,0.20) 40%,transparent 68%)', filter: 'blur(40px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '40%', left: '32%', width: '36%', height: '40%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.28) 0%,rgba(52,211,153,0.12) 45%,transparent 68%)', filter: 'blur(38px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
+      {/* ShaderGradient canvas en fond absolu */}
+      <ShaderGradientCanvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} lazyLoad={false}>
+        <ShaderGradient
+          type="waterPlane"
+          animate="on"
+          uSpeed={0.08}
+          uStrength={2.5}
+          uDensity={1.2}
+          uFrequency={5.5}
+          uAmplitude={0}
+          positionX={0}
+          positionY={0}
+          positionZ={0}
+          rotationX={0}
+          rotationY={0}
+          rotationZ={225}
+          color1="#b8d4f8"
+          color2="#f0f4ff"
+          color3="#c4b5fd"
+          reflection={0.1}
+          wireframe={false}
+          shader="defaults"
+          lights="off"
+          brightness={1.1}
+        />
+      </ShaderGradientCanvas>
 
-      {/* Grille de points — plus visible */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.12) 1.2px,transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
+      {/* Grille de points par-dessus */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.10) 1.2px,transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none', zIndex: 1 }} />
 
-      <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
+      <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <Confetti show={showConfetti} />
         <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
         <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
