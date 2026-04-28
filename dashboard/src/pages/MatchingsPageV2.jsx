@@ -626,5 +626,6 @@ export default function MatchingsPageV2() {
         </div>
       )}
     </div>
+    </div>
   )
 }
