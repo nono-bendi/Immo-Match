@@ -210,7 +210,7 @@ function ClientsPage() {
   const paginatedProspects = actifs.slice(startIndex, startIndex + itemsPerPage)
 
   const ProspectRow = ({ prospect, index, archived = false }) => {
-    const [c1, c2] = archived ? ['#9ca3af', '#d1d5db'] : avP(prospect.nom)
+    const [c1, c2] = archived ? ['#9ca3af', '#d1d5db'] : AV_PAL[(prospect.id || 0) % AV_PAL.length]
     return (
     <tr
       key={prospect.id}
@@ -411,9 +411,7 @@ function ClientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {paginatedProspects.map((prospect, index) => (
-                <ProspectRow key={prospect.id} prospect={prospect} index={index} />
-              ))}
+              {paginatedProspects.map((prospect, index) => ProspectRow({ prospect, index }))}
             </tbody>
           </table>
         )}
@@ -455,9 +453,7 @@ function ClientsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {archives.map((prospect, index) => (
-                    <ProspectRow key={prospect.id} prospect={prospect} index={index} archived />
-                  ))}
+                  {archives.map((prospect, index) => ProspectRow({ prospect, index, archived: true }))}
                 </tbody>
               </table>
             </div>
