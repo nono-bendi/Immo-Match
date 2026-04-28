@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
+import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
 import ProspectModal from '../components/ProspectModal'
@@ -407,7 +408,6 @@ export default function MatchingsPageV2() {
   const [sortBy, setSortBy]             = useState('recent')   // par défaut : plus récents
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
-  const [analyzeHover, setAnalyzeHover] = useState(false)
 
   const [analyzing, setAnalyzing]               = useState(false)
   const [showOverlay, setShowOverlay]           = useState(false)
@@ -540,17 +540,12 @@ export default function MatchingsPageV2() {
           </p>
         </div>
 
-        {/* Bouton Analyser — avec animation hover */}
-        <button
-          onClick={runGlobal}
-          disabled={analyzing}
-          onMouseEnter={() => setAnalyzeHover(true)}
-          onMouseLeave={() => setAnalyzeHover(false)}
-          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '11px 24px', background: analyzing ? '#6b7280' : (analyzeHover ? '#2D5A8A' : '#1E3A5F'), color: '#fff', fontWeight: 700, fontSize: 14, borderRadius: 13, border: 'none', cursor: analyzing ? 'default' : 'pointer', boxShadow: analyzeHover && !analyzing ? '0 6px 20px rgba(30,58,95,0.4)' : '0 4px 14px rgba(30,58,95,0.25)', transform: analyzeHover && !analyzing ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)', opacity: analyzing ? 0.7 : 1 }}
-        >
-          {analyzing ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} />}
-          {analyzing ? 'Analyse en cours…' : 'Analyser'}
-        </button>
+        <SparkleButton onClick={runGlobal} disabled={analyzing} className="ml-auto">
+          {analyzing
+            ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
+            : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
+          }
+        </SparkleButton>
       </div>
 
       {/* Filtres */}
