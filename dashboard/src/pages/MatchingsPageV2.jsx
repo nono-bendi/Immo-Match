@@ -493,7 +493,15 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ maxWidth: 1020, margin: '0 auto' }}>
+    <div style={{ margin: '-24px', padding: '32px 24px', background: 'linear-gradient(145deg,#eef2f9 0%,#e8edf8 35%,#f0f4ff 65%,#eaf1fb 100%)', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+      {/* Blobs décoratifs de fond */}
+      <div style={{ position: 'absolute', top: -120, right: -80, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(30,58,95,0.07) 0%,transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: -100, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '40%', left: '30%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(16,185,129,0.04) 0%,transparent 65%)', pointerEvents: 'none' }} />
+      {/* Motif de points */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.07) 1px,transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none', opacity: 0.7 }} />
+
+    <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
       <Confetti show={showConfetti} />
       <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
@@ -583,6 +591,7 @@ export default function MatchingsPageV2() {
           ))}
         </div>
       )}
+    </div>
     </div>
   )
 }
