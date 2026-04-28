@@ -493,18 +493,18 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond clair halo condensé ───────────────────────────────────────────────
-    <div style={{ margin: '-24px', padding: '32px 24px', background: '#f4f7ff', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
+    // ── Fond clair halo condensé — version intense ─────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', background: '#f0f4ff', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden' }}>
 
-      {/* Orbes halo animées — pastel sur blanc */}
-      <div style={{ position: 'absolute', top: '-15%', left: '-8%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.13) 0%,rgba(45,90,138,0.07) 40%,transparent 70%)', filter: 'blur(72px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '-8%', right: '-12%', width: '50%', height: '60%', background: 'radial-gradient(ellipse at center,rgba(99,102,241,0.18) 0%,rgba(129,140,248,0.09) 40%,transparent 70%)', filter: 'blur(80px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-5%', left: '5%', width: '42%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.14) 0%,rgba(20,184,166,0.07) 40%,transparent 70%)', filter: 'blur(65px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-8%', right: '-5%', width: '38%', height: '45%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.13) 0%,rgba(139,92,246,0.07) 40%,transparent 70%)', filter: 'blur(55px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', top: '45%', left: '35%', width: '30%', height: '35%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.1) 0%,transparent 65%)', filter: 'blur(50px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
+      {/* Orbes halo — intensité maximale en mode clair */}
+      <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '60%', height: '70%', background: 'radial-gradient(ellipse at center,rgba(30,58,95,0.38) 0%,rgba(45,90,138,0.20) 40%,transparent 68%)', filter: 'blur(48px)', animation: 'blobPulse 9s ease-in-out infinite', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '-10%', right: '-14%', width: '55%', height: '65%', background: 'radial-gradient(ellipse at center,rgba(99,102,241,0.42) 0%,rgba(129,140,248,0.22) 40%,transparent 68%)', filter: 'blur(52px)', animation: 'blobPulse 11s ease-in-out infinite 2.5s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-8%', left: '3%', width: '48%', height: '55%', background: 'radial-gradient(ellipse at center,rgba(13,148,136,0.36) 0%,rgba(20,184,166,0.18) 40%,transparent 68%)', filter: 'blur(44px)', animation: 'blobPulse 13s ease-in-out infinite 4s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-10%', right: '-6%', width: '44%', height: '50%', background: 'radial-gradient(ellipse at center,rgba(124,58,237,0.38) 0%,rgba(139,92,246,0.20) 40%,transparent 68%)', filter: 'blur(40px)', animation: 'blobPulse 10s ease-in-out infinite 1s', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '40%', left: '32%', width: '36%', height: '40%', background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.28) 0%,rgba(52,211,153,0.12) 45%,transparent 68%)', filter: 'blur(38px)', animation: 'blobPulse 14s ease-in-out infinite 3s', pointerEvents: 'none' }} />
 
-      {/* Grille de points sombres */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.06) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none' }} />
+      {/* Grille de points — plus visible */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.12) 1.2px,transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative' }}>
         <Confetti show={showConfetti} />
