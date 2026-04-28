@@ -64,12 +64,12 @@ function AuroraBackground() {
     <div style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', ...style }} />
   )
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', background: '#04101a', pointerEvents: 'none' }}>
-      {blob({ width: 900, height: 900, top: '-20%', left: '-12%',  background: '#0891b2', filter: 'blur(130px)', opacity: 0.62, animation: 'aurora1 20s ease-in-out infinite' })}
-      {blob({ width: 750, height: 750, top: '15%',  right: '-16%', background: '#1d4ed8', filter: 'blur(110px)', opacity: 0.55, animation: 'aurora2 25s ease-in-out infinite' })}
-      {blob({ width: 650, height: 650, bottom: '0%',left: '25%',   background: '#0e7490', filter: 'blur(120px)', opacity: 0.65, animation: 'aurora3 18s ease-in-out infinite' })}
-      {blob({ width: 500, height: 500, top: '5%',   left: '38%',   background: '#6d28d9', filter: 'blur( 90px)', opacity: 0.32, animation: 'aurora4 22s ease-in-out infinite' })}
-      {blob({ width: 450, height: 450, top: '50%',  left: '8%',    background: '#0284c7', filter: 'blur( 85px)', opacity: 0.42, animation: 'aurora1 28s ease-in-out infinite reverse' })}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', background: '#f0f9ff', pointerEvents: 'none' }}>
+      {blob({ width: 900, height: 900, top: '-20%', left: '-12%',  background: '#7dd3fc', filter: 'blur(140px)', opacity: 0.55, animation: 'aurora1 20s ease-in-out infinite' })}
+      {blob({ width: 750, height: 750, top: '15%',  right: '-16%', background: '#93c5fd', filter: 'blur(120px)', opacity: 0.50, animation: 'aurora2 25s ease-in-out infinite' })}
+      {blob({ width: 650, height: 650, bottom: '0%',left: '25%',   background: '#67e8f9', filter: 'blur(130px)', opacity: 0.55, animation: 'aurora3 18s ease-in-out infinite' })}
+      {blob({ width: 500, height: 500, top: '5%',   left: '38%',   background: '#c4b5fd', filter: 'blur(100px)', opacity: 0.28, animation: 'aurora4 22s ease-in-out infinite' })}
+      {blob({ width: 450, height: 450, top: '50%',  left: '8%',    background: '#5eead4', filter: 'blur( 95px)', opacity: 0.38, animation: 'aurora1 28s ease-in-out infinite reverse' })}
     </div>
   )
 }
@@ -527,15 +527,15 @@ export default function MatchingsPageV2() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl transition-all" style={{ color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }} onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.22)'; e.currentTarget.style.color='#fff' }} onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.12)'; e.currentTarget.style.color='rgba(255,255,255,0.7)' }} title="Retour ancienne vue">
+        <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-white/60 transition-all" title="Retour ancienne vue">
           <ArrowLeft size={19} />
         </button>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <h1 className="text-2xl font-bold text-white">Matchings</h1>
+            <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
           </div>
-          <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.65)' }}>
+          <p className="text-sm text-gray-400 mt-0.5">
             {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
           </p>
         </div>
