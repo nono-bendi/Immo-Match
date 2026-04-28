@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
-import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -18,6 +17,10 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes blobPulse { 0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1} }
     @keyframes slideUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     @keyframes btnShimmer{ 0%{background-position:200% center} 100%{background-position:-200% center} }
+    @keyframes blob1 { 0%,100%{transform:translate(0px,0px) scale(1)} 25%{transform:translate(40px,-30px) scale(1.08)} 50%{transform:translate(20px,40px) scale(0.95)} 75%{transform:translate(-30px,10px) scale(1.05)} }
+    @keyframes blob2 { 0%,100%{transform:translate(0px,0px) scale(1)} 25%{transform:translate(-35px,25px) scale(0.92)} 50%{transform:translate(15px,-40px) scale(1.1)} 75%{transform:translate(30px,20px) scale(0.97)} }
+    @keyframes blob3 { 0%,100%{transform:translate(0px,0px) scale(1)} 33%{transform:translate(25px,35px) scale(1.06)} 66%{transform:translate(-40px,-20px) scale(0.94)} }
+    @keyframes blob4 { 0%,100%{transform:translate(0px,0px) scale(1)} 33%{transform:translate(-20px,-35px) scale(1.04)} 66%{transform:translate(35px,25px) scale(0.96)} }
   `
   document.head.appendChild(s)
 }
@@ -494,38 +497,18 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond ShaderGradient ────────────────────────────────────────────────────
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#dce8ff' }}>
+    // ── Fond mesh-gradient CSS animé ──────────────────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#eef3ff' }}>
 
-      {/* ShaderGradient canvas en fond absolu */}
-      <ShaderGradientCanvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} lazyLoad={false}>
-        <ShaderGradient
-          type="waterPlane"
-          animate="on"
-          uSpeed={0.08}
-          uStrength={2.5}
-          uDensity={1.2}
-          uFrequency={5.5}
-          uAmplitude={0}
-          positionX={0}
-          positionY={0}
-          positionZ={0}
-          rotationX={0}
-          rotationY={0}
-          rotationZ={225}
-          color1="#b8d4f8"
-          color2="#f0f4ff"
-          color3="#c4b5fd"
-          reflection={0.1}
-          wireframe={false}
-          shader="defaults"
-          lights="off"
-          brightness={1.1}
-        />
-      </ShaderGradientCanvas>
+      {/* Blobs CSS qui se déplacent — mesh gradient effect */}
+      <div style={{ position: 'absolute', top: '-10%', left: '-8%',  width: '52%', height: '60%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(147,197,253,0.72) 0%,rgba(147,197,253,0.35) 45%,transparent 70%)', filter: 'blur(52px)', animation: 'blob1 18s ease-in-out infinite', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', top: '-5%',  right: '-10%', width: '50%', height: '55%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(167,139,250,0.68) 0%,rgba(167,139,250,0.32) 45%,transparent 70%)', filter: 'blur(56px)', animation: 'blob2 22s ease-in-out infinite 2s', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', bottom: '-8%', left: '8%',  width: '46%', height: '52%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(110,231,183,0.60) 0%,rgba(110,231,183,0.28) 45%,transparent 70%)', filter: 'blur(48px)', animation: 'blob3 20s ease-in-out infinite 4s', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: '44%', height: '50%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(196,181,253,0.65) 0%,rgba(196,181,253,0.30) 45%,transparent 70%)', filter: 'blur(44px)', animation: 'blob4 16s ease-in-out infinite 1s', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', top: '35%',  left: '28%',   width: '38%', height: '42%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(165,243,252,0.55) 0%,rgba(165,243,252,0.25) 45%,transparent 70%)', filter: 'blur(40px)', animation: 'blob1 24s ease-in-out infinite 3s', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Grille de points par-dessus */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.10) 1.2px,transparent 1.2px)', backgroundSize: '20px 20px', pointerEvents: 'none', zIndex: 1 }} />
+      {/* Noise / grain léger par-dessus */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.09) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none', zIndex: 1 }} />
 
       <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <Confetti show={showConfetti} />
