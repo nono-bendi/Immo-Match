@@ -1,50 +1,44 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, X, Phone, Mail, MapPin, Euro, ChevronRight } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
 
-// ─── CSS keyframes injectés une seule fois ────────────────────────────────────
-const KEYFRAMES = `
-  @keyframes blobPulse { 0%,100% { transform:scale(1); opacity:.85 } 50% { transform:scale(1.08); opacity:1 } }
-  @keyframes barFill   { from { width: 0 } }
-`
+// ─── CSS keyframes ────────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
   const s = document.createElement('style')
   s.id = 'immo-kf'
-  s.textContent = KEYFRAMES
+  s.textContent = `
+    @keyframes blobPulse { 0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  `
   document.head.appendChild(s)
 }
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
-const ini  = (n) => { if (!n) return '??'; const p = n.trim().split(' ').filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase() }
-const bul  = (t) => (t || '').split('\n').map(l => l.replace(/^[-•]\s*/, '').trim()).filter(Boolean)
-const mon  = (v) => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
-const dt   = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''
+const ini    = (n) => { if (!n) return '??'; const p = n.trim().split(' ').filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase() }
+const bul    = (t) => (t || '').split('\n').map(l => l.replace(/^[-•]\s*/, '').trim()).filter(Boolean)
+const mon    = (v) => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
+const dt     = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''
 const fPhoto = (s) => { if (!s || typeof s !== 'string') return null; return s.split('|').map(u => u.trim()).find(u => /^https?:\/\//i.test(u)) || null }
 
-// Avatar gradient palette
 const AV_PAL = [
-  ['#1E3A5F', '#2D5A8A'],
-  ['#0e7490', '#06b6d4'],
-  ['#047857', '#10b981'],
-  ['#b45309', '#f59e0b'],
-  ['#5b21b6', '#a78bfa'],
-  ['#1d4ed8', '#60a5fa'],
+  ['#1E3A5F', '#2D5A8A'], ['#0e7490', '#06b6d4'], ['#047857', '#10b981'],
+  ['#b45309', '#f59e0b'], ['#5b21b6', '#a78bfa'], ['#1d4ed8', '#60a5fa'],
 ]
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
-// Score config
 const sC = (s) => s >= 75
   ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Excellent',  bg: '#ecfdf5', text: '#065f46' }
   : s >= 50
     ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Bon match', bg: '#fffbeb', text: '#92400e' }
     : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Faible',    bg: '#fef2f2', text: '#991b1b' }
 
-// ─── Count-up hook ────────────────────────────────────────────────────────────
+// ─── Count-up ─────────────────────────────────────────────────────────────────
 function useCountUp(target, duration = 900) {
   const [v, setV] = useState(0)
   useEffect(() => {
@@ -61,8 +55,119 @@ function useCountUp(target, duration = 900) {
   return v
 }
 
+// ─── ProspectModal ────────────────────────────────────────────────────────────
+function ProspectModal({ prospectId, prospectNom, onClose }) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    apiFetch(`/prospects/${prospectId}`).then(r => r.json()).then(d => { setData(d); setLoading(false) }).catch(() => setLoading(false))
+  }, [prospectId])
+
+  const [a, b] = avP(prospectNom)
+
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 520, boxShadow: '0 24px 80px rgba(0,0,0,0.25)', animation: 'slideUp 0.25s ease', overflow: 'hidden' }}
+      >
+        {/* Header */}
+        <div style={{ background: `linear-gradient(135deg, ${a}, ${b})`, padding: '24px 28px', position: 'relative' }}>
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', pointerEvents: 'none' }} />
+          <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 30, height: 30, borderRadius: 10, background: 'rgba(255,255,255,0.2)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+            <X size={16} />
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.25)', display: 'grid', placeItems: 'center', fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
+              {ini(prospectNom)}
+            </div>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{prospectNom}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} />
+                Prospect actif
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '24px 28px' }}>
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[100, 80, 90].map((w, i) => <div key={i} style={{ height: 16, background: '#f1f5f9', borderRadius: 8, width: `${w}%`, animation: 'blobPulse 1.5s ease-in-out infinite' }} />)}
+            </div>
+          ) : data ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* Coordonnées */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {data.mail && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #edf1f7' }}>
+                    <Mail size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: '#1E3A5F', fontWeight: 500 }}>{data.mail}</span>
+                  </div>
+                )}
+                {data.telephone && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #edf1f7' }}>
+                    <Phone size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, color: '#1E3A5F', fontWeight: 500 }}>{data.telephone}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Recherche */}
+              <div style={{ background: '#f8fafc', borderRadius: 12, padding: '16px 18px', border: '1px solid #edf1f7' }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 12 }}>Recherche</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {data.bien && (
+                    <div>
+                      <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 3 }}>Type</div>
+                      <div style={{ fontSize: 13, color: '#1E3A5F', fontWeight: 600 }}>{data.bien}</div>
+                    </div>
+                  )}
+                  {data.budget_max && (
+                    <div>
+                      <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 3 }}>Budget max</div>
+                      <div style={{ fontSize: 13, color: '#1E3A5F', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{mon(data.budget_max)}</div>
+                    </div>
+                  )}
+                  {data.villes && (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 3 }}>Villes cibles</div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                        {data.villes.split(',').map((v, i) => (
+                          <span key={i} style={{ fontSize: 11, fontWeight: 600, background: '#eff6ff', color: '#1E3A5F', border: '1px solid #bfdbfe', borderRadius: 9999, padding: '3px 10px' }}>{v.trim()}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Critères */}
+              {data.criteres && (
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 8 }}>Critères</div>
+                  <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0, padding: '12px 14px', background: '#fefce8', borderRadius: 10, border: '1px solid #fde68a' }}>{data.criteres}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p style={{ color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>Données non disponibles</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── ScoreRing — SVG + Blob ───────────────────────────────────────────────────
-function ScoreRing({ score, size = 120 }) {
+function ScoreRing({ score, size = 130 }) {
   const c = sC(score)
   const v = useCountUp(score)
   const r = (size - 14) / 2
@@ -72,11 +177,10 @@ function ScoreRing({ score, size = 120 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <div style={{ position: 'relative', width: size, height: size }}>
-        {/* blob aura */}
         <div style={{
           position: 'absolute', inset: -4,
           background: `radial-gradient(circle at 30% 30%, ${c.c1}55 0%, transparent 60%), radial-gradient(circle at 70% 70%, ${c.soft}45 0%, transparent 60%)`,
-          filter: 'blur(14px)',
+          filter: 'blur(16px)',
           animation: 'blobPulse 3s ease-in-out infinite',
           pointerEvents: 'none',
         }} />
@@ -87,65 +191,69 @@ function ScoreRing({ score, size = 120 }) {
               <stop offset="100%" stopColor={c.soft} />
             </linearGradient>
           </defs>
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.7)" strokeWidth={9} />
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.7)" strokeWidth={10} />
           <circle
             cx={cx} cy={cx} r={r} fill="none"
             stroke={`url(#sg-${score})`}
-            strokeWidth={9} strokeLinecap="round"
+            strokeWidth={10} strokeLinecap="round"
             strokeDasharray={circ} strokeDashoffset={offset}
-            style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 2px 6px ${c.c1}50)` }}
+            style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 2px 8px ${c.c1}60)` }}
           />
         </svg>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Score IA</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Score IA</span>
           <span style={{ fontSize: Math.round(size * 0.34), fontWeight: 900, color: c.c1, lineHeight: 1, letterSpacing: '-0.05em', fontVariantNumeric: 'tabular-nums' }}>{v}</span>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.08em', marginTop: 1 }}>/ 100</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.08em', marginTop: 1 }}>/ 100</span>
         </div>
       </div>
-      <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: c.text, background: c.bg, borderRadius: 9999, padding: '4px 11px', border: `1px solid ${c.c1}30` }}>
+      <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: c.text, background: c.bg, borderRadius: 9999, padding: '5px 13px', border: `1px solid ${c.c1}30` }}>
         {c.label}
       </span>
     </div>
   )
 }
 
-// ─── GemBadge — Card avec mini vignette ──────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, selected, onClick }) {
+// ─── GemBadge — Card avec photo réelle ───────────────────────────────────────
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick }) {
   const c = sC(score)
+  const photo = fPhoto(photos)
   return (
     <button
       onClick={onClick}
       style={{
-        display: 'flex', alignItems: 'center', gap: 10,
-        padding: 8, borderRadius: 12,
+        display: 'flex', alignItems: 'center', gap: 11,
+        padding: 9, borderRadius: 14,
         background: '#fff',
-        border: `1px solid ${selected ? c.c1 : '#edf1f7'}`,
-        boxShadow: selected ? `0 4px 14px ${c.c1}25` : '0 1px 0 #e8eef5',
+        border: `1.5px solid ${selected ? c.c1 : '#edf1f7'}`,
+        boxShadow: selected ? `0 4px 16px ${c.c1}30` : '0 1px 0 #e8eef5',
         cursor: 'pointer', transition: 'all 0.18s ease',
         width: '100%', textAlign: 'left',
         transform: selected ? 'translateY(-1px)' : 'translateY(0)',
       }}
     >
-      {/* Mini vignette */}
+      {/* Photo ou fallback */}
       <div style={{
-        width: 42, height: 42, borderRadius: 8, flexShrink: 0,
-        background: `linear-gradient(135deg, ${c.c1}25, ${c.c2}10), repeating-linear-gradient(45deg, #e2e8f0 0 4px, #edf1f7 4px 8px)`,
+        width: 48, height: 48, borderRadius: 10, flexShrink: 0,
         position: 'relative', overflow: 'hidden',
+        background: photo ? 'transparent' : `linear-gradient(135deg, ${c.c1}25, ${c.c2}10), repeating-linear-gradient(45deg, #e2e8f0 0 4px, #edf1f7 4px 8px)`,
       }}>
+        {photo && <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+        {/* badge score flottant */}
         <div style={{
           position: 'absolute', top: 3, right: 3,
           background: `linear-gradient(135deg, ${c.c1}, ${c.c2})`,
-          color: '#fff', fontSize: 9, fontWeight: 800,
+          color: '#fff', fontSize: 10, fontWeight: 800,
           padding: '1px 5px', borderRadius: 9999,
-          boxShadow: `0 2px 4px ${c.c1}40`,
+          boxShadow: `0 2px 4px ${c.c1}50`,
+          letterSpacing: '-0.01em',
         }}>{score}</div>
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 11, color: '#1E3A5F', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
-          {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 10, color: '#94a3b8' }}>{surface}m²</span></>}
-          {pieces && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 10, color: '#94a3b8' }}>{pieces}p</span></>}
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, color: '#1E3A5F', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
+          {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 11, color: '#64748b' }}>{surface}m²</span></>}
+          {pieces  && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 11, color: '#64748b' }}>{pieces}p</span></>}
         </div>
       </div>
     </button>
@@ -158,27 +266,27 @@ function RecoPostit({ text }) {
     <div style={{
       background: 'linear-gradient(160deg, #fef9c3, #fde68a)',
       borderRadius: 4,
-      padding: '12px 14px 14px',
+      padding: '16px 18px 18px',
       transform: 'rotate(-1deg)',
-      boxShadow: '0 8px 20px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.4) inset',
+      boxShadow: '0 10px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.4) inset',
       position: 'relative',
       alignSelf: 'flex-start',
       width: '100%',
     }}>
       {/* tape */}
       <div style={{
-        position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%) rotate(2deg)',
-        width: 50, height: 14,
-        background: 'rgba(255,255,255,0.5)',
+        position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%) rotate(2deg)',
+        width: 56, height: 15,
+        background: 'rgba(255,255,255,0.55)',
         border: '1px solid rgba(0,0,0,0.04)',
         borderRadius: 2,
       }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-        <span style={{ fontSize: 12 }}>📝</span>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Note de l'IA</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 9 }}>
+        <span style={{ fontSize: 14 }}>📝</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Recommandation</span>
       </div>
       <p style={{
-        fontSize: 13, color: '#78350f', lineHeight: 1.55, margin: 0,
+        fontSize: 15, color: '#78350f', lineHeight: 1.6, margin: 0,
         fontFamily: '"Caveat", "Comic Sans MS", cursive',
         fontWeight: 500,
       }}>{text}</p>
@@ -186,7 +294,7 @@ function RecoPostit({ text }) {
   )
 }
 
-// ─── BienDetail (hero photo + analyse + postit) ───────────────────────────────
+// ─── BienDetail ───────────────────────────────────────────────────────────────
 function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
   const photo   = fPhoto(match.bien_photos)
   const forts   = bul(match.points_forts).slice(0, 4)
@@ -195,42 +303,38 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 
   return (
     <div style={{ borderTop: '1px solid #e5e7eb' }}>
-      {/* Photo hero */}
       <div style={{
-        position: 'relative', minHeight: 210,
+        position: 'relative', minHeight: 230,
         background: photo
-          ? `linear-gradient(135deg, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.55) 100%), url(${photo}) center/cover no-repeat`
+          ? `linear-gradient(135deg, rgba(15,23,42,0.84) 0%, rgba(15,23,42,0.58) 100%), url(${photo}) center/cover no-repeat`
           : 'linear-gradient(135deg, #0f1e30 0%, #1E3A5F 50%, #2D5A8A 100%)',
-        padding: '22px 24px',
+        padding: '26px 28px',
       }}>
-        {/* ambient blobs */}
-        <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(96,165,250,0.25) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.20) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: -40, right: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(96,165,250,0.22) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.18) 0%, transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
 
-        {/* Header type + prix */}
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_type}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 4, display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div style={{ fontSize: 19, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_type}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginTop: 5, display: 'flex', gap: 7, alignItems: 'center' }}>
               <span>📍 {match.bien_ville}</span>
               {match.bien_surface && <><span style={{ opacity: 0.4 }}>·</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{match.bien_surface} m²</span></>}
               {match.bien_pieces  && <><span style={{ opacity: 0.4 }}>·</span><span>{match.bien_pieces} pièces</span></>}
             </div>
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 16 }}>{mon(match.bien_prix)}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 16 }}>{mon(match.bien_prix)}</div>
         </div>
 
-        {/* Corps 2 colonnes */}
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {forts.length > 0 && (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                  <Zap size={11} color="#86efac" />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Points forts</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <Zap size={12} color="#86efac" />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Points forts</span>
                 </div>
                 {forts.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 3, fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4, fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>
                     <span style={{ color: '#34d399', flexShrink: 0 }}>•</span><span>{f}</span>
                   </div>
                 ))}
@@ -238,19 +342,19 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
             )}
             {atts.length > 0 && (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                  <AlertTriangle size={11} color="#fcd34d" />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: '#fcd34d', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Attention</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                  <AlertTriangle size={12} color="#fcd34d" />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#fcd34d', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Attention</span>
                 </div>
                 {atts.map((a, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 3, fontSize: 12, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>
+                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4, fontSize: 13, color: 'rgba(255,255,255,0.88)', lineHeight: 1.5 }}>
                     <span style={{ color: '#fbbf24', flexShrink: 0 }}>•</span><span>{a}</span>
                   </div>
                 ))}
               </div>
             )}
             {!forts.length && !atts.length && (
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>Analyse non disponible</p>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', margin: 0 }}>Analyse non disponible</p>
             )}
           </div>
 
@@ -262,10 +366,9 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
         </div>
       </div>
 
-      {/* Barre actions */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
-        padding: '12px 20px', background: '#fbfcfe',
+        padding: '14px 22px', background: '#fbfcfe',
         borderTop: '1px solid #f1f5f9',
       }}>
         {match.date_email_envoye && (
@@ -280,19 +383,19 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
         )}
         <button onClick={onRefuse} style={{
           display: 'flex', alignItems: 'center', gap: 5,
-          padding: '8px 14px', borderRadius: 10,
+          padding: '8px 15px', borderRadius: 10,
           background: refused ? '#fef2f2' : '#fff',
           color: refused ? '#dc2626' : '#94a3b8',
           border: `1px solid ${refused ? '#fecaca' : '#e8eef5'}`,
           fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
         }}>
-          <XCircle size={12} />{refused ? 'Annuler refus' : 'Refuser'}
+          <XCircle size={13} />{refused ? 'Annuler refus' : 'Refuser'}
         </button>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, color: '#94a3b8' }}>1 bien sélectionné</span>
           <button onClick={onPropose} disabled={!mail || sending} style={{
             display: 'inline-flex', alignItems: 'center', gap: 7,
-            padding: '9px 22px', borderRadius: 10,
+            padding: '10px 24px', borderRadius: 10,
             background: mail ? 'linear-gradient(135deg, #1E3A5F, #2D5A8A)' : '#f3f4f6',
             color: mail ? '#fff' : '#9ca3af',
             border: 'none', fontSize: 13, fontWeight: 700,
@@ -300,7 +403,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
             boxShadow: mail ? '0 4px 14px rgba(30,58,95,0.35)' : 'none',
             transition: 'all 0.2s',
           }}>
-            <Send size={13} />{sending ? 'Envoi…' : match.date_email_envoye ? 'Renvoyer' : 'Envoyer la sélection →'}
+            <Send size={14} />{sending ? 'Envoi…' : match.date_email_envoye ? 'Renvoyer' : 'Envoyer la sélection →'}
           </button>
         </div>
       </div>
@@ -316,170 +419,159 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
     return rA - rB || b.score - a.score
   })
   const best = sorted[0]
-  const [selId, setSelId] = useState(defaultOpen && best ? best.id : null)
+  const [selId, setSelId]           = useState(defaultOpen && best ? best.id : null)
+  const [showModal, setShowModal]   = useState(false)
   const sel = selId ? sorted.find(m => m.id === selId) || best : null
   const [a, b] = avP(group.prospect_nom)
 
-  // Zones dérivées des matchings
-  const zones = [...new Set(sorted.map(m => m.bien_ville).filter(Boolean))].slice(0, 2).join(', ') || '—'
+  const zones    = [...new Set(sorted.map(m => m.bien_ville).filter(Boolean))].slice(0, 2).join(', ') || '—'
   const mainType = sorted[0]?.bien_type || '—'
 
   return (
-    <div style={{
-      background: '#fff', borderRadius: 18,
-      border: '1px solid #edf1f7',
-      boxShadow: '0 1px 0 #e8eef5, 0 8px 28px rgba(30,58,95,0.06)',
-      overflow: 'hidden',
-      transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-    }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 1px 0 #e8eef5, 0 12px 36px rgba(30,58,95,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 0 #e8eef5, 0 8px 28px rgba(30,58,95,0.06)'; e.currentTarget.style.transform = 'translateY(0)' }}
-    >
-      {/* ── 3 colonnes ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 170px 1.1fr', minHeight: 180 }}>
+    <>
+      {showModal && <ProspectModal prospectId={group.prospect_id} prospectNom={group.prospect_nom} onClose={() => setShowModal(false)} />}
 
-        {/* GAUCHE — PCBriefGlow */}
-        <div style={{
-          padding: '20px 22px', borderRight: '1px solid #f3f4f6',
-          display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          {/* blob ambiance */}
+      <div style={{
+        background: '#fff', borderRadius: 18,
+        border: '1px solid #edf1f7',
+        boxShadow: '0 1px 0 #e8eef5, 0 8px 28px rgba(30,58,95,0.06)',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 1px 0 #e8eef5, 0 16px 40px rgba(30,58,95,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 0 #e8eef5, 0 8px 28px rgba(30,58,95,0.06)'; e.currentTarget.style.transform = 'translateY(0)' }}
+      >
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 200px 1.2fr', minHeight: 220 }}>
+
+          {/* ── GAUCHE — PCBriefGlow ── */}
           <div style={{
-            position: 'absolute', top: -60, left: -50,
-            width: 180, height: 180, borderRadius: '50%',
-            background: `radial-gradient(circle at 30% 30%, ${a}24 0%, transparent 70%)`,
-            filter: 'blur(12px)', pointerEvents: 'none',
-          }} />
-
-          {/* Avatar + nom */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              {/* halo avatar */}
-              <div style={{
-                position: 'absolute', inset: -4,
-                background: `linear-gradient(135deg, ${a}, ${b})`,
-                borderRadius: 16, filter: 'blur(10px)', opacity: 0.45,
-              }} />
-              <div style={{
-                position: 'relative', width: 46, height: 46, borderRadius: 14,
-                background: `linear-gradient(135deg, ${a}, ${b})`,
-                display: 'grid', placeItems: 'center',
-                color: '#fff', fontWeight: 800, fontSize: 14, letterSpacing: '-0.02em',
-              }}>{ini(group.prospect_nom)}</div>
-            </div>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1E3A5F', letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {group.prospect_nom}
-              </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)' }} />
-                <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Brief box */}
-          <div style={{
-            position: 'relative', padding: '11px 13px',
-            background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(4px)',
-            borderRadius: 11, border: '1px solid #edf1f7',
+            padding: '24px 26px', borderRight: '1px solid #f3f4f6',
+            display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center',
+            position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{
-              position: 'absolute', top: 9, left: -1,
-              width: 3, height: 'calc(100% - 18px)',
-              background: `linear-gradient(to bottom, ${a}, ${b})`,
-              borderRadius: 9999,
-            }} />
-            <div style={{ fontSize: 9, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 5 }}>Cherche</div>
-            <div style={{ fontSize: 12.5, color: '#1E3A5F', lineHeight: 1.4, fontWeight: 500 }}>
-              <span style={{ fontWeight: 700 }}>{mainType}</span>
-              {zones !== '—' && <> à <span style={{ fontWeight: 700 }}>{zones}</span></>}
-            </div>
-          </div>
+            <div style={{ position: 'absolute', top: -60, left: -50, width: 190, height: 190, borderRadius: '50%', background: `radial-gradient(circle at 30% 30%, ${a}24 0%, transparent 70%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
 
-          {/* Footer budget + refresh */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: 9, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>Budget</span>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#1E3A5F', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }}>{mon(group.prospect_budget)}</span>
+            {/* Avatar + nom */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 13 }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', inset: -4, background: `linear-gradient(135deg, ${a}, ${b})`, borderRadius: 17, filter: 'blur(10px)', opacity: 0.45 }} />
+                <div style={{ position: 'relative', width: 50, height: 50, borderRadius: 15, background: `linear-gradient(135deg, ${a}, ${b})`, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 800, fontSize: 15, letterSpacing: '-0.02em' }}>
+                  {ini(group.prospect_nom)}
+                </div>
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1E3A5F', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {group.prospect_nom}
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
+                  <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
+                </div>
+              </div>
             </div>
+
+            {/* Brief box — cliquable → modal prospect */}
             <button
-              onClick={e => onRunSingle(e, group.prospect_id, group.prospect_nom)}
-              disabled={analyzing}
-              title="Relancer l'analyse"
-              style={{ width: 30, height: 30, borderRadius: 10, border: '1px solid #e8eef5', background: '#fbfcfe', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#1E3A5F'; e.currentTarget.style.background = '#eff6ff' }}
-              onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#fbfcfe' }}
-            ><RefreshCw size={12} /></button>
-          </div>
-        </div>
+              onClick={() => setShowModal(true)}
+              style={{
+                position: 'relative', padding: '13px 15px',
+                background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)',
+                borderRadius: 12, border: '1px solid #edf1f7',
+                cursor: 'pointer', textAlign: 'left', width: '100%',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#f0f4ff'; e.currentTarget.style.borderColor = '#bfdbfe' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor = '#edf1f7' }}
+            >
+              <div style={{ position: 'absolute', top: 10, left: -1, width: 3, height: 'calc(100% - 20px)', background: `linear-gradient(to bottom, ${a}, ${b})`, borderRadius: 9999 }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div style={{ fontSize: 9, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Cherche</div>
+                <ChevronRight size={12} color="#94a3b8" />
+              </div>
+              <div style={{ fontSize: 13.5, color: '#1E3A5F', lineHeight: 1.4, fontWeight: 500 }}>
+                <span style={{ fontWeight: 700 }}>{mainType}</span>
+                {zones !== '—' && <> à <span style={{ fontWeight: 700 }}>{zones}</span></>}
+              </div>
+            </button>
 
-        {/* CENTRE — ScoreRing SVG+Blob */}
-        <div style={{
-          display: 'grid', placeItems: 'center',
-          padding: '18px 12px',
-          borderRight: '1px solid #f3f4f6',
-          background: 'linear-gradient(180deg, #fbfcfe 0%, #f8fafc 100%)',
-          position: 'relative',
-        }}>
-          {/* dot grid texture */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.05) 1px, transparent 1px)',
-            backgroundSize: '14px 14px',
-            pointerEvents: 'none', opacity: 0.6,
-          }} />
-          <div style={{ position: 'relative' }}>
-            {best && <ScoreRing score={best.score} size={120} />}
-          </div>
-        </div>
-
-        {/* DROITE — GemBadge Cards */}
-        <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
-          {sorted.slice(0, 4).map(m => (
-            <GemBadge
-              key={m.id}
-              score={m.score}
-              ville={m.bien_ville}
-              prix={m.bien_prix}
-              surface={m.bien_surface}
-              pieces={m.bien_pieces}
-              selected={sel?.id === m.id}
-              onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
-            />
-          ))}
-          {sorted.length > 4 && (
-            <div style={{ fontSize: 11, color: '#94a3b8', paddingLeft: 8, marginTop: 2 }}>
-              +{sorted.length - 4} autre{sorted.length - 4 > 1 ? 's' : ''}
+            {/* Budget + refresh */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>Budget</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#1E3A5F', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.prospect_budget)}</div>
+              </div>
+              <button
+                onClick={e => onRunSingle(e, group.prospect_id, group.prospect_nom)}
+                disabled={analyzing}
+                title="Relancer l'analyse"
+                style={{ width: 32, height: 32, borderRadius: 10, border: '1px solid #e8eef5', background: '#fbfcfe', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#1E3A5F'; e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#bfdbfe' }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = '#fbfcfe'; e.currentTarget.style.borderColor = '#e8eef5' }}
+              ><RefreshCw size={13} /></button>
             </div>
+          </div>
+
+          {/* ── CENTRE — ScoreRing ── */}
+          <div style={{
+            display: 'grid', placeItems: 'center',
+            padding: '20px 14px',
+            borderRight: '1px solid #f3f4f6',
+            background: 'linear-gradient(180deg, #fbfcfe 0%, #f8fafc 100%)',
+            position: 'relative',
+          }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(30,58,95,0.05) 1px, transparent 1px)', backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
+            <div style={{ position: 'relative' }}>
+              {best && <ScoreRing score={best.score} size={130} />}
+            </div>
+          </div>
+
+          {/* ── DROITE — GemBadge Cards ── */}
+          <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
+            {sorted.slice(0, 4).map(m => (
+              <GemBadge
+                key={m.id}
+                score={m.score}
+                ville={m.bien_ville}
+                prix={m.bien_prix}
+                surface={m.bien_surface}
+                pieces={m.bien_pieces}
+                photos={m.bien_photos}
+                selected={sel?.id === m.id}
+                onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
+              />
+            ))}
+            {sorted.length > 4 && (
+              <div style={{ fontSize: 11, color: '#94a3b8', paddingLeft: 9, marginTop: 2 }}>
+                +{sorted.length - 4} autre{sorted.length - 4 > 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Panneau détail ── */}
+        <div style={{
+          maxHeight: sel ? '900px' : '0px',
+          opacity: sel ? 1 : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
+        }}>
+          {sel && (
+            <BienDetail
+              match={sel}
+              mail={group.prospect_mail}
+              nom={group.prospect_nom}
+              sending={sendingEmail === sel.id}
+              onPropose={() => onPropose(sel, group.prospect_mail, group.prospect_nom)}
+              onRefuse={() => onRefuse(sel)}
+            />
           )}
         </div>
       </div>
-
-      {/* ── Panneau détail animé ── */}
-      <div style={{
-        maxHeight: sel ? '800px' : '0px',
-        opacity: sel ? 1 : 0,
-        overflow: 'hidden',
-        transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease',
-      }}>
-        {sel && (
-          <BienDetail
-            match={sel}
-            mail={group.prospect_mail}
-            nom={group.prospect_nom}
-            sending={sendingEmail === sel.id}
-            onPropose={() => onPropose(sel, group.prospect_mail, group.prospect_nom)}
-            onRefuse={() => onRefuse(sel)}
-          />
-        )}
-      </div>
-    </div>
+    </>
   )
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function MatchingsPageV2() {
   const { agency } = useAgency()
   const agencyNom = agency?.nom || 'ImmoFlash'
@@ -495,10 +587,10 @@ export default function MatchingsPageV2() {
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
 
-  const [analyzing, setAnalyzing]             = useState(false)
-  const [showOverlay, setShowOverlay]         = useState(false)
+  const [analyzing, setAnalyzing]               = useState(false)
+  const [showOverlay, setShowOverlay]           = useState(false)
   const [overlayCompleted, setOverlayCompleted] = useState(false)
-  const [totalProspects, setTotalProspects]   = useState(0)
+  const [totalProspects, setTotalProspects]     = useState(0)
   const [currentProspectIndex, setCurrentProspectIndex] = useState(0)
   const [currentProspectName, setCurrentProspectName]   = useState('')
   const cancelRef = useRef(false)
@@ -602,13 +694,13 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ maxWidth: 960, margin: '0 auto' }}>
       <Confetti show={showConfetti} />
       <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22, flexWrap: 'wrap' }}>
         <button onClick={() => navigate('/matchings')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-gray-100 transition-all" title="Retour ancienne vue">
           <ArrowLeft size={18} />
         </button>
@@ -659,9 +751,9 @@ export default function MatchingsPageV2() {
 
       {/* Cartes */}
       {loading ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-200 h-44 animate-pulse" />
+            <div key={i} className="bg-white rounded-2xl border border-gray-200 h-56 animate-pulse" />
           ))}
         </div>
       ) : groups.length === 0 ? (
@@ -674,7 +766,7 @@ export default function MatchingsPageV2() {
           </button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {groups.map((g, idx) => (
             <ProspectCard
               key={g.prospect_id}
