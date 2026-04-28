@@ -30,6 +30,13 @@ function SkeletonRow() {
   )
 }
 
+const AV_PAL = [
+  ['#1E3A5F', '#2D5A8A'], ['#0e7490', '#06b6d4'], ['#047857', '#10b981'],
+  ['#b45309', '#f59e0b'], ['#5b21b6', '#a78bfa'], ['#1d4ed8', '#60a5fa'],
+  ['#be185d', '#ec4899'], ['#7c3aed', '#c084fc'],
+]
+const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
+
 function ClientsPage() {
   const [prospects, setProspects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -202,15 +209,21 @@ function ClientsPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedProspects = actifs.slice(startIndex, startIndex + itemsPerPage)
 
-  const ProspectRow = ({ prospect, index, archived = false }) => (
+  const ProspectRow = ({ prospect, index, archived = false }) => {
+    const [c1, c2] = archived ? ['#9ca3af', '#d1d5db'] : avP(prospect.nom)
+    return (
     <tr
       key={prospect.id}
-      className={`row-hover group animate-fade-in-up ${archived ? 'opacity-50' : ''}`}
+      onClick={() => setSelectedProspect(prospect)}
+      className={`row-hover group animate-fade-in-up cursor-pointer ${archived ? 'opacity-50' : ''}`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
       <td className="p-4">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${archived ? 'bg-gray-400' : 'bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A]'}`}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm"
+            style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
+          >
             {prospect.nom ? (() => { const p = prospect.nom.trim().split(' ').filter(x=>x); return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase() })() : '?'}
           </div>
           <div>
@@ -297,7 +310,7 @@ function ClientsPage() {
         </div>
       </td>
     </tr>
-  )
+  )}
 
   return (
     <div>
@@ -332,13 +345,13 @@ function ClientsPage() {
           </div>
 
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2D5A8A]" />
             <input
               type="text"
               placeholder="Rechercher un client..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-72 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
             />
           </div>
         </div>
