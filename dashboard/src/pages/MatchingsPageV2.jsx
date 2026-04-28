@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
-import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -18,10 +17,10 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes blobPulse { 0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.08);opacity:1} }
     @keyframes slideUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
     @keyframes btnShimmer{ 0%{background-position:200% center} 100%{background-position:-200% center} }
-    @keyframes blob1 { 0%,100%{transform:translate(0px,0px) scale(1)} 25%{transform:translate(40px,-30px) scale(1.08)} 50%{transform:translate(20px,40px) scale(0.95)} 75%{transform:translate(-30px,10px) scale(1.05)} }
-    @keyframes blob2 { 0%,100%{transform:translate(0px,0px) scale(1)} 25%{transform:translate(-35px,25px) scale(0.92)} 50%{transform:translate(15px,-40px) scale(1.1)} 75%{transform:translate(30px,20px) scale(0.97)} }
-    @keyframes blob3 { 0%,100%{transform:translate(0px,0px) scale(1)} 33%{transform:translate(25px,35px) scale(1.06)} 66%{transform:translate(-40px,-20px) scale(0.94)} }
-    @keyframes blob4 { 0%,100%{transform:translate(0px,0px) scale(1)} 33%{transform:translate(-20px,-35px) scale(1.04)} 66%{transform:translate(35px,25px) scale(0.96)} }
+    @keyframes waterFlow { 0%{background-position:0% 50%} 25%{background-position:50% 0%} 50%{background-position:100% 50%} 75%{background-position:50% 100%} 100%{background-position:0% 50%} }
+    @keyframes waterBlob1{ 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(60px,-40px) scale(1.15)} 66%{transform:translate(-40px,60px) scale(0.9)} }
+    @keyframes waterBlob2{ 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-50px,30px) scale(0.88)} 66%{transform:translate(40px,-60px) scale(1.12)} }
+    @keyframes waterBlob3{ 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,50px) scale(1.08)} }
   `
   document.head.appendChild(s)
 }
@@ -498,47 +497,16 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond ShaderGradient ────────────────────────────────────────────────────
+    // ── Fond waterPlane CSS ────────────────────────────────────────────────────
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#06b6d4' }}>
 
-      <ShaderGradientCanvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
-        <ShaderGradient
-          animate="on"
-          axesHelper="off"
-          bgColor1="#000000"
-          bgColor2="#000000"
-          brightness={1.2}
-          cAzimuthAngle={170}
-          cDistance={4.41}
-          cPolarAngle={70}
-          cameraZoom={1}
-          color1="#06b6d4"
-          color2="#6bf5ff"
-          color3="#ffffff"
-          destination="onCanvas"
-          embedMode="off"
-          envPreset="city"
-          grain="off"
-          lightType="3d"
-          pixelDensity={1}
-          positionX={0}
-          positionY={0.9}
-          positionZ={-0.3}
-          reflection={0.1}
-          rotationX={45}
-          rotationY={0}
-          rotationZ={0}
-          shader="defaults"
-          type="waterPlane"
-          uAmplitude={0}
-          uDensity={1.2}
-          uFrequency={0}
-          uSpeed={0.2}
-          uStrength={3.4}
-          uTime={0}
-          wireframe={false}
-        />
-      </ShaderGradientCanvas>
+      {/* Base : gradient animé qui tourne — même couleurs que ShaderGradient */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(-45deg,#0e7490,#06b6d4,#22d3ee,#6bf5ff,#ffffff,#a5f3fc,#0891b2,#06b6d4)', backgroundSize: '400% 400%', animation: 'waterFlow 14s ease infinite', zIndex: 0, pointerEvents: 'none' }} />
+
+      {/* Blobs lumineux qui flottent — crée l'effet de profondeur 3D */}
+      <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '65%', height: '70%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(255,255,255,0.55) 0%,rgba(107,245,255,0.30) 40%,transparent 70%)', filter: 'blur(50px)', animation: 'waterBlob1 18s ease-in-out infinite', zIndex: 1, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '60%', height: '65%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(255,255,255,0.45) 0%,rgba(6,182,212,0.25) 40%,transparent 70%)', filter: 'blur(55px)', animation: 'waterBlob2 22s ease-in-out infinite 3s', zIndex: 1, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: '30%', left: '25%', width: '50%', height: '50%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(255,255,255,0.35) 0%,transparent 65%)', filter: 'blur(40px)', animation: 'waterBlob3 16s ease-in-out infinite 6s', zIndex: 1, pointerEvents: 'none' }} />
 
       <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <Confetti show={showConfetti} />
