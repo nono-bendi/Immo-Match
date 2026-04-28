@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
@@ -497,18 +498,47 @@ export default function MatchingsPageV2() {
   })
 
   return (
-    // ── Fond mesh-gradient CSS animé ──────────────────────────────────────────
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#eef3ff' }}>
+    // ── Fond ShaderGradient ────────────────────────────────────────────────────
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', overflow: 'hidden', background: '#06b6d4' }}>
 
-      {/* Blobs CSS qui se déplacent — mesh gradient effect */}
-      <div style={{ position: 'absolute', top: '-10%', left: '-8%',  width: '52%', height: '60%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(147,197,253,0.72) 0%,rgba(147,197,253,0.35) 45%,transparent 70%)', filter: 'blur(52px)', animation: 'blob1 18s ease-in-out infinite', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', top: '-5%',  right: '-10%', width: '50%', height: '55%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(167,139,250,0.68) 0%,rgba(167,139,250,0.32) 45%,transparent 70%)', filter: 'blur(56px)', animation: 'blob2 22s ease-in-out infinite 2s', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', bottom: '-8%', left: '8%',  width: '46%', height: '52%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(110,231,183,0.60) 0%,rgba(110,231,183,0.28) 45%,transparent 70%)', filter: 'blur(48px)', animation: 'blob3 20s ease-in-out infinite 4s', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', bottom: '-5%', right: '-5%', width: '44%', height: '50%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(196,181,253,0.65) 0%,rgba(196,181,253,0.30) 45%,transparent 70%)', filter: 'blur(44px)', animation: 'blob4 16s ease-in-out infinite 1s', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ position: 'absolute', top: '35%',  left: '28%',   width: '38%', height: '42%', borderRadius: '50%', background: 'radial-gradient(ellipse at center,rgba(165,243,252,0.55) 0%,rgba(165,243,252,0.25) 45%,transparent 70%)', filter: 'blur(40px)', animation: 'blob1 24s ease-in-out infinite 3s', pointerEvents: 'none', zIndex: 0 }} />
-
-      {/* Noise / grain léger par-dessus */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.09) 1px,transparent 1px)', backgroundSize: '22px 22px', pointerEvents: 'none', zIndex: 1 }} />
+      <ShaderGradientCanvas style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
+        <ShaderGradient
+          animate="on"
+          axesHelper="off"
+          bgColor1="#000000"
+          bgColor2="#000000"
+          brightness={1.2}
+          cAzimuthAngle={170}
+          cDistance={4.41}
+          cPolarAngle={70}
+          cameraZoom={1}
+          color1="#06b6d4"
+          color2="#6bf5ff"
+          color3="#ffffff"
+          destination="onCanvas"
+          embedMode="off"
+          envPreset="city"
+          grain="off"
+          lightType="3d"
+          pixelDensity={1}
+          positionX={0}
+          positionY={0.9}
+          positionZ={-0.3}
+          reflection={0.1}
+          rotationX={45}
+          rotationY={0}
+          rotationZ={0}
+          shader="defaults"
+          type="waterPlane"
+          uAmplitude={0}
+          uDensity={1.2}
+          uFrequency={0}
+          uSpeed={0.2}
+          uStrength={3.4}
+          uTime={0}
+          wireframe={false}
+        />
+      </ShaderGradientCanvas>
 
       <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 2 }}>
         <Confetti show={showConfetti} />
