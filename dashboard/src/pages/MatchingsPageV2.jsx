@@ -44,14 +44,14 @@ const AV_PAL = [
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
 const sC = (s) => s >= 80
-  ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Excellent',  bg: '#ecfdf5', text: '#065f46' }
+  ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Proposer sans hésiter', bg: '#ecfdf5', text: '#065f46' }
   : s >= 65
-    ? { c1: '#ca8a04', c2: '#a16207', soft: '#fde047', label: 'Bon',      bg: '#fefce8', text: '#78350f' }
+    ? { c1: '#ca8a04', c2: '#a16207', soft: '#fde047', label: 'À étudier',            bg: '#fefce8', text: '#78350f' }
     : s >= 50
-      ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Partiel', bg: '#fffbeb', text: '#92400e' }
+      ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Quelques lacunes',   bg: '#fffbeb', text: '#92400e' }
       : s >= 35
-        ? { c1: '#f97316', c2: '#ea580c', soft: '#fb923c', label: 'Incomplet', bg: '#fff7ed', text: '#9a3412' }
-        : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Faible',    bg: '#fef2f2', text: '#991b1b' }
+        ? { c1: '#f97316', c2: '#ea580c', soft: '#fb923c', label: 'Lacunes importantes', bg: '#fff7ed', text: '#9a3412' }
+        : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Hors critères',       bg: '#fef2f2', text: '#991b1b' }
 
 // Palettes post-it par index (5 variantes)
 const POSTIT_PAL = [
