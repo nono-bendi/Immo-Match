@@ -43,11 +43,15 @@ const AV_PAL = [
 ]
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
-const sC = (s) => s >= 75
+const sC = (s) => s >= 80
   ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Excellent',  bg: '#ecfdf5', text: '#065f46' }
-  : s >= 50
-    ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Bon match', bg: '#fffbeb', text: '#92400e' }
-    : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Faible',    bg: '#fef2f2', text: '#991b1b' }
+  : s >= 65
+    ? { c1: '#34d399', c2: '#059669', soft: '#6ee7b7', label: 'Bon',      bg: '#f0fdf4', text: '#166534' }
+    : s >= 50
+      ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Partiel', bg: '#fffbeb', text: '#92400e' }
+      : s >= 35
+        ? { c1: '#f97316', c2: '#ea580c', soft: '#fb923c', label: 'Incomplet', bg: '#fff7ed', text: '#9a3412' }
+        : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Faible',    bg: '#fef2f2', text: '#991b1b' }
 
 // Palettes post-it par index (5 variantes)
 const POSTIT_PAL = [
@@ -361,7 +365,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
           {/* ── CENTRE — ScoreRing ── */}
           <div style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', borderRight: '1px solid #f3f4f6', background: 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)', position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.05) 1px,transparent 1px)', backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
-            <div style={{ position: 'relative' }}>{best && <ScoreRing score={best.score} size={140} />}</div>
+            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={140} />}</div>
           </div>
 
           {/* ── DROITE — GemBadges ── */}
@@ -495,9 +499,10 @@ export default function MatchingsPageV2() {
   const filtered = matchings.filter(m => {
     const s = search.toLowerCase()
     if (s && !m.prospect_nom?.toLowerCase().includes(s) && !m.bien_ville?.toLowerCase().includes(s)) return false
-    if (filterScore === 'high'   && m.score < 75) return false
-    if (filterScore === 'medium' && (m.score < 50 || m.score >= 75)) return false
-    if (filterScore === 'low'    && m.score >= 50) return false
+    if (filterScore === 'excellent' && m.score < 80) return false
+    if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
+    if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
+    if (filterScore === 'low'       && m.score >= 50) return false
     if (filterBienId && m.bien_id !== filterBienId) return false
     return true
   })
@@ -554,7 +559,7 @@ export default function MatchingsPageV2() {
             className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
         </div>
         <div className="flex gap-1.5">
-          {[{ v: 'all', label: 'Tous' }, { v: 'high', label: '75+' }, { v: 'medium', label: '50–74' }, { v: 'low', label: '< 50' }].map(f => (
+          {[{ v: 'all', label: 'Tous' }, { v: 'excellent', label: '≥ 80' }, { v: 'tres_bon', label: '65–79' }, { v: 'potentiel', label: '50–64' }, { v: 'low', label: '< 50' }].map(f => (
             <button key={f.v} onClick={() => setFilterScore(f.v)}
               className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
               {f.label}
