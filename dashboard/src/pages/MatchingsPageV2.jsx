@@ -43,15 +43,17 @@ const AV_PAL = [
 ]
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
-const sC = (s) => s >= 80
-  ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Proposer sans hésiter', bg: '#ecfdf5', text: '#065f46' }
-  : s >= 65
-    ? { c1: '#ca8a04', c2: '#a16207', soft: '#fde047', label: 'À étudier',            bg: '#fefce8', text: '#78350f' }
-    : s >= 50
-      ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Quelques lacunes',   bg: '#fffbeb', text: '#92400e' }
-      : s >= 35
-        ? { c1: '#f97316', c2: '#ea580c', soft: '#fb923c', label: 'Lacunes importantes', bg: '#fff7ed', text: '#9a3412' }
-        : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Hors critères',       bg: '#fef2f2', text: '#991b1b' }
+const sC = (s) => s >= 85
+  ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Proposer sans hésiter',  bg: '#ecfdf5', text: '#065f46' }
+  : s >= 80
+    ? { c1: '#34d399', c2: '#10b981', soft: '#6ee7b7', label: 'Mérite une visite',     bg: '#f0fdf4', text: '#166534' }
+    : s >= 65
+      ? { c1: '#ca8a04', c2: '#a16207', soft: '#fde047', label: 'À étudier',           bg: '#fefce8', text: '#78350f' }
+      : s >= 50
+        ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Manque des critères clés', bg: '#fffbeb', text: '#92400e' }
+        : s >= 35
+          ? { c1: '#f97316', c2: '#ea580c', soft: '#fb923c', label: 'Peu adapté au profil',   bg: '#fff7ed', text: '#9a3412' }
+          : { c1: '#ef4444', c2: '#dc2626', soft: '#f87171', label: 'Hors critères',           bg: '#fef2f2', text: '#991b1b' }
 
 // Palettes post-it par index (5 variantes)
 const POSTIT_PAL = [
@@ -113,7 +115,7 @@ function ScoreRing({ score, size = 140 }) {
           <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.08em', marginTop: 2 }}>/ 100</span>
         </div>
       </div>
-      <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: c.text, background: c.bg, borderRadius: 9999, padding: '6px 14px', border: `1px solid ${c.c1}30` }}>{c.label}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: c.text, background: c.bg, borderRadius: 9999, padding: '5px 12px', border: `1px solid ${c.c1}30`, whiteSpace: 'nowrap' }}>{c.label}</span>
     </div>
   )
 }
