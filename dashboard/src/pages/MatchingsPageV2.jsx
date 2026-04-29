@@ -523,7 +523,6 @@ export default function MatchingsPageV2() {
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
-      <AuroraBackground />
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
