@@ -46,7 +46,7 @@ const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(
 const sC = (s) => s >= 80
   ? { c1: '#10b981', c2: '#059669', soft: '#34d399', label: 'Excellent',  bg: '#ecfdf5', text: '#065f46' }
   : s >= 65
-    ? { c1: '#34d399', c2: '#059669', soft: '#6ee7b7', label: 'Bon',      bg: '#f0fdf4', text: '#166534' }
+    ? { c1: '#3b82f6', c2: '#2563eb', soft: '#93c5fd', label: 'Bon',      bg: '#eff6ff', text: '#1d4ed8' }
     : s >= 50
       ? { c1: '#f59e0b', c2: '#d97706', soft: '#fbbf24', label: 'Partiel', bg: '#fffbeb', text: '#92400e' }
       : s >= 35
