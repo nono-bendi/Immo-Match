@@ -115,7 +115,7 @@ function ScoreRing({ score, size = 140 }) {
           <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.08em', marginTop: 2 }}>/ 100</span>
         </div>
       </div>
-      <span style={{ fontSize: 11, fontWeight: 700, color: c.text, background: c.bg, borderRadius: 9999, padding: '5px 12px', border: `1px solid ${c.c1}30`, whiteSpace: 'nowrap' }}>{c.label}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: c.c1, whiteSpace: 'nowrap' }}>{c.label}</span>
     </div>
   )
 }
