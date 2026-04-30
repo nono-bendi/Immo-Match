@@ -123,10 +123,8 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, dateAnalyse, selected, onClick, onOpenBien }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien }) {
   const c = sC(score); const photo = fPhoto(photos)
-  const isNew = dateAnalyse && new Date(dateAnalyse).getTime() > _24H_AGO
-  const heureAnalyse = dateAnalyse ? new Date(dateAnalyse).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null
   return (
     <div style={{ position: 'relative' }}>
       <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: '#fff', border: `1.5px solid ${selected ? c.c1 : '#edf1f7'}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : '0 1px 0 #e8eef5', cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
@@ -142,12 +140,6 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, dateAnalyse, se
             {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{pieces}p</span></>}
           </div>
-          {isNew && heureAnalyse && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', flexShrink: 0 }} />
-              <span style={{ fontSize: 10, color: '#10b981', fontWeight: 600 }}>Aujourd'hui à {heureAnalyse}</span>
-            </div>
-          )}
         </div>
       </button>
       {/* Bouton ouvrir modal bien */}
@@ -290,6 +282,8 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
   const [a, b] = avP(group.prospect_nom)
 
   const zones    = [...new Set(sorted.map(m => m.bien_ville).filter(Boolean))].slice(0, 2).join(', ') || '—'
+  const lastNew  = sorted.find(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)
+  const heureNew = lastNew?.date_creation ? lastNew.date_creation.slice(11, 16) : null
   const mainType = sorted[0]?.bien_type || '—'
 
   const openProspectModal = async () => {
@@ -335,9 +329,10 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: '#1E3A5F', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
-                <div style={{ fontSize: 13, color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ fontSize: 13, color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
                   <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
+                  {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
                 </div>
               </div>
             </div>
@@ -383,7 +378,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
             {sorted.slice(0, 4).map(m => (
-              <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos} dateAnalyse={m.date_analyse}
+              <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
@@ -509,7 +504,7 @@ export default function MatchingsPageV2() {
     try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
   }
 
-  const nbNew = useMemo(() => matchings.filter(m => m.date_analyse && new Date(m.date_analyse).getTime() > _24H_AGO).length, [matchings])
+  const nbNew = useMemo(() => matchings.filter(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO).length, [matchings])
 
   const filtered = matchings.filter(m => {
     const s = search.toLowerCase()
@@ -518,7 +513,7 @@ export default function MatchingsPageV2() {
     if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
     if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
     if (filterScore === 'low'       && m.score >= 50) return false
-    if (filterNew && !(m.date_analyse && new Date(m.date_analyse).getTime() > _24H_AGO)) return false
+    if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
     if (filterBienId && m.bien_id !== filterBienId) return false
     return true
   })
