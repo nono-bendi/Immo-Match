@@ -462,7 +462,7 @@ function ClientsPage() {
       )}
 
       {/* Modal Détails */}
-      <ProspectModal prospect={selectedProspect} onClose={() => setSelectedProspect(null)} gradientFrom={selectedProspect ? avP(selectedProspect.nom)[0] : undefined} gradientTo={selectedProspect ? avP(selectedProspect.nom)[1] : undefined} />
+      <ProspectModal prospect={selectedProspect} onClose={() => setSelectedProspect(null)} gradientFrom={selectedProspect ? AV_PAL[(selectedProspect.id || 0) % AV_PAL.length][0] : undefined} gradientTo={selectedProspect ? AV_PAL[(selectedProspect.id || 0) % AV_PAL.length][1] : undefined} />
 
       {/* Modal Édition */}
       {editingProspect && (
