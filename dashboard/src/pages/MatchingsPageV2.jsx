@@ -526,8 +526,12 @@ export default function MatchingsPageV2() {
   const groups = Object.values(grouped).sort((a, b) => {
     if (sortBy === 'score') return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
     if (sortBy === 'alpha') return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
-    // recent (défaut)
-    return Math.max(...b.matchings.map(m => new Date(m.date_analyse || 0).getTime())) - Math.max(...a.matchings.map(m => new Date(m.date_analyse || 0).getTime()))
+    // recent (défaut) — même minute → départage par meilleur score
+    const tA = Math.max(...a.matchings.map(m => new Date(m.date_creation || 0).getTime()))
+    const tB = Math.max(...b.matchings.map(m => new Date(m.date_creation || 0).getTime()))
+    const sameMinute = Math.abs(tB - tA) < 60000
+    if (!sameMinute) return tB - tA
+    return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
   })
 
   return (
