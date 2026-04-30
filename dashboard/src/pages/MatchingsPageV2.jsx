@@ -565,33 +565,39 @@ export default function MatchingsPageV2() {
         </SparkleButton>
       </div>
 
-      {/* Filtres — ligne 1 : recherche + tri */}
-      <div className="flex items-center gap-3 mb-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
-        </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-          className="ml-auto text-sm text-gray-500 bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none cursor-pointer">
-          <option value="recent">Plus récents</option>
-          <option value="score">Meilleur score</option>
-          <option value="alpha">A → Z</option>
-        </select>
+      {/* Recherche */}
+      <div className="relative mb-3">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input type="text" placeholder="Prospect ou ville…" value={search} onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
       </div>
-      {/* Filtres — ligne 2 : score + nouveaux */}
-      <div className="flex items-center gap-1.5 mb-6 flex-wrap">
-        <button onClick={() => setFilterNew(v => !v)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterNew ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? '#fff' : '#10b981', display: 'inline-block', flexShrink: 0 }} />
-          Nouveaux {nbNew > 0 && <span className={`ml-0.5 ${filterNew ? 'text-white/80' : 'text-emerald-600'}`}>({nbNew})</span>}
-        </button>
-        {[{ v: 'all', label: 'Tous' }, { v: 'excellent', label: '≥ 80' }, { v: 'tres_bon', label: '65–79' }, { v: 'potentiel', label: '50–64' }, { v: 'low', label: '< 50' }].map(f => (
-          <button key={f.v} onClick={() => setFilterScore(f.v)}
-            className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-            {f.label}
+
+      {/* Filtres + tri */}
+      <div className="flex items-center justify-between gap-3 mb-6">
+        {/* Filtres score */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button onClick={() => setFilterNew(v => !v)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterNew ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? '#fff' : '#10b981', display: 'inline-block', flexShrink: 0 }} />
+            Nouveaux {nbNew > 0 && <span className={`ml-0.5 ${filterNew ? 'text-white/80' : 'text-emerald-600'}`}>({nbNew})</span>}
           </button>
-        ))}
+          {[{ v: 'all', label: 'Tous' }, { v: 'excellent', label: '≥ 80' }, { v: 'tres_bon', label: '65–79' }, { v: 'potentiel', label: '50–64' }, { v: 'low', label: '< 50' }].map(f => (
+            <button key={f.v} onClick={() => setFilterScore(f.v)}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tri */}
+        <div className="flex items-center gap-1 flex-shrink-0 bg-white border border-gray-200 rounded-xl p-1">
+          {[{ v: 'recent', label: 'Récents' }, { v: 'score', label: 'Score' }, { v: 'alpha', label: 'A→Z' }].map(s => (
+            <button key={s.v} onClick={() => setSortBy(s.v)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${sortBy === s.v ? 'bg-[#1E3A5F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {filterBienId && (
