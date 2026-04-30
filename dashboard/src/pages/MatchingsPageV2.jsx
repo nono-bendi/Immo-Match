@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -29,6 +29,8 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
   `
   document.head.appendChild(s)
 }
+
+const _24H_AGO = Date.now() - 24 * 60 * 60 * 1000
 
 // ─── Utils ─────────────────────────────────────────────────────────────────────
 const ini    = (n) => { if (!n) return '??'; const p = n.trim().split(' ').filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase() }
@@ -409,6 +411,7 @@ export default function MatchingsPageV2() {
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
+  const [filterNew, setFilterNew]       = useState(false)
   const [sortBy, setSortBy]             = useState('recent')   // par défaut : plus récents
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -498,6 +501,8 @@ export default function MatchingsPageV2() {
     try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
   }
 
+  const nbNew = useMemo(() => matchings.filter(m => m.date_analyse && new Date(m.date_analyse).getTime() > _24H_AGO).length, [matchings])
+
   const filtered = matchings.filter(m => {
     const s = search.toLowerCase()
     if (s && !m.prospect_nom?.toLowerCase().includes(s) && !m.bien_ville?.toLowerCase().includes(s)) return false
@@ -505,6 +510,7 @@ export default function MatchingsPageV2() {
     if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
     if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
     if (filterScore === 'low'       && m.score >= 50) return false
+    if (filterNew && !(m.date_analyse && new Date(m.date_analyse).getTime() > _24H_AGO)) return false
     if (filterBienId && m.bien_id !== filterBienId) return false
     return true
   })
@@ -560,6 +566,11 @@ export default function MatchingsPageV2() {
             className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
         </div>
         <div className="flex gap-1.5">
+          <button onClick={() => setFilterNew(v => !v)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterNew ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? '#fff' : '#10b981', display: 'inline-block', flexShrink: 0 }} />
+            Nouveaux {nbNew > 0 && <span className={`ml-0.5 ${filterNew ? 'text-white/80' : 'text-emerald-600'}`}>({nbNew})</span>}
+          </button>
           {[{ v: 'all', label: 'Tous' }, { v: 'excellent', label: '≥ 80' }, { v: 'tres_bon', label: '65–79' }, { v: 'potentiel', label: '50–64' }, { v: 'low', label: '< 50' }].map(f => (
             <button key={f.v} onClick={() => setFilterScore(f.v)}
               className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
