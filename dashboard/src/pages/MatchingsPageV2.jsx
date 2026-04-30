@@ -123,8 +123,10 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, dateAnalyse, selected, onClick, onOpenBien }) {
   const c = sC(score); const photo = fPhoto(photos)
+  const isNew = dateAnalyse && new Date(dateAnalyse).getTime() > _24H_AGO
+  const heureAnalyse = dateAnalyse ? new Date(dateAnalyse).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : null
   return (
     <div style={{ position: 'relative' }}>
       <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: '#fff', border: `1.5px solid ${selected ? c.c1 : '#edf1f7'}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : '0 1px 0 #e8eef5', cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
@@ -140,6 +142,12 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
             {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{pieces}p</span></>}
           </div>
+          {isNew && heureAnalyse && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', flexShrink: 0 }} />
+              <span style={{ fontSize: 10, color: '#10b981', fontWeight: 600 }}>Aujourd'hui à {heureAnalyse}</span>
+            </div>
+          )}
         </div>
       </button>
       {/* Bouton ouvrir modal bien */}
@@ -375,7 +383,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
             {sorted.slice(0, 4).map(m => (
-              <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
+              <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos} dateAnalyse={m.date_analyse}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
