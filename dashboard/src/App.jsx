@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AgencyProvider } from './contexts/AgencyContext'
@@ -6,18 +6,27 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
 import NewBienModal from './components/NewBienModal'
-import LoginPage from './pages/LoginPage'
-import DashboardPage from './pages/DashboardPage'
-import ClientsPage from './pages/ClientsPage'
-import BiensPage from './pages/BiensPage'
-import MatchingsPage from './pages/MatchingsPage'
-import MatchingsPageV2 from './pages/MatchingsPageV2'
-import HistoriquePage from './pages/HistoriquePage'
-import SettingsPage from './pages/SettingsPage'
-import AdministrationPage from './pages/AdministrationPage'
-import NewProspectPage from './pages/NewProspectPage'
-import CalibrationPage from './pages/CalibrationPage'
-import LandingPage from './pages/LandingPage'
+
+const LoginPage        = lazy(() => import('./pages/LoginPage'))
+const DashboardPage    = lazy(() => import('./pages/DashboardPage'))
+const ClientsPage      = lazy(() => import('./pages/ClientsPage'))
+const BiensPage        = lazy(() => import('./pages/BiensPage'))
+const MatchingsPage    = lazy(() => import('./pages/MatchingsPage'))
+const MatchingsPageV2  = lazy(() => import('./pages/MatchingsPageV2'))
+const HistoriquePage   = lazy(() => import('./pages/HistoriquePage'))
+const SettingsPage     = lazy(() => import('./pages/SettingsPage'))
+const AdministrationPage = lazy(() => import('./pages/AdministrationPage'))
+const NewProspectPage  = lazy(() => import('./pages/NewProspectPage'))
+const CalibrationPage  = lazy(() => import('./pages/CalibrationPage'))
+const LandingPage      = lazy(() => import('./pages/LandingPage'))
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-4 border-[#1E3A5F] border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+}
 
 function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
@@ -68,41 +77,45 @@ function AppRoutes() {
 
   return (
     <>
-      <Routes>
-        <Route path="/landing" element={<LandingPage />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/landing" element={<LandingPage />} />
 
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
 
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<DashboardPage />} />
-                  <Route path="/clients" element={<ClientsPage />} />
-                  <Route path="/clients/nouveau" element={<NewProspectPage />} />
-                  <Route path="/biens" element={<BiensPage />} />
-                  <Route path="/matchings" element={<MatchingsPageV2 />} />
-                  <Route path="/matchings-v1" element={<MatchingsPage />} />
-                  <Route path="/historique" element={<HistoriquePage />} />
-                  <Route path="/parametres" element={<SettingsPage />} />
-                  <Route path="/administration" element={<AdministrationPage />} />
-                  <Route path="/calibration" element={<CalibrationPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<DashboardPage />} />
+                      <Route path="/clients" element={<ClientsPage />} />
+                      <Route path="/clients/nouveau" element={<NewProspectPage />} />
+                      <Route path="/biens" element={<BiensPage />} />
+                      <Route path="/matchings" element={<MatchingsPageV2 />} />
+                      <Route path="/matchings-v1" element={<MatchingsPage />} />
+                      <Route path="/historique" element={<HistoriquePage />} />
+                      <Route path="/parametres" element={<SettingsPage />} />
+                      <Route path="/administration" element={<AdministrationPage />} />
+                      <Route path="/calibration" element={<CalibrationPage />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Suspense>
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
 
       <TutorialModal open={isAuthenticated && showTuto} onClose={closeTuto} />
       {newBienId && <NewBienModal bienId={newBienId} onClose={() => setNewBienId(null)} />}
