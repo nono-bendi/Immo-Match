@@ -462,7 +462,7 @@ function ClientsPage() {
       )}
 
       {/* Modal Détails */}
-      <ProspectModal prospect={selectedProspect} onClose={() => setSelectedProspect(null)} />
+      <ProspectModal prospect={selectedProspect} onClose={() => setSelectedProspect(null)} gradientFrom={selectedProspect ? avP(selectedProspect.nom)[0] : undefined} gradientTo={selectedProspect ? avP(selectedProspect.nom)[1] : undefined} />
 
       {/* Modal Édition */}
       {editingProspect && (
