@@ -410,6 +410,13 @@ export default function MatchingsPageV2() {
   const [searchParams] = useSearchParams()
   const filterBienId = searchParams.get('bien') ? parseInt(searchParams.get('bien')) : null
 
+  const BG = 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)'
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (main) { main.style.background = BG }
+    return () => { if (main) main.style.background = '' }
+  }, [])
+
   const [matchings, setMatchings]       = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
@@ -536,7 +543,7 @@ export default function MatchingsPageV2() {
   }, [matchings, search, filterScore, filterNew, filterBienId, sortBy])
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', background: 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)' }}>
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
