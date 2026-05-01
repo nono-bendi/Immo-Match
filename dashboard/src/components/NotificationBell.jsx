@@ -120,39 +120,45 @@ function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50">
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
-            <h3 className="font-semibold text-[#1E3A5F]">Notifications</h3>
+        <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 8, width: 320, background: '#1c1c1e', borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.4)', overflow: 'hidden', zIndex: 50 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 10px' }}>
+            <h3 style={{ fontWeight: 700, fontSize: 15, color: 'white', letterSpacing: '-0.2px' }}>Notifications</h3>
             {notifications.length > 0 && (
               <button
                 onClick={handleClear}
-                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#ff453a'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
               >
                 Tout effacer
               </button>
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
+          <div style={{ maxHeight: 340, overflowY: 'auto', padding: '0 8px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
             {notifications.length === 0 ? (
-              <div className="p-6 text-center text-gray-400">
-                <Bell size={32} className="mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Aucune notification</p>
+              <div style={{ padding: '28px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+                <Bell size={28} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.3 }} />
+                <p style={{ fontSize: 13 }}>Aucune notification</p>
               </div>
             ) : (
               notifications.map((notif) => (
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
-                  className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#353535', borderRadius: 16, padding: '10px 12px', cursor: 'pointer', transition: 'transform 0.25s ease', flexShrink: 0 }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <div className="p-2 rounded-lg bg-gray-100">
+                  <div style={{ width: 42, height: 42, borderRadius: 11, background: '#2c2c2e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {getIcon(notif.type)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-[#1E3A5F] truncate">{notif.title}</p>
-                    <p className="text-xs text-gray-500 truncate">{notif.message}</p>
-                    <p className="text-xs text-gray-400 mt-1">{formatTime(notif.created_at)}</p>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                      <p style={{ fontWeight: 600, fontSize: 13, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{notif.title}</p>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>{formatTime(notif.created_at)}</span>
+                    </div>
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>{notif.message}</p>
                   </div>
                 </div>
               ))
