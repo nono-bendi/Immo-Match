@@ -31,7 +31,7 @@ const STYLES = `
 .bot-float     { animation: float 3s ease-in-out infinite; }
 
 /* ── Uiverse card button ── */
-.ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-2rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
+.ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-4rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
 .ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;transition:transform .3s ease;}
 .ai-wrap:active{transform:translateX(-50%) translateY(-50%) scale(.95);}
 .ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:6rem;height:6rem;background:#dedfe0;border-radius:1.6rem;}
@@ -83,56 +83,6 @@ function StyleInjector() {
   return null
 }
 
-// ── Personnage mascotte SVG ───────────────────────────────────────────────────
-function BotFace({ size = 28, animated = false }) {
-  return (
-    <svg
-      width={size} height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={animated ? 'bot-float' : ''}
-    >
-      {/* Antenne */}
-      <line x1="20" y1="3" x2="20" y2="9" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="20" cy="2.5" r="2" fill="#a5f3fc" />
-
-      {/* Corps / tête arrondie */}
-      <rect x="7" y="9" width="26" height="22" rx="8" fill="white" fillOpacity=".95" />
-
-      {/* Oreilles / prises */}
-      <rect x="4" y="15" width="3.5" height="7" rx="1.5" fill="white" fillOpacity=".6" />
-      <rect x="32.5" y="15" width="3.5" height="7" rx="1.5" fill="white" fillOpacity=".6" />
-
-      {/* Yeux */}
-      <rect
-        className="bot-eye"
-        x="12.5" y="16" width="5" height="6" rx="2.5"
-        fill="#4f46e5"
-      />
-      <rect
-        className="bot-eye"
-        x="22.5" y="16" width="5" height="6" rx="2.5"
-        fill="#4f46e5"
-        style={{ animationDelay: '.15s' }}
-      />
-      {/* Reflets yeux */}
-      <circle cx="14" cy="17.5" r="1" fill="white" fillOpacity=".7" />
-      <circle cx="24" cy="17.5" r="1" fill="white" fillOpacity=".7" />
-
-      {/* Bouche souriante */}
-      <path
-        d="M14.5 26 Q20 30.5 25.5 26"
-        stroke="#4f46e5" strokeWidth="2" strokeLinecap="round"
-        fill="none"
-      />
-
-      {/* Petits points déco joues */}
-      <circle cx="11" cy="25" r="1.5" fill="#f9a8d4" fillOpacity=".7" />
-      <circle cx="29" cy="25" r="1.5" fill="#f9a8d4" fillOpacity=".7" />
-    </svg>
-  )
-}
 
 const HAPPY_PATH = "M8.28386 16.2843C8.9917 15.7665 9.8765 14.731 12 14.731C14.1235 14.731 15.0083 15.7665 15.7161 16.2843C17.8397 17.8376 18.7542 16.4845 18.9014 15.7665C19.4323 13.1777 17.6627 11.1066 17.3088 10.5888C16.3844 9.23666 14.1235 8 12 8C9.87648 8 7.61556 9.23666 6.69122 10.5888C6.33728 11.1066 4.56771 13.1777 5.09858 15.7665C5.24582 16.4845 6.16034 17.8376 8.28386 16.2843Z"
 
@@ -241,15 +191,24 @@ function Message({ msg, dark, onNavigate, biens }) {
         flexShrink: 0,
         width: 28, height: 28, borderRadius: '50%',
         background: isBot
-          ? 'linear-gradient(135deg,#4f46e5,#7c3aed)'
+          ? 'linear-gradient(135deg,#9147ff,#ec4899)'
           : dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: isBot ? '0 2px 8px rgba(99,102,241,.4)' : 'none',
+        boxShadow: isBot ? '0 2px 8px rgba(145,71,255,.35)' : 'none',
+        position: 'relative', overflow: 'hidden',
       }}>
-        {isBot
-          ? <BotFace size={22} />
-          : <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Vous</span>
-        }
+        {isBot ? (
+          <>
+            <div style={{ position: 'absolute', width: 20, height: 20, borderRadius: '50%', background: '#ec4899', filter: 'blur(8px)', top: -5, left: -5, opacity: .8 }} />
+            <div style={{ position: 'absolute', width: 20, height: 20, borderRadius: '50%', background: '#05e0f5', filter: 'blur(8px)', bottom: -5, right: -5, opacity: .8 }} />
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 4 }}>
+              <div style={{ width: 5, height: 10, background: 'white', borderRadius: 3 }} />
+              <div style={{ width: 5, height: 10, background: 'white', borderRadius: 3 }} />
+            </div>
+          </>
+        ) : (
+          <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Vous</span>
+        )}
       </div>
 
       {/* Bulle */}
@@ -397,18 +356,27 @@ export default function AgentChat() {
         >
           {/* ── Header ── */}
           <div style={{
-            background: 'linear-gradient(135deg,#4338ca,#6d28d9)',
+            background: 'linear-gradient(135deg,#9147ff 0%,#c93d8a 100%)',
             padding: '14px 16px',
             display: 'flex', alignItems: 'center', gap: 10,
+            position: 'relative', overflow: 'hidden',
           }}>
+            <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: '#ec4899', filter: 'blur(30px)', top: -30, left: 10, opacity: .4, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', background: '#05e0f5', filter: 'blur(25px)', bottom: -20, right: 50, opacity: .3, pointerEvents: 'none' }} />
             {/* Icône */}
             <div style={{
               width: 36, height: 36, borderRadius: 10,
               background: 'rgba(255,255,255,.15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,.2)',
+              border: '1px solid rgba(255,255,255,.25)',
+              position: 'relative', overflow: 'hidden', flexShrink: 0,
             }}>
-              <BotFace size={28} animated />
+              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#ec4899', filter: 'blur(10px)', top: -5, left: -5, opacity: .8 }} />
+              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#05e0f5', filter: 'blur(10px)', bottom: -5, right: -5, opacity: .8 }} />
+              <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 5 }}>
+                <div style={{ width: 7, height: 14, background: 'white', borderRadius: 4 }} />
+                <div style={{ width: 7, height: 14, background: 'white', borderRadius: 4 }} />
+              </div>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ color: 'white', fontWeight: 600, fontSize: 14 }}>Assistant IA</div>
@@ -477,7 +445,7 @@ export default function AgentChat() {
                   fontFamily: 'inherit',
                   opacity: loading ? .5 : 1,
                 }}
-                onFocus={e => e.target.style.borderColor = '#6366f1'}
+                onFocus={e => e.target.style.borderColor = '#9147ff'}
                 onBlur={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,.12)' : '#e2e8f0'}
               />
               <button
@@ -487,11 +455,11 @@ export default function AgentChat() {
                   flexShrink: 0, width: 36, height: 36, borderRadius: 10,
                   background: (!input.trim() || loading)
                     ? (dark ? 'rgba(255,255,255,.08)' : '#e2e8f0')
-                    : 'linear-gradient(135deg,#4f46e5,#7c3aed)',
+                    : 'linear-gradient(135deg,#9147ff,#ec4899)',
                   border: 'none', cursor: (!input.trim() || loading) ? 'not-allowed' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'background .2s',
-                  boxShadow: (!input.trim() || loading) ? 'none' : '0 2px 8px rgba(99,102,241,.4)',
+                  boxShadow: (!input.trim() || loading) ? 'none' : '0 2px 8px rgba(145,71,255,.35)',
                 }}
               >
                 {loading
