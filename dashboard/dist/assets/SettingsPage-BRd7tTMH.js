@@ -1,1 +1,0 @@
-import{j as t}from"./index-CkUD0oHJ.js";import{N as r}from"./vendor-react-D-oR_zYz.js";import"./vendor-icons-Cowr8jNy.js";function o(){return t.jsx(r,{to:"/administration",replace:!0})}export{o as default};

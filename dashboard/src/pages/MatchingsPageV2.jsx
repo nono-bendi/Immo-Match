@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -268,7 +268,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 }
 
 // ─── ProspectCard ──────────────────────────────────────────────────────────────
-function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen }) {
+const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen }) {
   const sorted = [...group.matchings].sort((a, b) => {
     const rA = a.statut_prospect === 'refused' ? 1 : 0
     const rB = b.statut_prospect === 'refused' ? 1 : 0
@@ -400,7 +400,7 @@ function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, a
       </div>
     </>
   )
-}
+})
 
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MatchingsPageV2() {
@@ -435,8 +435,8 @@ export default function MatchingsPageV2() {
 
   const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
-  const fetchData = () => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }
-  useEffect(() => { fetchData() }, [])
+  const fetchData = useCallback(() => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }, [])
+  useEffect(() => { fetchData() }, [fetchData])
 
   const runGlobal = async () => {
     cancelRef.current = false; setAnalyzing(true); setShowOverlay(true); setCurrentProspectIndex(0)
@@ -455,21 +455,22 @@ export default function MatchingsPageV2() {
     setAnalyzing(false)
   }
 
-  const runSingle = async (e, id, nom) => {
+  const runSingle = useCallback(async (e, id, nom) => {
     e.stopPropagation(); setAnalyzing(true); setShowOverlay(true); setOverlayCompleted(false)
     setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName(nom || '')
     try { const d = await apiFetch(`/matching/run/${id}`, { method: 'POST' }).then(r => r.json()); if (d.error) alert('Erreur: ' + d.error); else await fetchData() } catch { alert("Erreur lors de l'analyse") }
     setOverlayCompleted(true); setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
-  }
+  }, [fetchData])
 
-  const openEmail = (match, mail, nom) => {
+  const openEmail = useCallback((match, mail, nom) => {
     if (!mail) { setEmailModal({ isOpen: true, type: 'error', data: { error: "Pas d'email enregistré." }, isLoading: false }); return }
     const draft = sessionStorage.getItem(`emailDraft_${match.id}`)
     const init = draft ? JSON.parse(draft) : buildDefault(match)
     setEmailContent(init); setPendingEmail({ match, prospectMail: mail, prospectNom: nom })
     loadPreview(match, mail, nom, init)
     setEmailModal({ isOpen: true, type: 'confirm', data: { prospectNom: nom, prospectMail: mail, bienType: match.bien_type, bienVille: match.bien_ville, bienPrix: mon(match.bien_prix) }, isLoading: false })
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agency])
 
   const loadPreview = async (match, mail, nom, content) => {
     setPreviewLoading(true); setPreviewHtml(null)
@@ -499,40 +500,40 @@ export default function MatchingsPageV2() {
   useEffect(() => { if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail) sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent)) }, [emailContent])
   const closeEmail = () => { setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false }); setPendingEmail(null); setPreviewHtml(null) }
 
-  const handleRefuse = async (match) => {
+  const handleRefuse = useCallback(async (match) => {
     const refused = match.statut_prospect === 'refused'
     try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
-  }
+  }, [])
 
   const nbNew = useMemo(() => matchings.filter(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO).length, [matchings])
 
-  const filtered = matchings.filter(m => {
+  const { filtered, groups } = useMemo(() => {
     const s = search.toLowerCase()
-    if (s && !m.prospect_nom?.toLowerCase().includes(s) && !m.bien_ville?.toLowerCase().includes(s)) return false
-    if (filterScore === 'excellent' && m.score < 80) return false
-    if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
-    if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
-    if (filterScore === 'low'       && m.score >= 50) return false
-    if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
-    if (filterBienId && m.bien_id !== filterBienId) return false
-    return true
-  })
-
-  const grouped = filtered.reduce((acc, m) => {
-    if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
-    acc[m.prospect_id].matchings.push(m); return acc
-  }, {})
-
-  const groups = Object.values(grouped).sort((a, b) => {
-    if (sortBy === 'score') return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
-    if (sortBy === 'alpha') return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
-    // recent (défaut) — même minute → départage par meilleur score brut
-    const tA = Math.max(...a.matchings.map(m => new Date(m.date_creation || 0).getTime()))
-    const tB = Math.max(...b.matchings.map(m => new Date(m.date_creation || 0).getTime()))
-    const sameMinute = Math.abs(tB - tA) < 60000
-    if (!sameMinute) return tB - tA
-    return Math.max(...b.matchings.map(m => m.score)) - Math.max(...a.matchings.map(m => m.score))
-  })
+    const filtered = matchings.filter(m => {
+      if (s && !m.prospect_nom?.toLowerCase().includes(s) && !m.bien_ville?.toLowerCase().includes(s)) return false
+      if (filterScore === 'excellent' && m.score < 80) return false
+      if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
+      if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
+      if (filterScore === 'low'       && m.score >= 50) return false
+      if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
+      if (filterBienId && m.bien_id !== filterBienId) return false
+      return true
+    })
+    const grouped = filtered.reduce((acc, m) => {
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
+      acc[m.prospect_id].matchings.push(m); return acc
+    }, {})
+    const groups = Object.values(grouped).sort((a, b) => {
+      if (sortBy === 'score') return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
+      if (sortBy === 'alpha') return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
+      const tA = Math.max(...a.matchings.map(m => new Date(m.date_creation || 0).getTime()))
+      const tB = Math.max(...b.matchings.map(m => new Date(m.date_creation || 0).getTime()))
+      const sameMinute = Math.abs(tB - tA) < 60000
+      if (!sameMinute) return tB - tA
+      return Math.max(...b.matchings.map(m => m.score)) - Math.max(...a.matchings.map(m => m.score))
+    })
+    return { filtered, groups }
+  }, [matchings, search, filterScore, filterNew, filterBienId, sortBy])
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
@@ -626,7 +627,7 @@ export default function MatchingsPageV2() {
           {groups.map((g, idx) => (
             <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0}
               onRunSingle={runSingle}
-              onPropose={(m, mail, nom) => openEmail(m, mail, nom)}
+              onPropose={openEmail}
               onRefuse={handleRefuse}
               sendingEmail={sendingEmail}
               analyzing={analyzing}
