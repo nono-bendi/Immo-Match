@@ -32,11 +32,9 @@ const STYLES = `
 
 /* ── Uiverse card button ── */
 .ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-2rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
-.ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;padding:3px;transition:all .3s ease;}
-.ai-wrap:hover{padding:0;}
+.ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;transition:transform .3s ease;}
 .ai-wrap:active{transform:translateX(-50%) translateY(-50%) scale(.95);}
-.ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-55%);width:6rem;height:5.5rem;background:#dedfe0;border-radius:1.6rem;transition:all .3s ease;}
-.ai-wrap:hover::after{transform:translateX(-50%) translateY(-50%);height:6rem;}
+.ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:6rem;height:6rem;background:#dedfe0;border-radius:1.6rem;}
 .ai-card{width:6rem;height:6rem;transform-style:preserve-3d;will-change:transform;transition:all .6s ease;border-radius:1.6rem;display:flex;align-items:center;justify-content:center;transform:translateZ(25px);}
 .ai-card:hover{box-shadow:0 8px 30px rgba(0,0,60,.25),inset 0 0 8px rgba(255,255,255,.5);}
 .ai-balls-bg{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:100%;height:100%;z-index:-10;border-radius:1.6rem;transition:all .3s ease;background:rgba(255,255,255,.8);overflow:hidden;}
