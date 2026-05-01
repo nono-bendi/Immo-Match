@@ -26,6 +26,11 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes aurora2 { 0%,100%{transform:translate(0,0) scale(1)} 35%{transform:translate(-110px,55px) scale(1.09)} 65%{transform:translate(70px,-95px) scale(1.06)} }
     @keyframes aurora3 { 0%,100%{transform:translate(0,0) scale(1)} 45%{transform:translate(65px,80px) scale(0.90)} 75%{transform:translate(-90px,-45px) scale(1.14)} }
     @keyframes aurora4 { 0%,100%{transform:translate(0,0) scale(1)} 30%{transform:translate(-60px,-100px) scale(1.16)} 70%{transform:translate(100px,60px) scale(0.87)} }
+    .glass-sort-group{display:flex;position:relative;background:rgba(255,255,255,.65);border-radius:.85rem;backdrop-filter:blur(12px);box-shadow:inset 1px 1px 4px rgba(255,255,255,.9),inset -1px -1px 4px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(0,0,0,.07);flex-shrink:0;}
+    .glass-sort-btn{flex:1;min-width:68px;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
+    .glass-sort-btn:hover{color:#1e293b;}
+    .glass-sort-btn.active{color:#fff;}
+    .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
   `
   document.head.appendChild(s)
 }
@@ -593,13 +598,14 @@ export default function MatchingsPageV2() {
         </div>
 
         {/* Tri */}
-        <div className="flex items-center gap-1 flex-shrink-0 bg-white border border-gray-200 rounded-xl p-1">
+        <div className="glass-sort-group">
           {[{ v: 'recent', label: 'Récents' }, { v: 'score', label: 'Score' }, { v: 'alpha', label: 'A→Z' }].map(s => (
             <button key={s.v} onClick={() => setSortBy(s.v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${sortBy === s.v ? 'bg-[#1E3A5F] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
+              className={`glass-sort-btn${sortBy === s.v ? ' active' : ''}`}>
               {s.label}
             </button>
           ))}
+          <div className="glass-sort-glider" style={{ transform: `translateX(${['recent', 'score', 'alpha'].indexOf(sortBy) * 100}%)` }} />
         </div>
       </div>
 
