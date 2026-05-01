@@ -39,7 +39,7 @@ function NewBienModal({ bienId, onClose }) {
 
     apiFetch(`/matchings/by-bien/${bienId}`)
       .then(r => r.json())
-      .then(data => { setMatchings(Array.isArray(data) ? data.filter(m => m.score >= 70) : []); setLoadingMatchings(false) })
+      .then(data => { setMatchings(Array.isArray(data) ? data : []); setLoadingMatchings(false) })
       .catch(() => setLoadingMatchings(false))
   }, [bienId])
 
@@ -69,7 +69,7 @@ function NewBienModal({ bienId, onClose }) {
       } else {
         // Recharger les matchings
         const updated = await apiFetch(`/matchings/by-bien/${bienId}`).then(r => r.json())
-        setMatchings(Array.isArray(updated) ? updated.filter(m => m.score >= 70) : [])
+        setMatchings(Array.isArray(updated) ? updated : [])
         setAnalyseState('done')
       }
     } catch {
@@ -145,9 +145,7 @@ function NewBienModal({ bienId, onClose }) {
               </div>
             ) : matchings.length === 0 ? (
               <div className="p-3 bg-gray-50 rounded-xl text-sm text-gray-500">
-                {loadingMatchings
-                  ? <span className="flex items-center gap-2"><Loader2 size={15} className="animate-spin text-gray-400" />Analyse en cours...</span>
-                  : 'Aucun prospect avec un score ≥ 70 pour ce bien'}
+                Aucun prospect compatible avec ce bien
               </div>
             ) : (
               <div className="space-y-2">
