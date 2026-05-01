@@ -442,9 +442,9 @@ export default function MatchingsPageV2() {
   useEffect(() => {
     const main = document.querySelector('main')
     if (!main) return
-    main.style.background = 'linear-gradient(90deg, transparent 50px, #ffb4b8 50px, #ffb4b8 52px, transparent 52px), linear-gradient(#e1e1e1 0.1em, transparent 0.1em) #f1f1f1'
-    main.style.backgroundSize = '100% 30px'
-    return () => { main.style.background = ''; main.style.backgroundSize = '' }
+    main.style.backgroundColor = '#e5e5f7'
+    main.style.backgroundImage = 'repeating-radial-gradient(circle at 0 0, transparent 0, #e5e5f7 30px), repeating-linear-gradient(#ffb5b58a, #ffb8b8)'
+    return () => { main.style.backgroundColor = ''; main.style.backgroundImage = '' }
   }, [])
 
   const runGlobal = async () => {
