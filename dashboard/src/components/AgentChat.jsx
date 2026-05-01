@@ -24,35 +24,35 @@ const STYLES = `
   50%       { transform: translateY(-3px); }
 }
 @keyframes ai-rotate { from{transform:translateX(-50%) translateY(-50%) rotate(360deg)} to{transform:translateX(-50%) translateY(-50%) rotate(0)} }
-@keyframes ai-blink  { 46%{height:52px} 48%{height:20px} 50%{height:52px} 96%{height:52px} 98%{height:20px} 100%{height:52px} }
+@keyframes ai-blink  { 46%{height:26px} 48%{height:10px} 50%{height:26px} 96%{height:26px} 98%{height:10px} 100%{height:26px} }
 .agent-chat-in { animation: chat-in .22s cubic-bezier(.22,1,.36,1) both; }
 .agent-msg-in  { animation: msg-in .18s ease both; }
 .bot-eye       { animation: blink 4s ease-in-out infinite; transform-origin: center; }
 .bot-float     { animation: float 3s ease-in-out infinite; }
 
 /* ── Uiverse card button ── */
-.ai-tilt{--perspective:1000px;--ty:45px;position:absolute;inset:-2.5rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
-.ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;padding:4px;transition:all .3s ease;}
+.ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-2rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
+.ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;padding:3px;transition:all .3s ease;}
 .ai-wrap:hover{padding:0;}
 .ai-wrap:active{transform:translateX(-50%) translateY(-50%) scale(.95);}
-.ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-55%);width:12rem;height:11rem;background:#dedfe0;border-radius:3.2rem;transition:all .3s ease;}
-.ai-wrap:hover::after{transform:translateX(-50%) translateY(-50%);height:12rem;}
-.ai-card{width:12rem;height:12rem;transform-style:preserve-3d;will-change:transform;transition:all .6s ease;border-radius:3rem;display:flex;align-items:center;justify-content:center;transform:translateZ(50px);}
-.ai-card:hover{box-shadow:0 10px 40px rgba(0,0,60,.25),inset 0 0 10px rgba(255,255,255,.5);}
-.ai-balls-bg{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:100%;height:100%;z-index:-10;border-radius:3rem;transition:all .3s ease;background:rgba(255,255,255,.8);overflow:hidden;}
+.ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-55%);width:6rem;height:5.5rem;background:#dedfe0;border-radius:1.6rem;transition:all .3s ease;}
+.ai-wrap:hover::after{transform:translateX(-50%) translateY(-50%);height:6rem;}
+.ai-card{width:6rem;height:6rem;transform-style:preserve-3d;will-change:transform;transition:all .6s ease;border-radius:1.6rem;display:flex;align-items:center;justify-content:center;transform:translateZ(25px);}
+.ai-card:hover{box-shadow:0 8px 30px rgba(0,0,60,.25),inset 0 0 8px rgba(255,255,255,.5);}
+.ai-balls-bg{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:100%;height:100%;z-index:-10;border-radius:1.6rem;transition:all .3s ease;background:rgba(255,255,255,.8);overflow:hidden;}
 .ai-balls-ring{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);animation:ai-rotate 10s linear infinite;}
 .ai-wrap:hover .ai-balls-ring{animation-play-state:paused;}
-.ai-ball{width:6rem;height:6rem;position:absolute;border-radius:50%;filter:blur(30px);}
+.ai-ball{width:3rem;height:3rem;position:absolute;border-radius:50%;filter:blur(18px);}
 .ai-ball.rosa  {top:50%;left:0;transform:translateY(-50%);background:#ec4899;}
 .ai-ball.violet{top:0;left:50%;transform:translateX(-50%);background:#9147ff;}
 .ai-ball.green {bottom:0;left:50%;transform:translateX(-50%);background:#34d399;}
 .ai-ball.cyan  {top:50%;right:0;transform:translateY(-50%);background:#05e0f5;}
-.ai-face{width:12rem;height:12rem;display:flex;border-radius:3rem;overflow:hidden;}
+.ai-face{width:6rem;height:6rem;display:flex;border-radius:1.6rem;overflow:hidden;}
 .ai-face-inner{width:100%;height:100%;backdrop-filter:blur(50px);position:relative;}
-.ai-eyes{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:52px;gap:2rem;transition:all .3s ease;}
-.ai-eye{width:26px;height:52px;background:#fff;border-radius:16px;animation:ai-blink 10s infinite linear;}
-.ai-happy{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:none;align-items:center;justify-content:center;height:52px;color:#fff;}
-.ai-happy svg{width:60px;}
+.ai-eyes{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:26px;gap:1rem;transition:all .3s ease;}
+.ai-eye{width:13px;height:26px;background:#fff;border-radius:8px;animation:ai-blink 10s infinite linear;}
+.ai-happy{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:none;align-items:center;justify-content:center;height:26px;color:#fff;}
+.ai-happy svg{width:30px;}
 .ai-wrap:hover .ai-eye{display:none;}
 .ai-wrap:hover .ai-happy{display:flex;}
 .ai-area:nth-child(15):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(15deg) translateZ(var(--ty));}
@@ -347,7 +347,7 @@ export default function AgentChat() {
       <StyleInjector />
 
       {/* ── Bouton Uiverse card (apparence) ── */}
-      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50, width: '12rem', height: '12rem' }}>
+      <div style={{ position: 'fixed', bottom: 40, right: 40, zIndex: 50, width: '6rem', height: '6rem' }}>
         <div className="ai-tilt">
           {[...Array(15)].map((_, i) => <div key={i} className="ai-area" />)}
           <div className="ai-wrap" onClick={() => setOpen(o => !o)}>
@@ -387,7 +387,7 @@ export default function AgentChat() {
         <div
           className="agent-chat-in"
           style={{
-            position: 'fixed', bottom: 220, right: 24, zIndex: 50,
+            position: 'fixed', bottom: 160, right: 40, zIndex: 50,
             width: 360, height: 500,
             borderRadius: 20,
             background: dark ? '#0d1826' : '#f8fafc',
