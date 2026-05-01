@@ -26,13 +26,6 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes aurora2 { 0%,100%{transform:translate(0,0) scale(1)} 35%{transform:translate(-110px,55px) scale(1.09)} 65%{transform:translate(70px,-95px) scale(1.06)} }
     @keyframes aurora3 { 0%,100%{transform:translate(0,0) scale(1)} 45%{transform:translate(65px,80px) scale(0.90)} 75%{transform:translate(-90px,-45px) scale(1.14)} }
     @keyframes aurora4 { 0%,100%{transform:translate(0,0) scale(1)} 30%{transform:translate(-60px,-100px) scale(1.16)} 70%{transform:translate(100px,60px) scale(0.87)} }
-    @keyframes twinkle    { 0%{opacity:0.03} 100%{opacity:0.14} }
-    @keyframes windShift  { 0%,100%{background-position:0% 0%} 50%{background-position:100% 100%} }
-    @keyframes iceDrift   { 0%{background-position:0px 0px} 100%{background-position:80px 80px} }
-    .cosmic-element { position:absolute; inset:0; pointer-events:none; filter:url(#cosmic-texture); z-index:1; mix-blend-mode:lighten; }
-    .stars-layer    { position:absolute; inset:0; background-image:radial-gradient(#ffffff11 1px,transparent 1px),radial-gradient(#00ffe033 1px,transparent 1px); background-size:4px 4px; animation:twinkle 4s infinite alternate ease-in-out; opacity:0.05; }
-    .wind-wave      { position:absolute; inset:0; background:repeating-linear-gradient(45deg,rgba(255,255,255,0.015) 0px,rgba(0,255,255,0.03) 1px,transparent 3px); background-size:300% 300%; animation:windShift 10s ease-in-out infinite; }
-    .ice-crystal    { position:absolute; inset:0; background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cline x1='0' y1='0' x2='100' y2='100' stroke='%2300ffff' stroke-opacity='0.05'/%3E%3Cline x1='100' y1='0' x2='0' y2='100' stroke='%2300ffff' stroke-opacity='0.05'/%3E%3C/svg%3E"); background-size:80px 80px; animation:iceDrift 15s linear infinite; mix-blend-mode:screen; opacity:0.05; }
   `
   document.head.appendChild(s)
 }
@@ -449,9 +442,9 @@ export default function MatchingsPageV2() {
   useEffect(() => {
     const main = document.querySelector('main')
     if (!main) return
-    main.style.background = 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)'
-    main.style.backgroundAttachment = 'fixed'
-    return () => { main.style.background = ''; main.style.backgroundAttachment = '' }
+    main.style.background = 'linear-gradient(#000 1px, #0000 0), linear-gradient(90deg, #000, #0000, #000), linear-gradient(in oklch longer hue -2deg, #a00, #a00)'
+    main.style.backgroundSize = '100% 2px, 100% 100%, 100% 100%'
+    return () => { main.style.background = ''; main.style.backgroundSize = '' }
   }, [])
 
   const runGlobal = async () => {
@@ -553,22 +546,6 @@ export default function MatchingsPageV2() {
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
-
-      {/* SVG filter — défini hors du .cosmic-element pour éviter les conflits */}
-      <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
-        <defs>
-          <filter id="cosmic-texture">
-            <feTurbulence result="turb" numOctaves={3} baseFrequency="0.03" type="fractalNoise" />
-            <feColorMatrix result="colored" values="0 0 1 0 0.1  0 0.7 1 0 0.1  1 0 0.9 0 0.3  0 0 0 1 0" type="matrix" in="turb" />
-            <feBlend mode="screen" in2="colored" in="SourceGraphic" />
-          </filter>
-        </defs>
-      </svg>
-      <div className="cosmic-element">
-        <span className="stars-layer" />
-        <span className="wind-wave" />
-        <span className="ice-crystal" />
-      </div>
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
