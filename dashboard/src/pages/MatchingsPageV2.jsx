@@ -439,13 +439,6 @@ export default function MatchingsPageV2() {
   const fetchData = useCallback(() => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }, [])
   useEffect(() => { fetchData() }, [fetchData])
 
-  useEffect(() => {
-    const main = document.querySelector('main')
-    if (!main) return
-    main.style.backgroundColor = '#e5e5f7'
-    main.style.backgroundImage = 'repeating-radial-gradient(circle at 0 0, transparent 0, #e5e5f7 30px), repeating-linear-gradient(#ffb5b58a, #ffb8b8)'
-    return () => { main.style.backgroundColor = ''; main.style.backgroundImage = '' }
-  }, [])
 
   const runGlobal = async () => {
     cancelRef.current = false; setAnalyzing(true); setShowOverlay(true); setCurrentProspectIndex(0)
