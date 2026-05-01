@@ -442,8 +442,16 @@ export default function MatchingsPageV2() {
   useEffect(() => {
     const main = document.querySelector('main')
     if (!main) return
-    main.style.background = 'linear-gradient(#000 1px, #0000 0), linear-gradient(90deg, #000, #0000, #000), linear-gradient(in oklch longer hue -2deg, #a00, #a00)'
-    main.style.backgroundSize = '100% 2px, 100% 100%, 100% 100%'
+    main.style.background = [
+      'conic-gradient(from 0deg at calc(500%/6) calc(100%/3), #999 0 120deg, #0000 0)',
+      'conic-gradient(from -120deg at calc(100%/6) calc(100%/3), #cdcbcc 0 120deg, #0000 0)',
+      'conic-gradient(from 120deg at calc(100%/3) calc(500%/6), #f2f2f2 0 120deg, #0000 0)',
+      'conic-gradient(from 120deg at calc(200%/3) calc(500%/6), #f2f2f2 0 120deg, #0000 0)',
+      'conic-gradient(from -180deg at calc(100%/3) 50%, #cdcbcc 60deg, #f2f2f2 0 120deg, #0000 0)',
+      'conic-gradient(from 60deg at calc(200%/3) 50%, #f2f2f2 60deg, #999 0 120deg, #0000 0)',
+      'conic-gradient(from -60deg at 50% calc(100%/3), #f2f2f2 120deg, #cdcbcc 0 240deg, #999 0)',
+    ].join(', ')
+    main.style.backgroundSize = 'calc(84px * 1.732) 84px'
     return () => { main.style.background = ''; main.style.backgroundSize = '' }
   }, [])
 
