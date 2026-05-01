@@ -86,6 +86,33 @@ function StyleInjector() {
 
 const HAPPY_PATH = "M8.28386 16.2843C8.9917 15.7665 9.8765 14.731 12 14.731C14.1235 14.731 15.0083 15.7665 15.7161 16.2843C17.8397 17.8376 18.7542 16.4845 18.9014 15.7665C19.4323 13.1777 17.6627 11.1066 17.3088 10.5888C16.3844 9.23666 14.1235 8 12 8C9.87648 8 7.61556 9.23666 6.69122 10.5888C6.33728 11.1066 4.56771 13.1777 5.09858 15.7665C5.24582 16.4845 6.16034 17.8376 8.28386 16.2843Z"
 
+// ── Miniature exacte de la face Uiverse (même CSS, transform scale) ───────────
+function MiniFace({ size = 28 }) {
+  const scale = size / 96
+  return (
+    <div style={{ width: size, height: size, borderRadius: size <= 30 ? '50%' : 10, overflow: 'hidden', position: 'relative', flexShrink: 0, boxShadow: '0 2px 8px rgba(145,71,255,.2)' }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6rem', height: '6rem', borderRadius: '1.6rem', transform: `translate(-50%,-50%) scale(${scale.toFixed(3)})`, transformOrigin: 'center' }}>
+        <div className="ai-balls-bg">
+          <div className="ai-balls-ring">
+            <span className="ai-ball rosa" />
+            <span className="ai-ball violet" />
+            <span className="ai-ball green" />
+            <span className="ai-ball cyan" />
+          </div>
+        </div>
+        <div className="ai-face">
+          <div className="ai-face-inner">
+            <div className="ai-eyes">
+              <span className="ai-eye" />
+              <span className="ai-eye" style={{ animationDelay: '.3s' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Mini-carte bien ───────────────────────────────────────────────────────────
 function BienCard({ line, dark, onNavigate, biens }) {
   const [hovered, setHovered] = useState(false)
@@ -187,26 +214,16 @@ function Message({ msg, dark, onNavigate, biens }) {
   return (
     <div className={`agent-msg-in flex gap-2 ${isBot ? '' : 'flex-row-reverse'}`}>
       {/* Avatar */}
-      <div style={{
-        flexShrink: 0,
-        width: 28, height: 28, borderRadius: '50%',
-        background: isBot
-          ? 'linear-gradient(135deg,#ede9fe,#fce7f3)'
-          : dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: isBot ? '0 2px 8px rgba(167,139,250,.25)' : 'none',
-        border: isBot ? '1px solid rgba(167,139,250,.2)' : 'none',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {isBot ? (
-          <div style={{ display: 'flex', gap: 3, position: 'relative', zIndex: 1 }}>
-            <svg fill="none" viewBox="0 0 24 24" width={11} height={11}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
-            <svg fill="none" viewBox="0 0 24 24" width={11} height={11}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
-          </div>
-        ) : (
+      {isBot ? <MiniFace size={28} /> : (
+        <div style={{
+          flexShrink: 0,
+          width: 28, height: 28, borderRadius: '50%',
+          background: dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Vous</span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Bulle */}
       <div style={{
@@ -362,20 +379,7 @@ export default function AgentChat() {
             <div style={{ position: 'absolute', width: 110, height: 110, borderRadius: '50%', background: '#c084fc', filter: 'blur(50px)', top: -50, left: -15, opacity: .18, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', width: 90, height: 90, borderRadius: '50%', background: '#f9a8d4', filter: 'blur(45px)', bottom: -35, right: 15, opacity: .18, pointerEvents: 'none' }} />
             {/* Icône */}
-            <div style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'rgba(167,139,250,.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid rgba(167,139,250,.18)',
-              position: 'relative', overflow: 'hidden', flexShrink: 0,
-            }}>
-              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#c084fc', filter: 'blur(10px)', top: -5, left: -5, opacity: .45 }} />
-              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#f9a8d4', filter: 'blur(10px)', bottom: -5, right: -5, opacity: .45 }} />
-              <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 3 }}>
-                <svg fill="none" viewBox="0 0 24 24" width={13} height={13}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
-                <svg fill="none" viewBox="0 0 24 24" width={13} height={13}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
-              </div>
-            </div>
+            <MiniFace size={36} />
             <div style={{ flex: 1 }}>
               <div style={{ color: '#5b21b6', fontWeight: 700, fontSize: 14 }}>Assistant IA</div>
               <div style={{ color: '#7c3aed', fontSize: 11, opacity: .65 }}>
