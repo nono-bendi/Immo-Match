@@ -439,6 +439,14 @@ export default function MatchingsPageV2() {
   const fetchData = useCallback(() => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }, [])
   useEffect(() => { fetchData() }, [fetchData])
 
+  useEffect(() => {
+    const main = document.querySelector('main')
+    if (!main) return
+    main.style.background = 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)'
+    main.style.backgroundAttachment = 'fixed'
+    return () => { main.style.background = ''; main.style.backgroundAttachment = '' }
+  }, [])
+
   const runGlobal = async () => {
     cancelRef.current = false; setAnalyzing(true); setShowOverlay(true); setCurrentProspectIndex(0)
     try {
@@ -537,7 +545,7 @@ export default function MatchingsPageV2() {
   }, [matchings, search, filterScore, filterNew, filterBienId, sortBy])
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative', background: 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)', backgroundAttachment: 'fixed' }}>
+    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
