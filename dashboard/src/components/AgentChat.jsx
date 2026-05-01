@@ -7,18 +7,6 @@ import { apiFetch } from '../api'
 
 // ── Animations CSS injectées une seule fois ───────────────────────────────────
 const STYLES = `
-@keyframes wave-spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes wave-spin-rev {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(-360deg); }
-}
-@keyframes pulse-ring {
-  0%, 100% { opacity: .55; transform: scale(1); }
-  50%       { opacity: .9;  transform: scale(1.08); }
-}
 @keyframes chat-in {
   0%   { opacity: 0; transform: translateY(18px) scale(.96); }
   100% { opacity: 1; transform: translateY(0)   scale(1); }
@@ -35,10 +23,53 @@ const STYLES = `
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(-3px); }
 }
-.agent-chat-in   { animation: chat-in .22s cubic-bezier(.22,1,.36,1) both; }
-.agent-msg-in    { animation: msg-in .18s ease both; }
-.bot-eye         { animation: blink 4s ease-in-out infinite; transform-origin: center; }
-.bot-float       { animation: float 3s ease-in-out infinite; }
+@keyframes ai-rotate { from{transform:translateX(-50%) translateY(-50%) rotate(360deg)} to{transform:translateX(-50%) translateY(-50%) rotate(0)} }
+@keyframes ai-blink  { 46%{height:52px} 48%{height:20px} 50%{height:52px} 96%{height:52px} 98%{height:20px} 100%{height:52px} }
+.agent-chat-in { animation: chat-in .22s cubic-bezier(.22,1,.36,1) both; }
+.agent-msg-in  { animation: msg-in .18s ease both; }
+.bot-eye       { animation: blink 4s ease-in-out infinite; transform-origin: center; }
+.bot-float     { animation: float 3s ease-in-out infinite; }
+
+/* ── Uiverse card button ── */
+.ai-tilt{--perspective:1000px;--ty:45px;position:absolute;inset:-2.5rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
+.ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;padding:4px;transition:all .3s ease;}
+.ai-wrap:hover{padding:0;}
+.ai-wrap:active{transform:translateX(-50%) translateY(-50%) scale(.95);}
+.ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-55%);width:12rem;height:11rem;background:#dedfe0;border-radius:3.2rem;transition:all .3s ease;}
+.ai-wrap:hover::after{transform:translateX(-50%) translateY(-50%);height:12rem;}
+.ai-card{width:12rem;height:12rem;transform-style:preserve-3d;will-change:transform;transition:all .6s ease;border-radius:3rem;display:flex;align-items:center;justify-content:center;transform:translateZ(50px);}
+.ai-card:hover{box-shadow:0 10px 40px rgba(0,0,60,.25),inset 0 0 10px rgba(255,255,255,.5);}
+.ai-balls-bg{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:100%;height:100%;z-index:-10;border-radius:3rem;transition:all .3s ease;background:rgba(255,255,255,.8);overflow:hidden;}
+.ai-balls-ring{position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);animation:ai-rotate 10s linear infinite;}
+.ai-wrap:hover .ai-balls-ring{animation-play-state:paused;}
+.ai-ball{width:6rem;height:6rem;position:absolute;border-radius:50%;filter:blur(30px);}
+.ai-ball.rosa  {top:50%;left:0;transform:translateY(-50%);background:#ec4899;}
+.ai-ball.violet{top:0;left:50%;transform:translateX(-50%);background:#9147ff;}
+.ai-ball.green {bottom:0;left:50%;transform:translateX(-50%);background:#34d399;}
+.ai-ball.cyan  {top:50%;right:0;transform:translateY(-50%);background:#05e0f5;}
+.ai-face{width:12rem;height:12rem;display:flex;border-radius:3rem;overflow:hidden;}
+.ai-face-inner{width:100%;height:100%;backdrop-filter:blur(50px);position:relative;}
+.ai-eyes{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;height:52px;gap:2rem;transition:all .3s ease;}
+.ai-eye{width:26px;height:52px;background:#fff;border-radius:16px;animation:ai-blink 10s infinite linear;}
+.ai-happy{position:absolute;left:50%;bottom:50%;transform:translateX(-50%);display:none;align-items:center;justify-content:center;height:52px;color:#fff;}
+.ai-happy svg{width:60px;}
+.ai-wrap:hover .ai-eye{display:none;}
+.ai-wrap:hover .ai-happy{display:flex;}
+.ai-area:nth-child(15):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(15deg) translateZ(var(--ty));}
+.ai-area:nth-child(14):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(7deg) translateZ(var(--ty));}
+.ai-area:nth-child(13):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(0) translateZ(var(--ty));}
+.ai-area:nth-child(12):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(-7deg) translateZ(var(--ty));}
+.ai-area:nth-child(11):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(-15deg) rotateY(-15deg) translateZ(var(--ty));}
+.ai-area:nth-child(10):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(0) rotateY(15deg) translateZ(var(--ty));}
+.ai-area:nth-child(9):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(0) rotateY(7deg) translateZ(var(--ty));}
+.ai-area:nth-child(8):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(0) rotateY(0) translateZ(var(--ty));}
+.ai-area:nth-child(7):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(0) rotateY(-7deg) translateZ(var(--ty));}
+.ai-area:nth-child(6):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(0) rotateY(-15deg) translateZ(var(--ty));}
+.ai-area:nth-child(5):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(15deg) translateZ(var(--ty));}
+.ai-area:nth-child(4):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(7deg) translateZ(var(--ty));}
+.ai-area:nth-child(3):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(0) translateZ(var(--ty));}
+.ai-area:nth-child(2):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(-7deg) translateZ(var(--ty));}
+.ai-area:nth-child(1):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(-15deg) translateZ(var(--ty));}
 `
 
 function StyleInjector() {
@@ -105,71 +136,7 @@ function BotFace({ size = 28, animated = false }) {
   )
 }
 
-// ── Bouton flottant avec effet wave ───────────────────────────────────────────
-function WaveButton({ open, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      title="Assistant IA"
-      style={{
-        position: 'fixed', bottom: 24, right: 24, zIndex: 50,
-        width: 56, height: 56,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-        outline: 'none',
-      }}
-    >
-      {/* Anneau wave tournant — couche 1 */}
-      <span
-        aria-hidden
-        style={{
-          position: 'absolute', inset: -4,
-          borderRadius: '50%',
-          background: 'conic-gradient(from 0deg, #6366f1, #8b5cf6, #06b6d4, #10b981, #6366f1)',
-          animation: 'wave-spin 3s linear infinite, pulse-ring 2.4s ease-in-out infinite',
-          filter: 'blur(1px)',
-        }}
-      />
-      {/* Anneau wave tournant — couche 2 contrerotation */}
-      <span
-        aria-hidden
-        style={{
-          position: 'absolute', inset: -2,
-          borderRadius: '50%',
-          background: 'conic-gradient(from 180deg, #818cf8 0%, transparent 40%, #22d3ee 60%, transparent 80%, #818cf8 100%)',
-          animation: 'wave-spin-rev 4s linear infinite',
-          opacity: .6,
-        }}
-      />
-      {/* Fond principal */}
-      <span
-        style={{
-          position: 'relative', zIndex: 1,
-          width: 52, height: 52,
-          borderRadius: '50%',
-          background: open
-            ? 'linear-gradient(135deg,#1e1b4b,#312e81)'
-            : 'linear-gradient(135deg,#4f46e5,#7c3aed)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'background .3s',
-          boxShadow: '0 4px 20px rgba(99,102,241,.45)',
-        }}
-      >
-        {open ? <X size={20} color="white" /> : <BotFace size={34} />}
-      </span>
-      {/* Point vert online */}
-      {!open && (
-        <span style={{
-          position: 'absolute', top: 2, right: 2, zIndex: 2,
-          width: 11, height: 11, borderRadius: '50%',
-          background: '#34d399',
-          border: '2px solid white',
-          boxShadow: '0 0 6px rgba(52,211,153,.7)',
-        }} />
-      )}
-    </button>
-  )
-}
+const HAPPY_PATH = "M8.28386 16.2843C8.9917 15.7665 9.8765 14.731 12 14.731C14.1235 14.731 15.0083 15.7665 15.7161 16.2843C17.8397 17.8376 18.7542 16.4845 18.9014 15.7665C19.4323 13.1777 17.6627 11.1066 17.3088 10.5888C16.3844 9.23666 14.1235 8 12 8C9.87648 8 7.61556 9.23666 6.69122 10.5888C6.33728 11.1066 4.56771 13.1777 5.09858 15.7665C5.24582 16.4845 6.16034 17.8376 8.28386 16.2843Z"
 
 // ── Mini-carte bien ───────────────────────────────────────────────────────────
 function BienCard({ line, dark, onNavigate, biens }) {
@@ -378,13 +345,49 @@ export default function AgentChat() {
   return (
     <>
       <StyleInjector />
-      <WaveButton open={open} onClick={() => setOpen(o => !o)} />
+
+      {/* ── Bouton Uiverse card (apparence) ── */}
+      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50, width: '12rem', height: '12rem' }}>
+        <div className="ai-tilt">
+          {[...Array(15)].map((_, i) => <div key={i} className="ai-area" />)}
+          <div className="ai-wrap" onClick={() => setOpen(o => !o)}>
+            <div className="ai-card">
+              <div className="ai-balls-bg">
+                <div className="ai-balls-ring">
+                  <span className="ai-ball rosa" />
+                  <span className="ai-ball violet" />
+                  <span className="ai-ball green" />
+                  <span className="ai-ball cyan" />
+                </div>
+              </div>
+              <div className="ai-face">
+                <div className="ai-face-inner">
+                  {open ? (
+                    <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', color: 'white', fontSize: 32, lineHeight: 1, userSelect: 'none' }}>✕</div>
+                  ) : (
+                    <>
+                      <div className="ai-eyes">
+                        <span className="ai-eye" />
+                        <span className="ai-eye" style={{ animationDelay: '.3s' }} />
+                      </div>
+                      <div className="ai-happy">
+                        <svg fill="none" viewBox="0 0 24 24"><path fill="currentColor" d={HAPPY_PATH} /></svg>
+                        <svg fill="none" viewBox="0 0 24 24"><path fill="currentColor" d={HAPPY_PATH} /></svg>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {open && (
         <div
           className="agent-chat-in"
           style={{
-            position: 'fixed', bottom: 96, right: 24, zIndex: 50,
+            position: 'fixed', bottom: 220, right: 24, zIndex: 50,
             width: 360, height: 500,
             borderRadius: 20,
             background: dark ? '#0d1826' : '#f8fafc',
