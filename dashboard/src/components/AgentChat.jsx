@@ -191,21 +191,18 @@ function Message({ msg, dark, onNavigate, biens }) {
         flexShrink: 0,
         width: 28, height: 28, borderRadius: '50%',
         background: isBot
-          ? 'linear-gradient(135deg,#9147ff,#ec4899)'
+          ? 'linear-gradient(135deg,#ede9fe,#fce7f3)'
           : dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: isBot ? '0 2px 8px rgba(145,71,255,.35)' : 'none',
+        boxShadow: isBot ? '0 2px 8px rgba(167,139,250,.25)' : 'none',
+        border: isBot ? '1px solid rgba(167,139,250,.2)' : 'none',
         position: 'relative', overflow: 'hidden',
       }}>
         {isBot ? (
-          <>
-            <div style={{ position: 'absolute', width: 20, height: 20, borderRadius: '50%', background: '#ec4899', filter: 'blur(8px)', top: -5, left: -5, opacity: .8 }} />
-            <div style={{ position: 'absolute', width: 20, height: 20, borderRadius: '50%', background: '#05e0f5', filter: 'blur(8px)', bottom: -5, right: -5, opacity: .8 }} />
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 4 }}>
-              <div style={{ width: 5, height: 10, background: 'white', borderRadius: 3 }} />
-              <div style={{ width: 5, height: 10, background: 'white', borderRadius: 3 }} />
-            </div>
-          </>
+          <div style={{ display: 'flex', gap: 3, position: 'relative', zIndex: 1 }}>
+            <svg fill="none" viewBox="0 0 24 24" width={11} height={11}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
+            <svg fill="none" viewBox="0 0 24 24" width={11} height={11}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
+          </div>
         ) : (
           <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Vous</span>
         )}
@@ -356,31 +353,32 @@ export default function AgentChat() {
         >
           {/* ── Header ── */}
           <div style={{
-            background: 'linear-gradient(135deg,#9147ff 0%,#c93d8a 100%)',
+            background: 'linear-gradient(135deg,#f3e8ff 0%,#fce7f3 100%)',
             padding: '14px 16px',
             display: 'flex', alignItems: 'center', gap: 10,
             position: 'relative', overflow: 'hidden',
+            borderBottom: '1px solid rgba(167,139,250,.12)',
           }}>
-            <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: '#ec4899', filter: 'blur(30px)', top: -30, left: 10, opacity: .4, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', width: 60, height: 60, borderRadius: '50%', background: '#05e0f5', filter: 'blur(25px)', bottom: -20, right: 50, opacity: .3, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', width: 110, height: 110, borderRadius: '50%', background: '#c084fc', filter: 'blur(50px)', top: -50, left: -15, opacity: .18, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', width: 90, height: 90, borderRadius: '50%', background: '#f9a8d4', filter: 'blur(45px)', bottom: -35, right: 15, opacity: .18, pointerEvents: 'none' }} />
             {/* Icône */}
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: 'rgba(255,255,255,.15)',
+              background: 'rgba(167,139,250,.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,.25)',
+              border: '1px solid rgba(167,139,250,.18)',
               position: 'relative', overflow: 'hidden', flexShrink: 0,
             }}>
-              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#ec4899', filter: 'blur(10px)', top: -5, left: -5, opacity: .8 }} />
-              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#05e0f5', filter: 'blur(10px)', bottom: -5, right: -5, opacity: .8 }} />
-              <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 5 }}>
-                <div style={{ width: 7, height: 14, background: 'white', borderRadius: 4 }} />
-                <div style={{ width: 7, height: 14, background: 'white', borderRadius: 4 }} />
+              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#c084fc', filter: 'blur(10px)', top: -5, left: -5, opacity: .45 }} />
+              <div style={{ position: 'absolute', width: 24, height: 24, borderRadius: '50%', background: '#f9a8d4', filter: 'blur(10px)', bottom: -5, right: -5, opacity: .45 }} />
+              <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: 3 }}>
+                <svg fill="none" viewBox="0 0 24 24" width={13} height={13}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
+                <svg fill="none" viewBox="0 0 24 24" width={13} height={13}><path fill="#7c3aed" d={HAPPY_PATH} /></svg>
               </div>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ color: 'white', fontWeight: 600, fontSize: 14 }}>Assistant IA</div>
-              <div style={{ color: 'rgba(255,255,255,.65)', fontSize: 11 }}>
+              <div style={{ color: '#5b21b6', fontWeight: 700, fontSize: 14 }}>Assistant IA</div>
+              <div style={{ color: '#7c3aed', fontSize: 11, opacity: .65 }}>
                 {agency?.nom_court || 'ImmoFlash'}
               </div>
             </div>
@@ -389,9 +387,9 @@ export default function AgentChat() {
               <span style={{
                 width: 7, height: 7, borderRadius: '50%',
                 background: '#34d399',
-                boxShadow: '0 0 5px rgba(52,211,153,.8)',
+                boxShadow: '0 0 5px rgba(52,211,153,.6)',
               }} />
-              <span style={{ color: 'rgba(255,255,255,.55)', fontSize: 11 }}>En ligne</span>
+              <span style={{ color: '#7c3aed', fontSize: 11, opacity: .6 }}>En ligne</span>
             </div>
           </div>
 
