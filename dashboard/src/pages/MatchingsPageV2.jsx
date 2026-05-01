@@ -537,6 +537,7 @@ export default function MatchingsPageV2() {
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
+      <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: 'radial-gradient(125% 125% at 50% 10%, #fff 40%, #63e 100%)', zIndex: 0, pointerEvents: 'none' }} />
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
