@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
 
@@ -16,6 +16,10 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-glass-bien
     .glass-sort-btn:hover{color:#1e293b;}
     .glass-sort-btn.active{color:#fff;}
     .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
+    .biens-filter-btn{white-space:nowrap;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
+    .biens-filter-btn:hover{color:#1e293b;}
+    .biens-filter-btn.active{color:#fff;}
+    .biens-filter-glider{position:absolute;top:0;bottom:0;border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:left .5s cubic-bezier(.37,1.95,.66,.56),width .3s ease;}
   `
   document.head.appendChild(s)
 }
@@ -59,7 +63,23 @@ function BiensPage() {
   const [editError, setEditError] = useState("")
   const [sortConfig, setSortConfig] = useState({ field: null, direction: 'asc' })
   const [showVendus, setShowVendus] = useState(false)
+  const [gliderStyle, setGliderStyle] = useState({ left: 0, width: 0 })
+  const filterGroupRef = useRef(null)
   const itemsPerPage = 10
+
+  const filterOpts = [
+    { key: 'tous', label: 'Tous' },
+    { key: 'moi', label: agency?.nom_court || nomFiltre },
+    { key: 'partenaires', label: 'Partenaires' },
+  ]
+
+  useEffect(() => {
+    if (!filterGroupRef.current) return
+    const idx = filterOpts.findIndex(o => o.key === filterAgence)
+    const btns = filterGroupRef.current.querySelectorAll('.biens-filter-btn')
+    const btn = btns[idx]
+    if (btn) setGliderStyle({ left: btn.offsetLeft, width: btn.offsetWidth })
+  }, [filterAgence, agency])
 
   const handleSort = (field) => {
     setSortConfig(prev =>
@@ -325,21 +345,17 @@ function BiensPage() {
         <div className="flex items-center gap-4">
 
           {hasPrimmo && (
-            <div className="glass-sort-group">
-              {[
-                { key: 'tous', label: 'Tous' },
-                { key: 'moi', label: agency?.nom_court || nomFiltre },
-                { key: 'partenaires', label: 'Partenaires' }
-              ].map(opt => (
+            <div className="glass-sort-group" ref={filterGroupRef}>
+              {filterOpts.map(opt => (
                 <button
                   key={opt.key}
                   onClick={() => setFilterAgence(opt.key)}
-                  className={`glass-sort-btn${filterAgence === opt.key ? ' active' : ''}`}
+                  className={`biens-filter-btn${filterAgence === opt.key ? ' active' : ''}`}
                 >
                   {opt.label}
                 </button>
               ))}
-              <div className="glass-sort-glider" style={{ transform: `translateX(${['tous', 'moi', 'partenaires'].indexOf(filterAgence) * 100}%)` }} />
+              <div className="biens-filter-glider" style={{ left: gliderStyle.left, width: gliderStyle.width }} />
             </div>
           )}
 
