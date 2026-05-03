@@ -78,8 +78,8 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
       `}</style>
 
       <header
-        className="hdr-wrap sticky top-0 z-40 flex items-center justify-between bg-white border-b border-[#e8eef5] px-4 md:px-9"
-        style={{ height: 64, boxShadow: '0 1px 0 #e8eef5, 0 4px 24px rgba(30,58,95,0.04)' }}
+        className="hdr-wrap sticky top-0 z-40 flex items-center justify-between border-b border-white/60 px-4 md:px-9"
+        style={{ height: 64, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)', boxShadow: '0 1px 0 rgba(255,255,255,0.6), 0 4px 24px rgba(14,165,233,0.05)' }}
       >
 
         {/* ── Gauche : hamburger (mobile) + titre ── */}
@@ -97,7 +97,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           {Icon && (
             <div
               className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-[13px] items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)', boxShadow: '0 4px 14px rgba(30,58,95,0.22)' }}
+              style={{ background: 'linear-gradient(135deg, #0f2d4a 0%, #0ea5e9 100%)', boxShadow: '0 4px 14px rgba(14,165,233,0.25)' }}
             >
               <Icon size={19} color="white" strokeWidth={2} />
             </div>

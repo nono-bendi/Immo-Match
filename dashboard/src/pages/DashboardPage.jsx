@@ -53,13 +53,11 @@ function ChartTooltip({ active, payload }) {
 function KpiCard({ icon: Icon, label, value, custom, badge, barPct, iconColor, iconBg, delay, onClick, valueColor }) {
   return (
     <div
-      className="kpi-card-wrap"
+      className="kpi-card-wrap kpi-card-glass"
       onClick={onClick}
       style={{
-        background: '#fff',
         borderRadius: 18,
         padding: '22px 22px 18px',
-        border: '1px solid #edf1f7',
         borderTop: `3px solid ${iconColor}`,
         cursor: 'pointer',
         opacity: 0,

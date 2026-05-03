@@ -26,25 +26,25 @@
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
 /* ── Layout racine ─────────────────────────────────────── */
-.dark .min-h-screen.bg-gray-100 {
+.dark .layout-root {
   background-color: #080f1a !important;
   position: relative;
 }
 
 /* Grille de points ultra-subtile */
-.dark .min-h-screen.bg-gray-100::before {
+.dark .layout-root::before {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
-/* Blob ambiance (comme le modal) */
-.dark .min-h-screen.bg-gray-100::after {
+/* Blob ambiance */
+.dark .layout-root::after {
   content: '';
   position: fixed; z-index: 0; pointer-events: none;
   width: 700px; height: 700px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(30,90,160,0.15) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 65%);
   top: -200px; left: -80px;
   animation: blobDrift 22s ease-in-out infinite;
 }
@@ -53,8 +53,6 @@
   40%     { transform: translate(60px,-40px); }
   70%     { transform: translate(-20px,50px); }
 }
-
-.dark .min-h-screen.bg-gray-100 > * { position: relative; z-index: 1; }
 
 /* ── SIDEBAR ───────────────────────────────────────────── */
 .dark aside {
@@ -87,14 +85,14 @@
   color: rgba(255,255,255,0.8) !important;
 }
 
-/* Item ACTIF — blanc sur fond semi-transparent (comme le modal) */
-.dark aside a.bg-white {
+/* Item ACTIF — glass + accent cyan (sidebar Elevated) */
+.dark aside a.bg-white\/10 {
   background: rgba(255,255,255,0.08) !important;
   color: #f1f5f9 !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
   box-shadow: inset 3px 0 0 #38bdf8 !important;
 }
-.dark aside a.bg-white svg { color: #38bdf8 !important; }
+.dark aside a.bg-white\/10 svg { color: #38bdf8 !important; }
 
 /* Item actif Paramètres */
 .dark aside a.bg-white\/10 {
@@ -313,6 +311,78 @@
 }
 
 /* ============================================================
+   ELEVATED — PALETTE CYAN / INDIGO / NAVY (MODE CLAIR)
+   Surfaces glass sur fond waves, accents cyan.
+   ============================================================ */
+
+/* ── Glass surfaces ─────────────────────────────────────── */
+.bg-white.rounded-xl,
+.bg-white.rounded-2xl,
+.bg-white.rounded-3xl {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-color: rgba(255,255,255,0.9) !important;
+}
+.bg-gray-50.rounded-xl,
+.bg-gray-50.rounded-2xl {
+  background: rgba(248,250,252,0.72) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.bg-\[\#F5F8FC\].rounded-xl,
+.bg-\[\#F5F8FC\].rounded-2xl {
+  background: rgba(245,248,252,0.72) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Boutons primaires ────────────────────────────────── */
+/* Lueur cyan subtile + hover plus foncé cyan */
+.bg-\[\#1E3A5F\]:not(.dark *) {
+  box-shadow: 0 4px 14px rgba(14,165,233,0.18) !important;
+}
+.hover\:bg-\[\#2D5A8A\]:hover {
+  background: #0284c7 !important;
+}
+
+/* ── Bordures accent ──────────────────────────────────── */
+/* Sélection / focus → cyan au lieu de navy */
+.border-\[\#1E3A5F\]:not(.dark *) {
+  border-color: #0ea5e9 !important;
+}
+.text-\[\#1E3A5F\]:not(button, [class*="btn"], .dark *) {
+  color: #0f2d4a;
+}
+
+/* ── Panel Recommandation (#DCE7F3) → cyan glass ─────── */
+.bg-\[\#DCE7F3\]:not(.dark *) {
+  background: rgba(186,230,253,0.38) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: rgba(14,165,233,0.18) !important;
+}
+.hover\:bg-\[\#c5d9ed\]:hover:not(.dark *) {
+  background: rgba(186,230,253,0.55) !important;
+}
+
+/* ── KPI card — glass en light mode ──────────────────── */
+/* (inline style background:#fff → overridé par .kpi-card-glass) */
+.kpi-card-glass {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  border-color: rgba(255,255,255,0.9) !important;
+}
+
+/* ── Guide button hover — cyan ────────────────────────── */
+.hdr-guide:hover {
+  color: #0284c7 !important;
+  border-color: #0ea5e9 !important;
+  background: rgba(14,165,233,0.06) !important;
+}
+
+/* ============================================================
    TOGGLE THEME
    ============================================================ */
 .theme-toggle {
@@ -446,7 +516,7 @@
 .btn-send span{display:block;transition:all 0.3s ease-in-out;white-space:nowrap}
 .btn-send .svg-wrapper{display:flex;align-items:center;justify-content:center;transition:all 0.3s ease-in-out}
 .btn-send svg{display:block;transform-origin:center;transition:transform 0.3s ease-in-out;width:14px;height:14px}
-.btn-send:hover{background:#2D5A8A}
+.btn-send:hover{background:#0284c7}
 .btn-send:hover .svg-wrapper{animation:fly-1 0.6s ease-in-out infinite alternate}
 .btn-send:hover svg{transform:rotate(45deg) scale(1.3)}
 .btn-send:hover span{opacity:0;position:absolute}
@@ -1500,7 +1570,7 @@
 }
 .kpi-card-wrap:hover {
   transform: translateY(-3px) !important;
-  box-shadow: 0 8px 28px rgba(30,58,95,0.09) !important;
+  box-shadow: 0 8px 28px rgba(14,165,233,0.12) !important;
 }
 /* Fond de l'icône passe à iconColor au hover de la CARTE */
 .kpi-card-wrap:hover .kpi-icon-wrap {

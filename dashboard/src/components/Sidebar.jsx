@@ -65,9 +65,10 @@ function Sidebar({ isOpen, onClose }) {
                   onClick={onClose}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white text-[#1E3A5F] shadow-lg shadow-black/10 font-semibold"
-                      : "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200"
+                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 text-white font-semibold"
+                      : "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:bg-white/8 hover:text-white/90 transition-all duration-200"
                   }
+                  style={({ isActive }) => isActive ? { boxShadow: 'inset 3px 0 0 #38bdf8' } : {}}
                 >
                   {({ isActive }) => (
                     <>
@@ -99,7 +100,7 @@ function Sidebar({ isOpen, onClose }) {
         </NavLink>
 
         <div className="flex items-center gap-3 px-3 py-3 mt-3 bg-white/5 rounded-xl">
-          <div className="w-9 h-9 bg-[#2D5A8A] rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%)' }}>
             {getInitials(user?.nom)}
           </div>
           <div className="flex-1 min-w-0">
