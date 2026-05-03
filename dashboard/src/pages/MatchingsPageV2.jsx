@@ -26,6 +26,9 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes aurora2 { 0%,100%{transform:translate(0,0) scale(1)} 35%{transform:translate(-110px,55px) scale(1.09)} 65%{transform:translate(70px,-95px) scale(1.06)} }
     @keyframes aurora3 { 0%,100%{transform:translate(0,0) scale(1)} 45%{transform:translate(65px,80px) scale(0.90)} 75%{transform:translate(-90px,-45px) scale(1.14)} }
     @keyframes aurora4 { 0%,100%{transform:translate(0,0) scale(1)} 30%{transform:translate(-60px,-100px) scale(1.16)} 70%{transform:translate(100px,60px) scale(0.87)} }
+    @keyframes star-float { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-7px) rotate(10deg)} }
+    @keyframes star-drift { 0%,100%{transform:translateY(0) rotate(0deg) scale(1)} 40%{transform:translateY(-5px) rotate(-14deg) scale(1.12)} 80%{transform:translateY(3px) rotate(7deg) scale(.93)} }
+    @keyframes star-pulse { 0%,100%{opacity:.35;transform:scale(1) rotate(0deg)} 50%{opacity:.6;transform:scale(1.15) rotate(-20deg)} }
     .glass-sort-group{display:flex;position:relative;background:rgba(255,255,255,.65);border-radius:.85rem;backdrop-filter:blur(12px);box-shadow:inset 1px 1px 4px rgba(255,255,255,.9),inset -1px -1px 4px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(0,0,0,.07);flex-shrink:0;}
     .glass-sort-btn{flex:1;min-width:68px;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
     .glass-sort-btn:hover{color:#1e293b;}
@@ -623,7 +626,20 @@ export default function MatchingsPageV2() {
         </div>
       ) : groups.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
-          <div style={{ fontSize: 48, marginBottom: 12 }}>✨</div>
+          <div style={{ position: 'relative', width: 96, height: 86, margin: '0 auto 20px' }}>
+            {/* Étoile principale */}
+            <svg viewBox="0 0 100 100" width={62} height={62} style={{ color: '#1E3A5F', position: 'absolute', left: 17, top: 8, animation: 'star-float 3.2s ease-in-out infinite', filter: 'drop-shadow(0 4px 10px rgba(30,58,95,.18))' }}>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="currentColor"/>
+            </svg>
+            {/* Étoile secondaire haut-droite */}
+            <svg viewBox="0 0 100 100" width={29} height={29} style={{ color: '#2D5A8A', opacity: .65, position: 'absolute', right: 0, top: 0, animation: 'star-drift 4.1s ease-in-out infinite' }}>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="currentColor"/>
+            </svg>
+            {/* Petite étoile bas-gauche */}
+            <svg viewBox="0 0 100 100" width={17} height={17} style={{ color: '#1E3A5F', position: 'absolute', left: 0, bottom: 0, animation: 'star-pulse 2.6s ease-in-out infinite', animationDelay: '.9s' }}>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="currentColor"/>
+            </svg>
+          </div>
           <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
           <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
           <button onClick={runGlobal} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl inline-flex items-center gap-2">
