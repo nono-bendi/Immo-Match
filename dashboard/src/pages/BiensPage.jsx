@@ -79,7 +79,7 @@ function BiensPage() {
     const btns = filterGroupRef.current.querySelectorAll('.biens-filter-btn')
     const btn = btns[idx]
     if (btn) setGliderStyle({ left: btn.offsetLeft, width: btn.offsetWidth })
-  }, [filterAgence, agency])
+  }, [filterAgence, agency, biens.length])
 
   const handleSort = (field) => {
     setSortConfig(prev =>
