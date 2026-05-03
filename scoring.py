@@ -361,6 +361,18 @@ CRITÈRES DEMANDÉS ABSENTS — PÉNALISATION CIBLÉE :
 - Stationnement demandé, absent partout → -4 à -7 pts
 - Cumul de 3 absences confirmées → score plafonné à 15/40 maximum
 
+STATIONNEMENT — RÈGLE SPÉCIFIQUE (erreur fréquente à éviter) :
+- Le stationnement peut être DANS le bien (box, garage, place privative) OU À PROXIMITÉ (parking public, parking avec abonnement, parking en face, navette, etc.)
+- Si la description mentionne une solution de stationnement — même externe, même payante, même à quelques mètres — c'est un stationnement disponible → PAS DE PÉNALITÉ.
+- Exemples qui satisfont le critère : "parking à proximité", "parking avec ou sans abonnement", "parking public à 50m", "possibilité de stationnement rue", "parking en face".
+- Ne mentionne PAS "absence de parking" dans points_attention si la description indique une solution à proximité.
+- Ne pénalise que si : aucun parking dans le bien ET aucune solution mentionnée dans la description (ni dans le bien, ni à proximité).
+
+EXTÉRIEUR — RÈGLE SPÉCIFIQUE :
+- Compte comme extérieur : balcon, terrasse, loggia, jardin, patio, cour, toit-terrasse.
+- "Accès jardin commun", "jardin partagé", "espaces verts de la résidence" sont des extérieurs partiels → pénalité réduite (-3 à -5 pts max) si le prospect demande un extérieur privatif.
+- Ne pénalise que si : ni données structurées ni description ne mentionnent aucune forme d'extérieur.
+
 ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 - SURFACE ET PRIX : une grande surface ou un prix élevé ne sont PAS des qualités en soi — évalue l'adéquation avec le besoin du prospect, pas la valeur absolue du bien. Un studio parfait pour un pied-à-terre mérite 35+ même si petit.
 - DPE : utilise une échelle linéaire stricte — A/B = excellent (+), C = correct (neutre), D = attention (-), E/F/G = pénalité significative (--). Ne permets jamais qu'un DPE E score mieux qu'un DPE D pour le même profil.
