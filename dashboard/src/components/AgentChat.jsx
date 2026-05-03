@@ -31,7 +31,7 @@ const STYLES = `
 .bot-float     { animation: float 3s ease-in-out infinite; }
 
 /* ── Uiverse card button ── */
-.ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-4rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
+.ai-tilt{--perspective:1000px;--ty:25px;position:absolute;inset:-7rem;display:grid;grid-template-columns:repeat(5,1fr);transform-style:preserve-3d;}
 .ai-wrap{display:flex;align-items:center;justify-content:center;position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);z-index:9;transform-style:preserve-3d;cursor:pointer;transition:transform .3s ease;}
 .ai-wrap:active{transform:translateX(-50%) translateY(-50%) scale(.95);}
 .ai-wrap::after{content:"";position:absolute;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);width:6rem;height:6rem;background:#dedfe0;border-radius:1.6rem;}
@@ -378,8 +378,6 @@ export default function AgentChat() {
           }}>
             <div style={{ position: 'absolute', width: 110, height: 110, borderRadius: '50%', background: '#c084fc', filter: 'blur(50px)', top: -50, left: -15, opacity: .18, pointerEvents: 'none' }} />
             <div style={{ position: 'absolute', width: 90, height: 90, borderRadius: '50%', background: '#f9a8d4', filter: 'blur(45px)', bottom: -35, right: 15, opacity: .18, pointerEvents: 'none' }} />
-            {/* Icône */}
-            <MiniFace size={36} />
             <div style={{ flex: 1 }}>
               <div style={{ color: '#5b21b6', fontWeight: 700, fontSize: 14 }}>Assistant IA</div>
               <div style={{ color: '#7c3aed', fontSize: 11, opacity: .65 }}>
