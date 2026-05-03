@@ -281,32 +281,35 @@ function BiensPage() {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#1E3A5F]">Biens</h1>
-          <p className="text-sm text-gray-400">
-            {biens.filter(b => b.statut !== 'vendu').length} actifs
-            {biens.some(b => b.statut === 'vendu') && (
-              <button
-                onClick={() => { setShowVendus(v => !v); setCurrentPage(1) }}
-                className={`ml-1 transition-colors ${showVendus ? 'text-red-500 font-medium' : 'text-red-300 hover:text-red-400'}`}
-              >
-                · {biens.filter(b => b.statut === 'vendu').length} vendu{biens.filter(b => b.statut === 'vendu').length > 1 ? 's' : ''}
-              </button>
-            )}
-          </p>
-        </div>
+        <div className="flex items-center gap-6">
+          <div>
+            <h1 className="text-2xl font-bold text-[#1E3A5F]">Biens</h1>
+            <p className="text-sm text-gray-400">
+              {biens.filter(b => b.statut !== 'vendu').length} actifs
+              {biens.some(b => b.statut === 'vendu') && (
+                <button
+                  onClick={() => { setShowVendus(v => !v); setCurrentPage(1) }}
+                  className={`ml-1 transition-colors ${showVendus ? 'text-red-500 font-medium' : 'text-red-300 hover:text-red-400'}`}
+                >
+                  · {biens.filter(b => b.statut === 'vendu').length} vendu{biens.filter(b => b.statut === 'vendu').length > 1 ? 's' : ''}
+                </button>
+              )}
+            </p>
+          </div>
 
-        <div className="flex items-center gap-4">
           <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#2D5A8A]" />
             <input
               type="text"
               placeholder="Rechercher un bien..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl w-80 focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
             />
           </div>
+        </div>
+
+        <div className="flex items-center gap-4">
 
           {hasPrimmo && (
             <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
