@@ -7,6 +7,19 @@ import { useAgency } from '../contexts/AgencyContext'
 import Pagination from '../components/Pagination'
 import BienModal from '../components/BienModal'
 
+if (typeof document !== 'undefined' && !document.getElementById('immo-glass-biens')) {
+  const s = document.createElement('style')
+  s.id = 'immo-glass-biens'
+  s.textContent = `
+    .glass-sort-group{display:flex;position:relative;background:rgba(255,255,255,.65);border-radius:.85rem;backdrop-filter:blur(12px);box-shadow:inset 1px 1px 4px rgba(255,255,255,.9),inset -1px -1px 4px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(0,0,0,.07);flex-shrink:0;}
+    .glass-sort-btn{flex:1;min-width:68px;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
+    .glass-sort-btn:hover{color:#1e293b;}
+    .glass-sort-btn.active{color:#fff;}
+    .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
+  `
+  document.head.appendChild(s)
+}
+
 // Skeleton pour le chargement
 function SkeletonRow() {
   return (
@@ -312,7 +325,7 @@ function BiensPage() {
         <div className="flex items-center gap-4">
 
           {hasPrimmo && (
-            <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
+            <div className="glass-sort-group">
               {[
                 { key: 'tous', label: 'Tous' },
                 { key: 'moi', label: agency?.nom_court || nomFiltre },
@@ -321,15 +334,12 @@ function BiensPage() {
                 <button
                   key={opt.key}
                   onClick={() => setFilterAgence(opt.key)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    filterAgence === opt.key
-                      ? 'bg-[#1E3A5F] text-white shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`glass-sort-btn${filterAgence === opt.key ? ' active' : ''}`}
                 >
                   {opt.label}
                 </button>
               ))}
+              <div className="glass-sort-glider" style={{ transform: `translateX(${['tous', 'moi', 'partenaires'].indexOf(filterAgence) * 100}%)` }} />
             </div>
           )}
 
