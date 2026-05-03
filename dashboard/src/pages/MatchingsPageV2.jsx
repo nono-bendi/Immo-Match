@@ -74,14 +74,7 @@ const POSTIT_PAL = [
   { bg: 'linear-gradient(160deg,#fce7f3,#fbcfe8)', text: '#831843', tape: 'rgba(255,255,255,0.55)', header: '#9d174d' },
   { bg: 'linear-gradient(160deg,#ffedd5,#fed7aa)', text: '#7c2d12', tape: 'rgba(255,255,255,0.5)',  header: '#9a3412' },
 ]
-const POSTIT_PAL_DARK = [
-  { bg: 'linear-gradient(160deg,rgba(120,83,0,0.28),rgba(92,64,0,0.22))',   text: '#fde68a', tape: 'rgba(255,255,255,0.12)', header: '#fbbf24' },
-  { bg: 'linear-gradient(160deg,rgba(30,58,138,0.32),rgba(37,99,235,0.22))',text: '#93c5fd', tape: 'rgba(255,255,255,0.12)', header: '#60a5fa' },
-  { bg: 'linear-gradient(160deg,rgba(20,83,45,0.32),rgba(22,163,74,0.22))', text: '#86efac', tape: 'rgba(255,255,255,0.12)', header: '#4ade80' },
-  { bg: 'linear-gradient(160deg,rgba(131,24,67,0.32),rgba(190,24,93,0.22))',text: '#f9a8d4', tape: 'rgba(255,255,255,0.12)', header: '#ec4899' },
-  { bg: 'linear-gradient(160deg,rgba(124,45,18,0.32),rgba(194,65,12,0.22))',text: '#fdba74', tape: 'rgba(255,255,255,0.12)', header: '#fb923c' },
-]
-const postitPal = (id, dark) => (dark ? POSTIT_PAL_DARK : POSTIT_PAL)[(id || 0) % POSTIT_PAL.length]
+const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
 // ─── AuroraBackground — ShaderGradient-like, position:fixed → visible au scroll
 function AuroraBackground() {
@@ -173,11 +166,10 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
 
 // ─── RecoPostit — variantes de couleur ─────────────────────────────────────────
 function RecoPostit({ text, paletteIdx = 0 }) {
-  const { dark } = useTheme()
-  const p = postitPal(paletteIdx, dark)
+  const p = postitPal(paletteIdx)
   return (
-    <div style={{ background: p.bg, borderRadius: 4, padding: '18px 20px 22px', transform: 'rotate(-1deg)', boxShadow: dark ? '0 10px 28px rgba(0,0,0,0.5),0 1px 0 rgba(255,255,255,0.06) inset' : '0 10px 28px rgba(0,0,0,0.30),0 1px 0 rgba(255,255,255,0.4) inset', position: 'relative', alignSelf: 'flex-start', width: '100%' }}>
-      <div style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%) rotate(2deg)', width: 58, height: 15, background: p.tape, border: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}`, borderRadius: 2 }} />
+    <div style={{ background: p.bg, borderRadius: 4, padding: '18px 20px 22px', transform: 'rotate(-1deg)', boxShadow: '0 10px 28px rgba(0,0,0,0.30),0 1px 0 rgba(255,255,255,0.4) inset', position: 'relative', alignSelf: 'flex-start', width: '100%' }}>
+      <div style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%) rotate(2deg)', width: 58, height: 15, background: p.tape, border: '1px solid rgba(0,0,0,0.04)', borderRadius: 2 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
         <span style={{ fontSize: 15 }}>📝</span>
         <span style={{ fontSize: 10, fontWeight: 700, color: p.header, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Recommandation</span>
@@ -314,7 +306,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   const _sep  = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'
   const _tx   = dark ? '#7dd3fc' : '#1E3A5F'
   const _sub  = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
-  const _mid  = dark ? 'linear-gradient(180deg,#0a1520 0%,#080f1a 100%)' : 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)'
+  const _mid  = dark ? '#0f1e30' : 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)'
   const _dot  = dark ? 'rgba(30,58,95,0.15)' : 'rgba(30,58,95,0.05)'
   const _brief = dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)'
   const _btn  = dark ? 'rgba(255,255,255,0.06)' : '#fbfcfe'
