@@ -9,6 +9,7 @@ import ProspectModal from '../components/ProspectModal'
 import BienModal from '../components/BienModal'
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 // ─── CSS keyframes ─────────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
@@ -133,27 +134,31 @@ function ScoreRing({ score, size = 140 }) {
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
 function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien }) {
   const c = sC(score); const photo = fPhoto(photos)
+  const { dark } = useTheme()
+  const _bg  = dark ? '#0f1e30' : '#fff'
+  const _bd  = dark ? 'rgba(255,255,255,0.07)' : '#edf1f7'
+  const _ico = dark ? 'rgba(255,255,255,0.06)' : '#f8fafc'
+  const _tx  = dark ? '#7dd3fc' : '#1E3A5F'
+  const _sub = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: '#fff', border: `1.5px solid ${selected ? c.c1 : '#edf1f7'}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : '0 1px 0 #e8eef5', cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
-        {/* Photo / fallback */}
-        <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,#e2e8f0 0 4px,#edf1f7 4px 8px)` }}>
+      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
+        <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
           {photo && <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
           <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: '#1E3A5F', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
-            {surface && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{surface}m²</span></>}
-            {pieces  && <><span style={{ fontSize: 10, color: '#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: '#64748b' }}>{pieces}p</span></>}
+            <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
+            {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
+            {pieces  && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{pieces}p</span></>}
           </div>
         </div>
       </button>
-      {/* Bouton ouvrir modal bien */}
-      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: '#f8fafc', border: '1px solid #edf1f7', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
-        onMouseEnter={e => { e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.borderColor='#bfdbfe' }}
-        onMouseLeave={e => { e.currentTarget.style.background='#f8fafc'; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor='#edf1f7' }}
+      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+        onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(125,211,252,0.12)':'#eff6ff'; e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+        onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
       ><ExternalLink size={12} /></button>
     </div>
   )
@@ -182,9 +187,16 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
   const refused = match.statut_prospect === 'refused'
   const [refHover, setRefHover] = useState(false)
   const [sendHover, setSendHover] = useState(false)
+  const { dark } = useTheme()
+  const _bar    = dark ? '#080f1a' : '#fbfcfe'
+  const _barBd  = dark ? 'rgba(255,255,255,0.05)' : '#f1f5f9'
+  const _sepBd  = dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'
+  const refBg   = refHover || refused ? (dark ? 'rgba(220,38,38,0.15)' : '#fef2f2') : (dark ? 'rgba(255,255,255,0.05)' : '#fff')
+  const refCl   = refHover || refused ? '#dc2626' : (dark ? 'rgba(255,255,255,0.4)' : '#94a3b8')
+  const refBd   = refHover || refused ? (dark ? 'rgba(220,38,38,0.3)' : '#fecaca') : (dark ? 'rgba(255,255,255,0.08)' : '#e8eef5')
 
   return (
-    <div style={{ borderTop: '1px solid #e5e7eb' }}>
+    <div style={{ borderTop: `1px solid ${_sepBd}` }}>
       <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'linear-gradient(135deg,#0f1e30 0%,#1E3A5F 50%,#2D5A8A 100%)', padding: '28px 30px' }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle,rgba(96,165,250,0.22) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle,rgba(167,139,250,0.18) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
@@ -241,21 +253,21 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
       </div>
 
       {/* Action bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 24px', background: '#fbfcfe', borderTop: '1px solid #f1f5f9' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 24px', background: _bar, borderTop: `1px solid ${_barBd}` }}>
         {match.date_email_envoye && (
-          <span style={{ fontSize: 12, fontWeight: 600, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '4px 12px' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, background: dark ? 'rgba(22,163,74,0.12)' : '#f0fdf4', color: '#16a34a', border: `1px solid ${dark ? 'rgba(22,163,74,0.25)' : '#bbf7d0'}`, borderRadius: 9999, padding: '4px 12px' }}>
             ✓ Proposé le {dt(match.date_email_envoye)}
           </span>
         )}
         {refused && (
-          <span style={{ fontSize: 12, fontWeight: 600, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: 9999, padding: '4px 12px' }}>Non intéressé</span>
+          <span style={{ fontSize: 12, fontWeight: 600, background: dark ? 'rgba(220,38,38,0.12)' : '#fef2f2', color: '#dc2626', border: `1px solid ${dark ? 'rgba(220,38,38,0.25)' : '#fecaca'}`, borderRadius: 9999, padding: '4px 12px' }}>Non intéressé</span>
         )}
 
         <button
           onClick={onRefuse}
           onMouseEnter={() => setRefHover(true)}
           onMouseLeave={() => setRefHover(false)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 10, background: refHover ? '#fef2f2' : (refused ? '#fef2f2' : '#fff'), color: refHover ? '#dc2626' : (refused ? '#dc2626' : '#94a3b8'), border: `1px solid ${refHover ? '#fecaca' : (refused ? '#fecaca' : '#e8eef5')}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 16px', borderRadius: 10, background: refBg, color: refCl, border: `1px solid ${refBd}`, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.18s' }}>
           <XCircle size={14} />{refused ? 'Annuler refus' : 'Refuser'}
         </button>
 
@@ -288,6 +300,17 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   const [bienModal, setBienModal] = useState(null)          // bien object pour la BienModal
   const sel = selId ? sorted.find(m => m.id === selId) || best : null
   const [a, b] = avP(group.prospect_nom)
+  const { dark } = useTheme()
+  const _bg   = dark ? '#0f1e30' : '#fff'
+  const _bd   = dark ? 'rgba(255,255,255,0.07)' : '#edf1f7'
+  const _sep  = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'
+  const _tx   = dark ? '#7dd3fc' : '#1E3A5F'
+  const _sub  = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
+  const _mid  = dark ? 'linear-gradient(180deg,#0a1520 0%,#080f1a 100%)' : 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)'
+  const _dot  = dark ? 'rgba(30,58,95,0.15)' : 'rgba(30,58,95,0.05)'
+  const _brief = dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)'
+  const _btn  = dark ? 'rgba(255,255,255,0.06)' : '#fbfcfe'
+  const _btnBd = dark ? 'rgba(255,255,255,0.08)' : '#e8eef5'
 
   const zones    = [...new Set(sorted.map(m => m.bien_ville).filter(Boolean))].slice(0, 2).join(', ') || '—'
   const lastNew  = sorted.find(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)
@@ -317,14 +340,14 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
       )}
       {bienModal && <BienModal bien={bienModal} onClose={() => setBienModal(null)} />}
 
-      <div style={{ background: '#fff', borderRadius: 20, border: '1px solid #edf1f7', boxShadow: '0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s ease,transform 0.2s ease' }}
-        onMouseEnter={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 16px 44px rgba(30,58,95,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
-        onMouseLeave={e => { e.currentTarget.style.boxShadow='0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
+      <div style={{ background: _bg, borderRadius: 20, border: `1px solid ${_bd}`, boxShadow: dark ? '0 1px 0 rgba(255,255,255,0.05),0 8px 32px rgba(0,0,0,0.3)' : '0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s ease,transform 0.2s ease' }}
+        onMouseEnter={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.07),0 16px 44px rgba(0,0,0,0.4)':'0 1px 0 #e8eef5,0 16px 44px rgba(30,58,95,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
+        onMouseLeave={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.05),0 8px 32px rgba(0,0,0,0.3)':'0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 210px 1.2fr', minHeight: 250 }}>
 
           {/* ── GAUCHE — PCBriefGlow ── */}
-          <div style={{ padding: '28px', borderRight: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ padding: '28px', borderRight: `1px solid ${_sep}`, display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: -60, left: -50, width: 200, height: 200, borderRadius: '50%', background: `radial-gradient(circle at 30% 30%,${a}24 0%,transparent 70%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
 
             {/* Avatar + nom */}
@@ -336,8 +359,8 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 </div>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#1E3A5F', letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
-                <div style={{ fontSize: 13, color: '#64748b', marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
+                <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
                   <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
                   {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
@@ -348,16 +371,16 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
             {/* Brief box — cliquable → modal prospect */}
             <button
               onClick={openProspectModal}
-              style={{ position: 'relative', padding: '14px 16px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', borderRadius: 13, border: '1px solid #edf1f7', cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'all 0.18s ease' }}
-              onMouseEnter={e => { e.currentTarget.style.background='#f0f4ff'; e.currentTarget.style.borderColor='#bfdbfe' }}
-              onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.8)'; e.currentTarget.style.borderColor='#edf1f7' }}
+              style={{ position: 'relative', padding: '14px 16px', background: _brief, backdropFilter: 'blur(4px)', borderRadius: 13, border: `1px solid ${_bd}`, cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'all 0.18s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(255,255,255,0.1)':'#f0f4ff'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+              onMouseLeave={e => { e.currentTarget.style.background=_brief; e.currentTarget.style.borderColor=_bd }}
             >
               <div style={{ position: 'absolute', top: 11, left: -1, width: 3, height: 'calc(100% - 22px)', background: `linear-gradient(to bottom,${a},${b})`, borderRadius: 9999 }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
                 <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Cherche</div>
                 <span style={{ fontSize: 11, color: '#94a3b8' }}>›</span>
               </div>
-              <div style={{ fontSize: 15, color: '#1E3A5F', lineHeight: 1.4, fontWeight: 500 }}>
+              <div style={{ fontSize: 15, color: _tx, lineHeight: 1.4, fontWeight: 500 }}>
                 <span style={{ fontWeight: 700 }}>{mainType}</span>
                 {zones !== '—' && <> à <span style={{ fontWeight: 700 }}>{zones}</span></>}
               </div>
@@ -367,19 +390,19 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
               <div>
                 <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>Budget</div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#1E3A5F', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.prospect_budget)}</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: _tx, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.prospect_budget)}</div>
               </div>
               <button onClick={e => onRunSingle(e, group.prospect_id, group.prospect_nom)} disabled={analyzing} title="Relancer l'analyse"
-                style={{ width: 34, height: 34, borderRadius: 11, border: '1px solid #e8eef5', background: '#fbfcfe', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.background='#eff6ff'; e.currentTarget.style.borderColor='#bfdbfe' }}
-                onMouseLeave={e => { e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background='#fbfcfe'; e.currentTarget.style.borderColor='#e8eef5' }}
+                style={{ width: 34, height: 34, borderRadius: 11, border: `1px solid ${_btnBd}`, background: _btn, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.background=dark?'rgba(255,255,255,0.1)':'#eff6ff'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+                onMouseLeave={e => { e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background=_btn; e.currentTarget.style.borderColor=_btnBd }}
               ><RefreshCw size={14} /></button>
             </div>
           </div>
 
           {/* ── CENTRE — ScoreRing ── */}
-          <div style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', borderRight: '1px solid #f3f4f6', background: 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)', position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle,rgba(30,58,95,0.05) 1px,transparent 1px)', backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
+          <div style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', borderRight: `1px solid ${_sep}`, background: _mid, position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
             <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={140} />}</div>
           </div>
 
