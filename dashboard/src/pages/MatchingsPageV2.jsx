@@ -30,7 +30,7 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes star-drift { 0%,100%{transform:translateY(0) rotate(0deg) scale(1)} 40%{transform:translateY(-5px) rotate(-14deg) scale(1.12)} 80%{transform:translateY(3px) rotate(7deg) scale(.93)} }
     @keyframes star-pulse { 0%,100%{opacity:.35;transform:scale(1) rotate(0deg)} 50%{opacity:.6;transform:scale(1.15) rotate(-20deg)} }
     .glass-sort-group{display:flex;position:relative;background:rgba(255,255,255,.65);border-radius:.85rem;backdrop-filter:blur(12px);box-shadow:inset 1px 1px 4px rgba(255,255,255,.9),inset -1px -1px 4px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(0,0,0,.07);flex-shrink:0;}
-    .glass-sort-btn{flex:1;min-width:68px;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
+    .glass-sort-btn{flex:1;min-width:68px;white-space:nowrap;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
     .glass-sort-btn:hover{color:#1e293b;}
     .glass-sort-btn.active{color:#fff;}
     .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
