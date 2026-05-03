@@ -521,10 +521,8 @@ export default function MatchingsPageV2() {
     const s = search.toLowerCase()
     const filtered = matchings.filter(m => {
       if (s && !m.prospect_nom?.toLowerCase().includes(s) && !m.bien_ville?.toLowerCase().includes(s)) return false
+      if (filterScore === 'bon65'     && m.score < 65) return false
       if (filterScore === 'excellent' && m.score < 80) return false
-      if (filterScore === 'tres_bon'  && (m.score < 65 || m.score >= 80)) return false
-      if (filterScore === 'potentiel' && (m.score < 50 || m.score >= 65)) return false
-      if (filterScore === 'low'       && m.score >= 50) return false
       if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
       if (filterBienId && m.bien_id !== filterBienId) return false
       return true
@@ -586,18 +584,31 @@ export default function MatchingsPageV2() {
       {/* Filtres + tri */}
       <div className="flex items-center justify-between gap-3 mb-6">
         {/* Filtres score */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <button onClick={() => setFilterNew(v => !v)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterNew ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? '#fff' : '#10b981', display: 'inline-block', flexShrink: 0 }} />
-            Nouveaux {nbNew > 0 && <span className={`ml-0.5 ${filterNew ? 'text-white/80' : 'text-emerald-600'}`}>({nbNew})</span>}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Pill Nouveaux — toggle indépendant */}
+          <button onClick={() => setFilterNew(v => !v)} style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
+            fontSize: 12, fontWeight: 600, transition: 'all .25s ease',
+            background: filterNew ? '#059669' : 'rgba(255,255,255,.65)',
+            backdropFilter: 'blur(12px)',
+            border: filterNew ? '1px solid rgba(5,150,105,.3)' : '1px solid rgba(0,0,0,.07)',
+            boxShadow: filterNew ? '0 2px 8px rgba(5,150,105,.25)' : 'inset 1px 1px 3px rgba(255,255,255,.8),0 2px 6px rgba(0,0,0,.06)',
+            color: filterNew ? 'white' : '#64748b',
+          }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? 'rgba(255,255,255,.8)' : '#10b981', flexShrink: 0 }} />
+            Nouveaux{nbNew > 0 && <span style={{ opacity: .8 }}> ({nbNew})</span>}
           </button>
-          {[{ v: 'all', label: 'Tous' }, { v: 'excellent', label: '≥ 80' }, { v: 'tres_bon', label: '65–79' }, { v: 'potentiel', label: '50–64' }, { v: 'low', label: '< 50' }].map(f => (
-            <button key={f.v} onClick={() => setFilterScore(f.v)}
-              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${filterScore === f.v ? 'bg-[#1E3A5F] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
-              {f.label}
-            </button>
-          ))}
+          {/* Glass group score */}
+          <div className="glass-sort-group">
+            {[{ v: 'all', label: 'Tous' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
+              <button key={f.v} onClick={() => setFilterScore(f.v)}
+                className={`glass-sort-btn${filterScore === f.v ? ' active' : ''}`}>
+                {f.label}
+              </button>
+            ))}
+            <div className="glass-sort-glider" style={{ transform: `translateX(${['all', 'bon65', 'excellent'].indexOf(filterScore) * 100}%)` }} />
+          </div>
         </div>
 
         {/* Tri */}
