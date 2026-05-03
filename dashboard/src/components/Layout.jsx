@@ -3,6 +3,7 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import TutorialModal from './TutorialModal'
 import AgentChat from './AgentChat'
+import WavesBackground from './WavesBackground'
 import { useTheme } from '../contexts/ThemeContext'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -60,7 +61,8 @@ function Layout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen flex relative">
+      <WavesBackground />
 
       {/* Overlay mobile */}
       {sidebarOpen && (
@@ -72,7 +74,7 @@ function Layout({ children }) {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0" style={{ position: 'relative', zIndex: 1 }}>
         <TrialBanner user={user} />
         <Header
           onOpenTutorial={() => { localStorage.removeItem('immo_tutorial_seen'); setShowTuto(true) }}
