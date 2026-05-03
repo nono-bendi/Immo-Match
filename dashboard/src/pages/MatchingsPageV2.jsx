@@ -628,7 +628,7 @@ export default function MatchingsPageV2() {
         <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
           <div style={{ position: 'relative', width: 96, height: 86, margin: '0 auto 20px' }}>
             {/* Étoile principale — même rendu 3D que l'AnalysisOverlay */}
-            <svg viewBox="0 0 100 100" width={62} height={62} style={{ position: 'absolute', left: 17, top: 8, animation: 'star-float 3.2s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(37,99,235,.35))' }}>
+            <svg viewBox="0 0 100 100" width={62} height={62} style={{ position: 'absolute', left: 17, top: 8, animation: 'star-float 3.2s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(124,58,237,.35))' }}>
               <defs>
                 <radialGradient id="es1-da" cx="50" cy="66" fx="50" fy="66" r="30" gradientTransform="translate(0 35) scale(1 0.5)" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="black" stopOpacity="0.3"/><stop offset="50%" stopColor="black" stopOpacity="0.1"/><stop offset="100%" stopColor="black" stopOpacity="0"/>
@@ -637,12 +637,12 @@ export default function MatchingsPageV2() {
                   <stop offset="0%" stopColor="white" stopOpacity="0.35"/><stop offset="50%" stopColor="white" stopOpacity="0.1"/><stop offset="100%" stopColor="white" stopOpacity="0"/>
                 </radialGradient>
               </defs>
-              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#2563EB"/>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#7C3AED"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es1-da)"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es1-lb)"/>
             </svg>
             {/* Étoile secondaire haut-droite */}
-            <svg viewBox="0 0 100 100" width={29} height={29} style={{ position: 'absolute', right: 0, top: 0, animation: 'star-drift 4.1s ease-in-out infinite', filter: 'drop-shadow(0 0 6px rgba(96,165,250,.4))' }}>
+            <svg viewBox="0 0 100 100" width={29} height={29} style={{ position: 'absolute', right: 0, top: 0, animation: 'star-drift 4.1s ease-in-out infinite', filter: 'drop-shadow(0 0 6px rgba(167,139,250,.4))' }}>
               <defs>
                 <radialGradient id="es2-da" cx="50" cy="66" fx="50" fy="66" r="30" gradientTransform="translate(0 35) scale(1 0.5)" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stopColor="black" stopOpacity="0.25"/><stop offset="100%" stopColor="black" stopOpacity="0"/>
@@ -651,13 +651,13 @@ export default function MatchingsPageV2() {
                   <stop offset="0%" stopColor="white" stopOpacity="0.35"/><stop offset="100%" stopColor="white" stopOpacity="0"/>
                 </radialGradient>
               </defs>
-              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#60A5FA"/>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#A78BFA"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es2-da)"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es2-lb)"/>
             </svg>
             {/* Petite étoile bas-gauche */}
-            <svg viewBox="0 0 100 100" width={17} height={17} style={{ position: 'absolute', left: 0, bottom: 0, animation: 'star-pulse 2.6s ease-in-out infinite', animationDelay: '.9s', filter: 'drop-shadow(0 0 4px rgba(147,197,253,.5))' }}>
-              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#93C5FD"/>
+            <svg viewBox="0 0 100 100" width={17} height={17} style={{ position: 'absolute', left: 0, bottom: 0, animation: 'star-pulse 2.6s ease-in-out infinite', animationDelay: '.9s', filter: 'drop-shadow(0 0 4px rgba(196,181,253,.5))' }}>
+              <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#C4B5FD"/>
             </svg>
           </div>
           <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
