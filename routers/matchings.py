@@ -1012,9 +1012,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
     }
     biens_filtres = prefiltre_biens(client_data, biens, budget_min, budget_max)
 
-    log.info(f"[DEBUG] prospect {prospect_id}: biens_filtres={len(biens_filtres)}, biens_total={len(biens)}")
     if not biens_filtres:
-        log.info(f"[SENTINEL] Tentative insertion prospect {prospect_id}")
         try:
             now_iso = datetime.now().isoformat()
             conn2 = sqlite3.connect(db_path)
@@ -1025,9 +1023,8 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
             )
             conn2.commit()
             conn2.close()
-            log.info(f"[SENTINEL] Insertion OK prospect {prospect_id}")
         except Exception as sentinel_err:
-            log.error(f"[SENTINEL] ERREUR prospect {prospect_id}: {sentinel_err}")
+            log.error(f"[SENTINEL] Erreur prospect {prospect_id}: {sentinel_err}")
         return {
             "error": "Aucun bien ne correspond aux critères de ce prospect",
             "matchings_count": 0
