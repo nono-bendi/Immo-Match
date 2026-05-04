@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
 import BienModal from '../components/BienModal'
+import AnalysisOverlay from '../components/AnalysisOverlay'
 import { API_URL } from '../config'
 import { apiFetch } from '../api'
 import {
@@ -121,15 +122,17 @@ export default function DashboardPage() {
   const [selectedBien, setSelectedBien] = useState(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [analyzeProgress, setAnalyzeProgress] = useState({ done: 0, total: 0 })
+  const [analyzingProspectName, setAnalyzingProspectName] = useState('')
   const navigate = useNavigate()
 
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
     setAnalyzing(true)
     setAnalyzeProgress({ done: 0, total: prospects.length })
-    for (const prospect of prospects) {
-      await apiFetch(`/matching/run/${prospect.id}`, { method: 'POST' }).catch(() => {})
-      setAnalyzeProgress(p => ({ ...p, done: p.done + 1 }))
+    for (let i = 0; i < prospects.length; i++) {
+      setAnalyzingProspectName(prospects[i].nom || '')
+      setAnalyzeProgress({ done: i, total: prospects.length })
+      await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' }).catch(() => {})
     }
     setAnalyzing(false)
     navigate('/matchings')
@@ -204,6 +207,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-5">
+      <AnalysisOverlay
+        isVisible={analyzing}
+        totalProspects={analyzeProgress.total}
+        currentProspect={analyzeProgress.done + 1}
+        currentProspectName={analyzingProspectName}
+      />
 
       {/* ── Bandeau statut — sobre ───────────────────────── */}
       {(stats?.prospects_sans_matching||[]).length > 0 && (
