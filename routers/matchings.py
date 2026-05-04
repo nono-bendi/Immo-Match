@@ -1013,20 +1013,18 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
     biens_filtres = prefiltre_biens(client_data, biens, budget_min, budget_max)
 
     if not biens_filtres:
-        # Insérer un sentinel pour marquer le prospect comme "analysé sans résultat"
-        # (bien_id=NULL exclu des JOIN → invisible dans l'UI mais retire le prospect du bandeau)
-        now_iso = datetime.now().isoformat()
-        conn2 = sqlite3.connect(db_path)
-        conn2.execute(
-            "DELETE FROM matchings WHERE prospect_id = ? AND bien_id IS NULL",
-            (prospect_id,)
-        )
-        conn2.execute(
-            "INSERT INTO matchings (prospect_id, bien_id, score, recommandation, statut_prospect, date_analyse, date_creation) VALUES (?, NULL, 0, 'Aucun bien disponible dans le catalogue', 'no_match', ?, ?)",
-            (prospect_id, now_iso, now_iso)
-        )
-        conn2.commit()
-        conn2.close()
+        try:
+            now_iso = datetime.now().isoformat()
+            conn2 = sqlite3.connect(db_path)
+            conn2.execute("DELETE FROM matchings WHERE prospect_id = ? AND bien_id IS NULL", (prospect_id,))
+            conn2.execute(
+                "INSERT INTO matchings (prospect_id, bien_id, score, recommandation, statut_prospect, date_analyse, date_creation) VALUES (?, NULL, 0, 'Aucun bien disponible dans le catalogue', 'no_match', ?, ?)",
+                (prospect_id, now_iso, now_iso)
+            )
+            conn2.commit()
+            conn2.close()
+        except Exception as sentinel_err:
+            log.error(f"[SENTINEL] Erreur insertion sentinel prospect {prospect_id}: {sentinel_err}")
         return {
             "error": "Aucun bien ne correspond aux critères de ce prospect",
             "matchings_count": 0
