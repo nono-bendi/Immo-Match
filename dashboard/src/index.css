@@ -26,25 +26,25 @@
 .dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 
 /* ── Layout racine ─────────────────────────────────────── */
-.dark .layout-root {
+.dark .min-h-screen.bg-gray-100 {
   background-color: #080f1a !important;
   position: relative;
 }
 
 /* Grille de points ultra-subtile */
-.dark .layout-root::before {
+.dark .min-h-screen.bg-gray-100::before {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
-/* Blob ambiance */
-.dark .layout-root::after {
+/* Blob ambiance (comme le modal) */
+.dark .min-h-screen.bg-gray-100::after {
   content: '';
   position: fixed; z-index: 0; pointer-events: none;
   width: 700px; height: 700px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(30,90,160,0.15) 0%, transparent 65%);
   top: -200px; left: -80px;
   animation: blobDrift 22s ease-in-out infinite;
 }
@@ -53,6 +53,8 @@
   40%     { transform: translate(60px,-40px); }
   70%     { transform: translate(-20px,50px); }
 }
+
+.dark .min-h-screen.bg-gray-100 > * { position: relative; z-index: 1; }
 
 /* ── SIDEBAR ───────────────────────────────────────────── */
 .dark aside {
@@ -315,7 +317,7 @@
    Surfaces glass sur fond waves, accents cyan.
    ============================================================ */
 
-/* ── Glass surfaces ─────────────────────────────────────── */
+/* ── Glass surfaces (light mode only) ──────────────────── */
 .bg-white.rounded-xl,
 .bg-white.rounded-2xl,
 .bg-white.rounded-3xl {
@@ -338,8 +340,7 @@
 }
 
 /* ── Boutons primaires ────────────────────────────────── */
-/* Lueur cyan subtile + hover plus foncé cyan */
-.bg-\[\#1E3A5F\]:not(.dark *) {
+.bg-\[\#1E3A5F\] {
   box-shadow: 0 4px 14px rgba(14,165,233,0.18) !important;
 }
 .hover\:bg-\[\#2D5A8A\]:hover {
@@ -347,27 +348,22 @@
 }
 
 /* ── Bordures accent ──────────────────────────────────── */
-/* Sélection / focus → cyan au lieu de navy */
-.border-\[\#1E3A5F\]:not(.dark *) {
+.border-\[\#1E3A5F\] {
   border-color: #0ea5e9 !important;
-}
-.text-\[\#1E3A5F\]:not(button, [class*="btn"], .dark *) {
-  color: #0f2d4a;
 }
 
 /* ── Panel Recommandation (#DCE7F3) → cyan glass ─────── */
-.bg-\[\#DCE7F3\]:not(.dark *) {
+.bg-\[\#DCE7F3\] {
   background: rgba(186,230,253,0.38) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgba(14,165,233,0.18) !important;
 }
-.hover\:bg-\[\#c5d9ed\]:hover:not(.dark *) {
+.hover\:bg-\[\#c5d9ed\]:hover {
   background: rgba(186,230,253,0.55) !important;
 }
 
-/* ── KPI card — glass en light mode ──────────────────── */
-/* (inline style background:#fff → overridé par .kpi-card-glass) */
+/* ── KPI card — glass ─────────────────────────────────── */
 .kpi-card-glass {
   background: rgba(255,255,255,0.82) !important;
   backdrop-filter: blur(16px) saturate(160%) !important;
@@ -380,6 +376,54 @@
   color: #0284c7 !important;
   border-color: #0ea5e9 !important;
   background: rgba(14,165,233,0.06) !important;
+}
+
+/* ── DARK MODE — annule toutes les surcharges Elevated ── */
+/* Les surfaces reprennent leurs couleurs dark d'origine   */
+.dark .bg-white.rounded-xl,
+.dark .bg-white.rounded-2xl,
+.dark .bg-white.rounded-3xl {
+  background: #0f1e30 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255,255,255,0.07) !important;
+}
+.dark .bg-gray-50.rounded-xl,
+.dark .bg-gray-50.rounded-2xl,
+.dark .bg-\[\#F5F8FC\].rounded-xl,
+.dark .bg-\[\#F5F8FC\].rounded-2xl {
+  background: #111f30 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.dark .kpi-card-glass {
+  background: #0f1e30 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255,255,255,0.07) !important;
+}
+.dark .bg-\[\#DCE7F3\] {
+  background-color: rgba(255,255,255,0.05) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255,255,255,0.07) !important;
+}
+.dark .hover\:bg-\[\#c5d9ed\]:hover {
+  background-color: rgba(255,255,255,0.08) !important;
+}
+.dark .bg-\[\#1E3A5F\] {
+  box-shadow: none !important;
+}
+.dark .hover\:bg-\[\#2D5A8A\]:hover {
+  background: #245a8c !important;
+}
+.dark .border-\[\#1E3A5F\] {
+  border-color: rgba(125,211,252,0.3) !important;
+}
+.dark .hdr-guide:hover {
+  color: rgba(255,255,255,0.9) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  background: rgba(255,255,255,0.09) !important;
 }
 
 /* ============================================================
