@@ -119,7 +119,21 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [selectedBien, setSelectedBien] = useState(null)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [analyzeProgress, setAnalyzeProgress] = useState({ done: 0, total: 0 })
   const navigate = useNavigate()
+
+  const handleAnalyzeAll = async () => {
+    const prospects = stats.prospects_sans_matching
+    setAnalyzing(true)
+    setAnalyzeProgress({ done: 0, total: prospects.length })
+    for (const prospect of prospects) {
+      await apiFetch(`/matching/run/${prospect.id}`, { method: 'POST' }).catch(() => {})
+      setAnalyzeProgress(p => ({ ...p, done: p.done + 1 }))
+    }
+    setAnalyzing(false)
+    navigate('/matchings')
+  }
 
   const openBien = (id) => {
     apiFetch(`/biens/${id}`)
@@ -202,11 +216,12 @@ export default function DashboardPage() {
           <p style={{ fontSize: 13, fontWeight: 500, color: '#92400e', flex: 1 }}>
             <strong>{stats.prospects_sans_matching.length} prospect{stats.prospects_sans_matching.length > 1 ? 's' : ''}</strong> en attente d'analyse IA
           </p>
-          <button onClick={() => navigate('/matchings')}
-            style={{ padding: '6px 14px', background: '#f59e0b', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
-            onMouseOver={e => e.currentTarget.style.background = '#d97706'}
-            onMouseOut={e => e.currentTarget.style.background = '#f59e0b'}>
-            <Zap size={13} /> Analyser
+          <button onClick={handleAnalyzeAll} disabled={analyzing}
+            style={{ padding: '6px 14px', background: analyzing ? '#d97706' : '#f59e0b', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: analyzing ? 'not-allowed' : 'pointer', border: 'none', display: 'flex', alignItems: 'center', gap: 5, opacity: analyzing ? 0.85 : 1 }}
+            onMouseOver={e => { if (!analyzing) e.currentTarget.style.background = '#d97706' }}
+            onMouseOut={e => { if (!analyzing) e.currentTarget.style.background = '#f59e0b' }}>
+            <Zap size={13} />
+            {analyzing ? `${analyzeProgress.done}/${analyzeProgress.total}…` : 'Analyser'}
           </button>
           <span style={{ fontSize: 12, color: '#94a3b8' }}>
             Dernière analyse : <strong style={{ color: '#6b7280' }}>{fmtDate(stats?.derniere_analyse)}</strong>
