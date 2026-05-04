@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted, onCancel, errors = [] }) {
+function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentProspectName, isCompleted, onCancel, errors = [], showErrors = false }) {
   const [elapsedTime, setElapsedTime] = useState(0)
   const [estimatedTimePerProspect, setEstimatedTimePerProspect] = useState(0)
   
@@ -46,6 +46,33 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}m ${secs}s`
+  }
+
+  /* ── Écran d'erreur dédié ── */
+  if (showErrors && errors.length > 0) {
+    return (
+      <div className="fixed inset-0 bg-[#1E3A5F]/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
+          <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-1">Aucun bien disponible</h2>
+          <p className="text-gray-500 text-sm mb-5">Aucun bien du catalogue ne correspond aux critères de ce prospect.</p>
+          <div className="space-y-3 mb-2">
+            {errors.map((e, i) => (
+              <div key={i} className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-left">
+                <p className="font-bold text-amber-900 text-base mb-0.5">{e.nom}</p>
+                <p className="text-amber-700 text-sm">{e.msg}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-4">Fermeture automatique dans quelques secondes…</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -195,20 +222,6 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
           )}
         </div>
 
-        {/* Erreurs */}
-        {errors.length > 0 && (
-          <div className="mt-4 text-left space-y-1">
-            {errors.map((e, i) => (
-              <div key={i} className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                <span className="text-amber-500 mt-0.5 flex-shrink-0">⚠</span>
-                <div>
-                  <p className="text-xs font-semibold text-amber-800">{e.nom}</p>
-                  <p className="text-xs text-amber-600">{e.msg}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )

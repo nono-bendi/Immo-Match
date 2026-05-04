@@ -128,24 +128,35 @@ export default function DashboardPage() {
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
     setAnalyzing(true)
-    setAnalyzeProgress({ done: 0, total: prospects.length, errors: [] })
+    setAnalyzeProgress({ done: 0, total: prospects.length, errors: [], showErrors: false })
+    const MIN_DURATION = 4000
+    const localErrors = []
     for (let i = 0; i < prospects.length; i++) {
       setAnalyzingProspectName(prospects[i].nom || '')
-      setAnalyzeProgress(p => ({ ...p, done: i, current: prospects[i].nom || '' }))
+      setAnalyzeProgress(p => ({ ...p, done: i, showErrors: false }))
+      const t0 = Date.now()
+      let errMsg = null
       try {
         const res = await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' })
         const data = await res.json()
-        if (data.error) {
-          setAnalyzeProgress(p => ({ ...p, errors: [...p.errors, { nom: prospects[i].nom, msg: data.error }] }))
-        }
+        if (data.error) errMsg = data.error
       } catch {
-        setAnalyzeProgress(p => ({ ...p, errors: [...p.errors, { nom: prospects[i].nom, msg: 'Erreur réseau' }] }))
+        errMsg = 'Erreur réseau'
+      }
+      const elapsed = Date.now() - t0
+      if (elapsed < MIN_DURATION) await new Promise(r => setTimeout(r, MIN_DURATION - elapsed))
+      if (errMsg) {
+        localErrors.push({ nom: prospects[i].nom, msg: errMsg })
+        setAnalyzeProgress(p => ({ ...p, errors: [...localErrors], showErrors: true }))
+        await new Promise(r => setTimeout(r, 3000))
       }
     }
+    // Retirer les prospects traités du bandeau localement
+    setStats(s => ({ ...s, prospects_sans_matching: [] }))
     setAnalyzeProgress(p => ({ ...p, done: prospects.length }))
-    await new Promise(r => setTimeout(r, 1200))
+    await new Promise(r => setTimeout(r, 800))
     setAnalyzing(false)
-    navigate('/matchings')
+    if (localErrors.length < prospects.length) navigate('/matchings')
   }
 
   const openBien = (id) => {
@@ -224,6 +235,7 @@ export default function DashboardPage() {
         currentProspectName={analyzingProspectName}
         isCompleted={analyzeProgress.done === analyzeProgress.total && analyzeProgress.total > 0}
         errors={analyzeProgress.errors || []}
+        showErrors={analyzeProgress.showErrors || false}
       />
 
       {/* ── Bandeau statut — sobre ───────────────────────── */}
