@@ -128,12 +128,22 @@ export default function DashboardPage() {
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
     setAnalyzing(true)
-    setAnalyzeProgress({ done: 0, total: prospects.length })
+    setAnalyzeProgress({ done: 0, total: prospects.length, errors: [] })
     for (let i = 0; i < prospects.length; i++) {
       setAnalyzingProspectName(prospects[i].nom || '')
-      setAnalyzeProgress({ done: i, total: prospects.length })
-      await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' }).catch(() => {})
+      setAnalyzeProgress(p => ({ ...p, done: i, current: prospects[i].nom || '' }))
+      try {
+        const res = await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' })
+        const data = await res.json()
+        if (data.error) {
+          setAnalyzeProgress(p => ({ ...p, errors: [...p.errors, { nom: prospects[i].nom, msg: data.error }] }))
+        }
+      } catch {
+        setAnalyzeProgress(p => ({ ...p, errors: [...p.errors, { nom: prospects[i].nom, msg: 'Erreur réseau' }] }))
+      }
     }
+    setAnalyzeProgress(p => ({ ...p, done: prospects.length }))
+    await new Promise(r => setTimeout(r, 1200))
     setAnalyzing(false)
     navigate('/matchings')
   }
@@ -212,6 +222,8 @@ export default function DashboardPage() {
         totalProspects={analyzeProgress.total}
         currentProspect={analyzeProgress.done + 1}
         currentProspectName={analyzingProspectName}
+        isCompleted={analyzeProgress.done === analyzeProgress.total && analyzeProgress.total > 0}
+        errors={analyzeProgress.errors || []}
       />
 
       {/* ── Bandeau statut — sobre ───────────────────────── */}
