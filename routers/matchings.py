@@ -555,11 +555,11 @@ def get_stats(current_user: dict = Depends(get_current_user)):
     # Compteurs de base
     nb_prospects = conn.execute("SELECT COUNT(*) as count FROM prospects").fetchone()['count']
     nb_biens = conn.execute("SELECT COUNT(*) as count FROM biens").fetchone()['count']
-    nb_matchings = conn.execute("SELECT COUNT(*) as count FROM matchings").fetchone()['count']
+    nb_matchings = conn.execute("SELECT COUNT(*) as count FROM matchings WHERE bien_id IS NOT NULL").fetchone()['count']
 
     # Matchings par score
-    excellents = conn.execute("SELECT COUNT(*) as count FROM matchings WHERE score >= 75").fetchone()['count']
-    bons = conn.execute("SELECT COUNT(*) as count FROM matchings WHERE score >= 50 AND score < 75").fetchone()['count']
+    excellents = conn.execute("SELECT COUNT(*) as count FROM matchings WHERE score >= 75 AND bien_id IS NOT NULL").fetchone()['count']
+    bons = conn.execute("SELECT COUNT(*) as count FROM matchings WHERE score >= 50 AND score < 75 AND bien_id IS NOT NULL").fetchone()['count']
 
     # Budget moyen des prospects
     budget_moy = conn.execute("SELECT AVG(budget_max) as avg FROM prospects WHERE budget_max IS NOT NULL").fetchone()['avg']
@@ -1013,6 +1013,20 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
     biens_filtres = prefiltre_biens(client_data, biens, budget_min, budget_max)
 
     if not biens_filtres:
+        # Insérer un sentinel pour marquer le prospect comme "analysé sans résultat"
+        # (bien_id=NULL exclu des JOIN → invisible dans l'UI mais retire le prospect du bandeau)
+        now_iso = datetime.now().isoformat()
+        conn2 = sqlite3.connect(db_path)
+        conn2.execute(
+            "DELETE FROM matchings WHERE prospect_id = ? AND bien_id IS NULL",
+            (prospect_id,)
+        )
+        conn2.execute(
+            "INSERT INTO matchings (prospect_id, bien_id, score, recommandation, statut_prospect, date_analyse, date_creation) VALUES (?, NULL, 0, 'Aucun bien disponible dans le catalogue', 'no_match', ?, ?)",
+            (prospect_id, now_iso, now_iso)
+        )
+        conn2.commit()
+        conn2.close()
         return {
             "error": "Aucun bien ne correspond aux critères de ce prospect",
             "matchings_count": 0
