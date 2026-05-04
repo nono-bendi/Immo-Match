@@ -3,11 +3,7 @@ import { useTheme } from '../contexts/ThemeContext'
 export default function WavesBackground() {
   const { dark } = useTheme()
 
-  const wash = dark
-    ? 'linear-gradient(180deg, #0f1e30 0%, #142336 40%, #1c2e44 100%)'
-    : 'linear-gradient(180deg, #e3edf9 0%, #dce8f6 40%, #e6eef8 100%)'
-
-  const blendMode = dark ? 'screen' : 'normal'
+  if (dark) return null
 
   return (
     <div
@@ -28,13 +24,13 @@ export default function WavesBackground() {
         }
       `}</style>
 
-      <div style={{ position: 'absolute', inset: 0, background: wash }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #e3edf9 0%, #dce8f6 40%, #e6eef8 100%)' }} />
 
       <svg
         data-waves-bg
         viewBox="0 0 1440 900"
         preserveAspectRatio="none"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', mixBlendMode: blendMode }}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
       >
         <defs>
           <linearGradient id="wavesBgGrad1" x1="0" y1="0" x2="1" y2="1">
