@@ -39,7 +39,20 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
   document.head.appendChild(s)
 }
 
-const _24H_AGO = Date.now() - 24 * 60 * 60 * 1000
+const _NOW     = Date.now()
+const _24H_AGO = _NOW - 24 * 60 * 60 * 1000
+
+function fmtAnalyse(dateStr) {
+  if (!dateStr) return null
+  const d = new Date(dateStr), diff = _NOW - d
+  const h = Math.floor(diff / 3600000)
+  const j = Math.floor(h / 24)
+  if (h < 1) return "À l'instant"
+  if (h < 24) return `il y a ${h}h`
+  if (j === 1) return 'hier'
+  if (j < 7) return `il y a ${j}j`
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+}
 
 // ─── Utils ─────────────────────────────────────────────────────────────────────
 const ini    = (n) => { if (!n) return '??'; const p = n.trim().split(' ').filter(Boolean); return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase() }
@@ -317,6 +330,8 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   const heureNew = lastNew?.date_creation ? lastNew.date_creation.slice(11, 16) : null
   const mainType = sorted[0]?.bien_type || '—'
 
+  const analyseLabel = fmtAnalyse(sorted[0]?.date_analyse)
+
   const openProspectModal = async () => {
     if (prospectData) return setProspectData({ ...prospectData, _open: true }) // re-open
     const data = await apiFetch(`/prospects/${group.prospect_id}`).then(r => r.json()).catch(() => null)
@@ -365,6 +380,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                   <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
                   {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
                 </div>
+                {analyseLabel && <div style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.28)' : '#b0bec9', marginTop: 4, letterSpacing: '0.01em' }}>Analysé {analyseLabel}</div>}
               </div>
             </div>
 
