@@ -5,95 +5,170 @@ import logoDemoUrl from '../image/logo.demo.png'
    MOCK COMPONENTS — reproductions fidèles de l'app ImmoFlash
    ════════════════════════════════════════════════════════════════ */
 
+function ScoreRingMini({ score, size = 88 }) {
+  const color = score >= 80 ? '#10b981' : score >= 65 ? '#ca8a04' : '#ef4444'
+  const r = (size - 10) / 2, cx = size / 2
+  const circ = 2 * Math.PI * r
+  const offset = circ * (1 - score / 100)
+  return (
+    <div style={{ position: 'relative', width: size, height: size }}>
+      <svg width={size} height={size} style={{ position: 'relative', display: 'block', transform: 'rotate(-90deg)' }}>
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.8)" strokeWidth={8} />
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={8}
+          strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+          style={{ filter: `drop-shadow(0 2px 8px ${color}60)` }} />
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Score IA</span>
+        <span style={{ fontSize: Math.round(size * 0.3), fontWeight: 900, color: color, lineHeight: 1 }}>{score}</span>
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1' }}>/ 100</span>
+      </div>
+    </div>
+  )
+}
+
+function GemBadgeMini({ score, ville, prix, surface, selected }) {
+  const color = score >= 80 ? '#10b981' : score >= 65 ? '#ca8a04' : '#ef4444'
+  const fmtPrix = v => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 11, background: selected ? '#f0fdf4' : '#f8fafc', border: `1.5px solid ${selected ? color : '#edf1f7'}`, transition: 'all 0.15s' }}>
+      <div style={{ width: 36, height: 36, borderRadius: 7, background: `linear-gradient(135deg,${color}25,${color}10)`, flexShrink: 0, position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 2, right: 2, background: color, color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 9999 }}>{score}</div>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
+        <div style={{ fontSize: 10, color: '#64748b' }}>{fmtPrix(prix)}{surface ? ` · ${surface}m²` : ''}</div>
+      </div>
+    </div>
+  )
+}
+
 function MatchingMock() {
-  const rows = [
-    { i: 'DC', name: 'Mr Durand Charles',   budget: '450 000 €', bien: 'Appartement à Agay',            score: 88 },
-    { i: 'BC', name: 'BERDIN Clémence',      budget: '160 000 €', bien: 'Appartement à Fréjus',         score: 88 },
-    { i: 'CP', name: 'Mme Cellier Pascale',  budget: '250 000 €', bien: 'Appartement à Fréjus',         score: 87 },
-    { i: 'MD', name: 'Mathis Duverger',       budget: '500 000 €', bien: 'Maison/villa à Saint-Raphaël', score: 83 },
-    { i: 'PR', name: 'Mr Paul Rouvier',      budget: '410 000 €', bien: 'Maison/villa à Fréjus',        score: 82 },
-    { i: 'BM', name: 'Mr Brian Muller',      budget: '170 000 €', bien: 'Appartement à Fréjus',         score: 82 },
+  const fmtPrix = v => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v)
+  const prospects = [
+    {
+      ini: 'DC', name: 'Mr Durand Charles', budget: 450000, a: '#1E3A5F', b: '#2D5A8A',
+      type: 'Maison/villa', zone: 'Agay', matchs: 3,
+      biens: [
+        { score: 88, ville: 'Agay', prix: 450000, surface: 120 },
+        { score: 81, ville: 'Fréjus', prix: 420000, surface: 95 },
+        { score: 73, ville: 'Bagnols', prix: 435000, surface: 130 },
+      ],
+    },
+    {
+      ini: 'BC', name: 'BERDIN Clémence', budget: 160000, a: '#0e7490', b: '#06b6d4',
+      type: 'Appartement', zone: 'Fréjus', matchs: 2,
+      biens: [
+        { score: 85, ville: 'Fréjus', prix: 155000, surface: 34 },
+        { score: 72, ville: 'Saint-Raphaël', prix: 169000, surface: 49 },
+      ],
+    },
   ]
-  const scoreBg = s => s >= 75 ? '#10b981' : s >= 50 ? '#f59e0b' : '#ef4444'
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', background: '#fff' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f0f9ff', minHeight: '100%' }}>
 
-      {/* Top bar */}
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>Matchings IA</span>
-          <span style={{ marginLeft: 8, fontSize: 11, color: '#94a3b8' }}>186 matchings · 93 prospects</span>
+      {/* Header */}
+      <div style={{ padding: '11px 14px', borderBottom: '1px solid #e0f2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ fontWeight: 700, fontSize: 13, color: '#1E3A5F' }}>Matchings</span>
+          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 5, padding: '2px 5px' }}>NOUVEAU</span>
+          <span style={{ fontSize: 10, color: '#94a3b8' }}>2 prospects · 5 matchings</span>
         </div>
-        <div style={{ background: '#1E3A5F', color: '#fff', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600 }}>
-          Lancer l'analyse
+        <div style={{ background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', borderRadius: 8, padding: '5px 9px', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+          ✦ Analyse global
         </div>
       </div>
 
-      {/* Filtres score */}
-      <div style={{ padding: '8px 16px', display: 'flex', gap: 6, borderBottom: '1px solid #f1f5f9' }}>
-        {['Tous', '75+', '50-74', '< 50'].map((t, idx) => (
-          <span key={t} style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: idx === 0 ? '#1E3A5F' : '#f1f5f9', color: idx === 0 ? '#fff' : '#64748b' }}>{t}</span>
-        ))}
+      {/* Filtres */}
+      <div style={{ padding: '7px 10px', display: 'flex', gap: 5, background: '#f0f9ff', borderBottom: '1px solid #e0f2fe', alignItems: 'center' }}>
+        <span style={{ padding: '3px 9px', borderRadius: 12, fontSize: 9, fontWeight: 600, background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,.7)', flexShrink: 0, display: 'inline-block' }} />
+          Nouveaux
+        </span>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.7)', borderRadius: 9, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+          {['Tous', '≥ 65', '≥ 80'].map((t, i) => (
+            <span key={t} style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, background: i === 0 ? 'linear-gradient(135deg,#1E3A5F,#2d5a8a)' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+          ))}
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', background: 'rgba(255,255,255,0.7)', borderRadius: 9, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+          {['Récents', 'Score', 'A→Z'].map((t, i) => (
+            <span key={t} style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, background: i === 0 ? 'linear-gradient(135deg,#1E3A5F,#2d5a8a)' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+          ))}
+        </div>
       </div>
 
-      {/* En-têtes colonnes */}
-      <div style={{ padding: '7px 16px', display: 'grid', gridTemplateColumns: '2fr 2fr 52px', gap: 8, background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-        {['Prospect', 'Meilleur match', 'Score'].map(c => (
-          <span key={c} style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{c}</span>
-        ))}
-      </div>
+      {/* Cards prospects */}
+      <div style={{ padding: '8px 8px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+        {prospects.map((p, idx) => (
+          <div key={p.ini} className="matching-row" style={{ background: '#fff', borderRadius: 14, border: '1px solid #edf1f7', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1.2fr 78px 1.1fr', boxShadow: '0 4px 14px rgba(30,58,95,0.06)', animationDelay: `${200 + idx * 220}ms` }}>
 
-      {/* Lignes — delay inline pour bypass le bug nth-child */}
-      {rows.map((row, idx) => (
-        <div
-          key={row.i}
-          className="matching-row"
-          style={{ padding: '9px 16px', display: 'grid', gridTemplateColumns: '2fr 2fr 52px', gap: 8, alignItems: 'center', borderBottom: '1px solid #f8fafc', animationDelay: `${300 + idx * 160}ms` }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{row.i}</div>
-            <div>
-              <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 12 }}>{row.name}</div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>{row.budget}</div>
+            {/* ── Gauche — info prospect ── */}
+            <div style={{ padding: '12px 10px', borderRight: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${p.a},${p.b})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>{p.ini}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                  <div style={{ fontSize: 9, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+                    Actif · {p.matchs} matchs
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '6px 8px', background: '#f8fafc', borderRadius: 8, border: '1px solid #edf1f7', fontSize: 10, color: '#1E3A5F' }}>
+                <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 2 }}>Cherche</div>
+                <span style={{ fontWeight: 700 }}>{p.type}</span> à <span style={{ fontWeight: 700 }}>{p.zone}</span>
+              </div>
+              <div>
+                <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.1em' }}>Budget</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1E3A5F' }}>{fmtPrix(p.budget)}</div>
+              </div>
+            </div>
+
+            {/* ── Centre — ScoreRing ── */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg,#fbfcfe,#f8fafc)', borderRight: '1px solid #f3f4f6', padding: '10px 4px' }}>
+              <ScoreRingMini score={p.biens[0].score} size={70} />
+            </div>
+
+            {/* ── Droite — GemBadges ── */}
+            <div style={{ padding: '8px 8px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+              {p.biens.slice(0, 3).map((bien, i) => (
+                <GemBadgeMini key={i} score={bien.score} ville={bien.ville} prix={bien.prix} surface={bien.surface} selected={i === 0} />
+              ))}
             </div>
           </div>
-          <div style={{ fontSize: 12, color: '#1E3A5F', fontWeight: 500 }}>{row.bien}</div>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <span style={{ width: 38, height: 38, borderRadius: 10, background: scoreBg(row.score), color: '#fff', fontWeight: 800, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{row.score}</span>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
 
 /* ──────────────────────────────────────────────────────────────── */
 
-/* ── Avatar robot — copie exacte du SVG BotFace de l'app ── */
+/* ── Avatar IA — color balls (miroir de AgentChat MiniFace) ── */
 function BotFace({ size = 28 }) {
+  const scale = (size / 96).toFixed(3)
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Antenne */}
-      <line x1="20" y1="3" x2="20" y2="9" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="20" cy="2.5" r="2" fill="#a5f3fc" />
-      {/* Tête */}
-      <rect x="7" y="9" width="26" height="22" rx="8" fill="white" fillOpacity=".95" />
-      {/* Oreilles */}
-      <rect x="4"    y="15" width="3.5" height="7" rx="1.5" fill="white" fillOpacity=".6" />
-      <rect x="32.5" y="15" width="3.5" height="7" rx="1.5" fill="white" fillOpacity=".6" />
-      {/* Yeux clignotants */}
-      <rect className="bot-eye" x="12.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5" />
-      <rect className="bot-eye" x="22.5" y="16" width="5" height="6" rx="2.5" fill="#4f46e5" style={{ animationDelay: '.15s' }} />
-      {/* Reflets */}
-      <circle cx="14" cy="17.5" r="1" fill="white" fillOpacity=".7" />
-      <circle cx="24" cy="17.5" r="1" fill="white" fillOpacity=".7" />
-      {/* Bouche */}
-      <path d="M14.5 26 Q20 30.5 25.5 26" stroke="#4f46e5" strokeWidth="2" strokeLinecap="round" fill="none" />
-      {/* Joues */}
-      <circle cx="11" cy="25" r="1.5" fill="#f9a8d4" fillOpacity=".7" />
-      <circle cx="29" cy="25" r="1.5" fill="#f9a8d4" fillOpacity=".7" />
-    </svg>
+    <div style={{ width: size, height: size, borderRadius: size <= 30 ? '50%' : 10, overflow: 'hidden', position: 'relative', flexShrink: 0, boxShadow: '0 2px 8px rgba(145,71,255,.25)' }}>
+      <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6rem', height: '6rem', borderRadius: '1.6rem', transform: `translate(-50%,-50%) scale(${scale})`, transformOrigin: 'center' }}>
+        <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.85)', borderRadius: '1.6rem', overflow: 'hidden', position: 'relative' }}>
+          {/* Boules de couleur */}
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#ec4899', filter: 'blur(18px)', top: '50%', left: 0, transform: 'translateY(-50%)' }} />
+            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#9147ff', filter: 'blur(18px)', top: 0, left: '50%', transform: 'translateX(-50%)' }} />
+            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#34d399', filter: 'blur(18px)', bottom: 0, left: '50%', transform: 'translateX(-50%)' }} />
+            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#05e0f5', filter: 'blur(18px)', top: '50%', right: 0, transform: 'translateY(-50%)' }} />
+          </div>
+          {/* Verre dépoli + yeux */}
+          <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(50px)', borderRadius: '1.6rem' }}>
+            <div style={{ position: 'absolute', left: '50%', bottom: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 26, gap: '1rem' }}>
+              <div className="bot-eye" style={{ width: 13, height: 26, background: '#fff', borderRadius: 8 }} />
+              <div className="bot-eye" style={{ width: 13, height: 26, background: '#fff', borderRadius: 8, animationDelay: '.3s' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -112,9 +187,7 @@ function UserAvatar() {
 function TypingDots() {
   return (
     <div style={{ display: 'flex', gap: 8, flexDirection: 'row' }}>
-      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <BotFace size={22} />
-      </div>
+      <BotFace size={28} />
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '4px 14px 14px 14px', padding: '10px 14px', display: 'flex', gap: 5, alignItems: 'center' }}>
         {[0, 1, 2].map(i => (
           <span key={i} className="chat-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#94a3b8', display: 'block', animationDelay: `${i * 0.18}s` }} />
@@ -207,9 +280,7 @@ function ChatMock() {
 
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg,#4338ca,#6d28d9)', padding: '13px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <BotFace size={30} />
-        </div>
+        <BotFace size={38} />
         <div style={{ flex: 1 }}>
           <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Assistant IA</div>
           <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Saint François Immo</div>
@@ -231,7 +302,7 @@ function ChatMock() {
           return (
             <div key={msg.key} className="chat-msg-in" style={{ display: 'flex', gap: 8, flexDirection: bot ? 'row' : 'row-reverse' }}>
               {bot
-                ? <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BotFace size={22} /></div>
+                ? <BotFace size={28} />
                 : <UserAvatar />
               }
               <div style={{ maxWidth: '80%', borderRadius: bot ? '4px 14px 14px 14px' : '14px 4px 14px 14px', padding: '8px 12px', fontSize: 12, lineHeight: 1.6, background: bot ? '#fff' : 'linear-gradient(135deg,#4f46e5,#6d28d9)', color: bot ? '#1e293b' : '#fff', border: bot ? '1px solid #e2e8f0' : 'none', boxShadow: bot ? '0 1px 4px rgba(0,0,0,0.06)' : 'none' }}>
@@ -247,7 +318,7 @@ function ChatMock() {
         {/* Dernier message bot — typewriter */}
         {showMsg2 && (
           <div className="chat-msg-in" style={{ display: 'flex', gap: 8 }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BotFace size={22} /></div>
+            <BotFace size={28} />
             <div style={{ maxWidth: '80%', borderRadius: '4px 14px 14px 14px', padding: '8px 12px', fontSize: 12, lineHeight: 1.6, background: '#fff', color: '#1e293b', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', minHeight: 36 }}>
               {msg2text.split('\n').map((line, j) => <div key={j}>{line}</div>)}
               {/* curseur clignotant pendant le typewriter */}
@@ -262,7 +333,7 @@ function ChatMock() {
           return (
             <div key={'e'+i} className="chat-msg-in" style={{ display: 'flex', gap: 8, flexDirection: bot ? 'row' : 'row-reverse' }}>
               {bot
-                ? <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BotFace size={22} /></div>
+                ? <BotFace size={28} />
                 : <UserAvatar />
               }
               <div style={{ maxWidth: '80%', borderRadius: bot ? '4px 14px 14px 14px' : '14px 4px 14px 14px', padding: '8px 12px', fontSize: 12, lineHeight: 1.6, background: bot ? '#fff' : 'linear-gradient(135deg,#4f46e5,#6d28d9)', color: bot ? '#1e293b' : '#fff', border: bot ? '1px solid #e2e8f0' : 'none' }}>
