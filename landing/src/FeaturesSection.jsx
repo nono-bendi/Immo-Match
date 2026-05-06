@@ -11,18 +11,20 @@ function ScoreRingMini({ score, size = 88 }) {
   const circ = 2 * Math.PI * r
   const offset = circ * (1 - score / 100)
   return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <svg width={size} height={size} style={{ position: 'relative', display: 'block', transform: 'rotate(-90deg)' }}>
-        <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.8)" strokeWidth={8} />
-        <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={8}
-          strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
-          style={{ filter: `drop-shadow(0 2px 8px ${color}60)` }} />
-      </svg>
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Score IA</span>
-        <span style={{ fontSize: Math.round(size * 0.3), fontWeight: 900, color: color, lineHeight: 1 }}>{score}</span>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#cbd5e1' }}>/ 100</span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <div style={{ position: 'relative', width: size, height: size }}>
+        <svg width={size} height={size} style={{ position: 'relative', display: 'block', transform: 'rotate(-90deg)' }}>
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.8)" strokeWidth={8} />
+          <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={8}
+            strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
+            style={{ filter: `drop-shadow(0 2px 8px ${color}60)` }} />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: Math.round(size * 0.32), fontWeight: 900, color: color, lineHeight: 1 }}>{score}</span>
+          <span style={{ fontSize: 9, fontWeight: 600, color: '#cbd5e1' }}>/ 100</span>
+        </div>
       </div>
+      <span style={{ fontSize: 9, fontWeight: 700, color: color, letterSpacing: '0.04em' }}>Score IA</span>
     </div>
   )
 }
@@ -45,99 +47,146 @@ function GemBadgeMini({ score, ville, prix, surface, selected }) {
 
 function MatchingMock() {
   const fmtPrix = v => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v)
-  const prospects = [
-    {
-      ini: 'DC', name: 'Mr Durand Charles', budget: 450000, a: '#1E3A5F', b: '#2D5A8A',
-      type: 'Maison/villa', zone: 'Agay', matchs: 3,
-      biens: [
-        { score: 88, ville: 'Agay', prix: 450000, surface: 120 },
-        { score: 81, ville: 'Fréjus', prix: 420000, surface: 95 },
-        { score: 73, ville: 'Bagnols', prix: 435000, surface: 130 },
-      ],
-    },
-    {
-      ini: 'BC', name: 'BERDIN Clémence', budget: 160000, a: '#0e7490', b: '#06b6d4',
-      type: 'Appartement', zone: 'Fréjus', matchs: 2,
-      biens: [
-        { score: 85, ville: 'Fréjus', prix: 155000, surface: 34 },
-        { score: 72, ville: 'Saint-Raphaël', prix: 169000, surface: 49 },
-      ],
-    },
+  const PHOTO = 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg'
+  const biens = [
+    { score: 88, ville: 'Agay', prix: 450000, surface: 120 },
+    { score: 81, ville: 'Fréjus', prix: 420000, surface: 95 },
+    { score: 73, ville: 'Bagnols', prix: 435000, surface: 130 },
   ]
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f0f9ff', minHeight: '100%' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f0f9ff', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
-      <div style={{ padding: '11px 14px', borderBottom: '1px solid #e0f2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+      <div style={{ padding: '10px 13px', borderBottom: '1px solid #e0f2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontWeight: 700, fontSize: 13, color: '#1E3A5F' }}>Matchings</span>
           <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 5, padding: '2px 5px' }}>NOUVEAU</span>
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>2 prospects · 5 matchings</span>
         </div>
-        <div style={{ background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', borderRadius: 8, padding: '5px 9px', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', borderRadius: 7, padding: '4px 8px', fontSize: 9, fontWeight: 700 }}>
           ✦ Analyse global
         </div>
       </div>
 
       {/* Filtres */}
-      <div style={{ padding: '7px 10px', display: 'flex', gap: 5, background: '#f0f9ff', borderBottom: '1px solid #e0f2fe', alignItems: 'center' }}>
-        <span style={{ padding: '3px 9px', borderRadius: 12, fontSize: 9, fontWeight: 600, background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}>
-          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,.7)', flexShrink: 0, display: 'inline-block' }} />
+      <div style={{ padding: '6px 9px', display: 'flex', gap: 5, borderBottom: '1px solid #e0f2fe', alignItems: 'center', flexShrink: 0 }}>
+        <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 9, fontWeight: 600, background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}>
+          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,.7)', display: 'inline-block' }} />
           Nouveaux
         </span>
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.7)', borderRadius: 9, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.8)', borderRadius: 8, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {['Tous', '≥ 65', '≥ 80'].map((t, i) => (
-            <span key={t} style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, background: i === 0 ? 'linear-gradient(135deg,#1E3A5F,#2d5a8a)' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#1E3A5F' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
           ))}
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', background: 'rgba(255,255,255,0.7)', borderRadius: 9, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', background: 'rgba(255,255,255,0.8)', borderRadius: 8, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {['Récents', 'Score', 'A→Z'].map((t, i) => (
-            <span key={t} style={{ padding: '3px 8px', fontSize: 9, fontWeight: 600, background: i === 0 ? 'linear-gradient(135deg,#1E3A5F,#2d5a8a)' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#1E3A5F' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
           ))}
         </div>
       </div>
 
-      {/* Cards prospects */}
-      <div style={{ padding: '8px 8px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-        {prospects.map((p, idx) => (
-          <div key={p.ini} className="matching-row" style={{ background: '#fff', borderRadius: 14, border: '1px solid #edf1f7', overflow: 'hidden', display: 'grid', gridTemplateColumns: '1.2fr 78px 1.1fr', boxShadow: '0 4px 14px rgba(30,58,95,0.06)', animationDelay: `${200 + idx * 220}ms` }}>
+      {/* Carte prospect avec détail déplié */}
+      <div style={{ padding: '8px 8px', flex: 1 }}>
+        <div className="matching-row" style={{ background: '#fff', borderRadius: 14, border: '1px solid #edf1f7', overflow: 'hidden', boxShadow: '0 4px 14px rgba(30,58,95,0.07)', animationDelay: '200ms' }}>
 
-            {/* ── Gauche — info prospect ── */}
+          {/* 3 colonnes */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 82px 1.1fr' }}>
+
+            {/* ── Gauche ── */}
             <div style={{ padding: '12px 10px', borderRight: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${p.a},${p.b})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>{p.ini}</div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>DC</div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F' }}>Mr Durand Charles</div>
                   <div style={{ fontSize: 9, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
-                    Actif · {p.matchs} matchs
+                    Actif · 3 matchs
                   </div>
                 </div>
               </div>
               <div style={{ padding: '6px 8px', background: '#f8fafc', borderRadius: 8, border: '1px solid #edf1f7', fontSize: 10, color: '#1E3A5F' }}>
                 <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 2 }}>Cherche</div>
-                <span style={{ fontWeight: 700 }}>{p.type}</span> à <span style={{ fontWeight: 700 }}>{p.zone}</span>
+                <span style={{ fontWeight: 700 }}>Maison/villa</span> à <span style={{ fontWeight: 700 }}>Agay</span>
               </div>
               <div>
                 <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.1em' }}>Budget</div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1E3A5F' }}>{fmtPrix(p.budget)}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1E3A5F' }}>{fmtPrix(450000)}</div>
               </div>
             </div>
 
             {/* ── Centre — ScoreRing ── */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg,#fbfcfe,#f8fafc)', borderRight: '1px solid #f3f4f6', padding: '10px 4px' }}>
-              <ScoreRingMini score={p.biens[0].score} size={70} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg,#fbfcfe,#f8fafc)', borderRight: '1px solid #f3f4f6' }}>
+              <ScoreRingMini score={88} size={68} />
             </div>
 
             {/* ── Droite — GemBadges ── */}
-            <div style={{ padding: '8px 8px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
-              {p.biens.slice(0, 3).map((bien, i) => (
-                <GemBadgeMini key={i} score={bien.score} ville={bien.ville} prix={bien.prix} surface={bien.surface} selected={i === 0} />
+            <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
+              {biens.map((b, i) => (
+                <GemBadgeMini key={i} score={b.score} ville={b.ville} prix={b.prix} surface={b.surface} selected={i === 0} />
               ))}
             </div>
           </div>
-        ))}
+
+          {/* ── Panneau déplié — photo + analyse ── */}
+          <div style={{ borderTop: '1px solid #e5e7eb' }}>
+
+            {/* Hero photo */}
+            <div style={{ position: 'relative', height: 140, background: `linear-gradient(135deg,rgba(15,23,42,.82) 0%,rgba(15,23,42,.55) 100%),url(${PHOTO}) center/cover no-repeat`, padding: '16px 18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Maison/villa</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 3, display: 'flex', gap: 6 }}>
+                    <span>📍 Agay</span>
+                    <span style={{ opacity: .4 }}>·</span>
+                    <span>120 m²</span>
+                    <span style={{ opacity: .4 }}>·</span>
+                    <span>4 pièces</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{fmtPrix(450000)}</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                {/* Points forts */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '.1em' }}>⚡ Points forts</span>
+                  </div>
+                  {['Plain-pied avec piscine, secteur calme', 'Surface et prix dans le budget cible', 'Vue mer partielle'].map((f, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, fontSize: 10, color: 'rgba(255,255,255,.88)', lineHeight: 1.4 }}>
+                      <span style={{ color: '#34d399', flexShrink: 0 }}>•</span><span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Post-it recommandation */}
+                <div style={{ background: 'linear-gradient(160deg,#fef9c3,#fde68a)', borderRadius: 4, padding: '8px 10px', transform: 'rotate(-1deg)', boxShadow: '0 6px 18px rgba(0,0,0,.28)', position: 'relative', alignSelf: 'flex-start' }}>
+                  <div style={{ position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 10, background: 'rgba(255,255,255,.55)', borderRadius: 2 }} />
+                  <div style={{ fontSize: 8, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>📝 Recommandation</div>
+                  <p style={{ fontSize: 11, color: '#78350f', lineHeight: 1.45, margin: 0, fontFamily: '"Caveat","Comic Sans MS",cursive', fontWeight: 500 }}>
+                    Excellent rapport qualité-prix. Proposer en priorité.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Barre d'action */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#fbfcfe', borderTop: '1px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: '#fff', border: '1px solid #e8eef5', fontSize: 11, fontWeight: 600, color: '#94a3b8', cursor: 'default' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/></svg>
+                Refuser
+              </div>
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 10, color: '#94a3b8' }}>1 bien sélectionné</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', fontSize: 11, fontWeight: 700, boxShadow: '0 4px 12px rgba(30,58,95,.35)', cursor: 'default' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Envoyer la sélection →
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   )
@@ -145,28 +194,29 @@ function MatchingMock() {
 
 /* ──────────────────────────────────────────────────────────────── */
 
-/* ── Avatar IA — color balls (miroir de AgentChat MiniFace) ── */
+/* ── Avatar IA — gradient color balls + yeux blancs clignotants ── */
 function BotFace({ size = 28 }) {
-  const scale = (size / 96).toFixed(3)
+  const eyeW = Math.max(Math.round(size * 0.14), 3)
+  const eyeH = Math.max(Math.round(size * 0.27), 7)
+  const gap   = Math.max(Math.round(size * 0.11), 3)
   return (
-    <div style={{ width: size, height: size, borderRadius: size <= 30 ? '50%' : 10, overflow: 'hidden', position: 'relative', flexShrink: 0, boxShadow: '0 2px 8px rgba(145,71,255,.25)' }}>
-      <div style={{ position: 'absolute', top: '50%', left: '50%', width: '6rem', height: '6rem', borderRadius: '1.6rem', transform: `translate(-50%,-50%) scale(${scale})`, transformOrigin: 'center' }}>
-        <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.85)', borderRadius: '1.6rem', overflow: 'hidden', position: 'relative' }}>
-          {/* Boules de couleur */}
-          <div style={{ position: 'absolute', inset: 0 }}>
-            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#ec4899', filter: 'blur(18px)', top: '50%', left: 0, transform: 'translateY(-50%)' }} />
-            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#9147ff', filter: 'blur(18px)', top: 0, left: '50%', transform: 'translateX(-50%)' }} />
-            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#34d399', filter: 'blur(18px)', bottom: 0, left: '50%', transform: 'translateX(-50%)' }} />
-            <div style={{ position: 'absolute', width: '3rem', height: '3rem', borderRadius: '50%', background: '#05e0f5', filter: 'blur(18px)', top: '50%', right: 0, transform: 'translateY(-50%)' }} />
-          </div>
-          {/* Verre dépoli + yeux */}
-          <div style={{ position: 'absolute', inset: 0, backdropFilter: 'blur(50px)', borderRadius: '1.6rem' }}>
-            <div style={{ position: 'absolute', left: '50%', bottom: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 26, gap: '1rem' }}>
-              <div className="bot-eye" style={{ width: 13, height: 26, background: '#fff', borderRadius: 8 }} />
-              <div className="bot-eye" style={{ width: 13, height: 26, background: '#fff', borderRadius: 8, animationDelay: '.3s' }} />
-            </div>
-          </div>
-        </div>
+    <div style={{
+      width: size, height: size, flexShrink: 0,
+      borderRadius: size <= 30 ? '50%' : Math.round(size * 0.22),
+      position: 'relative', overflow: 'hidden',
+      background: 'linear-gradient(135deg, #9147ff 0%, #05c8e8 55%, #ec4899 100%)',
+      boxShadow: '0 2px 10px rgba(145,71,255,.35)',
+    }}>
+      {/* Léger voile blanc pour adoucir */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.10)' }} />
+      {/* Yeux blancs clignotants */}
+      <div style={{
+        position: 'absolute', left: '50%', top: '50%',
+        transform: 'translate(-50%, -50%)',
+        display: 'flex', alignItems: 'center', gap,
+      }}>
+        <div className="bot-eye" style={{ width: eyeW, height: eyeH, background: '#fff', borderRadius: eyeW * 2, boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+        <div className="bot-eye" style={{ width: eyeW, height: eyeH, background: '#fff', borderRadius: eyeW * 2, boxShadow: '0 1px 4px rgba(0,0,0,.2)', animationDelay: '.3s' }} />
       </div>
     </div>
   )
@@ -283,7 +333,7 @@ function ChatMock() {
         <BotFace size={38} />
         <div style={{ flex: 1 }}>
           <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>Assistant IA</div>
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Saint François Immo</div>
+          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>Côte d'Azur Immo</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#34d399', boxShadow: '0 0 6px rgba(52,211,153,.7)' }} />
@@ -859,7 +909,7 @@ const FEATURES = [
     description: "ImmoFlash croise budget, localisation et style de vie, puis attribue un score sur 100 à chaque paire. Les meilleures remontent toutes seules, toi tu valides.",
     proof: "Score calculé en temps réel sur l'ensemble de ton portefeuille",
     Mock: MatchingMock,
-    height: 420,
+    height: 560,
     scrollable: false,
     rotation: -1.5,
     reversed: false,
