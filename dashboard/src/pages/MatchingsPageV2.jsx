@@ -560,9 +560,6 @@ export default function MatchingsPageV2() {
     const filtered = matchings.filter(m => {
       if (s && !(
         m.prospect_nom?.toLowerCase().includes(s) ||
-        m.bien_ville?.toLowerCase().includes(s) ||
-        m.bien_quartier?.toLowerCase().includes(s) ||
-        m.bien_type?.toLowerCase().includes(s) ||
         m.bien_reference?.toLowerCase().includes(s)
       )) return false
       if (filterScore === 'bon65'     && m.score < 65) return false
@@ -622,7 +619,7 @@ export default function MatchingsPageV2() {
       {/* Recherche */}
       <div className="relative mb-3">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input type="text" placeholder="Prospect, ville, quartier, type, référence…" value={search} onChange={e => setSearch(e.target.value)}
+        <input type="text" placeholder="Prospect ou référence du bien…" value={search} onChange={e => setSearch(e.target.value)}
           className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
       </div>
 
