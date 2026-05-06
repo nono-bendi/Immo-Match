@@ -185,7 +185,7 @@ def construire_contexte_bien(bien):
 - Stationnement : {stationnement_str}
 - Orientation : {orientation_str}
 - DPE : {dpe_str} | GES : {ges_str}
-- Description : {(bien.get('description') or 'Aucune')[:600]}
+- Description : {(bien.get('description') or 'Aucune')[:1200]}
 - Points négatifs (usage interne) : {(bien.get('defauts') or 'Aucun renseigné')}"""
 
 
@@ -360,6 +360,12 @@ CRITÈRES DEMANDÉS ABSENTS — PÉNALISATION CIBLÉE :
 - Ascenseur demandé, absent partout → -5 à -8 pts
 - Stationnement demandé, absent partout → -4 à -7 pts
 - Cumul de 3 absences confirmées → score plafonné à 15/40 maximum
+
+COHÉRENCE RECOMMANDATION — RÈGLE PRIORITAIRE :
+- Lis intégralement la description avant de rédiger la recommandation.
+- N'évoque JAMAIS la "possibilité d'ajouter" ou "l'absence de" un équipement qui est déjà mentionné dans la description (ex : climatisation, balcon, parking, cave, alarme).
+- Si la description dit "offre la climatisation réversible", ne suggère pas d'ajouter la climatisation.
+- La recommandation doit être cohérente avec TOUT le contenu de la description, pas seulement les premiers paragraphes.
 
 STATIONNEMENT — RÈGLE SPÉCIFIQUE (erreur fréquente à éviter) :
 - Le stationnement peut être DANS le bien (box, garage, place privative) OU À PROXIMITÉ (parking public, parking avec abonnement, parking en face, navette, etc.)
