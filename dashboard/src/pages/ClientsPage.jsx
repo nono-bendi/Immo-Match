@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown } from 'lucide-react'
+import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown, Shuffle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProspectModal from '../components/ProspectModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -265,6 +265,15 @@ function ClientsPage() {
               title="Analyser ce prospect"
             >
               <Sparkles size={18} className="text-amber-500 icon-wiggle" />
+            </button>
+          )}
+          {!archived && (
+            <button
+              onClick={e => { e.stopPropagation(); navigate(`/matchings?prospect=${prospect.id}`) }}
+              className="p-2 rounded-lg hover:bg-indigo-50 transition-all"
+              title="Voir les matchings"
+            >
+              <Shuffle size={18} className="text-indigo-400" />
             </button>
           )}
           <button

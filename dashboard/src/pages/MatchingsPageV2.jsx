@@ -455,7 +455,8 @@ export default function MatchingsPageV2() {
   const agencyNom = agency?.nom || 'ImmoFlash'
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const filterBienId = searchParams.get('bien') ? parseInt(searchParams.get('bien')) : null
+  const filterBienId      = searchParams.get('bien')     ? parseInt(searchParams.get('bien'))     : null
+  const filterProspectId  = searchParams.get('prospect') ? parseInt(searchParams.get('prospect')) : null
 
 
   const [matchings, setMatchings]       = useState([])
@@ -563,7 +564,8 @@ export default function MatchingsPageV2() {
       if (filterScore === 'bon65'     && m.score < 65) return false
       if (filterScore === 'excellent' && m.score < 80) return false
       if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
-      if (filterBienId && m.bien_id !== filterBienId) return false
+      if (filterBienId    && m.bien_id     !== filterBienId)    return false
+      if (filterProspectId && m.prospect_id !== filterProspectId) return false
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
@@ -580,7 +582,7 @@ export default function MatchingsPageV2() {
       return Math.max(...b.matchings.map(m => m.score)) - Math.max(...a.matchings.map(m => m.score))
     })
     return { filtered, groups }
-  }, [matchings, search, filterScore, filterNew, filterBienId, sortBy])
+  }, [matchings, search, filterScore, filterNew, filterBienId, filterProspectId, sortBy])
 
   return (
     <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
@@ -665,7 +667,13 @@ export default function MatchingsPageV2() {
       {filterBienId && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
           <span className="text-blue-700">Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
-          <button onClick={() => navigate('/matchings-v2')} className="text-blue-500 hover:underline">Voir tout</button>
+          <button onClick={() => navigate('/matchings')} className="text-blue-500 hover:underline">Voir tout</button>
+        </div>
+      )}
+      {filterProspectId && (
+        <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-4 text-sm">
+          <span className="text-indigo-700">{groups[0]?.prospect_nom || `Prospect #${filterProspectId}`} — {filtered.length} matching{filtered.length > 1 ? 's' : ''}</span>
+          <button onClick={() => navigate('/matchings')} className="text-indigo-500 hover:underline">Voir tout</button>
         </div>
       )}
 
