@@ -10,7 +10,7 @@ function Sidebar({ isOpen, onClose }) {
   const menuItems = [
     { icon: Home,      label: 'Dashboard',        path: '/' },
     { icon: UserPlus,  label: 'Nouveau prospect',  path: '/clients/nouveau' },
-    { icon: Users,     label: 'Clients',           path: '/clients' },
+    { icon: Users,     label: 'Prospects',          path: '/clients' },
     { icon: Building2, label: 'Biens',             path: '/biens' },
     { icon: Shuffle,   label: 'Matchings',         path: '/matchings' },
     { icon: History,          label: 'Historique',   path: '/historique' },
