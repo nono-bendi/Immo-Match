@@ -245,7 +245,9 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
         <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
           <button
             onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#1E3A5F] bg-white border border-gray-200 rounded-xl hover:border-[#1E3A5F] hover:bg-blue-50 transition-all"
+            onMouseEnter={e => { e.currentTarget.style.background='#1E3A5F'; e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='#1E3A5F' }}
+            onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.borderColor='#e5e7eb' }}
+            style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', fontSize:14, fontWeight:600, color:'#1E3A5F', background:'#fff', border:'1px solid #e5e7eb', borderRadius:12, cursor:'pointer', transition:'all 0.18s' }}
           >
             <FileBarChart size={15} />
             Rapport prospect
