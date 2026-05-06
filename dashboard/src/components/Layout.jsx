@@ -89,7 +89,7 @@ function Layout({ children }) {
           }
         />
 
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-auto" style={{ paddingBottom: '120px' }}>
           {children}
         </main>
 
