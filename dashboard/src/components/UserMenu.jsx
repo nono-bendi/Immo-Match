@@ -49,7 +49,7 @@ function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors"
       >
-        <div className="w-9 h-9 bg-[#1E3A5F] rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%)' }}>
           {getInitials(user?.nom)}
         </div>
         <div className="hidden md:block text-left">
