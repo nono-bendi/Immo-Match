@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowRight, RefreshCw, Shuffle, Bell, SlidersHorizontal,
+  ArrowRight, RefreshCw, Shuffle, Bell,
   Building2, Star, Zap, CheckCircle2, X,
   ChevronDown, ChevronRight, Shield, Clock, TrendingUp,
 } from 'lucide-react'
@@ -316,10 +316,6 @@ function Features() {
       title:'Matching multicritères', emoji:'🎯',
       desc:'Chaque bien est comparé à chacun de vos prospects. Un score précis de 0 à 100 % est calculé selon leur profil d\'acheteur.',
       points:['Score budget / surface / type / ville','Résultats triés par pertinence','Biens actifs uniquement','Zéro saisie manuelle'] },
-    { icon:<SlidersHorizontal size={22} color="#a78bfa"/>, bg:'rgba(167,139,250,0.08)', bd:'rgba(167,139,250,0.15)',
-      title:'Calibration du scoring', emoji:'⚙️',
-      desc:'Adaptez le poids de chaque critère à votre marché local. La prévisualisation en temps réel vous montre l\'impact de chaque réglage.',
-      points:['Pondération par critère','Prévisualisation instantanée','Sauvegardé par agence','Aucune connaissance technique'] },
     { icon:<Bell size={22} color="#fcd34d"/>, bg:'rgba(252,211,77,0.08)', bd:'rgba(252,211,77,0.15)',
       title:'Alertes & historique', emoji:'🔔',
       desc:'Vos agents reçoivent une notification à chaque nouveau matching pertinent. L\'historique complet reste accessible pour tous.',
@@ -424,7 +420,6 @@ function Pricing({ onLogin }) {
         { ok:true,  t:'50 prospects actifs' },
         { ok:true,  t:'Matching automatique' },
         { ok:true,  t:'Notifications' },
-        { ok:false, t:'Calibration du scoring' },
         { ok:false, t:'Historique avancé' },
         { ok:false, t:'Multi-agents' },
       ],
@@ -439,7 +434,6 @@ function Pricing({ onLogin }) {
         { ok:true, t:'Prospects illimités' },
         { ok:true, t:'Matching automatique' },
         { ok:true, t:'Notifications temps réel' },
-        { ok:true, t:'Calibration du scoring' },
         { ok:true, t:'Historique complet' },
         { ok:false,t:'Multi-agences' },
       ],
@@ -454,7 +448,6 @@ function Pricing({ onLogin }) {
         { ok:true, t:'Prospects illimités' },
         { ok:true, t:'Matching automatique' },
         { ok:true, t:'Notifications temps réel' },
-        { ok:true, t:'Calibration avancée' },
         { ok:true, t:'Historique complet' },
         { ok:true, t:'Multi-agences' },
       ],
@@ -564,7 +557,7 @@ function FAQ() {
     { q:'Est-ce compatible avec toutes les versions de Hektor ?', a:"Oui, ImmoFlash se connecte via FTP à votre compte Hektor et importe le fichier CSV standard d'annonces. Toutes les versions de Hektor qui exportent ce format sont compatibles." },
     { q:'Combien de temps pour être opérationnel ?', a:"Moins de 5 minutes. Renseignez vos identifiants FTP Hektor, créez vos premiers prospects, et ImmoFlash commence à faire des matchings dès la première synchronisation." },
     { q:'Que se passe-t-il quand un bien est vendu ?', a:"ImmoFlash détecte automatiquement les biens absents du CSV Hektor et les marque comme vendus. Ils restent visibles 2 jours dans votre interface avant d'être supprimés." },
-    { q:'Puis-je personnaliser les critères de matching ?', a:"Oui, la page Calibration vous permet d'ajuster le poids de chaque critère (budget, surface, type de bien, localisation) selon votre marché local, avec une prévisualisation en temps réel." },
+    { q:'Puis-je personnaliser les critères de matching ?', a:"Oui, les critères de matching (budget, surface, type de bien, localisation) sont pris en compte automatiquement selon le profil de chaque prospect." },
     { q:'Est-ce que je peux annuler mon abonnement ?', a:"Absolument. Vous pouvez annuler à tout moment depuis votre espace paramètres. Aucun engagement, aucune pénalité." },
   ]
   return (

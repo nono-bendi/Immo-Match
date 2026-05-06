@@ -839,8 +839,8 @@ function SlideBiens({ active }) {
   )
 }
 
-// ─── SLIDE 05 : CALIBRATION — page autonome ──────────
-function SlideCalibration({ active }) {
+// ─── SLIDE 05 : SUPPRIMÉ (Calibration retirée) ───────
+function _SlideCalibration_UNUSED({ active }) {
   const [step, setStep] = useState(0)
   const [scoreVal, setScoreVal] = useState(0)
   const scoreRef = useRef(null)
@@ -1035,7 +1035,7 @@ const SLIDES = [
     id: 'welcome', num: '00', color: '#6366f1',
     title: 'Bonjour et bienvenue !',
     desc: "ImmoFlash est votre assistant IA pour l'immobilier. Il analyse automatiquement vos prospects, trouve les meilleurs biens, et génère les emails pour vos clients — en quelques secondes.",
-    cta: "Ce guide vous présente les 5 fonctionnalités clés. Prenez 2 minutes pour le parcourir.",
+    cta: "Ce guide vous présente les 4 fonctionnalités clés. Prenez 2 minutes pour le parcourir.",
     Component: SlideWelcome,
   },
   {
@@ -1065,13 +1065,6 @@ const SLIDES = [
     desc: "Depuis chaque bien, ajoutez les défauts spécifiques que L'IA prendra en compte — vis-à-vis, travaux, bruit de rue. Ces infos ne sont jamais visibles par vos clients.",
     cta: 'Plus de contexte = des scores plus précis.',
     Component: SlideBiens,
-  },
-  {
-    id: 'calibration', num: '05', color: '#7c3aed',
-    title: 'Calibrer les scores',
-    desc: "Pour chaque matching, indiquez si le bien est pertinent et si le score est juste. L'IA apprend de vos retours et affine ses recommandations.",
-    cta: "Plus vous évaluez, mieux l'IA vous comprend.",
-    Component: SlideCalibration,
   },
 ]
 

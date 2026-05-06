@@ -17,7 +17,6 @@ const HistoriquePage   = lazy(() => import('./pages/HistoriquePage'))
 const SettingsPage     = lazy(() => import('./pages/SettingsPage'))
 const AdministrationPage = lazy(() => import('./pages/AdministrationPage'))
 const NewProspectPage  = lazy(() => import('./pages/NewProspectPage'))
-const CalibrationPage  = lazy(() => import('./pages/CalibrationPage'))
 const LandingPage      = lazy(() => import('./pages/LandingPage'))
 
 function PageLoader() {
@@ -106,7 +105,6 @@ function AppRoutes() {
                       <Route path="/historique" element={<HistoriquePage />} />
                       <Route path="/parametres" element={<SettingsPage />} />
                       <Route path="/administration" element={<AdministrationPage />} />
-                      <Route path="/calibration" element={<CalibrationPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Suspense>

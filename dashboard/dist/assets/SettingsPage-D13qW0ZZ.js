@@ -1,0 +1,1 @@
+import{j as t}from"./index-DNaia-0L.js";import{N as r}from"./vendor-react-D-oR_zYz.js";import"./vendor-icons-BUl-j4OD.js";function o(){return t.jsx(r,{to:"/administration",replace:!0})}export{o as default};

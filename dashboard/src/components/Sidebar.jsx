@@ -1,4 +1,4 @@
-import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, SlidersHorizontal, ShieldCheck } from 'lucide-react'
+import { Home, Users, UserPlus, Shuffle, Building2, History, Settings, ChevronRight, X, ShieldCheck } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useAgency } from '../contexts/AgencyContext'
@@ -14,7 +14,6 @@ function Sidebar({ isOpen, onClose }) {
     { icon: Building2, label: 'Biens',             path: '/biens' },
     { icon: Shuffle,   label: 'Matchings',         path: '/matchings' },
     { icon: History,          label: 'Historique',   path: '/historique' },
-    { icon: SlidersHorizontal, label: 'Calibration',  path: '/calibration' },
   ]
 
   const getInitials = (name) => {

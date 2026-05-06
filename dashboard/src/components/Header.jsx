@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, Settings, SlidersHorizontal, Menu, ShieldCheck } from 'lucide-react'
+import { Clock, LayoutDashboard, Users, UserPlus, Shuffle, Building2, History, Settings, Menu, ShieldCheck } from 'lucide-react'
 import NotificationBell from './NotificationBell'
 import UserMenu from './UserMenu'
 import { apiFetch } from '../api'
@@ -15,7 +15,6 @@ const PAGES = {
   '/historique':      { title: 'Historique',         subtitle: 'Historique des actions',              icon: History },
   '/parametres':      { title: 'Paramètres',         subtitle: "Configuration de l'application",     icon: Settings },
   '/administration':  { title: 'Administration',     subtitle: "Configuration de l'agence",           icon: ShieldCheck },
-  '/calibration':     { title: 'Calibration',        subtitle: 'Évaluez la pertinence des matchings', icon: SlidersHorizontal },
 }
 
 function formatDerniereAnalyse(dateStr) {
