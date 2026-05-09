@@ -45,35 +45,24 @@ export default function WavesBackground() {
             <stop offset="0%"   stopColor="#7dd3fc" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#c4b5fd" stopOpacity="0.35" />
           </linearGradient>
-          <filter id="wavesBgBlur">
-            <feGaussianBlur stdDeviation="8" />
-          </filter>
         </defs>
 
         <g style={{ animation: 'wavesDrift 28s ease-in-out infinite', transformOrigin: 'center' }}>
           <path d="M0,180 C240,120 480,260 720,200 C960,140 1200,280 1440,220 L1440,0 L0,0 Z"
-            fill="url(#wavesBgGrad1)" filter="url(#wavesBgBlur)" />
+            fill="url(#wavesBgGrad1)" />
         </g>
         <g style={{ animation: 'wavesDrift2 34s ease-in-out infinite', transformOrigin: 'center' }}>
           <path d="M0,420 C300,360 600,520 900,440 C1140,380 1280,500 1440,460 L1440,160 C1200,220 960,80 720,140 C480,200 240,60 0,120 Z"
-            fill="url(#wavesBgGrad2)" filter="url(#wavesBgBlur)" />
+            fill="url(#wavesBgGrad2)" />
         </g>
         <g style={{ animation: 'wavesDrift 38s ease-in-out infinite reverse', transformOrigin: 'center' }}>
           <path d="M0,720 C300,660 600,820 900,740 C1200,660 1280,800 1440,760 L1440,460 C1200,540 960,360 720,440 C480,520 240,360 0,440 Z"
-            fill="url(#wavesBgGrad3)" filter="url(#wavesBgBlur)" opacity="0.6" />
+            fill="url(#wavesBgGrad3)" opacity="0.6" />
         </g>
         <g style={{ animation: 'wavesDrift2 42s ease-in-out infinite', transformOrigin: 'center' }}>
           <path d="M0,900 L0,820 C300,860 600,720 900,800 C1200,880 1280,760 1440,820 L1440,900 Z"
             fill="url(#wavesBgGrad1)" opacity="0.7" />
         </g>
-      </svg>
-
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.3, mixBlendMode: 'overlay' }}>
-        <filter id="wavesBgGrain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" stitchTiles="stitch" />
-          <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.3 0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#wavesBgGrain)" />
       </svg>
     </div>
   )

@@ -30,6 +30,7 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     @keyframes star-float { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-7px) rotate(10deg)} }
     @keyframes star-drift { 0%,100%{transform:translateY(0) rotate(0deg) scale(1)} 40%{transform:translateY(-5px) rotate(-14deg) scale(1.12)} 80%{transform:translateY(3px) rotate(7deg) scale(.93)} }
     @keyframes star-pulse { 0%,100%{opacity:.35;transform:scale(1) rotate(0deg)} 50%{opacity:.6;transform:scale(1.15) rotate(-20deg)} }
+    @keyframes blobPulse   { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:.75;transform:scale(1.08)} }
     .glass-sort-group{display:flex;position:relative;background:rgba(255,255,255,.65);border-radius:.85rem;backdrop-filter:blur(12px);box-shadow:inset 1px 1px 4px rgba(255,255,255,.9),inset -1px -1px 4px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.08);overflow:hidden;border:1px solid rgba(0,0,0,.07);flex-shrink:0;}
     .glass-sort-btn{flex:1;min-width:68px;white-space:nowrap;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
     .glass-sort-btn:hover{color:#1e293b;}
@@ -87,41 +88,56 @@ const POSTIT_PAL = [
 ]
 const postitPal = (id) => POSTIT_PAL[(id || 0) % POSTIT_PAL.length]
 
-// ─── AuroraBackground — ShaderGradient-like, position:fixed → visible au scroll
+// ─── AuroraBackground — rendu différé pour ne pas bloquer le LCP
 function AuroraBackground() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    // Laisse le navigateur peindre le contenu principal d'abord
+    const id = requestIdleCallback ? requestIdleCallback(() => setReady(true)) : setTimeout(() => setReady(true), 200)
+    return () => requestIdleCallback ? cancelIdleCallback(id) : clearTimeout(id)
+  }, [])
   const blob = (style) => (
     <div style={{ position: 'absolute', borderRadius: '50%', pointerEvents: 'none', ...style }} />
   )
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', background: '#f0f9ff', pointerEvents: 'none' }}>
-      {blob({ width: 700, height: 700, top: '-15%', left: '-10%',  background: '#7dd3fc', filter: 'blur(80px)', opacity: 0.55, animation: 'aurora1 20s ease-in-out infinite', willChange: 'transform' })}
-      {blob({ width: 600, height: 600, top: '20%',  right: '-12%', background: '#93c5fd', filter: 'blur(70px)', opacity: 0.50, animation: 'aurora2 25s ease-in-out infinite', willChange: 'transform' })}
-      {blob({ width: 550, height: 550, bottom: '0%',left: '28%',   background: '#67e8f9', filter: 'blur(75px)', opacity: 0.52, animation: 'aurora3 18s ease-in-out infinite', willChange: 'transform' })}
+      {ready && <>
+        {blob({ width: 600, height: 600, top: '-10%', left: '-8%',   background: '#7dd3fc', filter: 'blur(45px)', opacity: 0.45, animation: 'aurora1 22s ease-in-out infinite', willChange: 'transform' })}
+        {blob({ width: 500, height: 500, bottom: '5%', right: '-10%', background: '#93c5fd', filter: 'blur(40px)', opacity: 0.40, animation: 'aurora2 28s ease-in-out infinite', willChange: 'transform' })}
+      </>}
     </div>
   )
 }
 
-// ─── Count-up ──────────────────────────────────────────────────────────────────
-function useCountUp(target, duration = 900) {
-  const [v, setV] = useState(0)
+// ─── ScoreRing SVG — animation DOM directe, zéro re-render React ───────────────
+function ScoreRing({ score, size = 140 }) {
+  const c   = sC(score)
+  const r   = (size - 14) / 2
+  const cx  = size / 2
+  const circ = 2 * Math.PI * r
+  const numRef  = useRef(null)
+  const arcRef  = useRef(null)
+
   useEffect(() => {
-    const start = performance.now(); let raf
-    const step = (t) => { const p = Math.min(1, (t - start) / duration); setV(Math.round((1 - Math.pow(1 - p, 3)) * target)); if (p < 1) raf = requestAnimationFrame(step) }
+    const duration = 900
+    const start    = performance.now()
+    let raf
+    const step = (t) => {
+      const p   = Math.min(1, (t - start) / duration)
+      const ease = 1 - Math.pow(1 - p, 3)
+      const val  = Math.round(ease * score)
+      if (numRef.current) numRef.current.textContent = val
+      if (arcRef.current) arcRef.current.style.strokeDashoffset = circ * (1 - val / 100)
+      if (p < 1) raf = requestAnimationFrame(step)
+    }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [target])
-  return v
-}
+  }, [score, circ])
 
-// ─── ScoreRing SVG + Blob ──────────────────────────────────────────────────────
-function ScoreRing({ score, size = 140 }) {
-  const c = sC(score); const v = useCountUp(score)
-  const r = (size - 14) / 2; const cx = size / 2
-  const circ = 2 * Math.PI * r; const offset = circ * (1 - v / 100)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
       <div style={{ position: 'relative', width: size, height: size }}>
-        <div style={{ position: 'absolute', inset: -4, background: `radial-gradient(circle at 30% 30%,${c.c1}55 0%,transparent 60%),radial-gradient(circle at 70% 70%,${c.soft}45 0%,transparent 60%)`, filter: 'blur(18px)', animation: 'blobPulse 3s ease-in-out infinite', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: -4, background: `radial-gradient(circle at 30% 30%,${c.c1}40 0%,transparent 60%),radial-gradient(circle at 70% 70%,${c.soft}30 0%,transparent 60%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
         <svg width={size} height={size} style={{ position: 'relative', display: 'block', transform: 'rotate(-90deg)' }}>
           <defs>
             <linearGradient id={`sg-${score}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -129,11 +145,11 @@ function ScoreRing({ score, size = 140 }) {
             </linearGradient>
           </defs>
           <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.7)" strokeWidth={10} />
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke={`url(#sg-${score})`} strokeWidth={10} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} style={{ transition: 'stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 2px 8px ${c.c1}60)` }} />
+          <circle ref={arcRef} cx={cx} cy={cx} r={r} fill="none" stroke={`url(#sg-${score})`} strokeWidth={10} strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ} style={{ filter: `drop-shadow(0 2px 8px ${c.c1}60)` }} />
         </svg>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Score IA</span>
-          <span style={{ fontSize: Math.round(size * 0.34), fontWeight: 900, color: c.c1, lineHeight: 1, letterSpacing: '-0.05em', fontVariantNumeric: 'tabular-nums' }}>{v}</span>
+          <span ref={numRef} style={{ fontSize: Math.round(size * 0.34), fontWeight: 900, color: c.c1, lineHeight: 1, letterSpacing: '-0.05em', fontVariantNumeric: 'tabular-nums' }}>0</span>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', letterSpacing: '0.08em', marginTop: 2 }}>/ 100</span>
         </div>
       </div>
@@ -573,14 +589,19 @@ export default function MatchingsPageV2() {
       if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
-    const groups = Object.values(grouped).sort((a, b) => {
-      if (sortBy === 'score') return Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)) - Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
+    const vals = Object.values(grouped)
+    // Précalculer les valeurs de tri une seule fois par groupe
+    for (const g of vals) {
+      g._maxScore  = Math.max(...g.matchings.map(m => m.score_pondere ?? m.score))
+      g._maxRaw    = Math.max(...g.matchings.map(m => m.score))
+      g._maxDate   = Math.max(...g.matchings.map(m => new Date(m.date_creation || 0).getTime()))
+    }
+    const groups = vals.sort((a, b) => {
+      if (sortBy === 'score') return b._maxScore - a._maxScore
       if (sortBy === 'alpha') return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
-      const tA = Math.max(...a.matchings.map(m => new Date(m.date_creation || 0).getTime()))
-      const tB = Math.max(...b.matchings.map(m => new Date(m.date_creation || 0).getTime()))
-      const sameMinute = Math.abs(tB - tA) < 60000
-      if (!sameMinute) return tB - tA
-      return Math.max(...b.matchings.map(m => m.score)) - Math.max(...a.matchings.map(m => m.score))
+      const sameMinute = Math.abs(b._maxDate - a._maxDate) < 60000
+      if (!sameMinute) return b._maxDate - a._maxDate
+      return b._maxRaw - a._maxRaw
     })
     return { filtered, groups }
   }, [matchings, search, filterScore, filterNew, filterBienId, filterProspectId, sortBy])
