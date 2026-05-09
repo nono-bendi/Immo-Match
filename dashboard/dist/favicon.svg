@@ -1,11 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- fond transparent, lettres IF navy -->
-  <!-- I -->
-  <rect x="6"  y="6" width="17" height="88" rx="5" fill="#1E3A5F"/>
-  <!-- F barre verticale -->
-  <rect x="35" y="6" width="17" height="88" rx="5" fill="#1E3A5F"/>
-  <!-- F barre du haut -->
-  <rect x="52" y="6" width="42" height="17" rx="5" fill="#1E3A5F"/>
-  <!-- F barre du milieu -->
-  <rect x="52" y="42" width="31" height="15" rx="5" fill="#1E3A5F"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#2389e9"/>
+  <text x="16" y="22.5" font-family="Arial Black, Arial, sans-serif" font-size="14" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-0.5">IF</text>
 </svg>
