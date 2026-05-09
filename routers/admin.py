@@ -198,3 +198,80 @@ def delete_agent(agent_id: int, current_user: dict = Depends(require_admin)):
     conn.commit()
     conn.close()
     return {"message": "Agent supprimé"}
+
+
+# ══════════════════════════════════════════════════════════════
+# SUPER-ADMIN — GESTION MULTI-AGENCES (réservé au propriétaire)
+# ══════════════════════════════════════════════════════════════
+
+def require_owner(current_user: dict = Depends(require_admin)):
+    """Réservé au compte propriétaire de la plateforme (agence saint_francois)."""
+    if current_user.get("agency_slug") != "saint_francois":
+        raise HTTPException(status_code=403, detail="Réservé au propriétaire de la plateforme")
+    return current_user
+
+
+@router.get("/admin/all-agencies")
+def list_all_agencies(current_user: dict = Depends(require_owner)):
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    agencies = conn.execute(
+        "SELECT a.id, a.slug, a.nom, a.nom_court, a.plan_id, a.email, "
+        "COUNT(u.id) as nb_users "
+        "FROM agencies a LEFT JOIN users u ON u.agency_id = a.id "
+        "GROUP BY a.id ORDER BY a.id"
+    ).fetchall()
+    conn.close()
+    return [dict(a) for a in agencies]
+
+
+class NewAgency(BaseModel):
+    slug: str
+    nom: str
+    nom_court: str
+    plan_id: str = "agence"
+    admin_email: str
+    admin_nom: str
+    admin_password: str
+
+
+@router.post("/admin/create-agency")
+def create_agency(data: NewAgency, current_user: dict = Depends(require_owner)):
+    import re
+    from database import init_db
+    import agencies_db as adb_mod
+
+    if not re.match(r'^[a-z0-9_]+$', data.slug):
+        raise HTTPException(status_code=400, detail="Slug invalide (lettres minuscules, chiffres, underscores uniquement)")
+    if len(data.admin_password) < 6:
+        raise HTTPException(status_code=400, detail="Mot de passe admin trop court (min 6 caractères)")
+
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    conn.row_factory = sqlite3.Row
+
+    if conn.execute("SELECT id FROM agencies WHERE slug = ?", (data.slug,)).fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Ce slug est déjà utilisé")
+    if conn.execute("SELECT id FROM users WHERE email = ?", (data.admin_email.lower(),)).fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="Cet email est déjà utilisé")
+
+    cursor = conn.execute(
+        "INSERT INTO agencies (slug, nom, nom_court, nom_filtre, plan_id) VALUES (?, ?, ?, ?, ?)",
+        (data.slug, data.nom, data.nom_court, data.nom_court, data.plan_id)
+    )
+    agency_id = cursor.lastrowid
+
+    pw_hash = bcrypt.hashpw(data.admin_password.encode(), bcrypt.gensalt()).decode()
+    conn.execute(
+        "INSERT INTO users (email, password_hash, nom, role, agency_id, created_at) VALUES (?, ?, ?, 'admin', ?, ?)",
+        (data.admin_email.lower(), pw_hash, data.admin_nom, agency_id, datetime.now().isoformat())
+    )
+    conn.commit()
+    conn.close()
+
+    # Initialise la base de données métier de l'agence
+    db_path = adb_mod.get_db_path(data.slug)
+    init_db(db_path)
+
+    return {"success": True, "message": f"Agence « {data.nom} » créée avec succès", "agency_id": agency_id}

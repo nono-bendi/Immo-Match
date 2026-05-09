@@ -75,6 +75,7 @@ export default function AdministrationPage() {
   const { agency, loadAgency } = useAgency()
   const isAdmin = user?.role === 'admin'
   const isDemo = agency?.slug === 'demo'
+  const isSuperAdmin = user?.email === 'noabendiaf@gmail.com'
 
   // ── App settings (API key, IA, FTP, préférences) ─────────────────────────
   const [settings, setSettings] = useState({
@@ -133,6 +134,14 @@ export default function AdministrationPage() {
   const [claudeUsage, setClaudeUsage] = useState(null)
   const CLAUDE_LIMIT = 3000
 
+  // ── Super-admin : multi-agences ──────────────────────────────────────────
+  const [allAgencies, setAllAgencies] = useState([])
+  const [newAgency, setNewAgency] = useState({ slug: '', nom: '', nom_court: '', plan_id: 'agence', admin_email: '', admin_nom: '', admin_password: '' })
+  const [creatingAgency, setCreatingAgency] = useState(false)
+  const [agencyCreateMsg, setAgencyCreateMsg] = useState({ ok: false, text: '' })
+  const [showNewAgencyForm, setShowNewAgencyForm] = useState(false)
+  const [showAgencyPw, setShowAgencyPw] = useState(false)
+
   // ── Misc UI ──────────────────────────────────────────────────────────────
   const [showApiKey, setShowApiKey] = useState(false)
   const [showFtpPass, setShowFtpPass] = useState(false)
@@ -155,6 +164,12 @@ export default function AdministrationPage() {
         setLastSyncErrorAt(d.last_sync_error_at ? new Date(d.last_sync_error_at) : null)
       }
     }).catch(() => {})
+
+    if (isSuperAdmin) {
+      apiFetch('/admin/all-agencies').then(r => r.json()).then(d => {
+        if (Array.isArray(d)) setAllAgencies(d)
+      }).catch(() => {})
+    }
 
     if (isAdmin) {
       apiFetch('/admin/agency').then(r => r.json()).then(d => {
@@ -356,6 +371,28 @@ export default function AdministrationPage() {
       else alert('Erreur : ' + (d.detail || d.message))
     } catch { alert('Erreur lors de la réinitialisation') }
     finally { setResettingDemo(false) }
+  }
+
+  const createAgency = async (e) => {
+    e.preventDefault()
+    setCreatingAgency(true)
+    try {
+      const r = await apiFetch('/admin/create-agency', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newAgency)
+      })
+      const d = await r.json()
+      if (d.success) {
+        flash(setAgencyCreateMsg, true, d.message)
+        setNewAgency({ slug: '', nom: '', nom_court: '', plan_id: 'agence', admin_email: '', admin_nom: '', admin_password: '' })
+        setShowNewAgencyForm(false)
+        const list = await apiFetch('/admin/all-agencies').then(r => r.json())
+        if (Array.isArray(list)) setAllAgencies(list)
+      } else {
+        flash(setAgencyCreateMsg, false, d.detail || 'Erreur')
+      }
+    } catch { flash(setAgencyCreateMsg, false, 'Erreur de connexion') }
+    setCreatingAgency(false)
   }
 
   const maskKey = k => k && k.length > 20 ? k.slice(0, 10) + '••••••••••••••••' + k.slice(-5) : k
@@ -1042,6 +1079,102 @@ export default function AdministrationPage() {
           )}
         </div>
       </Section>
+
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      {/* SUPER-ADMIN — GESTION DES AGENCES                                 */}
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      {isSuperAdmin && (
+        <Section title="Gestion des agences" icon={Building2} badge="Propriétaire" defaultOpen>
+          {/* Liste */}
+          <div className="overflow-x-auto mb-5">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left py-2 pr-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Agence</th>
+                  <th className="text-left py-2 pr-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Slug</th>
+                  <th className="text-left py-2 pr-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Plan</th>
+                  <th className="text-left py-2 font-semibold text-gray-500 text-xs uppercase tracking-wide">Utilisateurs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allAgencies.map(a => (
+                  <tr key={a.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="py-2.5 pr-4 font-medium text-[#1E3A5F]">{a.nom}</td>
+                    <td className="py-2.5 pr-4 text-gray-500 font-mono text-xs">{a.slug}</td>
+                    <td className="py-2.5 pr-4">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${a.plan_id === 'reseau' ? 'bg-purple-100 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
+                        {a.plan_id}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-gray-600">{a.nb_users} user{a.nb_users > 1 ? 's' : ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Toast msg={agencyCreateMsg.text} ok={agencyCreateMsg.ok} />
+
+          {!showNewAgencyForm ? (
+            <button onClick={() => setShowNewAgencyForm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-[#1E3A5F] text-white text-sm font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors mt-2">
+              <Plus size={16} /> Créer une agence
+            </button>
+          ) : (
+            <form onSubmit={createAgency} className="mt-2 p-5 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
+              <p className="font-semibold text-[#1E3A5F] text-sm mb-1">Nouvelle agence</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Nom complet" hint="Ex: Saint François Immobilier">
+                  <Input required value={newAgency.nom} onChange={e => setNewAgency(p => ({ ...p, nom: e.target.value }))} placeholder="Nom de l'agence" />
+                </Field>
+                <Field label="Nom court" hint="Affiché dans la sidebar">
+                  <Input required value={newAgency.nom_court} onChange={e => setNewAgency(p => ({ ...p, nom_court: e.target.value }))} placeholder="Saint François" />
+                </Field>
+                <Field label="Slug" hint="Identifiant unique, ex: saint_francois">
+                  <Input required value={newAgency.slug} onChange={e => setNewAgency(p => ({ ...p, slug: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') }))} placeholder="nom_agence" className="font-mono" />
+                </Field>
+                <Field label="Plan">
+                  <select required value={newAgency.plan_id} onChange={e => setNewAgency(p => ({ ...p, plan_id: e.target.value }))}
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] bg-white">
+                    <option value="agence">Agence</option>
+                    <option value="reseau">Réseau</option>
+                  </select>
+                </Field>
+              </div>
+              <hr className="border-gray-200" />
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Compte administrateur</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Nom de l'admin">
+                  <Input required value={newAgency.admin_nom} onChange={e => setNewAgency(p => ({ ...p, admin_nom: e.target.value }))} placeholder="Prénom Nom" />
+                </Field>
+                <Field label="Email de l'admin">
+                  <Input type="email" required value={newAgency.admin_email} onChange={e => setNewAgency(p => ({ ...p, admin_email: e.target.value }))} placeholder="admin@agence.fr" />
+                </Field>
+                <Field label="Mot de passe (min 6 car.)">
+                  <div className="relative">
+                    <Input type={showAgencyPw ? 'text' : 'password'} required minLength={6}
+                      value={newAgency.admin_password} onChange={e => setNewAgency(p => ({ ...p, admin_password: e.target.value }))} placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowAgencyPw(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      {showAgencyPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </Field>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button type="submit" disabled={creatingAgency}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] text-white text-sm font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors disabled:opacity-60">
+                  {creatingAgency ? <><Loader2 size={15} className="animate-spin" />Création...</> : <><Check size={15} />Créer l'agence</>}
+                </button>
+                <button type="button" onClick={() => setShowNewAgencyForm(false)}
+                  className="px-4 py-2.5 text-gray-500 text-sm rounded-xl hover:bg-gray-100 transition-colors">
+                  Annuler
+                </button>
+              </div>
+            </form>
+          )}
+        </Section>
+      )}
 
       {/* ── Barre de sauvegarde sticky ── */}
       <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-end items-center gap-4 px-8 py-3 bg-white/90 backdrop-blur border-t border-gray-200 shadow-lg settings-save-bar">

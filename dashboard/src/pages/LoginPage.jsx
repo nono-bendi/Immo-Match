@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Mail, Lock, Eye, EyeOff, LogIn, UserPlus, Sparkles } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react'
 import { API_URL } from '../config'
 
 // Canvas particules
@@ -92,17 +92,44 @@ function ParticlesCanvas() {
 }
 
 function LoginPage() {
-  const { login, register } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
-  const [isLogin,      setIsLogin]      = useState(true)
   const [email,        setEmail]        = useState('')
   const [password,     setPassword]     = useState('')
-  const [nom,          setNom]          = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading,      setLoading]      = useState(false)
   const [error,        setError]        = useState('')
   const [mounted,      setMounted]      = useState(false)
   const [focused,      setFocused]      = useState(null)
+
+  // Mot de passe oublié
+  const [showForgot,      setShowForgot]      = useState(false)
+  const [forgotEmail,     setForgotEmail]     = useState('')
+  const [forgotLoading,   setForgotLoading]   = useState(false)
+  const [forgotSent,      setForgotSent]      = useState(false)
+  const [forgotError,     setForgotError]     = useState('')
+
+  const handleForgot = async (e) => {
+    e.preventDefault()
+    setForgotError('')
+    setForgotLoading(true)
+    try {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim().toLowerCase() }),
+      })
+      if (!res.ok) {
+        const d = await res.json()
+        setForgotError(d.detail || 'Erreur lors de l\'envoi.')
+      } else {
+        setForgotSent(true)
+      }
+    } catch {
+      setForgotError('Impossible de contacter le serveur.')
+    }
+    setForgotLoading(false)
+  }
 
   // Reconnexion compte démo
   const [showDemo,     setShowDemo]     = useState(false)
@@ -136,20 +163,14 @@ function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    let result
-    if (isLogin) {
-      result = await login(email, password)
-    } else {
-      if (!nom.trim()) { setError('Le nom est requis'); setLoading(false); return }
-      result = await register(email, password, nom)
-    }
+    const result = await login(email, password)
     if (!result.success) setError(result.error)
     setLoading(false)
   }
 
   const inp = (f) => ({
     width: '100%',
-    padding: `11px 14px 11px ${f === 'nom' ? '14px' : '40px'}`,
+    padding: '11px 14px 11px 40px',
     border: `1px solid ${focused === f ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.12)'}`,
     borderRadius: '10px',
     fontSize: '14px',
@@ -195,22 +216,16 @@ function LoginPage() {
           from { opacity:0; transform: translateY(-6px); }
           to   { opacity:1; transform: translateY(0);    }
         }
+        @keyframes borderGlow {
+          0%,100% { opacity: 0.6; }
+          50%     { opacity: 1; }
+        }
+        @keyframes shimmer {
+          0%   { transform: translateX(-100%) skewX(-12deg); }
+          100% { transform: translateX(250%)  skewX(-12deg); }
+        }
 
         ::placeholder { color: rgba(255,255,255,0.25) !important; }
-
-        .pill {
-          flex:1; padding:9px; border:none; background:transparent;
-          font-family:inherit; font-size:13px; font-weight:500;
-          cursor:pointer; border-radius:7px;
-          display:flex; align-items:center; justify-content:center; gap:5px;
-          transition:all 0.18s ease; color:rgba(255,255,255,0.4);
-        }
-        .pill.on {
-          background: rgba(255,255,255,0.12);
-          color: white;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        }
-        .pill:not(.on):hover { color:rgba(255,255,255,0.65); }
 
         .sbtn {
           width:100%; padding:12px; border:none; border-radius:10px;
@@ -272,21 +287,18 @@ function LoginPage() {
 
         {/* Logo en haut */}
         <div style={{
-          position: 'absolute', top: '36px', left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10, display: 'flex', alignItems: 'center', gap: '10px',
+          position: 'absolute', top: '140px',
+          width: '100%', display: 'flex', justifyContent: 'center',
+          zIndex: 10,
           opacity: mounted ? 1 : 0,
           animation: mounted ? 'logoIn 0.5s ease both' : 'none',
         }}>
-          <div style={{
-            width: '34px', height: '34px', background: 'white',
-            borderRadius: '10px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+          <span style={{
+            fontWeight: 900, fontSize: '48px', letterSpacing: '-0.04em', lineHeight: 1,
+            background: 'linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            filter: 'drop-shadow(0 0 18px rgba(56,189,248,0.55))',
           }}>
-            <Sparkles size={17} color="#1E3A5F" />
-          </div>
-          <span style={{ color: 'white', fontWeight: 700, fontSize: '16px', letterSpacing: '-0.02em' }}>
             ImmoFlash
           </span>
         </div>
@@ -299,41 +311,72 @@ function LoginPage() {
           opacity: mounted ? 1 : 0,
           animation: mounted ? 'formIn 0.6s cubic-bezier(.22,.68,0,1.05) 0.1s both' : 'none',
         }}>
+          <div style={{ position: 'relative', borderRadius: '22px', padding: '1.5px', background: 'linear-gradient(135deg, rgba(56,189,248,0.5) 0%, rgba(255,255,255,0.08) 40%, rgba(99,102,241,0.4) 100%)', animation: 'borderGlow 3s ease-in-out infinite' }}>
+          {/* Shimmer */}
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '22px', overflow: 'hidden', pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', animation: 'shimmer 4s ease-in-out infinite 1s' }} />
+          </div>
           <div style={{
-            background: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '20px',
+            background: 'rgba(15,30,50,0.75)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+            borderRadius: '21px',
             padding: '32px 28px',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.1)',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12), 0 0 60px rgba(56,189,248,0.06)',
+            position: 'relative', overflow: 'hidden',
           }}>
+          {/* Lueur interne haut */}
+          <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.6), transparent)' }} />
 
-            {/* Titre */}
+            {/* ── Vue mot de passe oublié ── */}
+            {showForgot ? (
+              <div style={{ animation: 'formIn 0.25s ease' }}>
+                {forgotSent ? (
+                  <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                    <div style={{ fontSize: '36px', marginBottom: '14px' }}>✉️</div>
+                    <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 700, marginBottom: '10px' }}>Email envoyé !</h2>
+                    <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '13px', lineHeight: 1.6, marginBottom: '24px' }}>
+                      Si un compte existe pour <strong style={{ color: 'rgba(255,255,255,0.7)' }}>{forgotEmail}</strong>, vous allez recevoir un lien de réinitialisation valable 1 heure.
+                    </p>
+                    <button className="sbtn" onClick={() => setShowForgot(false)}>Retour à la connexion</button>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ marginBottom: '20px' }}>
+                      <button onClick={() => setShowForgot(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: '12px', padding: 0, display: 'flex', alignItems: 'center', gap: 4, marginBottom: '16px' }}
+                        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
+                      >← Retour</button>
+                      <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 700, marginBottom: '6px' }}>Mot de passe oublié</h2>
+                      <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>Entrez votre email, on vous envoie un lien de réinitialisation.</p>
+                    </div>
+                    {forgotError && (
+                      <div style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.3)', color: '#fca5a5', padding: '9px 12px', borderRadius: '9px', fontSize: '13px', marginBottom: '14px' }}>{forgotError}</div>
+                    )}
+                    <form onSubmit={handleForgot} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
+                        <div style={{ position: 'relative' }}>
+                          <Mail size={14} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.25)', pointerEvents: 'none' }} />
+                          <input type="email" required value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="vous@exemple.com" style={inp('forgotEmail')} onFocus={() => setFocused('forgotEmail')} onBlur={() => setFocused(null)} />
+                        </div>
+                      </div>
+                      <button type="submit" className="sbtn" disabled={forgotLoading} style={{ marginTop: '4px' }}>
+                        {forgotLoading ? (
+                          <><div style={{ width: '14px', height: '14px', border: '2px solid rgba(30,58,95,0.3)', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />Envoi...</>
+                        ) : 'Envoyer le lien'}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </div>
+            ) : (<>
+
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '4px' }}>
-                {isLogin ? 'Bon retour 👋' : 'Créer un compte'}
-              </h1>
-              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>
-                {isLogin ? 'Accédez à votre espace' : 'Rejoignez ImmoFlash'}
-              </p>
+              <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '4px' }}>Connexion</h1>
+              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>Accédez à votre espace</p>
             </div>
 
-            {/* Tabs */}
-            <div style={{
-              display: 'flex', background: 'rgba(0,0,0,0.2)',
-              borderRadius: '9px', padding: '3px', marginBottom: '20px',
-              border: '1px solid rgba(255,255,255,0.06)',
-            }}>
-              <button className={`pill ${isLogin ? 'on' : ''}`} onClick={() => { setIsLogin(true); setError('') }}>
-                <LogIn size={13} /> Connexion
-              </button>
-              <button className={`pill ${!isLogin ? 'on' : ''}`} onClick={() => { setIsLogin(false); setError('') }}>
-                <UserPlus size={13} /> Inscription
-              </button>
-            </div>
-
-            {/* Erreur */}
             {error && (
               <div style={{
                 background: 'rgba(220,38,38,0.15)',
@@ -345,15 +388,7 @@ function LoginPage() {
               }}>{error}</div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-              {!isLogin && (
-                <div style={{ animation: 'errorIn 0.3s ease' }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Nom</label>
-                  <input type="text" value={nom} onChange={e => setNom(e.target.value)} onFocus={() => setFocused('nom')} onBlur={() => setFocused(null)} placeholder="Votre nom" style={inp('nom')} />
-                </div>
-              )}
 
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email</label>
@@ -367,7 +402,7 @@ function LoginPage() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Mot de passe</label>
                 <div style={{ position: 'relative' }}>
                   <Lock size={14} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: focused === 'pwd' ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.25)', transition: 'color 0.18s', pointerEvents: 'none' }} />
-                  <input type={showPassword ? 'text' : 'password'} value={password} required minLength={isLogin ? 1 : 6} onChange={e => setPassword(e.target.value)} onFocus={() => setFocused('pwd')} onBlur={() => setFocused(null)} placeholder="••••••••" style={{ ...inp('pwd'), paddingRight: '40px' }} />
+                  <input type={showPassword ? 'text' : 'password'} value={password} required minLength={1} onChange={e => setPassword(e.target.value)} onFocus={() => setFocused('pwd')} onBlur={() => setFocused(null)} placeholder="••••••••" style={{ ...inp('pwd'), paddingRight: '40px' }} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '11px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', display: 'flex', padding: '2px', transition: 'color 0.18s' }}
                     onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
                     onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.3)'}
@@ -375,23 +410,28 @@ function LoginPage() {
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
-                {!isLogin && <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>Minimum 6 caractères</p>}
+                <div style={{ textAlign: 'right', marginTop: '5px' }}>
+                  <button type="button" onClick={() => { setShowForgot(true); setForgotEmail(email); setForgotSent(false); setForgotError('') }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', fontSize: '11px', padding: 0, transition: 'color 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#38bdf8'}
+                    onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
+                  >Mot de passe oublié ?</button>
+                </div>
               </div>
 
               <button type="submit" className="sbtn" disabled={loading} style={{ marginTop: '6px' }}>
                 {loading ? (
                   <>
                     <div style={{ width: '14px', height: '14px', border: '2px solid rgba(30,58,95,0.3)', borderTopColor: '#1E3A5F', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-                    {isLogin ? 'Connexion...' : 'Création...'}
+                    Connexion...
                   </>
                 ) : (
-                  <>
-                    {isLogin ? <LogIn size={14} /> : <UserPlus size={14} />}
-                    {isLogin ? 'Se connecter' : 'Créer mon compte'}
-                  </>
+                  <><LogIn size={14} /> Se connecter</>
                 )}
               </button>
             </form>
+            </>)}
+
+          </div>
           </div>
 
           {/* Reconnexion compte démo */}

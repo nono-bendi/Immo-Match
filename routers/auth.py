@@ -130,44 +130,11 @@ def require_not_demo_optional(credentials: HTTPAuthorizationCredentials = Depend
 
 @router.post("/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister):
-    """Créer un nouveau compte (rattaché à saint_francois par défaut)."""
-    if adb.email_exists(user_data.email.lower()):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cet email est déjà utilisé")
-
-    if len(user_data.password) < 6:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Le mot de passe doit contenir au moins 6 caractères")
-
-    # Par défaut, rattachement à saint_francois
-    conn = sqlite3.connect(adb.AGENCIES_DB_PATH)
-    conn.row_factory = sqlite3.Row
-    agency = conn.execute("SELECT id FROM agencies WHERE slug = 'saint_francois'").fetchone()
-    conn.close()
-
-    if not agency:
-        raise HTTPException(status_code=500, detail="Agence par défaut introuvable")
-
-    password_hash = hash_password(user_data.password)
-    user_id = adb.create_user(
-        email=user_data.email.lower(),
-        password_hash=password_hash,
-        nom=user_data.nom,
-        role=user_data.role or "agent",
-        agency_id=agency["id"],
-        created_at=datetime.now().isoformat(),
+    """Inscription publique désactivée — les comptes sont créés par les admins."""
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="L'inscription publique est désactivée. Contactez votre administrateur."
     )
-
-    access_token = create_access_token({"user_id": user_id, "email": user_data.email.lower()})
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": user_id,
-            "email": user_data.email.lower(),
-            "nom": user_data.nom,
-            "role": user_data.role or "agent",
-        }
-    }
 
 
 @router.post("/auth/login", response_model=TokenResponse)
