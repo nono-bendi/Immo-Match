@@ -101,8 +101,9 @@ tr:hover td{background:#fafbfc}
 .login-card{background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
 .login-logo{font-size:28px;font-weight:900;letter-spacing:-0.04em;color:#1E3A5F;margin-bottom:4px}
 .login-sub{font-size:13px;color:#94a3b8;margin-bottom:28px}
-.edit-link{color:#1E3A5F;font-weight:600;font-size:12px;padding:5px 10px;border-radius:7px;background:#f0f4ff;border:1px solid #c7d2fe}
+.edit-link{color:#1E3A5F;font-weight:600;font-size:12px;padding:5px 10px;border-radius:7px;background:#f0f4ff;border:1px solid #c7d2fe;white-space:nowrap}
 .edit-link:hover{background:#e0e7ff;text-decoration:none}
+td:last-child,th:last-child{padding-right:24px;white-space:nowrap}
 .mono{font-family:monospace;font-size:12px;color:#64748b}
 .check-row{display:flex;align-items:center;gap:8px;padding:10px 0}
 .check-row input[type=checkbox]{width:16px;height:16px;cursor:pointer}
@@ -293,6 +294,18 @@ def sa_new_page(request: Request, msg: str = "", ok: str = "1"):
           {_field("Nom de l'admin", _inp("admin_nom", placeholder="Prénom Nom"))}
           {_field("Email de l'admin", _inp("admin_email", placeholder="admin@agence.fr", type="email"))}
           {_field("Mot de passe (min 6 car.)", _inp("admin_password", type="password"))}
+
+          <div class="section-label">Configuration SMTP (optionnel)</div>
+          {_field("Serveur SMTP", _inp("smtp_server", placeholder="smtp.gmail.com"))}
+          {_field("Port", _inp("smtp_port", value="587", type="number", placeholder="587"))}
+          {_field("Utilisateur SMTP (email d'envoi)", _inp("smtp_user", placeholder="contact@agence.fr", type="email"))}
+          {_field("Mot de passe / App password", _inp("smtp_password", type="password"))}
+          {_field("Nom expéditeur", _inp("smtp_from_name", placeholder="Agence XYZ"))}
+          {_field("Email de réponse (reply-to)", _inp("smtp_reply_to", placeholder="contact@agence.fr", type="email"))}
+          <div class="full" style="background:#f8fafc;border-radius:9px;padding:10px 14px;font-size:12px;color:#64748b">
+            💡 <strong>Gmail</strong> : activer « Mots de passe d'application » dans votre compte Google (code 16 car.).<br>
+            💡 <strong>OVH</strong> : smtp.mail.ovh.net · port 587 · identifiants OVH.
+          </div>
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" type="submit">✦ Créer l'agence</button>
@@ -319,6 +332,12 @@ def sa_create_agency(
     admin_nom: str      = Form(...),
     admin_email: str    = Form(...),
     admin_password: str = Form(...),
+    smtp_server: str    = Form(""),
+    smtp_port: int      = Form(587),
+    smtp_user: str      = Form(""),
+    smtp_password: str  = Form(""),
+    smtp_from_name: str = Form(""),
+    smtp_reply_to: str  = Form(""),
 ):
     if not _is_auth(request):
         return RedirectResponse("/superadmin", 302)
@@ -340,9 +359,11 @@ def sa_create_agency(
         return RedirectResponse("/superadmin/new?msg=Email+admin+déjà+utilisé&ok=0", 303)
 
     cursor = conn.execute(
-        "INSERT INTO agencies (slug, nom, nom_court, nom_filtre, plan_id, email, telephone, adresse, couleur_primaire, logo_url) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (slug, nom, nom_court, nom_filtre or nom_court.upper(), plan_id, email, telephone, adresse, couleur_primaire, logo_url)
+        "INSERT INTO agencies (slug, nom, nom_court, nom_filtre, plan_id, email, telephone, adresse, couleur_primaire, logo_url, "
+        "smtp_server, smtp_port, smtp_user, smtp_password, smtp_from_name, smtp_reply_to) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (slug, nom, nom_court, nom_filtre or nom_court.upper(), plan_id, email, telephone, adresse, couleur_primaire, logo_url,
+         smtp_server, smtp_port, smtp_user, smtp_password, smtp_from_name, smtp_reply_to)
     )
     agency_id = cursor.lastrowid
 
