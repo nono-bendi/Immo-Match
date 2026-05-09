@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
-from agencies_db import AGENCIES_DB_PATH
+from agencies_db import AGENCIES_DB_PATH, _encrypt_smtp_pw
 from routers.auth import require_admin, get_current_user
 
 router = APIRouter()
@@ -39,6 +39,8 @@ def update_agency_config(data: dict, current_user: dict = Depends(require_admin)
         "smtp_server", "smtp_port"
     }
     fields = {k: v for k, v in data.items() if k in allowed}
+    if "smtp_password" in fields and fields["smtp_password"]:
+        fields["smtp_password"] = _encrypt_smtp_pw(fields["smtp_password"])
     if not fields:
         return {"message": "Rien à mettre à jour"}
 

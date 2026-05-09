@@ -21,6 +21,11 @@ _login_attempts: dict = {}   # { ip: [timestamp, ...] }
 _LOGIN_MAX  = 5              # tentatives max
 _LOGIN_WINDOW = 60           # fenêtre en secondes
 
+# ── Rate limiting forgot-password ─────────────────────────────────────────────
+_forgot_attempts: dict = {}  # { ip: [timestamp, ...] }
+_FORGOT_MAX    = 3
+_FORGOT_WINDOW = 3600        # 1 heure
+
 
 # ============================================================
 # FONCTIONS UTILITAIRES D'AUTHENTIFICATION
@@ -241,10 +246,18 @@ _DASHBOARD_URL = os.getenv("APP_BASE_URL", "https://immoflash.app") + "/dashboar
 
 
 @router.post("/auth/forgot-password")
-def forgot_password(data: dict):
+def forgot_password(request: Request, data: dict):
     email = (data.get("email") or "").strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="Email requis")
+
+    # Rate limiting : 3 demandes max par IP par heure (réponse silencieuse pour ne pas révéler)
+    ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    attempts = [t for t in _forgot_attempts.get(ip, []) if now - t < _FORGOT_WINDOW]
+    if len(attempts) >= _FORGOT_MAX:
+        return {"success": True}
+    _forgot_attempts[ip] = attempts + [now]
 
     user = adb.get_user_with_agency(email)
     if not user:

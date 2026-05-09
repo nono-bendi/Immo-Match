@@ -13,6 +13,7 @@ from fastapi import APIRouter, Request, Form, Response, UploadFile, File
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 import agencies_db as adb
+from agencies_db import _encrypt_smtp_pw
 from database import init_db
 
 router = APIRouter()
@@ -363,7 +364,7 @@ def sa_create_agency(
         "smtp_server, smtp_port, smtp_user, smtp_password, smtp_from_name, smtp_reply_to) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (slug, nom, nom_court, nom_filtre or nom_court.upper(), plan_id, email, telephone, adresse, couleur_primaire, logo_url,
-         smtp_server, smtp_port, smtp_user, smtp_password, smtp_from_name, smtp_reply_to)
+         smtp_server, smtp_port, smtp_user, _encrypt_smtp_pw(smtp_password) if smtp_password.strip() else "", smtp_from_name, smtp_reply_to)
     )
     agency_id = cursor.lastrowid
 
@@ -517,7 +518,7 @@ def sa_agency_edit(request: Request, slug: str, msg: str = "", ok: str = "1"):
           {_field("Serveur SMTP", _inp("smtp_server", a.get('smtp_server','smtp.gmail.com'), placeholder="smtp.gmail.com"))}
           {_field("Port", _inp("smtp_port", str(a.get('smtp_port',587) or 587), type="number", placeholder="587"))}
           {_field("Utilisateur SMTP (email d'envoi)", _inp("smtp_user", a.get('smtp_user',''), type="email", placeholder="contact@agence.fr"))}
-          {_field("Mot de passe / App password", _inp("smtp_password", a.get('smtp_password',''), type="password"))}
+          {_field("Mot de passe / App password", _inp("smtp_password", "", type="password", placeholder="Laisser vide pour conserver le mot de passe actuel"), "Remplir uniquement pour changer")}
           {_field("Nom expéditeur", _inp("smtp_from_name", a.get('smtp_from_name',''), placeholder="Agence XYZ"))}
           {_field("Email de réponse (reply-to)", _inp("smtp_reply_to", a.get('smtp_reply_to',''), type="email", placeholder="contact@agence.fr"))}
         </div>
@@ -612,20 +613,26 @@ async def sa_logo_upload(request: Request, slug: str, file: UploadFile = File(..
 @router.post("/superadmin/agency/{slug}/save-smtp")
 def sa_save_smtp(
     request: Request, slug: str,
-    smtp_server: str   = Form(""),
-    smtp_port: int     = Form(587),
-    smtp_user: str     = Form(""),
-    smtp_password: str = Form(""),
+    smtp_server: str    = Form(""),
+    smtp_port: int      = Form(587),
+    smtp_user: str      = Form(""),
+    smtp_password: str  = Form(""),
     smtp_from_name: str = Form(""),
-    smtp_reply_to: str = Form(""),
+    smtp_reply_to: str  = Form(""),
 ):
     if not _is_auth(request):
         return RedirectResponse("/superadmin", 302)
     conn = sqlite3.connect(adb.AGENCIES_DB_PATH)
     conn.execute(
-        "UPDATE agencies SET smtp_server=?, smtp_port=?, smtp_user=?, smtp_password=?, smtp_from_name=?, smtp_reply_to=? WHERE slug=?",
-        (smtp_server, smtp_port, smtp_user, smtp_password, smtp_from_name, smtp_reply_to, slug)
+        "UPDATE agencies SET smtp_server=?, smtp_port=?, smtp_user=?, smtp_from_name=?, smtp_reply_to=? WHERE slug=?",
+        (smtp_server, smtp_port, smtp_user, smtp_from_name, smtp_reply_to, slug)
     )
+    # Ne mettre à jour le mot de passe que s'il est fourni
+    if smtp_password.strip():
+        conn.execute(
+            "UPDATE agencies SET smtp_password=? WHERE slug=?",
+            (_encrypt_smtp_pw(smtp_password.strip()), slug)
+        )
     conn.commit(); conn.close()
     return RedirectResponse(f"/superadmin/agency/{slug}?msg=Configuration+SMTP+enregistrée+✓&ok=1", 303)
 

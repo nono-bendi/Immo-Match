@@ -5,6 +5,31 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ── Chiffrement symétrique des mots de passe SMTP ─────────────────────────────
+try:
+    from cryptography.fernet import Fernet as _Fernet
+    _fernet_key = os.getenv("FERNET_KEY", "").encode()
+    _fernet = _Fernet(_fernet_key) if len(_fernet_key) >= 32 else None
+except Exception:
+    _fernet = None
+
+def _encrypt_smtp_pw(value: str) -> str:
+    """Chiffre un mot de passe SMTP. Retourne la valeur brute si pas de clé."""
+    if not value or not _fernet:
+        return value
+    return "fernet:" + _fernet.encrypt(value.encode()).decode()
+
+def _decrypt_smtp_pw(value: str) -> str:
+    """Déchiffre un mot de passe SMTP. Compatible avec les valeurs en clair existantes."""
+    if not value:
+        return value
+    if value.startswith("fernet:") and _fernet:
+        try:
+            return _fernet.decrypt(value[7:].encode()).decode()
+        except Exception:
+            return ""
+    return value  # Valeur en clair (migration)
+
 AGENCIES_DB_PATH = os.getenv("AGENCIES_DB_PATH", "agencies.db")
 DATA_DIR = os.getenv("DATA_DIR", "data")
 
@@ -203,7 +228,11 @@ def get_user_with_agency(email: str) -> dict | None:
         WHERE u.email = ?
     ''', (email,)).fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    result = dict(row)
+    result["smtp_password"] = _decrypt_smtp_pw(result.get("smtp_password") or "")
+    return result
 
 
 def get_user_by_id(user_id: int) -> dict | None:
@@ -232,7 +261,11 @@ def get_user_by_id(user_id: int) -> dict | None:
         WHERE u.id = ?
     ''', (user_id,)).fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    result = dict(row)
+    result["smtp_password"] = _decrypt_smtp_pw(result.get("smtp_password") or "")
+    return result
 
 
 # ── Écriture user ──────────────────────────────────────────────────────────────
