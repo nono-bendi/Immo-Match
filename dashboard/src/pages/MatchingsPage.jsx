@@ -800,7 +800,7 @@ function MatchingsPage() {
                     >
                       <RefreshCw size={16} className="text-gray-600 icon-spin" />
                     </button>
-                    <div className={`p-2 rounded-lg transition-all ${isExpanded ? 'bg-[#1E3A5F] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className={`p-2 rounded-lg transition-all ${isExpanded ? 'text-white' : 'bg-gray-100 text-gray-600'}`} style={isExpanded ? { background: 'var(--gradient-primary)' } : {}}>
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </div>
                   </div>

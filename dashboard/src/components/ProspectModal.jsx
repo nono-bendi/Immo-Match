@@ -19,7 +19,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
       <div className="rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }} onClick={e => e.stopPropagation()}>
         
         {/* Header avec dégradé subtil */}
-        <div className="p-8 text-white relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${gradientFrom || '#1E3A5F'}, ${gradientTo || '#2D5A8A'})` }}>
+        <div className="p-8 text-white relative overflow-hidden" style={{ background: gradientFrom ? `linear-gradient(135deg, ${gradientFrom}, ${gradientTo || '#38bdf8'})` : 'var(--gradient-primary)' }}>
           {/* Cercle décoratif */}
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full"></div>
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full"></div>
@@ -245,8 +245,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
         <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
           <button
             onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
-            onMouseEnter={e => { e.currentTarget.style.background='#1E3A5F'; e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='#1E3A5F' }}
-            onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.borderColor='#e5e7eb' }}
+            onMouseEnter={e => { e.currentTarget.style.background='var(--gradient-primary)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.borderColor='transparent'; e.currentTarget.style.boxShadow='var(--shadow-button)' }}
+            onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='var(--color-navy-600)'; e.currentTarget.style.borderColor='#e5e7eb'; e.currentTarget.style.boxShadow='none' }}
             style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', fontSize:14, fontWeight:600, color:'#1E3A5F', background:'#fff', border:'1px solid #e5e7eb', borderRadius:12, cursor:'pointer', transition:'all 0.18s' }}
           >
             <FileBarChart size={15} />

@@ -84,10 +84,10 @@ function SlideWelcome({ active, userName }) {
         transform: step >= 1 ? 'scale(1) translateY(0)' : 'scale(0.4) translateY(24px)',
         transition: 'opacity 0.55s cubic-bezier(.34,1.6,.64,1), transform 0.55s cubic-bezier(.34,1.6,.64,1)',
         padding: '12px 20px', borderRadius: '20px',
-        background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+        background: 'var(--gradient-primary)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: step >= 1
-          ? '0 0 0 8px rgba(30,58,95,0.15), 0 0 0 16px rgba(30,58,95,0.07), 0 8px 32px rgba(30,58,95,0.5)'
+          ? '0 0 0 8px rgba(56,189,248,0.15), 0 0 0 16px rgba(56,189,248,0.07), var(--shadow-button)'
           : 'none',
         animation: step >= 1 ? 'logoPulse 2.5s ease-in-out infinite' : 'none',
       }}>
@@ -178,7 +178,7 @@ function SlideProspect({ active }) {
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px 20px 14px', borderBottom: '1px solid #f3f4f6' }}>
-          <div style={{ width: '32px', height: '32px', background: '#1E3A5F15', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: '32px', height: '32px', background: 'rgba(56,189,248,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <User size={16} color="#1E3A5F" />
           </div>
           <span style={{ fontWeight: 600, fontSize: '15px', color: '#1E3A5F' }}>Nouveau prospect</span>
@@ -209,7 +209,7 @@ function SlideProspect({ active }) {
               {types.map(t => (
                 <span key={t} style={{
                   padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
-                  background: t === 'Maison' && step >= 4 ? '#1E3A5F' : '#f3f4f6',
+                  background: t === 'Maison' && step >= 4 ? 'var(--gradient-primary)' : '#f3f4f6',
                   color: t === 'Maison' && step >= 4 ? 'white' : '#6b7280',
                   transition: 'all 0.3s ease',
                 }}>{t}</span>
@@ -259,9 +259,9 @@ function SlideProspect({ active }) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: '7px',
-              background: step >= 7 ? '#10b981' : '#1E3A5F',
+              background: step >= 7 ? 'var(--color-success-500)' : 'var(--gradient-primary)',
               transition: 'background 0.5s ease',
-              boxShadow: step >= 7 ? '0 4px 16px rgba(16,185,129,0.4)' : '0 4px 16px rgba(30,58,95,0.3)',
+              boxShadow: step >= 7 ? '0 4px 16px rgba(16,185,129,0.4)' : 'var(--shadow-button)',
             }}>
               {step >= 7
                 ? <><CheckCircle2 size={16} /> Prospect enregistré !</>
@@ -354,7 +354,7 @@ function SlideMatching({ active }) {
           transition: 'box-shadow 0.4s ease, border-color 0.4s ease',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-            <div style={{ width: '28px', height: '28px', background: '#1E3A5F12', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '28px', height: '28px', background: 'rgba(56,189,248,0.08)', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {icon}
             </div>
             <div>
@@ -505,7 +505,7 @@ function SlideEmail({ active }) {
 
         {/* Header gradient — 2 lignes pour ne pas compresser */}
         <div style={{
-          background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+          background: 'var(--gradient-primary)',
           padding: '14px 18px 12px',
           display: 'flex', flexDirection: 'column', gap: '10px',
         }}>
@@ -696,7 +696,7 @@ function SlideBiens({ active }) {
             </div>
             <div style={{ display: 'flex', gap: '6px' }}>
               {['Tous', 'Saint François', 'Partenaires'].map((t, i) => (
-                <span key={t} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', background: i === 0 ? '#1E3A5F' : '#f3f4f6', color: i === 0 ? 'white' : '#6b7280' }}>{t}</span>
+                <span key={t} style={{ fontSize: '11px', fontWeight: 600, padding: '3px 8px', borderRadius: '6px', background: i === 0 ? 'var(--gradient-primary)' : '#f3f4f6', color: i === 0 ? 'white' : '#6b7280' }}>{t}</span>
               ))}
             </div>
           </div>
@@ -918,7 +918,7 @@ function _SlideCalibration_UNUSED({ active }) {
           {/* Card matching — fond navy comme la vraie app */}
           <div style={{
             ...fade(2),
-            background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)',
+            background: 'var(--gradient-primary)',
             padding: '11px 14px',
             display: 'flex', gap: '10px', alignItems: 'center',
           }}>

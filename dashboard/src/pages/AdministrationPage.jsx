@@ -831,12 +831,12 @@ export default function AdministrationPage() {
               return (
                 <button key={m.id} type="button" onClick={() => chg('model', m.id)}
                   className={`p-4 rounded-xl border-2 text-left transition-all relative ${
-                    active ? 'border-[#1E3A5F] bg-[#DCE7F3]/60' : 'border-gray-200 hover:border-gray-300'}`}>
+                    active ? 'border-[#38bdf8] bg-[#e0f6ff]/60' : 'border-gray-200 hover:border-gray-300'}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'bg-[#1E3A5F] text-white' : 'bg-gray-100 text-gray-600'}`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'text-white' : 'bg-gray-100 text-gray-600'}`} style={active ? { background: 'var(--gradient-primary)' } : {}}>
                       <MI size={20} />
                     </div>
-                    {active && <div className="w-5 h-5 bg-[#1E3A5F] rounded-full flex items-center justify-center"><Check size={12} className="text-white" /></div>}
+                    {active && <div className="w-5 h-5 rounded-full flex items-center justify-center text-white" style={{ background: 'var(--gradient-accent)' }}><Check size={12} /></div>}
                   </div>
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="font-semibold text-[#1E3A5F] text-sm">{m.name}</p>

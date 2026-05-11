@@ -35,7 +35,7 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     .glass-sort-btn{flex:1;min-width:68px;white-space:nowrap;font-size:12px;padding:.45rem 1rem;cursor:pointer;font-weight:600;letter-spacing:.3px;color:#94a3b8;position:relative;z-index:2;transition:color .3s ease-in-out;background:none;border:none;font-family:inherit;}
     .glass-sort-btn:hover{color:#1e293b;}
     .glass-sort-btn.active{color:#fff;}
-    .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:linear-gradient(135deg,#1E3A5F,#2d5a8a);box-shadow:0 0 14px rgba(30,58,95,.3),inset 0 0 6px rgba(255,255,255,.12);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
+    .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:var(--gradient-primary);box-shadow:var(--shadow-button);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
   `
   document.head.appendChild(s)
 }
@@ -224,7 +224,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 
   return (
     <div style={{ borderTop: `1px solid ${_sepBd}` }}>
-      <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'linear-gradient(135deg,#0f1e30 0%,#1E3A5F 50%,#2D5A8A 100%)', padding: '28px 30px' }}>
+      <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'var(--gradient-primary)', padding: '28px 30px' }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle,rgba(96,165,250,0.22) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle,rgba(167,139,250,0.18) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
 

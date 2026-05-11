@@ -141,7 +141,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
             >
               <div
                 className="w-7 h-7 rounded-[8px] flex items-center justify-center flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1E3A5F, #2D5A8A)' }}
+                style={{ background: 'var(--gradient-primary)' }}
               >
                 <Clock size={13} color="white" />
               </div>
