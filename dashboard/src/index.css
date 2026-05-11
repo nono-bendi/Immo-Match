@@ -47,6 +47,14 @@
 /* Tailwind v4 resets button cursor — restore pointer globally */
 button:not(:disabled), [role="button"]:not(:disabled), a[href] { cursor: pointer; }
 
+/* Dark mode — gradient-primary revient au navy d'origine */
+.dark {
+  --gradient-primary:  linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%);
+  --gradient-accent:   linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%);
+  --shadow-button:     0 4px 15px rgba(30,58,95,0.4);
+  --shadow-sidebar-active: 0 4px 15px rgba(30,58,95,0.5);
+}
+
 /* ══════════════════════════════════════════════════════════
    LIGHT MODE — règles Elevated
    ══════════════════════════════════════════════════════════ */
@@ -627,8 +635,11 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .btn-sparkle:hover .star-3{top:100%;left:10%;opacity:1}.btn-sparkle:hover .star-4{top:-30%;left:85%;opacity:1}
 .btn-sparkle:hover .star-5{top:70%;left:90%;opacity:1}.btn-sparkle:hover .star-6{top:90%;left:100%;opacity:1}
 .btn-sparkle .fil0{fill:#fff}
-.dark .btn-sparkle:hover { color: #fff; }
-.dark .btn-sparkle:hover .fil0 { fill: #fff; }
+/* Dark mode — btn-sparkle : restaure l'ancien look navy */
+.dark .btn-sparkle { background: #1E3A5F; box-shadow: 0 4px 15px rgba(30,58,95,0.3); }
+.dark .btn-sparkle .fil0 { fill: #1E3A5F; }
+.dark .btn-sparkle:hover { background: transparent; color: #1E3A5F; filter: none; transform: none; box-shadow: none; }
+.dark .btn-sparkle:hover .fil0 { fill: #1E3A5F; }
 .btn-sparkle:disabled .star-1,.btn-sparkle:disabled .star-2,.btn-sparkle:disabled .star-3,
 .btn-sparkle:disabled .star-4,.btn-sparkle:disabled .star-5,.btn-sparkle:disabled .star-6{display:none}
 
@@ -653,6 +664,9 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .btn-send:disabled:hover .svg-wrapper,.btn-send.disabled:hover .svg-wrapper{animation:none}
 .btn-send:disabled:hover svg,.btn-send.disabled:hover svg{transform:none}
 .btn-send:disabled:hover span,.btn-send.disabled:hover span{opacity:1;position:relative}
+/* Dark mode — btn-send : restaure l'ancien navy */
+.dark .btn-send { background: #1E3A5F; }
+.dark .btn-send:hover { background: #0284c7; box-shadow: none; }
 
 /* ── Cartes modèle IA — sélection ────────────────────────── */
 /* Carte non sélectionnée */
