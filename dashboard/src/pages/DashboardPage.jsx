@@ -93,7 +93,7 @@ function KpiCard({ icon: Icon, label, value, custom, badge, barPct, iconColor, i
       {/* Valeur */}
       <div style={{ marginBottom: 4 }}>
         {custom || (
-          <p style={{ fontSize: 32, fontWeight: 800, color: valueColor || '#1E3A5F', lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
+          <p className="kpi-val" style={{ fontSize: 32, fontWeight: 800, color: valueColor || '#1E3A5F', lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' }}>
             <Counter to={value} />
           </p>
         )}
@@ -219,7 +219,7 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div className="space-y-5">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {[...Array(4)].map((_, i) => <div key={i} className="rounded-2xl h-32 animate-shimmer" style={{ background: 'var(--surface-card-bg)', border: '1px solid var(--surface-card-border)' }} />)}
       </div>
       <div className="rounded-2xl h-72 animate-shimmer" style={{ background: 'var(--surface-card-bg)', border: '1px solid var(--surface-card-border)' }} />
@@ -227,7 +227,7 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       <AnalysisOverlay
         isVisible={analyzing}
         totalProspects={analyzeProgress.total}
@@ -256,14 +256,14 @@ export default function DashboardPage() {
             <Zap size={13} />
             {analyzing ? `${analyzeProgress.done}/${analyzeProgress.total}…` : 'Analyser'}
           </button>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>
+          <span className="hidden sm:inline" style={{ fontSize: 12, color: '#94a3b8' }}>
             Dernière analyse : <strong style={{ color: '#6b7280' }}>{fmtDate(stats?.derniere_analyse)}</strong>
           </span>
         </div>
       )}
 
       {/* ── KPI Cards ────────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <KpiCard
           icon={Users} label="Prospects actifs"
           value={stats?.nb_prospects || 0}
@@ -303,10 +303,10 @@ export default function DashboardPage() {
       </div>
 
             {/* ── Centre action ─────────────────────────────────── */}
-      <div className="grid grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 sm:gap-5">
 
         {/* À contacter */}
-        <div className="col-span-3 rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="sm:col-span-3 rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div className="sec-icon sec-icon--navy">
@@ -417,7 +417,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Colonne droite */}
-        <div className="col-span-2 flex flex-col gap-4">
+        <div className="sm:col-span-2 flex flex-col gap-4">
 
           {/* Distribution */}
           <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>

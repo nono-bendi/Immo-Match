@@ -2022,3 +2022,13 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
   background: linear-gradient(135deg, #1e4976, #2563a8) !important;
   box-shadow: 0 0 14px rgba(30,73,118,0.45), inset 0 0 6px rgba(255,255,255,0.08) !important;
 }
+
+/* ── Responsive dashboard — mobile (< 640px) ─────────────── */
+@media(max-width:640px){
+  .kpi-card-wrap          { padding: 14px !important; }
+  .kpi-val                { font-size: 22px !important; }
+  .kpi-badge              { display: none !important; }
+  .dash-match-row         { padding: 10px 14px !important; }
+  .dash-match-row .dash-match-cta { opacity: 1 !important; }
+  .dash-bien-row          { padding: 9px 14px !important; }
+}
