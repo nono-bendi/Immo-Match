@@ -69,9 +69,9 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
         }
         .hdr-guide:hover {
-          color: #1E3A5F !important; border-color: #1E3A5F !important;
-          background: #f0f5fb !important; transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(30,58,95,0.1);
+          color: #0ea5e9 !important; border-color: #38bdf8 !important;
+          background: #f0f9ff !important; transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(14,165,233,0.15);
         }
         .hdr-guide:active { transform: translateY(0); }
       `}</style>

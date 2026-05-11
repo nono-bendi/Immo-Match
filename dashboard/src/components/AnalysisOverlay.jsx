@@ -51,7 +51,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
   /* ── Écran d'erreur dédié ── */
   if (showErrors && errors.length > 0) {
     return (
-      <div className="fixed inset-0 bg-[#1E3A5F]/80 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="rounded-2xl p-8 max-w-md w-full mx-4 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -76,7 +76,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
   }
 
   return (
-    <div className="fixed inset-0 bg-[#1E3A5F]/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="rounded-2xl p-8 max-w-md w-full mx-4 text-center relative" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
 
         {/* Croix d'annulation */}
@@ -96,8 +96,8 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
         <div className="relative w-32 h-40 mx-auto mb-4">
           <style>{`
             .loader-container {
-              --fill-color: #1E3A5F;
-              --shine-color: #1E3A5F33;
+              --fill-color: #0ea5e9;
+              --shine-color: #0ea5e933;
               transform: scale(0.6);
               width: 100px;
               height: 100px;
@@ -208,7 +208,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-full transition-all duration-500"
+              className="h-full rounded-full transition-all duration-500" style={{ background: 'var(--gradient-primary)' }}
               style={{ width: `${progress}%` }}
             />
           </div>

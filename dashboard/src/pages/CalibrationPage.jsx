@@ -297,7 +297,7 @@ export default function CalibrationPage() {
           <span className="text-sm font-bold text-[#1E3A5F]">{progress}%</span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: 'var(--gradient-primary)' }} />
         </div>
       </div>
 
@@ -339,7 +339,7 @@ export default function CalibrationPage() {
             </div>
           </button>
 
-          <div className="flex-1 bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] px-5 py-4 flex flex-col justify-between">
+          <div className="flex-1 px-5 py-4 flex flex-col justify-between" style={{ background: 'var(--gradient-primary)' }}>
             <div>
               <p className="text-white/50 text-xs uppercase tracking-wide mb-0.5">{currentIdx + 1} / {total}</p>
               <h2 className="text-white font-bold text-base leading-tight">{m.prospect_nom}</h2>

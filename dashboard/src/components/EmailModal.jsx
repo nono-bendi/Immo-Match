@@ -40,7 +40,7 @@ function EmailModal({
 
       <div className={`relative rounded-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {type === 'confirm' && (
-          <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] px-6 py-4 shrink-0">
+          <div className="px-6 py-4 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">

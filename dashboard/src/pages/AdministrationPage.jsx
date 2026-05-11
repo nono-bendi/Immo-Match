@@ -448,7 +448,7 @@ export default function AdministrationPage() {
       <Section title="Mon compte" icon={User} defaultOpen>
 
         {/* Avatar */}
-        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] rounded-xl mb-6">
+        <div className="flex items-center gap-4 p-4 rounded-xl mb-6" style={{ background: 'var(--gradient-primary)' }}>
           <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1E3A5F] font-bold text-xl shadow-lg">
             {user?.nom ? user.nom.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??'}
           </div>
@@ -795,7 +795,7 @@ export default function AdministrationPage() {
               </div>
             ) : (
               <button onClick={() => setShowAddAgent(true)}
-                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-[#1E3A5F] hover:text-[#1E3A5F] transition-colors flex items-center justify-center gap-2">
+                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-cyan-400 hover:text-cyan-600 transition-colors flex items-center justify-center gap-2">
                 <UserPlus size={16} /> Ajouter un compte
               </button>
             )}

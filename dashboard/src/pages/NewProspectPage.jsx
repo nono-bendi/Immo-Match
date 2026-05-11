@@ -452,7 +452,7 @@ function NewProspectPage() {
                   <button
                     type="button"
                     onClick={() => addVille('Tout secteur')}
-                    className="px-3 py-1.5 bg-[#1E3A5F]/10 text-[#1E3A5F] text-sm font-medium rounded-lg hover:bg-[#1E3A5F]/20 transition-colors border border-[#1E3A5F]/20"
+                    className="px-3 py-1.5 bg-cyan-50 text-cyan-700 text-sm font-medium rounded-lg hover:bg-cyan-100 transition-colors border border-cyan-200"
                   >
                     + Tout secteur
                   </button>

@@ -234,7 +234,7 @@ function HistoriquePage() {
                       <div className="flex items-center gap-4">
                         {/* Icône + badge nb séries */}
                         <div className="relative flex-shrink-0">
-                          <div className="w-11 h-11 bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A] rounded-xl flex items-center justify-center">
+                          <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
                             <Calendar size={18} className="text-white" />
                           </div>
                           {session.isMulti && (

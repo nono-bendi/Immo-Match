@@ -26,7 +26,7 @@ function TrialBanner({ user }) {
   const urgent = daysLeft <= 1
   return (
     <div style={{
-      background: urgent ? 'linear-gradient(90deg,#7f1d1d,#991b1b)' : 'linear-gradient(90deg,#1e3a5f,#0ea5e9)',
+      background: urgent ? 'linear-gradient(90deg,#7f1d1d,#991b1b)' : 'var(--gradient-primary)',
       color: '#fff', fontSize: 13, fontWeight: 600,
       padding: '7px 20px', display: 'flex', alignItems: 'center',
       justifyContent: 'center', gap: 10, flexShrink: 0,

@@ -219,7 +219,7 @@ function Message({ msg, dark, onNavigate, biens }) {
         <div style={{
           flexShrink: 0,
           width: 28, height: 28, borderRadius: '50%',
-          background: dark ? 'linear-gradient(135deg,#1e3a5f,#2d5a8a)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
+          background: dark ? 'var(--gradient-primary)' : 'linear-gradient(135deg,#0f172a,#1e293b)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Vous</span>

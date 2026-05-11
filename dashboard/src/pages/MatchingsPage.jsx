@@ -678,7 +678,7 @@ function MatchingsPage() {
                 onClick={() => { setSortBy(opt.value); setCurrentPage(1) }}
                 className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   sortBy === opt.value
-                    ? 'bg-[#1E3A5F]/10 text-[#1E3A5F] font-semibold'
+                    ? 'bg-cyan-50 text-cyan-700 font-semibold'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -745,7 +745,7 @@ function MatchingsPage() {
                   onClick={() => setExpandedProspect(isExpanded ? null : group.prospect_id)}
                 >
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A5F] to-[#2D5A8A] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{ background: 'var(--gradient-primary)' }}>
                       {getInitials(group.prospect_nom)}
                     </div>
                     <div>

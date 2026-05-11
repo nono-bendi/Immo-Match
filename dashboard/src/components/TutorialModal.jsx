@@ -179,9 +179,9 @@ function SlideProspect({ active }) {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px 20px 14px', borderBottom: '1px solid #f3f4f6' }}>
           <div style={{ width: '32px', height: '32px', background: 'rgba(56,189,248,0.1)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <User size={16} color="#1E3A5F" />
+            <User size={16} color="#0ea5e9" />
           </div>
-          <span style={{ fontWeight: 600, fontSize: '15px', color: '#1E3A5F' }}>Nouveau prospect</span>
+          <span style={{ fontWeight: 600, fontSize: '15px', color: '#0369a1' }}>Nouveau prospect</span>
         </div>
 
         <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -384,7 +384,7 @@ function SlideMatching({ active }) {
       <div style={{ position: 'relative', width: '100%', height: '220px' }}>
         <CardBien
           side="left"
-          icon={<User size={14} color="#1E3A5F" />}
+          icon={<User size={14} color="#0ea5e9" />}
           tag="Prospect" name="M. Dupont"
           rows={[{ l: 'Budget', v: '280 000 €' }, { l: 'Ville', v: 'Fréjus' }]}
         />
@@ -452,7 +452,7 @@ function SlideMatching({ active }) {
 
         <CardBien
           side="right"
-          icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E3A5F" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
+          icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>}
           tag="Bien" name="Maison • Fréjus"
           rows={[{ l: 'Prix', v: '265 000 €' }, { l: 'Surface', v: '98 m²' }]}
         />
@@ -530,7 +530,7 @@ function SlideEmail({ active }) {
                 flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
                 padding: '6px 0', borderRadius: '6px',
                 background: activeTab === id ? 'white' : 'transparent',
-                color: activeTab === id ? '#1E3A5F' : 'rgba(255,255,255,0.7)',
+                color: activeTab === id ? '#0c4a6e' : 'rgba(255,255,255,0.7)',
                 fontSize: '12px', fontWeight: 500,
                 transition: 'background 0.4s ease, color 0.4s ease',
                 cursor: 'default',
@@ -554,7 +554,7 @@ function SlideEmail({ active }) {
                     {['#f87171','#fbbf24','#34d399'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
                   </div>
                   <span style={{ fontSize: '10px', color: '#9ca3af' }}>Aperçu de l'email</span>
-                  <span style={{ fontSize: '10px', color: '#1E3A5F', fontWeight: 500 }}>Personnaliser</span>
+                  <span style={{ fontSize: '10px', color: '#0369a1', fontWeight: 500 }}>Personnaliser</span>
                 </div>
                 <div style={{ background: 'white', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <p style={{ fontSize: '13px', color: '#374151', margin: 0 }}>Bonjour M. Dupont,</p>
@@ -565,7 +565,7 @@ function SlideEmail({ active }) {
                   <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '10px', background: '#f9fafb' }}>
                     <div style={{ fontSize: '10px', color: '#9ca3af', marginBottom: '2px' }}>Sélectionné pour vous</div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>Maison à Fréjus</div>
-                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#1E3A5F', margin: '2px 0 4px' }}>265 000 €</div>
+                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#0369a1', margin: '2px 0 4px' }}>265 000 €</div>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <span style={{ fontSize: '11px', color: '#6b7280' }}>98 m²</span>
                       <span style={{ fontSize: '11px', color: '#6b7280' }}>4 pièces</span>
@@ -604,12 +604,12 @@ function SlideEmail({ active }) {
               <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '11px 13px' }}>
                 <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px' }}>Destinataire</div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>M. Dupont</div>
-                <div style={{ fontSize: '12px', color: '#1E3A5F' }}>m.dupont@gmail.com</div>
+                <div style={{ fontSize: '12px', color: '#0369a1' }}>m.dupont@gmail.com</div>
               </div>
               <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '11px 13px' }}>
                 <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px' }}>Bien proposé</div>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Maison à Fréjus</div>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#1E3A5F' }}>265 000 €</div>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: '#0369a1' }}>265 000 €</div>
               </div>
               <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', padding: '11px 13px' }}>
                 <p style={{ fontSize: '12px', color: '#92400e', margin: 0 }}>
