@@ -500,8 +500,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Graphique évolution — en bas, sobre ──────────── */}
-      <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      {/* ── Graphique évolution — caché sur mobile ───────── */}
+      <div className="hidden sm:block rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         <div style={{ padding: '18px 24px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="sec-icon sec-icon--gray">
