@@ -245,8 +245,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
         <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
           <button
             onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
-            onMouseEnter={e => { e.currentTarget.style.background='var(--gradient-primary)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.border='1px solid transparent'; e.currentTarget.style.boxShadow='var(--shadow-button)' }}
-            onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.border='1px solid #e5e7eb'; e.currentTarget.style.boxShadow='none' }}
+            onMouseEnter={e => { e.currentTarget.style.background='var(--gradient-primary)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.border='none'; e.currentTarget.style.padding='9px 17px'; e.currentTarget.style.boxShadow='var(--shadow-button)' }}
+            onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.color='#1E3A5F'; e.currentTarget.style.border='1px solid #e5e7eb'; e.currentTarget.style.padding='8px 16px'; e.currentTarget.style.boxShadow='none' }}
             style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 16px', fontSize:14, fontWeight:600, color:'#1E3A5F', background:'#fff', border:'1px solid #e5e7eb', borderRadius:12, cursor:'pointer', transition:'background 0.18s, color 0.18s, box-shadow 0.18s' }}
           >
             <FileBarChart size={15} />
