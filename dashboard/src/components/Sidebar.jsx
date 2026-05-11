@@ -31,7 +31,7 @@ function Sidebar({ isOpen, onClose }) {
       px-4 py-6 flex flex-col shadow-2xl shrink-0
       transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-    `}>
+    `} style={{ overflowX: 'clip' }}>
 
       {/* Logo + bouton fermer sur mobile */}
       <div className="flex items-center gap-3 px-2 mb-10">
