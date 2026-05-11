@@ -426,7 +426,7 @@ export default function AdministrationPage() {
     <div className="max-w-4xl mx-auto space-y-4 pb-24">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
         <div>
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Administration</h1>
           <p className="text-sm text-gray-400">Configuration de votre espace ImmoFlash</p>
@@ -435,7 +435,7 @@ export default function AdministrationPage() {
           href={`${API_URL}/guide`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+          className="flex items-center justify-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors sm:w-auto w-full" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
         >
           <FileText size={15} />
           Guide utilisateur
@@ -448,15 +448,15 @@ export default function AdministrationPage() {
       <Section title="Mon compte" icon={User} defaultOpen>
 
         {/* Avatar */}
-        <div className="flex items-center gap-4 p-4 rounded-xl mb-6" style={{ background: 'var(--gradient-primary)' }}>
-          <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1E3A5F] font-bold text-xl shadow-lg">
+        <div className="flex items-center gap-4 p-4 rounded-xl mb-6 flex-wrap" style={{ background: 'var(--gradient-primary)' }}>
+          <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center text-[#1E3A5F] font-bold text-xl shadow-lg shrink-0">
             {user?.nom ? user.nom.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??'}
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-white text-lg">{user?.nom || 'Utilisateur'}</p>
-            <p className="text-sm text-white/70">{user?.email}</p>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-white text-lg truncate">{user?.nom || 'Utilisateur'}</p>
+            <p className="text-sm text-white/70 truncate">{user?.email}</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 flex-wrap">
             <span className={`px-3 py-1.5 text-sm font-medium rounded-full flex items-center gap-1.5 ${
               isAdmin ? 'bg-amber-400 text-amber-900' : 'bg-white/20 text-white'}`}>
               {isAdmin ? <Crown size={14} /> : <Home size={14} />}
@@ -486,7 +486,7 @@ export default function AdministrationPage() {
               </button>
             </div>
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Nouveau mot de passe" hint="Minimum 6 caractères">
               <div className="relative">
                 <Input type={showNew ? 'text' : 'password'} className="pr-10"
@@ -575,7 +575,7 @@ export default function AdministrationPage() {
             </div>
 
             {/* Infos */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <Field label="Nom complet">
                 <Input value={agencyForm.nom} onChange={e => chgA('nom', e.target.value)} placeholder="Mon Agence Immobilier" />
               </Field>
@@ -621,7 +621,7 @@ export default function AdministrationPage() {
               <Lightbulb size={14} className="text-blue-500 shrink-0" />
               Ces identifiants permettent d'envoyer les propositions depuis l'adresse de l'agence.
             </p>
-            <div className="grid grid-cols-2 gap-4 mb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
               <Field label="Serveur SMTP">
                 <Input value={agencyForm.smtp_server} onChange={e => chgA('smtp_server', e.target.value)} placeholder="smtp.gmail.com" />
               </Field>
@@ -649,7 +649,7 @@ export default function AdministrationPage() {
               </Field>
             </div>
 
-            <div className="flex justify-end items-center gap-3 mt-4">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end items-stretch sm:items-center gap-3 mt-4">
               <Toast msg={agencyMsg.text} ok={agencyMsg.ok} />
               <button onClick={saveAgency} disabled={savingAgency}
                 className="px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2"
@@ -679,7 +679,7 @@ export default function AdministrationPage() {
                 <div key={a.id} className="border border-gray-200 rounded-xl overflow-hidden">
                   {editId === a.id ? (
                     <div className="p-4 bg-gray-50 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Field label="Nom">
                           <Input value={editData.nom || a.nom}
                             onChange={e => setEditData(p => ({ ...p, nom: e.target.value }))} />
@@ -764,7 +764,7 @@ export default function AdministrationPage() {
                 <p className="text-sm font-semibold text-emerald-700 mb-3 flex items-center gap-2">
                   <UserPlus size={15} /> Nouveau compte
                 </p>
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <Field label="Nom complet">
                     <Input value={newAgent.nom} onChange={e => setNewAgent(p => ({ ...p, nom: e.target.value }))} placeholder="Prénom Nom" />
                   </Field>
@@ -856,7 +856,7 @@ export default function AdministrationPage() {
       {/* ══════════════════════════════════════════════════════════════════ */}
       {claudeUsage && (
         <div className={`rounded-2xl border p-5 ${claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'bg-red-50 border-red-200' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-200'}`}>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
             <div className="flex items-center gap-2">
               <Cpu size={16} className={claudeUsage.nb_appels >= CLAUDE_LIMIT ? 'text-red-500' : claudeUsage.nb_appels >= CLAUDE_LIMIT * 0.8 ? 'text-amber-500' : 'text-gray-400'} />
               <span className="text-sm font-semibold text-gray-700">Usage Claude — {claudeUsage.year_month}</span>
@@ -889,7 +889,7 @@ export default function AdministrationPage() {
         {/* Tolérance budget */}
         <div className="mb-6">
           <p className="text-sm font-medium text-gray-700 mb-3">Tolérance budget</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="p-4 bg-red-50 rounded-xl border border-red-100">
               <p className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
                 <TrendingUp size={13} className="rotate-180" /> Minimum : {settings.budget_tolerance_min}%
@@ -950,7 +950,7 @@ export default function AdministrationPage() {
       {/* 6. SYNCHRONISATION HEKTOR                                         */}
       {/* ══════════════════════════════════════════════════════════════════ */}
       <Section title="Synchronisation Hektor" icon={RefreshCw}>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <Field label="Hôte FTP">
             <Input value={settings.ftp_host} onChange={e => chg('ftp_host', e.target.value)} placeholder="ftp.hektor.fr" />
           </Field>
@@ -1177,10 +1177,10 @@ export default function AdministrationPage() {
       )}
 
       {/* ── Barre de sauvegarde sticky ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-end items-center gap-4 px-8 py-3 bg-white/90 backdrop-blur border-t border-gray-200 shadow-lg settings-save-bar">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-2 sm:gap-4 px-4 sm:px-8 py-3 bg-white/90 backdrop-blur border-t border-gray-200 shadow-lg settings-save-bar">
         <Toast msg={settingsMsg.text} ok={settingsMsg.ok} />
         <button onClick={saveSettings} disabled={savingSettings}
-          className="px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2"
+          className="px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center justify-center gap-2"
           style={savingSettings ? { background: '#9ca3af' } : { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
           {savingSettings ? <><Loader2 size={16} className="animate-spin" />Sauvegarde...</> : <><Save size={16} />Sauvegarder les paramètres</>}
         </button>
