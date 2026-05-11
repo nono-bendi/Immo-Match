@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, MapPin, Euro, Maximize, Home, Building2, Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { apiFetch } from '../api'
 
@@ -62,7 +63,7 @@ function BienLink({ bien, children, className = '' }) {
       </button>
 
       {/* Modal */}
-      {showModal && (
+      {showModal && createPortal(
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={closeModal}>
           <div className="rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }} onClick={e => e.stopPropagation()}>
             
@@ -365,7 +366,8 @@ function BienLink({ bien, children, className = '' }) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
