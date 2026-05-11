@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Loader2 } from 'lucide-react'
 import { apiFetch } from '../api'
 import ProspectModal from './ProspectModal'
@@ -33,14 +34,16 @@ function ProspectLink({ prospect, children, className = '' }) {
         {children || prospect.nom || 'Sans nom'}
       </button>
 
-      {showModal && !fullProspect && loading && (
+      {showModal && !fullProspect && loading && createPortal(
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
           <Loader2 size={32} className="animate-spin text-white" />
-        </div>
+        </div>,
+        document.body
       )}
 
-      {showModal && fullProspect && (
-        <ProspectModal prospect={fullProspect} onClose={() => setShowModal(false)} />
+      {showModal && fullProspect && createPortal(
+        <ProspectModal prospect={fullProspect} onClose={() => setShowModal(false)} />,
+        document.body
       )}
     </>
   )
