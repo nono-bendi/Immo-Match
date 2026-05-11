@@ -21,10 +21,10 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-20 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-24 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer" /></td>
-      <td className="p-4"><div className="h-4 w-24 rounded animate-shimmer" /></td>
-      <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer" /></td>
-      <td className="p-4"><div className="h-4 w-16 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-16 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer ml-auto" /></td>
     </tr>
   )
@@ -232,16 +232,16 @@ function ClientsPage() {
           </div>
         </div>
       </td>
-      <td className="p-4">
+      <td className="p-4 hidden sm:table-cell">
         <span className="text-sm text-gray-600">{prospect.bien || <span className='text-gray-300'>—</span>}</span>
       </td>
-      <td className="p-4">
+      <td className="p-4 hidden sm:table-cell">
         <span className="text-sm text-gray-600">{prospect.villes || <span className='text-gray-300'>—</span>}</span>
       </td>
       <td className="p-4">
         <span className="text-sm font-medium text-[#1E3A5F]">{formatBudget(prospect.budget_max)}</span>
       </td>
-      <td className="p-4">
+      <td className="p-4 hidden sm:table-cell">
         {prospect.destination ? (() => {
           const d = prospect.destination.toLowerCase()
           const style = d.includes('locatif') || d.includes('investis')
@@ -257,7 +257,7 @@ function ClientsPage() {
         })() : <span className="text-gray-300 text-sm">—</span>}
       </td>
       <td className="p-4">
-        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-150">
+        <div className="prospect-actions flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-150">
           {!archived && (
             <button
               onClick={e => { e.stopPropagation(); handleAnalyze(prospect) }}
@@ -343,8 +343,8 @@ function ClientsPage() {
       />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
           <div>
             <h1 className="text-2xl font-bold text-[#1E3A5F]">Clients</h1>
             <p className="text-sm text-gray-400">
@@ -360,14 +360,14 @@ function ClientsPage() {
               placeholder="Rechercher un client..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
+              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-full sm:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
             />
           </div>
         </div>
 
         <a
           href="/clients/nouveau"
-          className="px-4 py-2.5 text-white font-medium rounded-xl btn-press flex items-center gap-2"
+          className="px-4 py-2.5 text-white font-medium rounded-xl btn-press flex items-center justify-center gap-2 sm:w-auto"
           style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
         >
           <span className="text-lg">+</span>
@@ -382,10 +382,10 @@ function ClientsPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Client</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Recherche</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Villes</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Recherche</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Villes</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Budget</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Destination</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Destination</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
@@ -414,10 +414,10 @@ function ClientsPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Client</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Recherche</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Villes</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Recherche</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Villes</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Budget</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Destination</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Destination</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
@@ -456,10 +456,10 @@ function ClientsPage() {
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Client</th>
-                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Recherche</th>
-                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Villes</th>
+                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Recherche</th>
+                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Villes</th>
                     <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Budget</th>
-                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Destination</th>
+                    <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Destination</th>
                     <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
                   </tr>
                 </thead>
@@ -487,7 +487,7 @@ function ClientsPage() {
             </div>
 
             <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
                   <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
