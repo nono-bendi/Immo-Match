@@ -207,9 +207,9 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full rounded-full transition-all duration-500" style={{ background: 'var(--gradient-primary)' }}
-              style={{ width: `${progress}%` }}
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${progress}%`, background: 'var(--gradient-primary)' }}
             />
           </div>
         </div>
