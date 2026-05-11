@@ -27,7 +27,7 @@ function Sidebar({ isOpen, onClose }) {
     <aside className={`
       fixed lg:sticky top-0 left-0 z-40
       w-64 h-screen
-      bg-gradient-to-b from-[#1E3A5F] to-[#152a45]
+      bg-gradient-to-b from-[#0f1e30] to-[#0a1424]
       px-4 py-6 flex flex-col shadow-2xl shrink-0
       transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -64,10 +64,10 @@ function Sidebar({ isOpen, onClose }) {
                   onClick={onClose}
                   className={({ isActive }) =>
                     isActive
-                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/10 text-white font-semibold"
+                      ? "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white font-semibold"
                       : "flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/60 hover:bg-white/8 hover:text-white/90 transition-all duration-200"
                   }
-                  style={({ isActive }) => isActive ? { boxShadow: 'inset 3px 0 0 #38bdf8' } : {}}
+                  style={({ isActive }) => isActive ? { background: 'var(--gradient-accent)', boxShadow: 'var(--shadow-sidebar-active)' } : {}}
                 >
                   {({ isActive }) => (
                     <>

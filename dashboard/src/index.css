@@ -1,5 +1,84 @@
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════
+   DESIGN TOKENS — Palette "Elevated" (ImmoMatch)
+   ══════════════════════════════════════════════════════════ */
+:root {
+  --color-navy-900:       #0a1424;
+  --color-navy-800:       #0f1e30;
+  --color-navy-700:       #1c2e44;
+  --color-navy-600:       #1E3A5F;
+  --color-cyan-200:       #bae6fd;
+  --color-cyan-300:       #7dd3fc;
+  --color-cyan-400:       #38bdf8;
+  --color-cyan-500:       #0ea5e9;
+  --color-cyan-600:       #0369a1;
+  --color-indigo-300:     #a5b4fc;
+  --color-indigo-400:     #818cf8;
+  --color-indigo-500:     #6366f1;
+  --color-indigo-600:     #4f46e5;
+  --color-violet-300:     #c4b5fd;
+  --color-violet-400:     #a78bfa;
+  --color-violet-500:     #8b5cf6;
+  --color-slate-50:       #f8fafc;
+  --color-slate-100:      #f1f5f9;
+  --color-slate-200:      #e2e8f0;
+  --color-slate-400:      #94a3b8;
+  --color-slate-500:      #64748b;
+  --color-slate-600:      #475569;
+  --color-line-soft:      #dce7f3;
+  --color-line-softer:    rgba(220,231,243,0.7);
+  --color-success-400:    #34d399;
+  --color-success-500:    #10b981;
+  --color-warning-400:    #fbbf24;
+  --color-warning-500:    #f59e0b;
+  --color-danger-500:     #ef4444;
+  --surface-card-bg:      rgba(255,255,255,0.85);
+  --surface-card-border:  rgba(255,255,255,0.95);
+  --surface-card-blur:    20px;
+  --gradient-primary:     linear-gradient(135deg, #1E3A5F 0%, #38bdf8 100%);
+  --gradient-accent:      linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+  --gradient-sidebar:     linear-gradient(180deg, #0f1e30 0%, #0a1424 100%);
+  --shadow-card:          0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 28px rgba(15,30,48,0.07);
+  --shadow-button:        0 8px 24px rgba(56,189,248,0.35);
+  --shadow-sidebar-active:0 6px 22px rgba(56,189,248,0.5);
+}
+
+/* ══════════════════════════════════════════════════════════
+   LIGHT MODE — règles Elevated
+   ══════════════════════════════════════════════════════════ */
+
+/* Inputs — focus cyan */
+html:not(.dark) input:focus,
+html:not(.dark) textarea:focus,
+html:not(.dark) select:focus {
+  border-color: var(--color-cyan-400) !important;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.18) !important;
+  outline: none !important;
+}
+
+/* Cards glass */
+html:not(.dark) .kpi-card-glass {
+  background: var(--surface-card-bg) !important;
+  backdrop-filter: blur(var(--surface-card-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--surface-card-blur)) !important;
+  box-shadow: var(--shadow-card) !important;
+  border: 1px solid var(--surface-card-border) !important;
+}
+
+/* Boutons primaires bg-[#1E3A5F] → gradient + shadow */
+html:not(.dark) button.bg-\[\#1E3A5F\],
+html:not(.dark) a.bg-\[\#1E3A5F\] {
+  background: var(--gradient-primary) !important;
+  box-shadow: var(--shadow-button) !important;
+  color: white !important;
+}
+html:not(.dark) button.bg-\[\#1E3A5F\]:hover,
+html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
+  box-shadow: 0 10px 28px rgba(56,189,248,0.45) !important;
+  filter: brightness(1.06);
+}
+
 /* ============================================================
    DARK MODE — DEEP NAVY ÉLÉGANT
    Inspiré du TutorialModal : fond sombre profond, bordures

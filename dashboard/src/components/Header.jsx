@@ -77,8 +77,8 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
       `}</style>
 
       <header
-        className="hdr-wrap sticky top-0 z-40 flex items-center justify-between border-b border-white/60 px-4 md:px-9"
-        style={{ height: 64, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px) saturate(180%)', WebkitBackdropFilter: 'blur(20px) saturate(180%)', boxShadow: '0 1px 0 rgba(255,255,255,0.6), 0 4px 24px rgba(14,165,233,0.05)' }}
+        className="hdr-wrap sticky top-0 z-40 flex items-center justify-between px-4 md:px-9"
+        style={{ height: 64, background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', borderBottom: '1px solid var(--color-line-softer)', boxShadow: '0 1px 0 rgba(255,255,255,0.7), 0 4px 24px rgba(56,189,248,0.04)' }}
       >
 
         {/* ── Gauche : hamburger (mobile) + titre ── */}
@@ -96,7 +96,7 @@ function Header({ onOpenTutorial, onToggleSidebar, darkToggle }) {
           {Icon && (
             <div
               className="hidden sm:flex flex-shrink-0 w-10 h-10 rounded-[13px] items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #0f2d4a 0%, #0ea5e9 100%)', boxShadow: '0 4px 14px rgba(14,165,233,0.25)' }}
+              style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
             >
               <Icon size={19} color="white" strokeWidth={2} />
             </div>
