@@ -32,13 +32,13 @@ function EmailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className={`relative rounded-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className={`relative overflow-hidden animate-in fade-in duration-200 w-full sm:mx-4 rounded-t-2xl sm:rounded-2xl ${type === 'confirm' ? 'sm:max-w-4xl max-h-[88vh] sm:max-h-[90vh] flex flex-col' : 'sm:max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {type === 'confirm' && (
           <div className="px-3 py-2 sm:px-6 sm:py-4 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
             <div className="flex items-center justify-between gap-2">
