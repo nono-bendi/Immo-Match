@@ -2033,4 +2033,6 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
   .dash-bien-row          { padding: 9px 14px !important; }
   .prospect-actions       { opacity: 1 !important; }
   .prospect-actions button { padding: 5px !important; }
+  .biens-actions          { opacity: 1 !important; }
+  .biens-actions button   { padding: 5px !important; }
 }

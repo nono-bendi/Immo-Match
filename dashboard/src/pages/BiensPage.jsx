@@ -37,10 +37,10 @@ function SkeletonRow() {
           </div>
         </div>
       </td>
-      <td className="p-4"><div className="h-4 w-24 rounded animate-shimmer" /></td>
-      <td className="p-4"><div className="h-4 w-16 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-24 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-16 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer" /></td>
-      <td className="p-4"><div className="h-4 w-16 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-16 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer ml-auto" /></td>
     </tr>
   )
@@ -313,8 +313,8 @@ function BiensPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
           <div>
             <h1 className="text-2xl font-bold text-[#1E3A5F]">Biens</h1>
             <p className="text-sm text-gray-400">
@@ -337,12 +337,12 @@ function BiensPage() {
               placeholder="Rechercher un bien..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
+              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-full sm:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
 
           {hasPrimmo && (
             <div className="glass-sort-group" ref={filterGroupRef}>
@@ -359,7 +359,7 @@ function BiensPage() {
             </div>
           )}
 
-          <label className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-medium rounded-xl btn-press flex items-center gap-2 cursor-pointer">
+          <label className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-medium rounded-xl btn-press flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto">
             <Upload size={18} />
             {importing ? 'Import...' : 'Importer Biens'}
             <input
@@ -378,10 +378,10 @@ function BiensPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Bien</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Localisation</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Surface</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Localisation</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Surface</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Prix</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">État</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">État</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
@@ -417,17 +417,17 @@ function BiensPage() {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Bien</th>
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Localisation</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Localisation</th>
                 {[
-                  { label: 'Surface', field: 'surface' },
+                  { label: 'Surface', field: 'surface', mobileHidden: true },
                   { label: 'Prix', field: 'prix' },
-                ].map(({ label, field }) => {
+                ].map(({ label, field, mobileHidden }) => {
                   const active = sortConfig.field === field
                   const Icon = active ? (sortConfig.direction === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown
                   return (
                     <th
                       key={field}
-                      className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none group"
+                      className={`text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none group${mobileHidden ? ' hidden sm:table-cell' : ''}`}
                       onClick={() => handleSort(field)}
                     >
                       <span className={`inline-flex items-center gap-1 hover:text-[#1E3A5F] transition-colors ${active ? 'text-[#1E3A5F]' : ''}`}>
@@ -437,7 +437,7 @@ function BiensPage() {
                     </th>
                   )
                 })}
-                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">État</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">État</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
@@ -495,13 +495,13 @@ function BiensPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <MapPin size={14} className="text-gray-400" />
                         <span className="text-sm text-gray-600">{bien.ville || '-'}</span>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         <Maximize size={14} className="text-gray-400" />
                         <span className="text-sm text-gray-600">{bien.surface ? `${bien.surface} m²` : '-'}</span>
@@ -510,7 +510,7 @@ function BiensPage() {
                     <td className="p-4">
                       <span className="text-sm font-semibold text-[#1E3A5F]">{formatPrix(bien.prix)}</span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 hidden sm:table-cell">
                       {bien.etat ? (() => {
                         const e = (bien.etat || '').toLowerCase()
                         const style = e.includes('vente') || e.includes('disponible')
@@ -526,7 +526,7 @@ function BiensPage() {
                       })() : <span className="text-gray-300 text-sm">—</span>}
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="biens-actions flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => openModal(bien)}
                           className="p-2 rounded-lg hover:bg-[#DCE7F3] text-gray-400 hover:text-[#1E3A5F] transition-all"
@@ -585,8 +585,8 @@ function BiensPage() {
       <BienModal bien={selectedBien} onClose={() => setSelectedBien(null)} />
       {/* Modal Edition Bien */}
       {editBien && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setEditBien(null)}>
-          <div className="rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 sm:p-4" onClick={() => setEditBien(null)}>
+          <div className="rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }} onClick={e => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><Pencil size={18} className="text-white" /></div>
@@ -636,11 +636,11 @@ function BiensPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <textarea value={editForm.description} onChange={e => setEditForm(prev => ({ ...prev, description: e.target.value }))} rows={3} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none resize-none text-sm" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Etat</label><input type="text" value={editForm.etat} onChange={e => setEditForm(prev => ({ ...prev, etat: e.target.value }))} placeholder="Bon etat..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Quartier</label><input type="text" value={editForm.quartier} onChange={e => setEditForm(prev => ({ ...prev, quartier: e.target.value }))} placeholder="Centre-ville..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Stationnement</label><input type="text" value={editForm.stationnement} onChange={e => setEditForm(prev => ({ ...prev, stationnement: e.target.value }))} placeholder="Garage, Parking..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Exterieur</label><input type="text" value={editForm.exterieur} onChange={e => setEditForm(prev => ({ ...prev, exterieur: e.target.value }))} placeholder="Jardin, Terrasse..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
               </div>
