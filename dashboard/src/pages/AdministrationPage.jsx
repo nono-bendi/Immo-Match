@@ -795,7 +795,7 @@ export default function AdministrationPage() {
               </div>
             ) : (
               <button onClick={() => setShowAddAgent(true)}
-                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-cyan-400 hover:text-cyan-600 transition-colors flex items-center justify-center gap-2">
+                className="w-full py-2.5 border-2 border-dashed border-gray-200 rounded-xl text-sm text-gray-400 hover:border-[#1E3A5F] hover:text-[#1E3A5F] transition-colors flex items-center justify-center gap-2">
                 <UserPlus size={16} /> Ajouter un compte
               </button>
             )}

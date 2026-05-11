@@ -678,7 +678,7 @@ function MatchingsPage() {
                 onClick={() => { setSortBy(opt.value); setCurrentPage(1) }}
                 className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   sortBy === opt.value
-                    ? 'bg-cyan-50 text-cyan-700 font-semibold'
+                    ? 'bg-[#1E3A5F]/10 text-[#1E3A5F] font-semibold dark:bg-white/10 dark:text-white'
                     : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                 }`}
               >
