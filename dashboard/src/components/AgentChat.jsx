@@ -69,6 +69,17 @@ const STYLES = `
 .ai-area:nth-child(3):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(0) translateZ(var(--ty));}
 .ai-area:nth-child(2):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(-7deg) translateZ(var(--ty));}
 .ai-area:nth-child(1):hover~.ai-wrap .ai-card{transform:perspective(var(--perspective)) rotateX(15deg) rotateY(-15deg) translateZ(var(--ty));}
+.ai-chat-btn{position:fixed;bottom:40px;right:40px;z-index:50;width:6rem;height:6rem;}
+@media(max-width:700px){
+  .ai-chat-btn{bottom:16px;right:16px;width:4rem;height:4rem;}
+  .ai-card{width:4rem!important;height:4rem!important;border-radius:1.2rem!important;}
+  .ai-wrap::after{width:4rem!important;height:4rem!important;border-radius:1.2rem!important;}
+  .ai-face{width:4rem!important;height:4rem!important;border-radius:1.2rem!important;}
+  .ai-balls-bg{border-radius:1.2rem!important;}
+  .ai-eyes{gap:.5rem!important;}
+  .ai-eye{width:9px!important;height:18px!important;}
+  .ai-chat-panel{width:calc(100vw - 32px)!important;right:16px!important;bottom:80px!important;height:min(500px,65vh)!important;}
+}
 `
 
 function StyleInjector() {
@@ -324,7 +335,7 @@ export default function AgentChat() {
       <StyleInjector />
 
       {/* ── Bouton Uiverse card (apparence) ── */}
-      <div style={{ position: 'fixed', bottom: 40, right: 40, zIndex: 50, width: '6rem', height: '6rem' }}>
+      <div className="ai-chat-btn">
         <div className="ai-tilt">
           {[...Array(15)].map((_, i) => <div key={i} className="ai-area" />)}
           <div className="ai-wrap" onClick={() => setOpen(o => !o)}>
@@ -362,7 +373,7 @@ export default function AgentChat() {
 
       {open && (
         <div
-          className="agent-chat-in"
+          className="agent-chat-in ai-chat-panel"
           style={{
             position: 'fixed', bottom: 160, right: 40, zIndex: 50,
             width: 360, height: 500,

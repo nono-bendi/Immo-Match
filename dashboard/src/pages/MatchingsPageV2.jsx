@@ -36,6 +36,25 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     .glass-sort-btn:hover{color:#1e293b;}
     .glass-sort-btn.active{color:#fff;}
     .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:var(--gradient-primary);box-shadow:var(--shadow-button);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
+    .matchings-wrap{padding:32px 24px;}
+    .pc-grid{display:grid;grid-template-columns:1.2fr 210px 1.2fr;min-height:250px;}
+    .pc-sep-right{border-right:1px solid var(--pc-sep);}
+    .bd-hero-pad{padding:28px 30px;}
+    .bd-hero-header{position:relative;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;}
+    .bd-price{flex-shrink:0;margin-left:16px;font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;}
+    .bd-hero-grid{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+    .bd-actions{display:flex;align-items:center;gap:10px;padding:16px 24px;flex-wrap:wrap;}
+    @media(max-width:700px){
+      .matchings-wrap{padding:16px;}
+      .pc-grid{grid-template-columns:1fr;min-height:unset;}
+      .pc-sep-right{border-right:none;border-bottom:1px solid var(--pc-sep);}
+      .bd-hero-pad{padding:20px 16px;}
+      .bd-hero-header{flex-direction:column;gap:6px;}
+      .bd-price{margin-left:0;font-size:22px;}
+      .bd-hero-grid{grid-template-columns:1fr;}
+      .bd-actions{padding:12px 16px;}
+      .match-sparkle-full{width:100%;justify-content:center;}
+    }
   `
   document.head.appendChild(s)
 }
@@ -224,11 +243,11 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 
   return (
     <div style={{ borderTop: `1px solid ${_sepBd}` }}>
-      <div style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'var(--gradient-primary)', padding: '28px 30px' }}>
+      <div className="bd-hero-pad" style={{ position: 'relative', minHeight: 260, background: photo ? `linear-gradient(135deg,rgba(15,23,42,0.84) 0%,rgba(15,23,42,0.58) 100%),url(${photo}) center/cover no-repeat` : 'var(--gradient-primary)' }}>
         <div style={{ position: 'absolute', top: -40, right: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle,rgba(96,165,250,0.22) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: -60, left: '40%', width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(circle,rgba(167,139,250,0.18) 0%,transparent 70%)', filter: 'blur(30px)', pointerEvents: 'none' }} />
 
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
+        <div className="bd-hero-header">
           <div>
             <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_type}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -237,10 +256,10 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
               {match.bien_pieces  && <><span style={{ opacity: 0.4 }}>·</span><span>{match.bien_pieces} pièces</span></>}
             </div>
           </div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', flexShrink: 0, marginLeft: 16 }}>{mon(match.bien_prix)}</div>
+          <div className="bd-price">{mon(match.bien_prix)}</div>
         </div>
 
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22 }}>
+        <div className="bd-hero-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {forts.length > 0 && (
               <div>
@@ -280,7 +299,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
       </div>
 
       {/* Action bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 24px', background: _bar, borderTop: `1px solid ${_barBd}` }}>
+      <div className="bd-actions" style={{ background: _bar, borderTop: `1px solid ${_barBd}` }}>
         {match.date_email_envoye && (
           <span style={{ fontSize: 12, fontWeight: 600, background: dark ? 'rgba(22,163,74,0.12)' : '#f0fdf4', color: '#16a34a', border: `1px solid ${dark ? 'rgba(22,163,74,0.25)' : '#bbf7d0'}`, borderRadius: 9999, padding: '4px 12px' }}>
             ✓ Proposé le {dt(match.date_email_envoye)}
@@ -373,10 +392,10 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
         onMouseEnter={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.07),0 16px 44px rgba(0,0,0,0.4)':'0 1px 0 #e8eef5,0 16px 44px rgba(30,58,95,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
         onMouseLeave={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.05),0 8px 32px rgba(0,0,0,0.3)':'0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 210px 1.2fr', minHeight: 250 }}>
+        <div className="pc-grid" style={{ '--pc-sep': _sep }}>
 
           {/* ── GAUCHE — PCBriefGlow ── */}
-          <div style={{ padding: '28px', borderRight: `1px solid ${_sep}`, display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div className="pc-sep-right" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: -60, left: -50, width: 200, height: 200, borderRadius: '50%', background: `radial-gradient(circle at 30% 30%,${a}24 0%,transparent 70%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
 
             {/* Avatar + nom */}
@@ -431,7 +450,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
           </div>
 
           {/* ── CENTRE — ScoreRing ── */}
-          <div style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', borderRight: `1px solid ${_sep}`, background: _mid, position: 'relative' }}>
+          <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', background: _mid, position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
             <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={140} />}</div>
           </div>
@@ -607,7 +626,7 @@ export default function MatchingsPageV2() {
   }, [matchings, search, filterScore, filterNew, filterBienId, filterProspectId, sortBy])
 
   return (
-    <div style={{ margin: '-24px', padding: '32px 24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
+    <div className="matchings-wrap" style={{ margin: '-24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
@@ -629,7 +648,7 @@ export default function MatchingsPageV2() {
           </p>
         </div>
 
-        <SparkleButton onClick={runGlobal} disabled={analyzing} className="ml-auto">
+        <SparkleButton onClick={runGlobal} disabled={analyzing} className="ml-auto match-sparkle-full">
           {analyzing
             ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
             : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
@@ -645,7 +664,7 @@ export default function MatchingsPageV2() {
       </div>
 
       {/* Filtres + tri */}
-      <div className="flex items-center justify-between gap-3 mb-6">
+      <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         {/* Filtres score */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Pill Nouveaux — toggle indépendant */}
