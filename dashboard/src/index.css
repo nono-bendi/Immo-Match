@@ -610,11 +610,11 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .btn-sparkle {
   position: relative; padding: 14px 28px; background: var(--gradient-primary);
   font-size: 15px; font-weight: 600; color: #fff;
-  border: 2px solid transparent; border-radius: 12px;
+  border: none; border-radius: 12px;
   box-shadow: var(--shadow-button);
-  transition: all 0.3s ease-in-out; cursor: pointer; overflow: visible;
+  transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; cursor: pointer; overflow: visible;
 }
-.btn-sparkle:hover { background: linear-gradient(135deg,#0ea5e9,#38bdf8); box-shadow: 0 10px 28px rgba(56,189,248,0.45); color: #fff; }
+.btn-sparkle:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(56,189,248,0.45); }
 .btn-sparkle:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-sparkle .star-1,.btn-sparkle .star-2,.btn-sparkle .star-3,
 .btn-sparkle .star-4,.btn-sparkle .star-5,.btn-sparkle .star-6 {
