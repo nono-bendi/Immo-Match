@@ -257,8 +257,8 @@ function BiensPage() {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: 'white', borderRadius: 20, padding: '28px 28px 24px',
-              width: 380, boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+              background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 20, padding: '28px 28px 24px',
+              width: 380, border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)',
               display: 'flex', flexDirection: 'column', gap: 16,
             }}
           >
@@ -286,11 +286,11 @@ function BiensPage() {
                 onClick={() => setConfirmDelete(null)}
                 style={{
                   flex: 1, padding: '10px 0', borderRadius: 12, border: '1.5px solid #e2e8f0',
-                  background: 'white', fontSize: 13, fontWeight: 600, color: '#64748b', cursor: 'pointer',
+                  background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', fontSize: 13, fontWeight: 600, color: '#64748b', cursor: 'pointer',
                   transition: 'all 0.15s',
                 }}
-                onMouseOver={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1' }}
-                onMouseOut={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+                onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.9)'; e.currentTarget.style.borderColor = '#cbd5e1' }}
+                onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.7)'; e.currentTarget.style.borderColor = '#e2e8f0' }}
               >
                 Annuler
               </button>
@@ -373,7 +373,7 @@ function BiensPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
@@ -392,7 +392,7 @@ function BiensPage() {
           </table>
         </div>
       ) : biens.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm p-16 text-center">
+        <div className="rounded-2xl p-16 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Building2 size={40} className="text-gray-300 animate-float" />
           </div>
@@ -400,7 +400,7 @@ function BiensPage() {
           <p className="text-gray-400 mb-6 max-w-md mx-auto">
             En attente des données Hektor. Importez le fichier des biens pour commencer le matching avec vos prospects.
           </p>
-          <label className="inline-flex items-center gap-2 px-6 py-3 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press cursor-pointer">
+          <label className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-xl btn-press cursor-pointer" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             <Upload size={20} />
             Importer le fichier des biens
             <input
@@ -412,7 +412,7 @@ function BiensPage() {
           </label>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
@@ -586,7 +586,7 @@ function BiensPage() {
       {/* Modal Edition Bien */}
       {editBien && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setEditBien(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }} onClick={e => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center"><Pencil size={18} className="text-white" /></div>

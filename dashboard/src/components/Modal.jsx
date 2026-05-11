@@ -10,7 +10,7 @@ function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', conf
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="rounded-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {/* Header avec close */}
         <div className="flex justify-end p-2">
           <button 
@@ -61,13 +61,12 @@ function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', conf
             )}
             <button
               onClick={handleConfirm}
-              className={`px-6 py-2.5 font-semibold rounded-xl transition-colors ${
-                type === 'error' 
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : type === 'warning'
-                  ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-[#1E3A5F] text-white hover:bg-[#2D5A8A]'
-              }`}
+              className="px-6 py-2.5 font-semibold rounded-xl transition-colors text-white"
+              style={
+                type === 'error' ? { background: '#ef4444' }
+                : type === 'warning' ? { background: '#f59e0b' }
+                : { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }
+              }
             >
               {confirmText}
             </button>

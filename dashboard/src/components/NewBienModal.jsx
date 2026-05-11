@@ -82,7 +82,7 @@ function NewBienModal({ bienId, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 flex-shrink-0">
@@ -231,7 +231,7 @@ function NewBienModal({ bienId, onClose }) {
           <button
             onClick={handleAnalyser}
             disabled={analyseState === 'loading'}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 disabled:opacity-60 text-white rounded-xl text-sm font-semibold transition-all" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
           >
             {analyseState === 'loading'
               ? <><Loader2 size={15} className="animate-spin" />Analyse en cours...</>

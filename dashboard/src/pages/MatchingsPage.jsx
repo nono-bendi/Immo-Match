@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef, useMemo } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Sparkles, Search, RefreshCw, Clock, ChevronDown, ChevronUp, Home, CheckCircle, AlertTriangle, Lightbulb, TrendingUp, XCircle } from 'lucide-react'
 import ProspectLink from '../components/ProspectLink'
@@ -486,8 +486,7 @@ function MatchingsPage() {
     setEmailContent({ subject: '', intro: '', points_forts: '', points_attention: '', recommandation: '', conclusion: '', lien_annonce: '' })
   }
 
-  // Filtrer les matchings
-  const filteredMatchings = matchings.filter(m => {
+  const filteredMatchings = useMemo(() => matchings.filter(m => {
     const matchesSearch = m.prospect_nom?.toLowerCase().includes(search.toLowerCase()) ||
                          m.bien_ville?.toLowerCase().includes(search.toLowerCase())
     const matchesScore = filterScore === 'all' ||
@@ -496,7 +495,7 @@ function MatchingsPage() {
                         (filterScore === 'low' && m.score < 50)
     const matchesBien = !filterBienId || m.bien_id === filterBienId
     return matchesSearch && matchesScore && matchesBien
-  })
+  }), [matchings, search, filterScore, filterBienId])
 
   const handleRefuse = async (e, match) => {
     e.stopPropagation()
@@ -515,39 +514,44 @@ function MatchingsPage() {
     }
   }
 
-  // Regrouper par prospect
-  const groupedByProspect = filteredMatchings.reduce((acc, match) => {
-    const prospectId = match.prospect_id
-    if (!acc[prospectId]) {
-      acc[prospectId] = {
-        prospect_id: prospectId,
-        prospect_nom: match.prospect_nom,
-        prospect_budget: match.prospect_budget,
-        prospect_mail: match.prospect_mail,
-        prospect_tel: match.prospect_tel,
-        matchings: []
+  const prospectGroups = useMemo(() => {
+    const grouped = filteredMatchings.reduce((acc, match) => {
+      const prospectId = match.prospect_id
+      if (!acc[prospectId]) {
+        acc[prospectId] = {
+          prospect_id: prospectId,
+          prospect_nom: match.prospect_nom,
+          prospect_budget: match.prospect_budget,
+          prospect_mail: match.prospect_mail,
+          prospect_tel: match.prospect_tel,
+          matchings: []
+        }
       }
-    }
-    acc[prospectId].matchings.push(match)
-    return acc
-  }, {})
+      acc[prospectId].matchings.push(match)
+      return acc
+    }, {})
 
-  const prospectGroups = Object.values(groupedByProspect).sort((a, b) => {
-    if (sortBy === 'recent') {
-      const dateA = Math.max(...a.matchings.map(m => new Date(m.date_analyse).getTime()))
-      const dateB = Math.max(...b.matchings.map(m => new Date(m.date_analyse).getTime()))
-      return dateB - dateA
-    }
-    if (sortBy === 'alpha') {
-      return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
-    }
-    const maxPondereA = Math.max(...a.matchings.map(m => m.score_pondere ?? m.score))
-    const maxPondereB = Math.max(...b.matchings.map(m => m.score_pondere ?? m.score))
-    return maxPondereB - maxPondereA
-  })
+    return Object.values(grouped).sort((a, b) => {
+      if (sortBy === 'recent') {
+        const dateA = Math.max(...a.matchings.map(m => new Date(m.date_analyse).getTime()))
+        const dateB = Math.max(...b.matchings.map(m => new Date(m.date_analyse).getTime()))
+        return dateB - dateA
+      }
+      if (sortBy === 'alpha') {
+        return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
+      }
+      // Précalculer le max score une seule fois par groupe, pas dans le comparateur
+      const maxA = a._maxScore ?? (a._maxScore = Math.max(...a.matchings.map(m => m.score_pondere ?? m.score)))
+      const maxB = b._maxScore ?? (b._maxScore = Math.max(...b.matchings.map(m => m.score_pondere ?? m.score)))
+      return maxB - maxA
+    })
+  }, [filteredMatchings, sortBy])
 
   const totalPages = Math.ceil(prospectGroups.length / itemsPerPage)
-  const paginatedGroups = prospectGroups.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  const paginatedGroups = useMemo(
+    () => prospectGroups.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
+    [prospectGroups, currentPage]
+  )
 
   return (
     <div>
@@ -630,7 +634,7 @@ function MatchingsPage() {
       )}
 
       {/* Filtres */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -645,7 +649,7 @@ function MatchingsPage() {
           
           <div className="flex items-center gap-2">
             {[
-              { value: 'all',    label: 'Tous',   activeClass: 'bg-[#1E3A5F] text-white',        inactiveClass: 'bg-gray-100 text-gray-500 hover:bg-gray-200' },
+              { value: 'all',    label: 'Tous',   activeClass: 'text-white',                     inactiveClass: 'bg-gray-100 text-gray-500 hover:bg-gray-200', useGradient: true },
               { value: 'high',   label: '75+',    activeClass: 'bg-emerald-500 text-white',       inactiveClass: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' },
               { value: 'medium', label: '50-74',  activeClass: 'bg-amber-500 text-white',         inactiveClass: 'bg-amber-50 text-amber-700 hover:bg-amber-100' },
               { value: 'low',    label: '< 50',   activeClass: 'bg-red-500 text-white',           inactiveClass: 'bg-red-50 text-red-600 hover:bg-red-100' },
@@ -656,6 +660,7 @@ function MatchingsPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterScore === filter.value ? filter.activeClass : filter.inactiveClass
                 }`}
+                style={filterScore === filter.value && filter.useGradient ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
               >
                 {filter.label}
               </button>
@@ -686,7 +691,7 @@ function MatchingsPage() {
 
       {/* Liste */}
       {loading ? (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
             <div className="col-span-4">Prospect</div>
             <div className="col-span-3">Meilleur match</div>
@@ -697,7 +702,7 @@ function MatchingsPage() {
           {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
         </div>
       ) : prospectGroups.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+        <div className="rounded-xl p-12 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <TrendingUp size={32} className="text-gray-300 animate-float" />
           </div>
@@ -706,14 +711,15 @@ function MatchingsPage() {
           <button
             onClick={runGlobalAnalysis}
             disabled={analyzing}
-            className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press inline-flex items-center gap-2"
+            className="px-5 py-2.5 text-white font-medium rounded-xl btn-press inline-flex items-center gap-2"
+          style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
           >
             <Sparkles size={18} />
             Lancer l'analyse
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           {/* Header tableau */}
           <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
             <div className="col-span-4">Prospect</div>

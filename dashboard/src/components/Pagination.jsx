@@ -34,9 +34,10 @@ export default function Pagination({ currentPage, totalPages, onChange, totalIte
             onClick={() => onChange(page)}
             className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-700 transition-all
               ${page === currentPage
-                ? 'bg-[#1E3A5F] text-white font-bold shadow-md shadow-[#1E3A5F]/30 scale-105'
+                ? 'text-white font-bold scale-105'
                 : 'text-slate-500 hover:bg-[#f0f5fb] dark:text-slate-400 dark:hover:bg-white/5 font-medium'
               }`}
+            style={page === currentPage ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
           >
             {page}
           </button>

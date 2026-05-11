@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { X, Send, Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAgency } from '../contexts/AgencyContext'
 import { useTheme } from '../contexts/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 import { apiFetch } from '../api'
 
 // ── Animations CSS injectées une seule fois ───────────────────────────────────
@@ -254,10 +255,15 @@ function Message({ msg, dark, onNavigate, biens }) {
 export default function AgentChat() {
   const { agency } = useAgency()
   const { dark } = useTheme()
+  const { user } = useAuth()
   const navigate = useNavigate()
+  const prenom = useMemo(() => {
+    if (!user?.nom) return null
+    return user.nom.trim().split(' ')[0]
+  }, [user?.nom])
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState([
-    { role: 'bot', text: `Bonjour ! Je suis votre assistant ImmoFlash.\n\nJe peux vous aider à :\n• Trouver les biens qui correspondent à un prospect\n• Analyser la compatibilité d'un bien avec un acheteur\n• Rédiger un email ou une recommandation\n• Répondre à toute question sur vos prospects et biens\n\nComment puis-je vous aider ?` }
+  const [messages, setMessages] = useState(() => [
+    { role: 'bot', text: `Bonjour ${prenom ? prenom + ' ' : ''}! Comment puis-je vous aider ?` }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)

@@ -7,7 +7,8 @@ import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
 import NewBienModal from './components/NewBienModal'
 
-const LoginPage        = lazy(() => import('./pages/LoginPage'))
+const LoginPage           = lazy(() => import('./pages/LoginPage'))
+const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'))
 const DashboardPage    = lazy(() => import('./pages/DashboardPage'))
 const ClientsPage      = lazy(() => import('./pages/ClientsPage'))
 const BiensPage        = lazy(() => import('./pages/BiensPage'))
@@ -86,6 +87,15 @@ function AppRoutes() {
               <PublicRoute>
                 <LoginPage />
               </PublicRoute>
+            }
+          />
+
+          <Route
+            path="/reset-password"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ResetPasswordPage />
+              </Suspense>
             }
           />
 

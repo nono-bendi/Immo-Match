@@ -305,7 +305,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
             disabled={!mail || sending}
             onMouseEnter={() => setSendHover(true)}
             onMouseLeave={() => setSendHover(false)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 26px', borderRadius: 11, background: mail ? (sendHover ? '#2D5A8A' : '#1E3A5F') : '#f3f4f6', color: mail ? '#fff' : '#9ca3af', border: 'none', fontSize: 14, fontWeight: 700, cursor: mail ? 'pointer' : 'default', boxShadow: mail ? (sendHover ? '0 6px 20px rgba(30,58,95,0.45)' : '0 4px 14px rgba(30,58,95,0.35)') : 'none', transform: mail && sendHover ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 26px', borderRadius: 11, background: mail ? 'var(--gradient-primary)' : '#f3f4f6', color: mail ? '#fff' : '#9ca3af', border: 'none', fontSize: 14, fontWeight: 700, cursor: mail ? 'pointer' : 'default', boxShadow: mail ? 'var(--shadow-button)' : 'none', transform: mail && sendHover ? 'translateY(-1px)' : 'translateY(0)', transition: 'all 0.2s cubic-bezier(0.22,1,0.36,1)' }}>
             <Send size={15} />{sending ? 'Envoi…' : match.date_email_envoye ? 'Renvoyer' : 'Envoyer la sélection →'}
           </button>
         </div>
@@ -702,10 +702,10 @@ export default function MatchingsPageV2() {
       {/* Cartes */}
       {loading ? (
         <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <div key={i} className="bg-white rounded-2xl border border-gray-200 h-64 animate-pulse" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="rounded-2xl border border-gray-200 h-64 animate-pulse" style={{ background: 'var(--surface-card-bg)' }} />)}
         </div>
       ) : groups.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-200 p-16 text-center">
+        <div className="rounded-2xl p-16 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div style={{ position: 'relative', width: 96, height: 86, margin: '0 auto 20px' }}>
             {/* Étoile principale — même rendu 3D que l'AnalysisOverlay */}
             <svg viewBox="0 0 100 100" width={62} height={62} style={{ position: 'absolute', left: 17, top: 8, animation: 'star-float 3.2s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(124,58,237,.35))' }}>
@@ -742,7 +742,7 @@ export default function MatchingsPageV2() {
           </div>
           <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
           <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
-          <button onClick={runGlobal} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl inline-flex items-center gap-2">
+          <button onClick={runGlobal} className="px-5 py-2.5 text-white font-semibold rounded-xl inline-flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             <Sparkles size={16} /> Lancer l'analyse
           </button>
         </div>

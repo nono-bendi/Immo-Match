@@ -31,7 +31,7 @@ export function SkeletonRow() {
 // Skeleton pour liste complète
 export function SkeletonList({ count = 5 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonRow key={i} />
       ))}

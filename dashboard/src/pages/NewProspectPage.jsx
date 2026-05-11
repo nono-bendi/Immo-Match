@@ -246,7 +246,7 @@ function NewProspectPage() {
       {/* Modal de proposition d'analyse */}
       {showAnalyzePrompt && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+          <div className="rounded-2xl max-w-md w-full overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +273,7 @@ function NewProspectPage() {
                 </button>
                 <button
                   onClick={runAnalysis}
-                  className="px-6 py-2.5 bg-[#1E3A5F] text-white font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors flex items-center gap-2"
+                  className="px-6 py-2.5 text-white font-semibold rounded-xl transition-colors flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -312,7 +312,7 @@ function NewProspectPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Section: Informations de base */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center gap-2 mb-4">
             <User size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Informations de contact</h2>
@@ -364,7 +364,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Recherche immobilière */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Home size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Recherche immobilière</h2>
@@ -385,9 +385,10 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('bien', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.bien.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.bien.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -412,7 +413,7 @@ function NewProspectPage() {
                   {formData.villes.map(ville => (
                     <span 
                       key={ville}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#1E3A5F] text-white text-sm rounded-lg"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-white text-sm rounded-lg" style={{ background: 'var(--gradient-primary)' }}
                     >
                       {ville}
                       <button
@@ -440,7 +441,7 @@ function NewProspectPage() {
                   type="button"
                   onClick={() => addVille(villeInput)}
                   disabled={!villeInput.trim()}
-                  className="px-4 py-2.5 bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2D5A8A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2.5 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                 >
                   <Plus size={20} />
                 </button>
@@ -483,9 +484,10 @@ function NewProspectPage() {
                       onClick={() => handleMultiSelect('quartiers', option.value)}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         formData.quartiers.includes(option.value)
-                          ? 'bg-[#1E3A5F] text-white'
+                          ? 'text-white'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
+                      style={formData.quartiers.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                     >
                       {option.label}
                     </button>
@@ -560,7 +562,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Critères spécifiques */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Settings size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Critères spécifiques</h2>
@@ -578,9 +580,10 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('etat', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.etat.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.etat.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -598,9 +601,10 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('expo', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.expo.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.expo.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -618,9 +622,10 @@ function NewProspectPage() {
                     onClick={() => handleChange('stationnement', formData.stationnement === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.stationnement === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.stationnement === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -638,9 +643,10 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('exterieur', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.exterieur.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.exterieur.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -658,9 +664,10 @@ function NewProspectPage() {
                     onClick={() => handleMultiSelect('etage', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.etage.includes(option.value)
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.etage.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -678,9 +685,10 @@ function NewProspectPage() {
                     onClick={() => handleChange('copro', formData.copro === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.copro === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.copro === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -691,7 +699,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Projet */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Target size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Projet</h2>
@@ -708,9 +716,10 @@ function NewProspectPage() {
                     onClick={() => handleChange('destination', formData.destination === option.value ? '' : option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       formData.destination === option.value
-                        ? 'bg-[#1E3A5F] text-white'
+                        ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    style={formData.destination === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -750,7 +759,7 @@ function NewProspectPage() {
             <button
               type="submit"
               disabled={saving || !formData.nom || formData.bien.length === 0 || formData.villes.length === 0 || !formData.budget_max}
-              className="px-6 py-3 bg-[#1E3A5F] text-white font-semibold rounded-xl hover:bg-[#2D5A8A] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="px-6 py-3 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
             >
               {saving ? (
                 <>

@@ -38,7 +38,7 @@ function EmailModal({
         onClick={onClose}
       />
 
-      <div className={`relative bg-white rounded-2xl shadow-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`}>
+      <div className={`relative rounded-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {type === 'confirm' && (
           <div className="bg-gradient-to-r from-[#1E3A5F] to-[#2D5A8A] px-6 py-4 shrink-0">
             <div className="flex items-center justify-between">
@@ -172,7 +172,7 @@ function EmailModal({
                     </button>
                     <button
                       onClick={() => setActiveTab('confirm')}
-                      className="flex-1 px-4 py-3 bg-[#1E3A5F] text-white rounded-xl font-medium hover:bg-[#2D5A8A] transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-3 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                     >
                       <Send size={16} />
                       Continuer
@@ -265,7 +265,7 @@ function EmailModal({
                     <button
                       onClick={() => { onRegeneratePreview(); setActiveTab('preview') }}
                       disabled={previewLoading}
-                      className="flex-1 px-4 py-3 bg-[#1E3A5F] text-white rounded-xl font-medium hover:bg-[#2D5A8A] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 px-4 py-3 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                     >
                       {previewLoading ? (
                         <>

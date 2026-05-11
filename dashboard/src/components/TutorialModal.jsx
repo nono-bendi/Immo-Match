@@ -224,7 +224,7 @@ function SlideProspect({ active }) {
               {step >= 5 && (
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '4px',
-                  padding: '5px 10px', background: '#1E3A5F', color: 'white',
+                  padding: '5px 10px', background: 'var(--gradient-primary)', color: 'white',
                   borderRadius: '8px', fontSize: '13px', fontWeight: 500,
                   animation: 'popIn 0.35s cubic-bezier(.34,1.56,.64,1)',
                 }}>
@@ -591,7 +591,7 @@ function SlideEmail({ active }) {
               {/* Boutons */}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <div style={{ flex: 1, padding: '9px', border: '1px solid #e5e7eb', borderRadius: '10px', textAlign: 'center', fontSize: '12px', color: '#6b7280' }}>Annuler</div>
-                <div style={{ flex: 1, padding: '9px', background: '#1E3A5F', borderRadius: '10px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                <div style={{ flex: 1, padding: '9px', background: 'var(--gradient-primary)', borderRadius: '10px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                   <Send size={12} /> Continuer
                 </div>
               </div>
@@ -901,7 +901,7 @@ function _SlideCalibration_UNUSED({ active }) {
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#111827' }}>Calibration</div>
                 <div style={{ fontSize: '11px', color: '#9ca3af' }}>Évaluez la pertinence des matchings</div>
               </div>
-              <div style={{ background: '#1E3A5F', color: 'white', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ background: 'var(--gradient-primary)', color: 'white', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 Résultats · 4
               </div>
@@ -909,7 +909,7 @@ function _SlideCalibration_UNUSED({ active }) {
             {/* Barre de progression globale */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ flex: 1, height: '6px', background: '#f3f4f6', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: '2%', background: '#1E3A5F', borderRadius: '99px', transition: 'width 0.8s ease' }} />
+                <div style={{ height: '100%', width: '2%', background: 'var(--gradient-primary)', borderRadius: '99px', transition: 'width 0.8s ease' }} />
               </div>
               <span style={{ fontSize: '11px', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>4 évalués / 171 · <b style={{ color: '#374151' }}>2%</b></span>
             </div>

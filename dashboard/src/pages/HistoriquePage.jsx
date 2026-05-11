@@ -203,20 +203,20 @@ function HistoriquePage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400">Chargement...</div>
+        <div className="rounded-2xl p-8 text-center text-gray-400" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>Chargement...</div>
       ) : sessions.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+        <div className="rounded-2xl p-12 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Clock size={32} className="text-gray-400" />
           </div>
           <h2 className="text-lg font-semibold text-[#1E3A5F] mb-2">Aucune analyse</h2>
           <p className="text-gray-400 mb-4">Lancez votre première analyse IA</p>
-          <button onClick={() => navigate('/matchings')} className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl hover:bg-[#2D5A8A] transition-colors">
+          <button onClick={() => navigate('/matchings')} className="px-5 py-2.5 text-white font-medium rounded-xl transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             Lancer une analyse
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="divide-y divide-gray-100">
             {paginated.map((session, index) => {
               const isExpanded = expandedSession === session.date_complete
@@ -311,9 +311,10 @@ function HistoriquePage() {
                                   onClick={e => { e.stopPropagation(); selectBatch(batch.date_complete) }}
                                   className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
                                     isActive
-                                      ? 'bg-[#1E3A5F] text-white border-[#1E3A5F] shadow-sm'
+                                      ? 'text-white border-transparent shadow-sm'
                                       : 'bg-white text-gray-600 border-gray-200 hover:border-[#1E3A5F] hover:text-[#1E3A5F]'
                                   }`}
+                                  style={isActive ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                                 >
                                   <span className="font-semibold">Série {session.batches.length - bi}</span>
                                   <span className={isActive ? 'text-white/60' : 'text-gray-400'}>{formatHeure(batch.heure)}</span>

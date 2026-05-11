@@ -27,7 +27,7 @@ function ScoreBar({ score }) {
 
 function StatCard({ label, value, sub, color }) {
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+    <div className="rounded-2xl p-5" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
       <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">{label}</p>
       <p className="text-3xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
@@ -212,13 +212,13 @@ export default function CalibrationPage() {
             <p className="text-gray-400 text-sm mt-1">{evaluated} matchings évalués sur {total}</p>
           </div>
           <button onClick={() => setView('calibration')}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-xl text-sm font-medium hover:bg-[#152a45] transition-colors">
+            className="flex items-center gap-2 px-4 py-2 text-white rounded-xl text-sm font-medium transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             <ChevronLeft size={16} /> Retour
           </button>
         </div>
 
         {!stats || stats.total === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center shadow-sm border border-gray-100">
+          <div className="rounded-2xl p-10 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
             <BarChart2 size={40} className="mx-auto text-gray-200 mb-3" />
             <p className="text-gray-500 font-medium">Pas encore de données</p>
             <p className="text-sm text-gray-400 mt-1">Évaluez quelques matchings pour voir les résultats ici.</p>
@@ -286,12 +286,12 @@ export default function CalibrationPage() {
           <p className="text-sm text-gray-400 mt-0.5">Évaluez la pertinence des matchings</p>
         </div>
         <button onClick={async () => { await loadStats(); setView('results') }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] text-white rounded-xl text-sm font-medium hover:bg-[#152a45] transition-colors">
+          className="flex items-center gap-2 px-4 py-2 text-white rounded-xl text-sm font-medium transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
           <BarChart2 size={16} /> Résultats {evaluated > 0 && <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-xs">{evaluated}</span>}
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-5">
+      <div className="rounded-2xl p-4 mb-5" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-600">{evaluated} évalués sur {total}</span>
           <span className="text-sm font-bold text-[#1E3A5F]">{progress}%</span>
@@ -311,11 +311,12 @@ export default function CalibrationPage() {
             <button key={item.id} onClick={() => setCurrentIdx(i)}
               title={`${item.bien_type || 'Bien'} · ${item.prospect_nom}`}
               className={`w-6 h-6 rounded-full shrink-0 transition-all border-2 ${
-                i === currentIdx ? 'bg-[#1E3A5F] border-[#1E3A5F] scale-125'
+                i === currentIdx ? 'border-transparent scale-125'
                 : item.pertinent === 1 ? 'bg-emerald-400 border-emerald-400'
                 : item.pertinent === 0 ? 'bg-red-400 border-red-400'
                 : 'bg-gray-200 border-gray-200 hover:bg-gray-300'
-              }`} />
+              }`}
+              style={i === currentIdx ? { background: 'var(--gradient-primary)' } : {}} />
           ))}
         </div>
         <button onClick={() => setCurrentIdx(i => Math.min(total - 1, i + 1))} disabled={currentIdx === total - 1}
@@ -324,7 +325,7 @@ export default function CalibrationPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {/* Photo + header */}
         <div className="flex" style={{ minHeight: '120px' }}>
           <button onClick={() => setShowBienModal(true)}
@@ -424,7 +425,7 @@ export default function CalibrationPage() {
               {saving ? <Loader2 size={15} className="animate-spin" /> : 'Sauvegarder'}
             </button>
             <button onClick={saveAndNext} disabled={saving || (pertinent === null && scoreAvis === null) || currentIdx === total - 1}
-              className="flex-1 py-2.5 bg-[#1E3A5F] hover:bg-[#152a45] text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-40">
+              className="flex-1 py-2.5 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-40" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
               {saving ? <Loader2 size={15} className="animate-spin" /> : <>Suivant <ChevronRight size={15} /></>}
             </button>
           </div>

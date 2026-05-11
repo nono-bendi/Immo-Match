@@ -16,7 +16,7 @@ import { apiFetch } from '../api'
 function Section({ title, icon: Icon, badge, defaultOpen = false, children }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="rounded-xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors"
@@ -435,7 +435,7 @@ export default function AdministrationPage() {
           href={`${API_URL}/guide`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-[#1E3A5F] hover:bg-[#2D5A8A] text-white text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
         >
           <FileText size={15} />
           Guide utilisateur
@@ -503,7 +503,7 @@ export default function AdministrationPage() {
             </Field>
           </div>
           <button type="submit" disabled={savingPw}
-            className="px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-lg hover:bg-[#2D5A8A] transition-colors disabled:opacity-50 flex items-center gap-2">
+            className="px-5 py-2.5 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             {savingPw ? <><Loader2 size={16} className="animate-spin" />Modification...</> : <><Check size={16} />Modifier le mot de passe</>}
           </button>
         </form>
@@ -539,7 +539,7 @@ export default function AdministrationPage() {
                     <span className="text-xs text-gray-400">ou</span>
                     <button type="button" onClick={() => logoRef.current?.click()}
                       disabled={logoUploading}
-                      className="px-3 py-1.5 text-xs font-medium bg-[#1E3A5F] text-white rounded-lg hover:bg-[#2D5A8A] disabled:opacity-50 flex items-center gap-1.5">
+                      className="px-3 py-1.5 text-xs font-medium text-white rounded-lg disabled:opacity-50 flex items-center gap-1.5" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
                       {logoUploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
                       {logoUploading ? 'Upload...' : 'Uploader un fichier'}
                     </button>
@@ -652,8 +652,8 @@ export default function AdministrationPage() {
             <div className="flex justify-end items-center gap-3 mt-4">
               <Toast msg={agencyMsg.text} ok={agencyMsg.ok} />
               <button onClick={saveAgency} disabled={savingAgency}
-                className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
-                  ${savingAgency ? 'bg-gray-400' : 'bg-[#1E3A5F] hover:bg-[#2D5A8A]'}`}>
+                className="px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2"
+                style={savingAgency ? { background: '#9ca3af' } : { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
                 {savingAgency ? <><Loader2 size={16} className="animate-spin" />Sauvegarde...</> : <><Save size={16} />Sauvegarder l'agence</>}
               </button>
             </div>
@@ -703,7 +703,7 @@ export default function AdministrationPage() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveAgent(a.id)}
-                          className="px-4 py-2 bg-[#1E3A5F] text-white text-sm font-medium rounded-lg hover:bg-[#2D5A8A] flex items-center gap-1.5">
+                          className="px-4 py-2 text-white text-sm font-medium rounded-lg flex items-center gap-1.5" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
                           <Check size={14} /> Enregistrer
                         </button>
                         <button onClick={() => { setEditId(null); setEditData({}) }}
@@ -1018,7 +1018,7 @@ export default function AdministrationPage() {
         {/* Sync manuelle */}
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3 flex-wrap">
           <button onClick={handleSync} disabled={syncing}
-            className="px-4 py-2.5 bg-[#1E3A5F] text-white text-sm font-medium rounded-xl hover:bg-[#2D5A8A] disabled:opacity-50 flex items-center gap-2">
+            className="px-4 py-2.5 text-white text-sm font-medium rounded-xl disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             {syncing ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />}
             {syncing ? 'Synchronisation...' : 'Lancer manuellement'}
           </button>
@@ -1045,7 +1045,7 @@ export default function AdministrationPage() {
         <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
           <button
             onClick={() => window.open(`${API_URL}/rapport/mensuel?token=${token}`, '_blank')}
-            className="flex items-center gap-2 px-5 py-3 bg-[#1E3A5F] text-white text-sm font-medium rounded-xl hover:bg-[#2D5A8A] transition-colors">
+            className="flex items-center gap-2 px-5 py-3 text-white text-sm font-medium rounded-xl transition-colors" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             <FileText size={17} /> Rapport mensuel
           </button>
 
@@ -1117,7 +1117,7 @@ export default function AdministrationPage() {
 
           {!showNewAgencyForm ? (
             <button onClick={() => setShowNewAgencyForm(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#1E3A5F] text-white text-sm font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors mt-2">
+              className="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors mt-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
               <Plus size={16} /> Créer une agence
             </button>
           ) : (
@@ -1163,7 +1163,7 @@ export default function AdministrationPage() {
               </div>
               <div className="flex gap-3 pt-1">
                 <button type="submit" disabled={creatingAgency}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] text-white text-sm font-semibold rounded-xl hover:bg-[#2D5A8A] transition-colors disabled:opacity-60">
+                  className="flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
                   {creatingAgency ? <><Loader2 size={15} className="animate-spin" />Création...</> : <><Check size={15} />Créer l'agence</>}
                 </button>
                 <button type="button" onClick={() => setShowNewAgencyForm(false)}
@@ -1180,8 +1180,8 @@ export default function AdministrationPage() {
       <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-end items-center gap-4 px-8 py-3 bg-white/90 backdrop-blur border-t border-gray-200 shadow-lg settings-save-bar">
         <Toast msg={settingsMsg.text} ok={settingsMsg.ok} />
         <button onClick={saveSettings} disabled={savingSettings}
-          className={`px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2
-            ${savingSettings ? 'bg-gray-400' : 'bg-[#1E3A5F] hover:bg-[#2D5A8A]'}`}>
+          className="px-6 py-2.5 font-semibold rounded-xl text-white transition-all flex items-center gap-2"
+          style={savingSettings ? { background: '#9ca3af' } : { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
           {savingSettings ? <><Loader2 size={16} className="animate-spin" />Sauvegarde...</> : <><Save size={16} />Sauvegarder les paramètres</>}
         </button>
       </div>

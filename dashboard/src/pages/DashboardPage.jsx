@@ -211,7 +211,7 @@ export default function DashboardPage() {
       <AlertTriangle size={24} style={{ color: '#f87171' }} />
       <p style={{ fontWeight: 600, color: '#374151' }}>{`Backend inaccessible — vérifiez que FastAPI tourne sur ${API_URL}`}</p>
       <button onClick={() => window.location.reload()}
-        style={{ padding: '8px 18px', background: '#1E3A5F', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none' }}>
+        style={{ padding: '8px 18px', background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none' }}>
         Réessayer
       </button>
     </div>
@@ -220,9 +220,9 @@ export default function DashboardPage() {
   if (loading) return (
     <div className="space-y-5">
       <div className="grid grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => <div key={i} className="bg-white rounded-2xl h-32 animate-shimmer" />)}
+        {[...Array(4)].map((_, i) => <div key={i} className="rounded-2xl h-32 animate-shimmer" style={{ background: 'var(--surface-card-bg)', border: '1px solid var(--surface-card-border)' }} />)}
       </div>
-      <div className="bg-white rounded-2xl h-72 animate-shimmer" />
+      <div className="rounded-2xl h-72 animate-shimmer" style={{ background: 'var(--surface-card-bg)', border: '1px solid var(--surface-card-border)' }} />
     </div>
   )
 
@@ -306,7 +306,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-5 gap-5">
 
         {/* À contacter */}
-        <div className="col-span-3 bg-white rounded-2xl section-card overflow-hidden">
+        <div className="col-span-3 rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div className="sec-icon sec-icon--navy">
@@ -420,7 +420,7 @@ export default function DashboardPage() {
         <div className="col-span-2 flex flex-col gap-4">
 
           {/* Distribution */}
-          <div className="bg-white rounded-2xl section-card overflow-hidden">
+          <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div className="sec-icon sec-icon--violet">
@@ -501,7 +501,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Graphique évolution — en bas, sobre ──────────── */}
-      <div className="bg-white rounded-2xl section-card overflow-hidden">
+      <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         <div style={{ padding: '18px 24px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="sec-icon sec-icon--gray">

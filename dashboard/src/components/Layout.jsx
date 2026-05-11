@@ -51,9 +51,7 @@ function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { dark, toggle } = useTheme()
 
-  useEffect(() => {
-    if (user) setShowTuto(!localStorage.getItem(`immo_tutorial_seen_${user.id}`))
-  }, [user?.id])
+  // Guide uniquement à la demande — plus d'ouverture automatique
 
   const handleCloseTuto = () => {
     localStorage.setItem(tutoKey, '1')
@@ -93,7 +91,7 @@ function Layout({ children }) {
           {children}
         </main>
 
-        <footer className="px-6 py-2.5 text-center text-xs text-gray-400 border-t border-white/60 flex-shrink-0" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+        <footer className="px-6 py-2.5 text-center text-xs text-gray-400 border-t border-white/60 flex-shrink-0" aria-hidden="true" style={{ background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', contain: 'layout' }}>
           ImmoFlash v1.0 &nbsp;•&nbsp; Développé par <span className="font-medium tracking-wide text-gray-500">NOWA</span> &nbsp;•&nbsp; © 2026
         </footer>
       </div>

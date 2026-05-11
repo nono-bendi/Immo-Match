@@ -367,7 +367,8 @@ function ClientsPage() {
 
         <a
           href="/clients/nouveau"
-          className="px-4 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press flex items-center gap-2"
+          className="px-4 py-2.5 text-white font-medium rounded-xl btn-press flex items-center gap-2"
+          style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
         >
           <span className="text-lg">+</span>
           Nouveau prospect
@@ -375,7 +376,7 @@ function ClientsPage() {
       </div>
 
       {/* Table prospects actifs */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {loading ? (
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -401,7 +402,8 @@ function ClientsPage() {
             <p className="text-gray-400 mb-4">Ajoutez votre premier prospect pour commencer</p>
             <a
               href="/clients/nouveau"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1E3A5F] text-white font-medium rounded-xl btn-press"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-medium rounded-xl btn-press"
+              style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
             >
               <span className="text-lg">+</span>
               Nouveau prospect
@@ -449,7 +451,7 @@ function ClientsPage() {
           </button>
 
           {showArchived && (
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden mt-2">
+            <div className="rounded-2xl overflow-hidden mt-2" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
@@ -476,7 +478,7 @@ function ClientsPage() {
       {/* Modal Édition */}
       {editingProspect && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-bounce-in">
+          <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }}>
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-xl font-bold text-[#1E3A5F]">Modifier le prospect</h2>
               <button onClick={() => setEditingProspect(null)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -528,7 +530,7 @@ function ClientsPage() {
 
             <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
               <button onClick={() => setEditingProspect(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
-              <button onClick={handleSaveEdit} disabled={saving} className="px-4 py-2 bg-[#1E3A5F] text-white rounded-lg btn-press disabled:opacity-50 flex items-center gap-2">
+              <button onClick={handleSaveEdit} disabled={saving} className="px-4 py-2 text-white rounded-lg btn-press disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
                 {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={18} />}
                 Sauvegarder
               </button>
@@ -540,7 +542,7 @@ function ClientsPage() {
       {/* Modal Confirmation Suppression */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-bounce-in">
+          <div className="rounded-2xl shadow-xl w-full max-w-md p-6 animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }}>
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} className="text-red-500 animate-shake" />

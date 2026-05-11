@@ -71,7 +71,7 @@ function BienModal({ bien, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-bounce-in"
+        className="rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header avec photo */}
@@ -220,7 +220,7 @@ function BienModal({ bien, onClose }) {
               <button
                 onClick={saveLien}
                 disabled={lienSaving}
-                className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
               >
                 {lienSaving ? <Loader2 size={14} className="animate-spin" /> : lienSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
                 {lienSaved ? 'Sauvegardé' : 'Sauvegarder'}
@@ -255,7 +255,7 @@ function BienModal({ bien, onClose }) {
             <button
               onClick={lancerAnalyse}
               disabled={analyseState === 'loading'}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#1E3A5F] hover:bg-[#2a4f7c] disabled:opacity-60 text-white rounded-xl font-medium text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 disabled:opacity-60 text-white rounded-xl font-medium text-sm transition-all" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
             >
               {analyseState === 'loading' ? (
                 <><Loader2 size={16} className="animate-spin" />Analyse en cours...</>
