@@ -40,51 +40,51 @@ function EmailModal({
 
       <div className={`relative rounded-2xl mx-4 overflow-hidden animate-in fade-in zoom-in duration-200 ${type === 'confirm' ? 'w-full max-w-4xl max-h-[90vh] flex flex-col' : 'w-full max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
         {type === 'confirm' && (
-          <div className="px-6 py-4 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+          <div className="px-3 py-2 sm:px-6 sm:py-4 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="hidden sm:flex w-10 h-10 bg-white/20 rounded-full items-center justify-center shrink-0">
                   <Send size={20} className="text-white" />
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold">Envoyer la proposition</h3>
-                  <p className="text-white/70 text-sm">à {data?.prospectNom}</p>
+                <div className="min-w-0">
+                  <h3 className="text-white font-semibold text-sm sm:text-base leading-tight truncate">Envoyer la proposition</h3>
+                  <p className="text-white/70 text-xs sm:text-sm truncate">à {data?.prospectNom}</p>
                 </div>
               </div>
 
-              <div className="flex bg-white/10 rounded-lg p-1">
+              <div className="flex bg-white/10 rounded-lg p-0.5 sm:p-1 shrink-0">
                 <button
                   onClick={() => setActiveTab('preview')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'preview'
                       ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <Eye size={16} />
-                  Aperçu
+                  <Eye size={15} />
+                  <span className="hidden sm:inline">Aperçu</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('edit')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'edit'
                       ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <Edit3 size={16} />
-                  Modifier
+                  <Edit3 size={15} />
+                  <span className="hidden sm:inline">Modifier</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('confirm')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-all ${
                     activeTab === 'confirm'
                       ? 'bg-white text-[#1E3A5F]'
                       : 'text-white/80 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <Mail size={16} />
-                  Envoyer
+                  <Mail size={15} />
+                  <span className="hidden sm:inline">Envoyer</span>
                 </button>
               </div>
             </div>
