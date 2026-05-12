@@ -506,9 +506,11 @@ export default function MatchingsPageV2() {
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
   const [filterNew, setFilterNew]       = useState(false)
-  const [sortBy, setSortBy]             = useState('recent')   // par défaut : plus récents
+  const [sortBy, setSortBy]             = useState('recent')
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [page, setPage]                 = useState(1)
+  const PAGE_SIZE = 10
 
   const [analyzing, setAnalyzing]               = useState(false)
   const [showOverlay, setShowOverlay]           = useState(false)
@@ -633,6 +635,12 @@ export default function MatchingsPageV2() {
     })
     return { filtered, groups }
   }, [matchings, search, filterScore, filterNew, filterBienId, filterProspectId, sortBy])
+
+  // Reset page quand les filtres changent
+  useEffect(() => { setPage(1) }, [search, filterScore, filterNew, sortBy])
+
+  const totalPages  = Math.ceil(groups.length / PAGE_SIZE)
+  const pagedGroups = groups.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="matchings-wrap" style={{ margin: '-24px', minHeight: 'calc(100vh - 60px)', position: 'relative' }}>
@@ -775,9 +783,10 @@ export default function MatchingsPageV2() {
           </button>
         </div>
       ) : (
+        <>
         <div className="space-y-4">
-          {groups.map((g, idx) => (
-            <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0}
+          {pagedGroups.map((g, idx) => (
+            <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0 && page === 1}
               onRunSingle={runSingle}
               onPropose={openEmail}
               onRefuse={handleRefuse}
@@ -786,6 +795,31 @@ export default function MatchingsPageV2() {
             />
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '24px 0 8px' }}>
+            <button
+              onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              disabled={page === 1}
+              style={{ padding: '7px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: page === 1 ? '#f8fafc' : '#fff', color: page === 1 ? '#cbd5e1' : '#1E3A5F', fontWeight: 600, fontSize: 13, cursor: page === 1 ? 'default' : 'pointer', transition: 'all 0.15s' }}
+            >← Précédent</button>
+
+            <div style={{ display: 'flex', gap: 4 }}>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <button key={n} onClick={() => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  style={{ width: 34, height: 34, borderRadius: 9, border: '1px solid', borderColor: n === page ? '#1E3A5F' : '#e2e8f0', background: n === page ? '#1E3A5F' : '#fff', color: n === page ? '#fff' : '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s' }}
+                >{n}</button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+              disabled={page === totalPages}
+              style={{ padding: '7px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: page === totalPages ? '#f8fafc' : '#fff', color: page === totalPages ? '#cbd5e1' : '#1E3A5F', fontWeight: 600, fontSize: 13, cursor: page === totalPages ? 'default' : 'pointer', transition: 'all 0.15s' }}
+            >Suivant →</button>
+          </div>
+        )}
+        </>
       )}
     </div>
     </div>
