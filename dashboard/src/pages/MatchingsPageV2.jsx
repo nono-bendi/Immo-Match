@@ -342,8 +342,9 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   })
   const best = sorted[0]
   const [selId, setSelId]         = useState(defaultOpen && best ? best.id : null)
-  const [prospectData, setProspectData] = useState(null)   // données fetchées pour la modal
-  const [bienModal, setBienModal] = useState(null)          // bien object pour la BienModal
+  const [prospectData, setProspectData] = useState(null)
+  const [bienModal, setBienModal] = useState(null)
+  const [expanded, setExpanded]   = useState(false)
   const sel = selId ? sorted.find(m => m.id === selId) || best : null
   const [a, b] = avP(group.prospect_nom)
   const { dark } = useTheme()
@@ -457,14 +458,22 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
 
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
-            {sorted.slice(0, 4).map(m => (
+            {(expanded ? sorted : sorted.slice(0, 4)).map(m => (
               <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
               />
             ))}
-            {sorted.length > 4 && <div style={{ fontSize: 12, color: '#94a3b8', paddingLeft: 10, marginTop: 2 }}>+{sorted.length - 4} autre{sorted.length - 4 > 1 ? 's' : ''}</div>}
+            {sorted.length > 4 && (
+              <button onClick={() => setExpanded(v => !v)}
+                style={{ fontSize: 12, color: '#60a5fa', paddingLeft: 10, marginTop: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 10px' }}
+                onMouseEnter={e => e.currentTarget.style.color='#3b82f6'}
+                onMouseLeave={e => e.currentTarget.style.color='#60a5fa'}
+              >
+                {expanded ? 'Voir moins ↑' : `+${sorted.length - 4} autre${sorted.length - 4 > 1 ? 's' : ''} ↓`}
+              </button>
+            )}
           </div>
         </div>
 
