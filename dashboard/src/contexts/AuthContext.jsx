@@ -4,6 +4,7 @@
 // =====================================================
 
 import { createContext, useContext, useState, useEffect } from 'react'
+import posthog from 'posthog-js'
 import { API_URL } from '../config'
 import { setModuleToken } from '../api'
 
@@ -49,6 +50,11 @@ export function AuthProvider({ children }) {
           setUser(userData)
           setToken(storedToken)
           setModuleToken(storedToken)
+          posthog.identify(String(userData.id), {
+            email: userData.email,
+            name: userData.nom,
+            agency: userData.agency_slug,
+          })
         } else {
           // Token invalide, on le supprime
           localStorage.removeItem('token')
@@ -90,6 +96,11 @@ export function AuthProvider({ children }) {
       setModuleToken(data.access_token)
       setToken(data.access_token)
       setUser(data.user)
+      posthog.identify(String(data.user.id), {
+        email: data.user.email,
+        name: data.user.nom,
+        agency: data.user.agency_slug,
+      })
       window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: data.access_token } }))
 
       return { success: true }
@@ -132,6 +143,7 @@ export function AuthProvider({ children }) {
     setModuleToken(null)
     setToken(null)
     setUser(null)
+    posthog.reset()
     window.dispatchEvent(new CustomEvent('auth-token-changed', { detail: { token: null } }))
   }
 

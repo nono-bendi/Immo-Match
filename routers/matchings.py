@@ -12,6 +12,7 @@ from agencies_db import get_db_path, get_monthly_usage, increment_monthly_usage
 from plans import check_quota
 from routers.auth import get_current_user, require_not_demo
 from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif
+from analytics import track
 
 router = APIRouter()
 
@@ -1119,6 +1120,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
         conn.close()
 
         increment_monthly_usage(current_user["agency_slug"], "matchings_count")
+        track(current_user["id"], "matching_run", {"nb_matchings": nb_matchings, "prospect_id": prospect_id, "agency": current_user["agency_slug"]})
         return {
             "message": f"Analyse terminée, {nb_matchings} matching(s) trouvé(s)",
             "matchings_count": nb_matchings,

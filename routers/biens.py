@@ -7,6 +7,7 @@ from io import BytesIO
 
 from agencies_db import get_db_path
 from routers.auth import get_current_user
+from analytics import track
 
 router = APIRouter()
 
@@ -370,6 +371,7 @@ def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
 
     conn.commit()
     conn.close()
+    track(current_user["id"], "bien_created", {"type": bien.get("type"), "ville": bien.get("ville"), "agency": current_user["agency_slug"]})
     return {"message": "Bien ajouté avec succès"}
 
 

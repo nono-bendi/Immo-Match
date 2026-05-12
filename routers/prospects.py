@@ -6,6 +6,7 @@ from io import BytesIO
 
 from agencies_db import get_db_path
 from routers.auth import get_current_user
+from analytics import track
 
 router = APIRouter()
 
@@ -92,6 +93,7 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     conn.commit()
     conn.close()
 
+    track(current_user["id"], "prospect_created", {"agency": current_user["agency_slug"]})
     return {"message": "Prospect ajouté avec succès", "id": prospect_id}
 
 
