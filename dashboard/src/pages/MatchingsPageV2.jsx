@@ -467,11 +467,11 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
             ))}
             {sorted.length > 4 && (
               <button onClick={() => setExpanded(v => !v)}
-                style={{ fontSize: 12, color: '#60a5fa', paddingLeft: 10, marginTop: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 10px' }}
+                style={{ fontSize: 12, color: '#94a3b8', paddingLeft: 10, marginTop: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 10px', transition: 'color 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.color='#3b82f6'}
-                onMouseLeave={e => e.currentTarget.style.color='#60a5fa'}
+                onMouseLeave={e => e.currentTarget.style.color='#94a3b8'}
               >
-                {expanded ? 'Voir moins ↑' : `+${sorted.length - 4} autre${sorted.length - 4 > 1 ? 's' : ''} ↓`}
+                {expanded ? 'Voir moins' : `+${sorted.length - 4} autre${sorted.length - 4 > 1 ? 's' : ''}`}
               </button>
             )}
           </div>
