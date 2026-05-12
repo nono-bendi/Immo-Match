@@ -67,11 +67,13 @@ function BienModal({ bien, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+      style={{ zIndex: 9999 }}
       onClick={onClose}
     >
       <div
-        className="rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}
+        className="rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-bounce-in"
+        style={{ background: '#fff', border: '1px solid #e8eef5', boxShadow: '0 24px 64px rgba(30,58,95,0.18)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header avec photo */}
@@ -119,20 +121,20 @@ function BienModal({ bien, onClose }) {
 
           {/* Stats principales */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-gray-50 rounded-xl">
+            <div className="text-center p-3 bg-emerald-50 rounded-xl border border-emerald-100">
               <Euro size={20} className="mx-auto text-emerald-600 mb-1" />
               <p className="text-lg font-bold text-[#1E3A5F]">{formatPrix(bien.prix)}</p>
-              <p className="text-xs text-gray-400">Prix</p>
+              <p className="text-xs text-emerald-500">Prix</p>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-xl">
+            <div className="text-center p-3 bg-blue-50 rounded-xl border border-blue-100">
               <Maximize size={20} className="mx-auto text-blue-600 mb-1" />
               <p className="text-lg font-bold text-[#1E3A5F]">{bien.surface || '-'} m²</p>
-              <p className="text-xs text-gray-400">Surface</p>
+              <p className="text-xs text-blue-400">Surface</p>
             </div>
-            <div className="text-center p-3 bg-gray-50 rounded-xl">
+            <div className="text-center p-3 bg-violet-50 rounded-xl border border-violet-100">
               <Home size={20} className="mx-auto text-violet-600 mb-1" />
               <p className="text-lg font-bold text-[#1E3A5F]">{bien.pieces || '-'} pièces</p>
-              <p className="text-xs text-gray-400">{bien.chambres ? `${bien.chambres} ch.` : ''}</p>
+              <p className="text-xs text-violet-400">{bien.chambres ? `${bien.chambres} ch.` : ''}</p>
             </div>
           </div>
 
@@ -181,13 +183,13 @@ function BienModal({ bien, onClose }) {
               <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Performance énergétique</p>
               <div className="flex gap-3">
                 {bien.dpe_lettre && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50/70 rounded-xl border border-slate-100">
                     <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${dpeColor(bien.dpe_lettre)}`}>{bien.dpe_lettre}</span>
                     <div><p className="text-xs text-gray-400">DPE</p>{bien.dpe_kwh && <p className="text-xs font-medium text-gray-700">{bien.dpe_kwh} kWh/m²/an</p>}</div>
                   </div>
                 )}
                 {bien.ges_lettre && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50/70 rounded-xl border border-slate-100">
                     <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm ${dpeColor(bien.ges_lettre)}`}>{bien.ges_lettre}</span>
                     <div><p className="text-xs text-gray-400">GES</p>{bien.ges_co2 && <p className="text-xs font-medium text-gray-700">{bien.ges_co2} kg CO₂/m²/an</p>}</div>
                   </div>
@@ -205,7 +207,7 @@ function BienModal({ bien, onClose }) {
           )}
 
           {/* Lien annonce externe */}
-          <div className="p-4 bg-gray-50 rounded-xl space-y-2">
+          <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2">
             <p className="text-xs text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1.5">
               <Link size={12} /> Lien annonce externe
             </p>
@@ -236,7 +238,7 @@ function BienModal({ bien, onClose }) {
 
           {/* Description */}
           {bien.description && (
-            <div className="p-4 bg-gray-50 rounded-xl">
+            <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100">
               <p className="text-xs text-gray-400 mb-2 font-medium">Description</p>
               <p className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{bien.description}</p>
             </div>
