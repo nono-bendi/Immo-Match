@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown, Shuffle } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown, Shuffle, Upload } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProspectModal from '../components/ProspectModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -57,6 +57,26 @@ function ClientsPage() {
 
   const navigate = useNavigate()
   const itemsPerPage = 10
+  const [importing, setImporting] = useState(false)
+  const importInputRef = useRef(null)
+
+  const handleImport = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    setImporting(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const response = await apiFetch('/prospects/import-add', { method: 'POST', body: formData })
+      const data = await response.json()
+      alert(data.message)
+      fetchProspects()
+    } catch {
+      alert("Erreur lors de l'import")
+    }
+    setImporting(false)
+    event.target.value = ''
+  }
 
   const fetchProspects = () => {
     apiFetch('/prospects')
@@ -365,14 +385,25 @@ function ClientsPage() {
           </div>
         </div>
 
-        <a
-          href="/clients/nouveau"
-          className="px-4 py-2.5 text-white font-medium rounded-xl btn-press flex items-center justify-center gap-2 sm:w-auto"
-          style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
-        >
-          <span className="text-lg">+</span>
-          Nouveau prospect
-        </a>
+        <div className="flex items-center gap-2">
+          <input ref={importInputRef} type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
+          <button
+            onClick={() => importInputRef.current?.click()}
+            disabled={importing}
+            className="px-4 py-2.5 font-medium rounded-xl btn-press flex items-center gap-2 border border-[#1E3A5F]/20 bg-white text-[#1E3A5F] hover:bg-[#1E3A5F]/5 transition-all"
+          >
+            <Upload size={15} />
+            {importing ? 'Import...' : 'Importer Excel'}
+          </button>
+          <button
+            onClick={() => navigate('/clients/nouveau')}
+            className="px-4 py-2.5 text-white font-medium rounded-xl btn-press flex items-center justify-center gap-2"
+            style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+          >
+            <span className="text-lg leading-none">+</span>
+            Nouveau prospect
+          </button>
+        </div>
       </div>
 
       {/* Table prospects actifs */}
@@ -400,14 +431,14 @@ function ClientsPage() {
             </div>
             <h2 className="text-lg font-semibold text-[#1E3A5F] mb-2">Aucun prospect actif</h2>
             <p className="text-gray-400 mb-4">Ajoutez votre premier prospect pour commencer</p>
-            <a
-              href="/clients/nouveau"
+            <button
+              onClick={() => navigate('/clients/nouveau')}
               className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-medium rounded-xl btn-press"
               style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
             >
               <span className="text-lg">+</span>
               Nouveau prospect
-            </a>
+            </button>
           </div>
         ) : (
           <table className="w-full">

@@ -60,6 +60,45 @@ async def import_prospects(file: UploadFile = File(...), current_user: dict = De
     return {"message": f"{len(df)} prospects importés"}
 
 
+@router.post("/prospects/import-add")
+async def import_prospects_add(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
+    contents = await file.read()
+    df = pd.read_excel(BytesIO(contents), sheet_name="Prospects")
+    df.columns = df.columns.str.strip()
+
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    added = 0
+    for _, row in df.iterrows():
+        conn.execute('''
+            INSERT INTO prospects (date, nom, mail, telephone, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            str(row.get('Date', '')) if pd.notna(row.get('Date')) else datetime.now().strftime("%Y-%m-%d"),
+            row.get('Nom') if pd.notna(row.get('Nom')) else None,
+            row.get('Mail') if pd.notna(row.get('Mail')) else None,
+            row.get('Téléphone') if pd.notna(row.get('Téléphone')) else None,
+            row.get('Domicile') if pd.notna(row.get('Domicile')) else None,
+            row.get('Bien') if pd.notna(row.get('Bien')) else None,
+            row.get('Villes') if pd.notna(row.get('Villes')) else None,
+            row.get('Quartiers') if pd.notna(row.get('Quartiers')) else None,
+            row.get('Budget max') if pd.notna(row.get('Budget max')) else None,
+            row.get('Critères') if pd.notna(row.get('Critères')) else None,
+            row.get('Etat') if pd.notna(row.get('Etat')) else None,
+            row.get('Expo') if pd.notna(row.get('Expo')) else None,
+            row.get('Stationne.') if pd.notna(row.get('Stationne.')) else None,
+            row.get('Copro') if pd.notna(row.get('Copro')) else None,
+            row.get('Extérieur') if pd.notna(row.get('Extérieur')) else None,
+            row.get('Etage') if pd.notna(row.get('Etage')) else None,
+            row.get('Destination') if pd.notna(row.get('Destination')) else None,
+            row.get('Observation') if pd.notna(row.get('Observation')) else None,
+        ))
+        added += 1
+
+    conn.commit()
+    conn.close()
+    return {"message": f"{added} prospect{'s' if added > 1 else ''} ajouté{'s' if added > 1 else ''}"}
+
+
 @router.post("/prospects/add")
 def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
