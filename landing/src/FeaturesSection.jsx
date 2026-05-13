@@ -29,13 +29,27 @@ function ScoreRingMini({ score, size = 88 }) {
   )
 }
 
-function GemBadgeMini({ score, ville, prix, surface, selected }) {
+function GemBadgeMini({ score, ville, prix, surface, selected, photo, onClick }) {
   const color = score >= 80 ? '#10b981' : score >= 65 ? '#ca8a04' : '#ef4444'
   const fmtPrix = v => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 11, background: selected ? '#f0fdf4' : '#f8fafc', border: `1.5px solid ${selected ? color : '#edf1f7'}`, transition: 'all 0.15s' }}>
-      <div style={{ width: 36, height: 36, borderRadius: 7, background: `linear-gradient(135deg,${color}25,${color}10)`, flexShrink: 0, position: 'relative' }}>
-        <div style={{ position: 'absolute', top: 2, right: 2, background: color, color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 9999 }}>{score}</div>
+    <div
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 11,
+        background: selected ? `${color}12` : '#f8fafc',
+        border: `1.5px solid ${selected ? color : '#edf1f7'}`,
+        transition: 'all 0.18s', cursor: 'pointer',
+        boxShadow: selected ? `0 2px 10px ${color}28` : 'none',
+        transform: selected ? 'translateX(2px)' : 'none',
+      }}
+    >
+      <div style={{ width: 38, height: 36, borderRadius: 7, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+        {photo
+          ? <img src={photo} alt={ville} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg,${color}25,${color}10)` }} />
+        }
+        <div style={{ position: 'absolute', top: 2, right: 2, background: color, color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 9999, lineHeight: 1.2 }}>{score}</div>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
@@ -47,15 +61,41 @@ function GemBadgeMini({ score, ville, prix, surface, selected }) {
 
 function MatchingMock() {
   const fmtPrix = v => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v)
-  const PHOTO = 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg'
+
   const biens = [
-    { score: 88, ville: 'Agay', prix: 450000, surface: 120 },
-    { score: 81, ville: 'Fréjus', prix: 420000, surface: 95 },
-    { score: 73, ville: 'Bagnols', prix: 435000, surface: 130 },
+    {
+      score: 88, ville: 'Agay', prix: 450000, surface: 120, pieces: 4, type: 'Maison/villa',
+      photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/7/99c18db26bdddf8af44b50d7e4634c99/photo_baea1dab07b245ccd532c47b45d3afff.jpg',
+      points: ['Plain-pied avec piscine, secteur calme', 'Surface et prix dans le budget cible', 'Vue mer partielle'],
+      postit: 'Excellent rapport qualité-prix. Proposer en priorité.',
+    },
+    {
+      score: 81, ville: 'Fréjus', prix: 420000, surface: 95, pieces: 3, type: 'Maison/villa',
+      photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/12/a250fab4a2c4b0dd44e7fbccc62d16de/photo_48347d1adc58ea2976500be9ddf894f5.jpg',
+      points: ['Quartier résidentiel calme, bus à 200 m', 'Prix dans la fourchette basse du budget', 'Garage et jardin privatif'],
+      postit: 'Bon rapport qualité-prix. À présenter.',
+    },
+    {
+      score: 73, ville: 'Bagnols', prix: 435000, surface: 130, pieces: 5, type: 'Maison/villa',
+      photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg',
+      points: ['Grande surface, idéale pour une famille', 'Terrain avec piscine et extérieur', 'Légèrement au-dessus du budget'],
+      postit: 'À présenter si budget extensible.',
+    },
   ]
 
+  const [selectedIdx, setSelectedIdx] = useState(0)
+  const [panelVisible, setPanelVisible] = useState(true)
+
+  const handleSelect = (i) => {
+    if (i === selectedIdx) return
+    setPanelVisible(false)
+    setTimeout(() => { setSelectedIdx(i); setPanelVisible(true) }, 140)
+  }
+
+  const bien = biens[selectedIdx]
+
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f0f9ff', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f8fafc', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
       <div style={{ padding: '10px 13px', borderBottom: '1px solid #e0f2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
@@ -115,36 +155,36 @@ function MatchingMock() {
               </div>
             </div>
 
-            {/* ── Centre — ScoreRing ── */}
+            {/* ── Centre — ScoreRing (score du bien sélectionné) ── */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg,#fbfcfe,#f8fafc)', borderRight: '1px solid #f3f4f6' }}>
-              <ScoreRingMini score={88} size={68} />
+              <ScoreRingMini score={bien.score} size={68} />
             </div>
 
-            {/* ── Droite — GemBadges ── */}
+            {/* ── Droite — GemBadges cliquables ── */}
             <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
               {biens.map((b, i) => (
-                <GemBadgeMini key={i} score={b.score} ville={b.ville} prix={b.prix} surface={b.surface} selected={i === 0} />
+                <GemBadgeMini key={i} score={b.score} ville={b.ville} prix={b.prix} surface={b.surface} photo={b.photo} selected={i === selectedIdx} onClick={() => handleSelect(i)} />
               ))}
             </div>
           </div>
 
-          {/* ── Panneau déplié — photo + analyse ── */}
-          <div style={{ borderTop: '1px solid #e5e7eb' }}>
+          {/* ── Panneau déplié — dynamique selon le bien sélectionné ── */}
+          <div style={{ borderTop: '1px solid #e5e7eb', opacity: panelVisible ? 1 : 0, transition: 'opacity 0.14s ease' }}>
 
             {/* Hero photo */}
-            <div style={{ position: 'relative', height: 140, background: `linear-gradient(135deg,rgba(15,23,42,.82) 0%,rgba(15,23,42,.55) 100%),url(${PHOTO}) center/cover no-repeat`, padding: '16px 18px' }}>
+            <div style={{ position: 'relative', height: 140, background: `linear-gradient(135deg,rgba(15,23,42,.82) 0%,rgba(15,23,42,.55) 100%),url(${bien.photo}) center/cover no-repeat`, padding: '16px 18px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Maison/villa</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{bien.type}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 3, display: 'flex', gap: 6 }}>
-                    <span>📍 Agay</span>
+                    <span>📍 {bien.ville}</span>
                     <span style={{ opacity: .4 }}>·</span>
-                    <span>120 m²</span>
+                    <span>{bien.surface} m²</span>
                     <span style={{ opacity: .4 }}>·</span>
-                    <span>4 pièces</span>
+                    <span>{bien.pieces} pièces</span>
                   </div>
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{fmtPrix(450000)}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{fmtPrix(bien.prix)}</div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -153,7 +193,7 @@ function MatchingMock() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '.1em' }}>⚡ Points forts</span>
                   </div>
-                  {['Plain-pied avec piscine, secteur calme', 'Surface et prix dans le budget cible', 'Vue mer partielle'].map((f, i) => (
+                  {bien.points.map((f, i) => (
                     <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, fontSize: 10, color: 'rgba(255,255,255,.88)', lineHeight: 1.4 }}>
                       <span style={{ color: '#34d399', flexShrink: 0 }}>•</span><span>{f}</span>
                     </div>
@@ -164,7 +204,7 @@ function MatchingMock() {
                   <div style={{ position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 10, background: 'rgba(255,255,255,.55)', borderRadius: 2 }} />
                   <div style={{ fontSize: 8, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>📝 Recommandation</div>
                   <p style={{ fontSize: 11, color: '#78350f', lineHeight: 1.45, margin: 0, fontFamily: '"Caveat","Comic Sans MS",cursive', fontWeight: 500 }}>
-                    Excellent rapport qualité-prix. Proposer en priorité.
+                    {bien.postit}
                   </p>
                 </div>
               </div>
