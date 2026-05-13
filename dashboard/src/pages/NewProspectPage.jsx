@@ -18,9 +18,17 @@ function NewProspectPage() {
   const [voiceError, setVoiceError]     = useState('')
   const recognitionRef                  = useRef(null)
 
-  const startListening = () => {
+  const startListening = async () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) { setVoiceError("La reconnaissance vocale n'est pas supportée par ce navigateur (utilisez Chrome)."); return }
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      setVoiceError("Accès au microphone refusé. Autorisez le microphone dans votre navigateur.")
+      return
+    }
+
     const rec = new SR()
     rec.lang = 'fr-FR'
     rec.continuous = true
