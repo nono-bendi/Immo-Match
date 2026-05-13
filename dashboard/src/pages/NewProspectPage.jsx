@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus } from 'lucide-react'
+import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus, Mic, MicOff, Loader2, Sparkles } from 'lucide-react'
 import Modal from '../components/Modal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import { apiFetch } from '../api'
@@ -9,6 +9,80 @@ function NewProspectPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
   const [villeInput, setVilleInput] = useState('')
+
+  // — Vocal —
+  const [voiceOpen, setVoiceOpen]       = useState(false)
+  const [listening, setListening]       = useState(false)
+  const [transcript, setTranscript]     = useState('')
+  const [parsing, setParsing]           = useState(false)
+  const [voiceError, setVoiceError]     = useState('')
+  const recognitionRef                  = useRef(null)
+
+  const startListening = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) { setVoiceError("La reconnaissance vocale n'est pas supportée par ce navigateur (utilisez Chrome)."); return }
+    const rec = new SR()
+    rec.lang = 'fr-FR'
+    rec.continuous = true
+    rec.interimResults = true
+    rec.onresult = (e) => {
+      const text = Array.from(e.results).map(r => r[0].transcript).join(' ')
+      setTranscript(text)
+    }
+    rec.onerror = () => { setListening(false) }
+    rec.onend = () => { setListening(false) }
+    recognitionRef.current = rec
+    rec.start()
+    setListening(true)
+    setVoiceError('')
+  }
+
+  const stopListening = () => {
+    recognitionRef.current?.stop()
+    setListening(false)
+  }
+
+  const applyVoice = async () => {
+    if (!transcript.trim()) return
+    setParsing(true)
+    setVoiceError('')
+    try {
+      const res = await apiFetch('/prospects/voice-parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript })
+      })
+      const data = await res.json()
+      if (data.detail) { setVoiceError(data.detail); setParsing(false); return }
+      setFormData(prev => ({
+        ...prev,
+        ...(data.nom        && { nom: data.nom }),
+        ...(data.telephone  && { telephone: data.telephone }),
+        ...(data.mail       && { mail: data.mail }),
+        ...(data.domicile   && { domicile: data.domicile }),
+        ...(data.bien?.length       && { bien: data.bien }),
+        ...(data.villes?.length     && { villes: data.villes }),
+        ...(data.quartiers?.length  && { quartiers: data.quartiers }),
+        ...(data.quartiersExclus    && { quartiersExclus: data.quartiersExclus }),
+        ...(data.budget_max         && { budget_max: String(data.budget_max) }),
+        ...(data.surface_min        && { surface_min: data.surface_min }),
+        ...(data.pieces_min         && { pieces_min: data.pieces_min }),
+        ...(data.etat?.length       && { etat: data.etat }),
+        ...(data.expo?.length       && { expo: data.expo }),
+        ...(data.stationnement      && { stationnement: data.stationnement }),
+        ...(data.exterieur?.length  && { exterieur: data.exterieur }),
+        ...(data.etage?.length      && { etage: data.etage }),
+        ...(data.copro              && { copro: data.copro }),
+        ...(data.destination        && { destination: data.destination }),
+        ...(data.observation        && { observation: data.observation }),
+      }))
+      setVoiceOpen(false)
+      setTranscript('')
+    } catch {
+      setVoiceError("Erreur lors de l'analyse vocale.")
+    }
+    setParsing(false)
+  }
   
   // États pour les modales
   const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '', onConfirm: null, showCancel: false })
@@ -295,18 +369,90 @@ function NewProspectPage() {
         onCancel={() => setShowOverlay(false)}
       />
 
+      {/* Modal vocale */}
+      {voiceOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-[#1E3A5F]">Remplir par la voix</h3>
+                <p className="text-sm text-gray-400 mt-0.5">Décrivez le prospect à voix haute</p>
+              </div>
+              <button onClick={() => { stopListening(); setVoiceOpen(false); setTranscript('') }} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <X size={20} className="text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Exemple */}
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-700">
+                <span className="font-semibold">Exemple :</span> "Monsieur Dupont, il cherche un appartement à Fréjus, budget 250 000 euros, 3 pièces minimum, avec parking, pour une résidence principale"
+              </div>
+
+              {/* Bouton micro */}
+              <div className="flex flex-col items-center gap-3">
+                <button
+                  onClick={listening ? stopListening : startListening}
+                  className={`w-20 h-20 rounded-full flex items-center justify-center transition-all ${
+                    listening
+                      ? 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 animate-pulse'
+                      : 'bg-[#1E3A5F] hover:bg-[#2D5A8A] shadow-lg shadow-blue-200'
+                  }`}
+                >
+                  {listening ? <MicOff size={32} className="text-white" /> : <Mic size={32} className="text-white" />}
+                </button>
+                <p className="text-sm font-medium text-gray-500">
+                  {listening ? 'En écoute… cliquez pour arrêter' : 'Cliquez pour parler'}
+                </p>
+              </div>
+
+              {/* Transcript */}
+              {transcript && (
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 min-h-16 text-sm text-gray-700 leading-relaxed">
+                  {transcript}
+                </div>
+              )}
+
+              {voiceError && <p className="text-sm text-red-500 text-center">{voiceError}</p>}
+            </div>
+
+            <div className="p-4 border-t border-gray-100 flex justify-end gap-3">
+              <button onClick={() => { stopListening(); setVoiceOpen(false); setTranscript('') }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl text-sm font-medium transition-colors">
+                Annuler
+              </button>
+              <button
+                onClick={applyVoice}
+                disabled={!transcript.trim() || parsing}
+                className="px-5 py-2 text-white rounded-xl text-sm font-semibold disabled:opacity-50 flex items-center gap-2 transition-all"
+                style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+              >
+                {parsing ? <><Loader2 size={15} className="animate-spin" />Analyse…</> : <><Sparkles size={15} />Remplir le formulaire</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <button 
+        <button
           onClick={() => navigate('/clients')}
           className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <ArrowLeft size={20} className="text-gray-600" />
         </button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-[#1E3A5F]">Nouveau prospect</h1>
           <p className="text-sm text-gray-400">Remplissez les informations du client</p>
         </div>
+        <button
+          type="button"
+          onClick={() => { setVoiceOpen(true); setTranscript(''); setVoiceError('') }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1E3A5F]/20 bg-white hover:bg-[#1E3A5F]/5 text-[#1E3A5F] font-medium text-sm transition-all"
+        >
+          <Mic size={16} />
+          Remplir par la voix
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

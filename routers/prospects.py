@@ -1,14 +1,63 @@
 import sqlite3
+import os
+import json
 from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+from pydantic import BaseModel
 import pandas as pd
 from io import BytesIO
+import anthropic
 
 from agencies_db import get_db_path
 from routers.auth import get_current_user
 from analytics import track
 
 router = APIRouter()
+
+_anthropic = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+VOICE_PARSE_PROMPT = """Tu es un assistant pour agents immobiliers. On te donne une transcription vocale décrivant un prospect immobilier.
+Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (laisse vide si non mentionné) :
+
+{
+  "nom": "",
+  "telephone": "",
+  "mail": "",
+  "domicile": "",
+  "bien": [],
+  "villes": [],
+  "quartiers": [],
+  "quartiersExclus": "",
+  "budget_max": null,
+  "surface_min": "",
+  "pieces_min": "",
+  "etat": [],
+  "expo": [],
+  "stationnement": "",
+  "exterieur": [],
+  "etage": [],
+  "copro": "",
+  "destination": "",
+  "observation": ""
+}
+
+Règles :
+- "bien" : liste parmi ["Maison", "Appartement", "T1", "T2", "T3", "T4", "T5+", "Local commercial", "Terrain", "Tous biens"]
+- "villes" : liste de noms de villes
+- "quartiers" : liste parmi ["Port Fréjus", "Centre historique", "Les Arènes", "Villepey", "Saint-Aygulf", "Valescure", "Santa Lucia", "Boulouris", "Agay", "Bord de mer", "Résidentiel calme"]
+- "budget_max" : nombre entier (euros), null si non mentionné
+- "surface_min" : string (ex: "60")
+- "pieces_min" : string (ex: "3")
+- "etat" : liste parmi ["Neuf", "Bon état", "Menus travaux", "À rénover", "À démolir"]
+- "expo" : liste parmi ["Sud", "Est", "Ouest", "Nord", "Lumineux"]
+- "stationnement" : une valeur parmi ["Garage", "Parking", "Box", "Obligatoire", "Pas nécessaire"] ou ""
+- "exterieur" : liste parmi ["Balcon", "Terrasse", "Jardin", "Piscine", "Vue mer", "Mer à pied", "Tout à pied", "Au calme", "Cuisine fermée", "Contemporain"]
+- "etage" : liste parmi ["RDC", "Étage bas", "Étage élevé", "Dernier étage", "Avec ascenseur"]
+- "copro" : une valeur parmi ["Oui", "Faibles charges", "Non", "Peu importe"] ou ""
+- "destination" : une valeur parmi ["Résidence principale", "Inv. Locatif à l'année", "Inv. Locatif saisonnier", "Résidence secondaire", "Marchand de biens"] ou ""
+- "observation" : informations complémentaires non catégorisables
+
+Retourne UNIQUEMENT le JSON, sans markdown, sans explication."""
 
 
 @router.get("/prospects")
@@ -58,6 +107,28 @@ async def import_prospects(file: UploadFile = File(...), current_user: dict = De
     conn.commit()
     conn.close()
     return {"message": f"{len(df)} prospects importés"}
+
+
+class VoiceParseRequest(BaseModel):
+    transcript: str
+
+@router.post("/prospects/voice-parse")
+async def voice_parse(req: VoiceParseRequest, current_user: dict = Depends(get_current_user)):
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        raise HTTPException(status_code=503, detail="Clé API Anthropic non configurée")
+    try:
+        response = _anthropic.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            messages=[{"role": "user", "content": f"{VOICE_PARSE_PROMPT}\n\nTranscription : {req.transcript}"}]
+        )
+        raw = response.content[0].text.strip()
+        data = json.loads(raw)
+        return data
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=422, detail="Impossible de parser la réponse")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/prospects/import-add")
