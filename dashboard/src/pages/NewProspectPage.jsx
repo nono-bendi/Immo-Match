@@ -29,12 +29,21 @@ function NewProspectPage() {
       const text = Array.from(e.results).map(r => r[0].transcript).join(' ')
       setTranscript(text)
     }
-    rec.onerror = () => { setListening(false) }
+    rec.onerror = (e) => {
+      setListening(false)
+      if (e.error === 'not-allowed') setVoiceError("Accès au microphone refusé. Autorisez le microphone dans votre navigateur (icône cadenas dans la barre d'adresse).")
+      else if (e.error === 'no-speech') setVoiceError("Aucun son détecté. Parlez plus près du micro.")
+      else setVoiceError("Erreur microphone : " + e.error)
+    }
     rec.onend = () => { setListening(false) }
     recognitionRef.current = rec
-    rec.start()
-    setListening(true)
-    setVoiceError('')
+    try {
+      rec.start()
+      setListening(true)
+      setVoiceError('')
+    } catch {
+      setVoiceError("Impossible de démarrer l'enregistrement. Vérifiez les autorisations du microphone.")
+    }
   }
 
   const stopListening = () => {
@@ -448,7 +457,7 @@ function NewProspectPage() {
         <button
           type="button"
           onClick={() => { setVoiceOpen(true); setTranscript(''); setVoiceError('') }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1E3A5F]/20 bg-white hover:bg-[#1E3A5F]/5 text-[#1E3A5F] font-medium text-sm transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#1E3A5F]/20 bg-white hover:bg-[#1E3A5F]/10 hover:border-[#1E3A5F]/40 hover:shadow-sm text-[#1E3A5F] font-medium text-sm transition-all"
         >
           <Mic size={16} />
           Remplir par la voix
