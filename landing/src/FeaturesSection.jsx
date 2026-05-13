@@ -5,54 +5,111 @@ import logoDemoUrl from '../image/logo.demo.png'
    MOCK COMPONENTS — reproductions fidèles de l'app ImmoFlash
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Palette score — identique à l'app ── */
+const sC = (s) => s >= 85
+  ? { c1: '#10b981', soft: '#34d399' }
+  : s >= 80
+    ? { c1: '#34d399', soft: '#6ee7b7' }
+    : s >= 65
+      ? { c1: '#ca8a04', soft: '#fde047' }
+      : s >= 50
+        ? { c1: '#f97316', soft: '#fb923c' }
+        : { c1: '#ef4444', soft: '#f87171' }
+
 function ScoreRingMini({ score, size = 88 }) {
-  const color = score >= 80 ? '#10b981' : score >= 65 ? '#ca8a04' : '#ef4444'
+  const c = sC(score)
   const r = (size - 10) / 2, cx = size / 2
   const circ = 2 * Math.PI * r
-  const offset = circ * (1 - score / 100)
+  const arcRef = useRef(null)
+  const numRef = useRef(null)
+  const visibleRef = useRef(false)
+  const rafRef = useRef(null)
+  const scoreRef = useRef(score)
+  scoreRef.current = score
+
+  const playAnim = (sc) => {
+    cancelAnimationFrame(rafRef.current)
+    const circ_ = 2 * Math.PI * ((size - 10) / 2)
+    const dur = 900, t0 = performance.now()
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur)
+      const ease = 1 - Math.pow(1 - p, 3)
+      const val = Math.round(ease * sc)
+      if (numRef.current) numRef.current.textContent = val
+      if (arcRef.current) arcRef.current.style.strokeDashoffset = circ_ * (1 - val / 100)
+      if (p < 1) rafRef.current = requestAnimationFrame(step)
+    }
+    rafRef.current = requestAnimationFrame(step)
+  }
+
+  useEffect(() => {
+    const el = arcRef.current?.closest('.feature-mock-card')
+    const io = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      visibleRef.current = true
+      io.disconnect()
+      playAnim(scoreRef.current)
+    }, { threshold: 0.3 })
+    if (el) io.observe(el)
+    return () => { io.disconnect(); cancelAnimationFrame(rafRef.current) }
+  }, [size])
+
+  useEffect(() => {
+    if (!visibleRef.current) return
+    playAnim(score)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [score])
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
       <div style={{ position: 'relative', width: size, height: size }}>
+        <div style={{ position: 'absolute', inset: -4, background: `radial-gradient(circle at 30% 30%,${c.c1}35 0%,transparent 60%)`, filter: 'blur(10px)', pointerEvents: 'none' }} />
         <svg width={size} height={size} style={{ position: 'relative', display: 'block', transform: 'rotate(-90deg)' }}>
+          <defs>
+            <linearGradient id={`sg-m-${score}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={c.c1} />
+              <stop offset="100%" stopColor={c.soft} />
+            </linearGradient>
+          </defs>
           <circle cx={cx} cy={cx} r={r} fill="none" stroke="rgba(241,245,249,0.8)" strokeWidth={8} />
-          <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={8}
-            strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset}
-            style={{ filter: `drop-shadow(0 2px 8px ${color}60)` }} />
+          <circle ref={arcRef} cx={cx} cy={cx} r={r} fill="none" stroke={`url(#sg-m-${score})`} strokeWidth={8}
+            strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={circ}
+            style={{ filter: `drop-shadow(0 2px 6px ${c.c1}60)` }} />
         </svg>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: Math.round(size * 0.32), fontWeight: 900, color: color, lineHeight: 1 }}>{score}</span>
+          <span ref={numRef} style={{ fontSize: Math.round(size * 0.32), fontWeight: 900, color: c.c1, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>0</span>
           <span style={{ fontSize: 9, fontWeight: 600, color: '#cbd5e1' }}>/ 100</span>
         </div>
       </div>
-      <span style={{ fontSize: 9, fontWeight: 700, color: color, letterSpacing: '0.04em' }}>Score IA</span>
+      <span style={{ fontSize: 9, fontWeight: 700, color: c.c1, letterSpacing: '0.04em' }}>Score IA</span>
     </div>
   )
 }
 
 function GemBadgeMini({ score, ville, prix, surface, selected, photo, onClick }) {
-  const color = score >= 80 ? '#10b981' : score >= 65 ? '#ca8a04' : '#ef4444'
+  const c = sC(score)
   const fmtPrix = v => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
   return (
     <div
       onClick={onClick}
       style={{
         display: 'flex', alignItems: 'center', gap: 7, padding: '6px 8px', borderRadius: 11,
-        background: selected ? `${color}12` : '#f8fafc',
-        border: `1.5px solid ${selected ? color : '#edf1f7'}`,
+        background: selected ? `${c.c1}12` : '#f8fafc',
+        border: `1.5px solid ${selected ? c.c1 : '#edf1f7'}`,
         transition: 'all 0.18s', cursor: 'pointer',
-        boxShadow: selected ? `0 2px 10px ${color}28` : 'none',
+        boxShadow: selected ? `0 2px 10px ${c.c1}28` : 'none',
         transform: selected ? 'translateX(2px)' : 'none',
       }}
     >
       <div style={{ width: 38, height: 36, borderRadius: 7, overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
         {photo
           ? <img src={photo} alt={ville} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg,${color}25,${color}10)` }} />
+          : <div style={{ width: '100%', height: '100%', background: `linear-gradient(135deg,${c.c1}25,${c.soft}10)` }} />
         }
-        <div style={{ position: 'absolute', top: 2, right: 2, background: color, color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 9999, lineHeight: 1.2 }}>{score}</div>
+        <div style={{ position: 'absolute', top: 2, right: 2, background: `linear-gradient(135deg,${c.c1},${c.soft})`, color: '#fff', fontSize: 8, fontWeight: 800, padding: '1px 3px', borderRadius: 9999, lineHeight: 1.2 }}>{score}</div>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
         <div style={{ fontSize: 10, color: '#64748b' }}>{fmtPrix(prix)}{surface ? ` · ${surface}m²` : ''}</div>
       </div>
     </div>
@@ -66,20 +123,23 @@ function MatchingMock() {
     {
       score: 88, ville: 'Agay', prix: 450000, surface: 120, pieces: 4, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/7/99c18db26bdddf8af44b50d7e4634c99/photo_baea1dab07b245ccd532c47b45d3afff.jpg',
-      points: ['Plain-pied avec piscine, secteur calme', 'Surface et prix dans le budget cible', 'Vue mer partielle'],
-      postit: 'Excellent rapport qualité-prix. Proposer en priorité.',
+      forts: ['Plain-pied avec piscine, secteur calme', 'Budget et surface parfaitement alignés', 'Vue mer partielle, exposition sud'],
+      atts: ['Légère rénovation cuisine conseillée'],
+      postit: 'Parfait pour eux.\nProposer en priorité !',
     },
     {
       score: 81, ville: 'Fréjus', prix: 420000, surface: 95, pieces: 3, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/12/a250fab4a2c4b0dd44e7fbccc62d16de/photo_48347d1adc58ea2976500be9ddf894f5.jpg',
-      points: ['Quartier résidentiel calme, bus à 200 m', 'Prix dans la fourchette basse du budget', 'Garage et jardin privatif'],
-      postit: 'Bon rapport qualité-prix. À présenter.',
+      forts: ['Quartier résidentiel, commerces à 300 m', 'Garage double et jardin privatif', 'Pièces lumineuses, exposition est-ouest'],
+      atts: ['Taxe foncière élevée vs la commune'],
+      postit: 'Bonne option,\nà présenter cette semaine.',
     },
     {
       score: 73, ville: 'Bagnols', prix: 435000, surface: 130, pieces: 5, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg',
-      points: ['Grande surface, idéale pour une famille', 'Terrain avec piscine et extérieur', 'Légèrement au-dessus du budget'],
-      postit: 'À présenter si budget extensible.',
+      forts: ['Grande surface, idéale pour une famille', 'Piscine en L et vue Estérel', 'Calme absolu, fin de chemin'],
+      atts: ['Budget dépassé de ~7 %', 'Secteur moins demandé que Fréjus'],
+      postit: 'Budget limite —\nvérifier marge avec eux.',
     },
   ]
 
@@ -95,72 +155,68 @@ function MatchingMock() {
   const bien = biens[selectedIdx]
 
   return (
-    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f8fafc', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', background: '#f0f9ff', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
-      <div style={{ padding: '10px 13px', borderBottom: '1px solid #e0f2fe', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 700, fontSize: 13, color: '#1E3A5F' }}>Matchings</span>
-          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 5, padding: '2px 5px' }}>NOUVEAU</span>
-        </div>
-        <div style={{ background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', borderRadius: 7, padding: '4px 8px', fontSize: 9, fontWeight: 700 }}>
+      <div style={{ padding: '10px 13px', borderBottom: '1px solid #e0f2fe', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+        <span style={{ fontWeight: 700, fontSize: 13, color: '#0f172a' }}>Matchings</span>
+        <div style={{ background: 'linear-gradient(135deg,#38bdf8,#6366f1)', color: '#fff', borderRadius: 7, padding: '4px 8px', fontSize: 9, fontWeight: 700 }}>
           ✦ Analyse global
         </div>
       </div>
 
       {/* Filtres */}
-      <div style={{ padding: '6px 9px', display: 'flex', gap: 5, borderBottom: '1px solid #e0f2fe', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ padding: '6px 9px', display: 'flex', gap: 5, borderBottom: '1px solid #e0f2fe', background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(8px)', alignItems: 'center', flexShrink: 0 }}>
         <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 9, fontWeight: 600, background: '#059669', color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}>
           <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,.7)', display: 'inline-block' }} />
           Nouveaux
         </span>
         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.8)', borderRadius: 8, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {['Tous', '≥ 65', '≥ 80'].map((t, i) => (
-            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#1E3A5F' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#38bdf8' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
           ))}
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', background: 'rgba(255,255,255,0.8)', borderRadius: 8, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {['Récents', 'Score', 'A→Z'].map((t, i) => (
-            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#1E3A5F' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
+            <span key={t} style={{ padding: '2px 7px', fontSize: 9, fontWeight: 600, background: i === 0 ? '#38bdf8' : 'transparent', color: i === 0 ? '#fff' : '#94a3b8' }}>{t}</span>
           ))}
         </div>
       </div>
 
-      {/* Carte prospect avec détail déplié */}
+      {/* Carte prospect */}
       <div style={{ padding: '8px 8px', flex: 1 }}>
-        <div className="matching-row" style={{ background: '#fff', borderRadius: 14, border: '1px solid #edf1f7', overflow: 'hidden', boxShadow: '0 4px 14px rgba(30,58,95,0.07)', animationDelay: '200ms' }}>
+        <div className="matching-row" style={{ background: '#fff', borderRadius: 14, border: '1px solid #edf1f7', overflow: 'hidden', boxShadow: '0 4px 14px rgba(56,189,248,0.08)', animationDelay: '200ms' }}>
 
-          {/* 3 colonnes */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 82px 1.1fr' }}>
 
-            {/* ── Gauche ── */}
+            {/* Gauche — prospect */}
             <div style={{ padding: '12px 10px', borderRight: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>DC</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>DC</div>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1E3A5F' }}>Mr Durand Charles</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>Mr Durand Charles</div>
                   <div style={{ fontSize: 9, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
                     Actif · 3 matchs
                   </div>
                 </div>
               </div>
-              <div style={{ padding: '6px 8px', background: '#f8fafc', borderRadius: 8, border: '1px solid #edf1f7', fontSize: 10, color: '#1E3A5F' }}>
+              <div style={{ padding: '6px 8px', background: '#f8fafc', borderRadius: 8, border: '1px solid #edf1f7', fontSize: 10, color: '#0f172a' }}>
                 <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700, marginBottom: 2 }}>Cherche</div>
                 <span style={{ fontWeight: 700 }}>Maison/villa</span> à <span style={{ fontWeight: 700 }}>Agay</span>
               </div>
               <div>
                 <div style={{ fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.1em' }}>Budget</div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#1E3A5F' }}>{fmtPrix(450000)}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>{fmtPrix(450000)}</div>
               </div>
             </div>
 
-            {/* ── Centre — ScoreRing (score du bien sélectionné) ── */}
+            {/* Centre — ScoreRing animé */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(180deg,#fbfcfe,#f8fafc)', borderRight: '1px solid #f3f4f6' }}>
               <ScoreRingMini score={bien.score} size={68} />
             </div>
 
-            {/* ── Droite — GemBadges cliquables ── */}
+            {/* Droite — GemBadges cliquables */}
             <div style={{ padding: '8px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center' }}>
               {biens.map((b, i) => (
                 <GemBadgeMini key={i} score={b.score} ville={b.ville} prix={b.prix} surface={b.surface} photo={b.photo} selected={i === selectedIdx} onClick={() => handleSelect(i)} />
@@ -168,42 +224,60 @@ function MatchingMock() {
             </div>
           </div>
 
-          {/* ── Panneau déplié — dynamique selon le bien sélectionné ── */}
+          {/* Panneau déplié — dynamique */}
           <div style={{ borderTop: '1px solid #e5e7eb', opacity: panelVisible ? 1 : 0, transition: 'opacity 0.14s ease' }}>
 
-            {/* Hero photo */}
-            <div style={{ position: 'relative', height: 140, background: `linear-gradient(135deg,rgba(15,23,42,.82) 0%,rgba(15,23,42,.55) 100%),url(${bien.photo}) center/cover no-repeat`, padding: '16px 18px' }}>
+            <div style={{ position: 'relative', minHeight: 160, background: `linear-gradient(135deg,rgba(15,23,42,.84) 0%,rgba(15,23,42,.58) 100%),url(${bien.photo}) center/cover no-repeat`, padding: '14px 16px' }}>
+              {/* Header bien */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{bien.type}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,.65)', marginTop: 3, display: 'flex', gap: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{bien.type}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.65)', marginTop: 2, display: 'flex', gap: 5 }}>
                     <span>📍 {bien.ville}</span>
-                    <span style={{ opacity: .4 }}>·</span>
-                    <span>{bien.surface} m²</span>
-                    <span style={{ opacity: .4 }}>·</span>
-                    <span>{bien.pieces} pièces</span>
+                    <span style={{ opacity: .4 }}>·</span><span>{bien.surface} m²</span>
+                    <span style={{ opacity: .4 }}>·</span><span>{bien.pieces} pièces</span>
                   </div>
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{fmtPrix(bien.prix)}</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{fmtPrix(bien.prix)}</div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                {/* Points forts */}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '.1em' }}>⚡ Points forts</span>
-                  </div>
-                  {bien.points.map((f, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 3, fontSize: 10, color: 'rgba(255,255,255,.88)', lineHeight: 1.4 }}>
-                      <span style={{ color: '#34d399', flexShrink: 0 }}>•</span><span>{f}</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {/* Points forts + Points attention */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="#86efac"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                      <span style={{ fontSize: 8, fontWeight: 700, color: '#86efac', textTransform: 'uppercase', letterSpacing: '.1em' }}>Points forts</span>
                     </div>
-                  ))}
+                    {bien.forts.map((f, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 5, marginBottom: 3, fontSize: 9, color: 'rgba(255,255,255,.88)', lineHeight: 1.4 }}>
+                        <span style={{ color: '#34d399', flexShrink: 0 }}>•</span><span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {bien.atts.length > 0 && (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="#fcd34d"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        <span style={{ fontSize: 8, fontWeight: 700, color: '#fcd34d', textTransform: 'uppercase', letterSpacing: '.1em' }}>Attention</span>
+                      </div>
+                      {bien.atts.map((a, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 5, marginBottom: 3, fontSize: 9, color: 'rgba(255,255,255,.88)', lineHeight: 1.4 }}>
+                          <span style={{ color: '#fbbf24', flexShrink: 0 }}>•</span><span>{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {/* Post-it recommandation */}
+
+                {/* Post-it Recommandation */}
                 <div style={{ background: 'linear-gradient(160deg,#fef9c3,#fde68a)', borderRadius: 4, padding: '8px 10px', transform: 'rotate(-1deg)', boxShadow: '0 6px 18px rgba(0,0,0,.28)', position: 'relative', alignSelf: 'flex-start' }}>
                   <div style={{ position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%)', width: 40, height: 10, background: 'rgba(255,255,255,.55)', borderRadius: 2 }} />
-                  <div style={{ fontSize: 8, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 4 }}>📝 Recommandation</div>
-                  <p style={{ fontSize: 11, color: '#78350f', lineHeight: 1.45, margin: 0, fontFamily: '"Caveat","Comic Sans MS",cursive', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 5 }}>
+                    <span style={{ fontSize: 11 }}>📝</span>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '.1em' }}>Recommandation</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#78350f', lineHeight: 1.45, margin: 0, fontFamily: '"Caveat", cursive', fontWeight: 500 }}>
                     {bien.postit}
                   </p>
                 </div>
@@ -218,7 +292,7 @@ function MatchingMock() {
               </div>
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 10, color: '#94a3b8' }}>1 bien sélectionné</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#1E3A5F,#2D5A8A)', color: '#fff', fontSize: 11, fontWeight: 700, boxShadow: '0 4px 12px rgba(30,58,95,.35)', cursor: 'default' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', color: '#fff', fontSize: 11, fontWeight: 700, boxShadow: '0 4px 12px rgba(56,189,248,.35)', cursor: 'default' }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Envoyer la sélection →
                 </div>
@@ -951,7 +1025,7 @@ const FEATURES = [
     Mock: MatchingMock,
     height: 560,
     scrollable: false,
-    rotation: -1.5,
+    rotation: 0,
     reversed: false,
     glow: true,
   },
