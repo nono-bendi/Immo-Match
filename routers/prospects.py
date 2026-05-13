@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import json
+import re
 from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from pydantic import BaseModel
@@ -123,10 +124,13 @@ async def voice_parse(req: VoiceParseRequest, current_user: dict = Depends(get_c
             messages=[{"role": "user", "content": f"{VOICE_PARSE_PROMPT}\n\nTranscription : {req.transcript}"}]
         )
         raw = response.content[0].text.strip()
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if match:
+            raw = match.group(0)
         data = json.loads(raw)
         return data
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=422, detail="Impossible de parser la réponse")
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=422, detail=f"Impossible de parser la réponse : {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
