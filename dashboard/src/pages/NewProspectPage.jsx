@@ -24,8 +24,14 @@ function NewProspectPage() {
 
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true })
-    } catch {
-      setVoiceError("Accès au microphone refusé. Autorisez le microphone dans votre navigateur.")
+    } catch (err) {
+      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setVoiceError("Aucun microphone détecté sur cet appareil. Branchez un micro ou utilisez un autre appareil.")
+      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setVoiceError("Accès au microphone refusé. Autorisez le microphone dans votre navigateur (icône cadenas dans la barre d'adresse).")
+      } else {
+        setVoiceError("Impossible d'accéder au microphone : " + err.message)
+      }
       return
     }
 
@@ -615,7 +621,7 @@ function NewProspectPage() {
                   <button
                     type="button"
                     onClick={() => addVille('Tout secteur')}
-                    className="px-3 py-1.5 bg-[#1E3A5F]/10 text-[#1E3A5F] text-sm font-medium rounded-lg hover:bg-[#1E3A5F]/20 transition-colors border border-[#1E3A5F]/20 dark:bg-white/10 dark:text-white/70 dark:border-white/10 dark:hover:bg-white/15"
+                    className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     + Tout secteur
                   </button>
