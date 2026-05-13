@@ -125,21 +125,21 @@ function MatchingMock() {
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/7/99c18db26bdddf8af44b50d7e4634c99/photo_baea1dab07b245ccd532c47b45d3afff.jpg',
       forts: ['Localisation exacte : secteur Agay calme, critère principal respecté', 'Budget dans la cible — 450 k€ = plafond, marge de négociation réelle', 'Plain-pied confirmé en description, critère explicitement demandé'],
       atts: ['Cuisine équipée non renseignée sur la fiche — à confirmer à la visite'],
-      postit: 'Proposer en priorité.\nCorrespondance quasi-parfaite.',
+      postit: 'Proposer en premier rendez-vous en soulignant la correspondance exacte localisation + plain-pied + budget — c\'est le bien à ne pas manquer.',
     },
     {
       score: 81, ville: 'Fréjus', prix: 420000, surface: 95, pieces: 3, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/12/a250fab4a2c4b0dd44e7fbccc62d16de/photo_48347d1adc58ea2976500be9ddf894f5.jpg',
       forts: ['Prix 30 000 € sous le budget max — position solide en négociation', 'Garage double + jardin clos, critères demandés, confirmés en description', 'Quartier calme, école et commerces à moins de 400 m'],
       atts: ['Surface légèrement en dessous de l\'idéal (95 m² vs 120 m² souhaités)'],
-      postit: 'Bon 2e choix.\nÀ présenter après Agay.',
+      postit: 'Proposer en insistant sur les 30 000 € de marge et le garage double, mais préparer le client au compromis sur la surface (95 m² vs 120 m² souhaités).',
     },
     {
       score: 73, ville: 'Bagnols', prix: 435000, surface: 130, pieces: 5, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg',
       forts: ['Grande surface (130 m²), idéale si la famille s\'agrandit', 'Piscine privée et terrasse avec vue Estérel confirmées en description', 'Calme absolu, fin de chemin, aucun vis-à-vis'],
       atts: ['Hors secteur demandé — Bagnols vs Agay/Fréjus, 30 min de route', 'Budget dépassé de ~7 % — prévoir négociation'],
-      postit: 'À montrer en 3e option si les\npremiers ne convainquent pas.',
+      postit: 'Vérifier si le client accepte de s\'éloigner du secteur demandé — si oui, mettre en avant la grande surface et la piscine pour justifier les 7 % au-dessus du budget.',
     },
   ]
 
