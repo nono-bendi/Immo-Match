@@ -123,23 +123,23 @@ function MatchingMock() {
     {
       score: 88, ville: 'Agay', prix: 450000, surface: 120, pieces: 4, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/7/99c18db26bdddf8af44b50d7e4634c99/photo_baea1dab07b245ccd532c47b45d3afff.jpg',
-      forts: ['Plain-pied avec piscine, secteur calme', 'Budget et surface parfaitement alignés', 'Vue mer partielle, exposition sud'],
-      atts: ['Légère rénovation cuisine conseillée'],
-      postit: 'Parfait pour eux.\nProposer en priorité !',
+      forts: ['Localisation exacte : secteur Agay calme, critère principal respecté', 'Budget dans la cible — 450 k€ = plafond, marge de négociation réelle', 'Plain-pied confirmé en description, critère explicitement demandé'],
+      atts: ['Cuisine équipée non renseignée sur la fiche — à confirmer à la visite'],
+      postit: 'Proposer en priorité.\nCorrespondance quasi-parfaite.',
     },
     {
       score: 81, ville: 'Fréjus', prix: 420000, surface: 95, pieces: 3, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/12/a250fab4a2c4b0dd44e7fbccc62d16de/photo_48347d1adc58ea2976500be9ddf894f5.jpg',
-      forts: ['Quartier résidentiel, commerces à 300 m', 'Garage double et jardin privatif', 'Pièces lumineuses, exposition est-ouest'],
-      atts: ['Taxe foncière élevée vs la commune'],
-      postit: 'Bonne option,\nà présenter cette semaine.',
+      forts: ['Prix 30 000 € sous le budget max — position solide en négociation', 'Garage double + jardin clos, critères demandés, confirmés en description', 'Quartier calme, école et commerces à moins de 400 m'],
+      atts: ['Surface légèrement en dessous de l\'idéal (95 m² vs 120 m² souhaités)'],
+      postit: 'Bon 2e choix.\nÀ présenter après Agay.',
     },
     {
       score: 73, ville: 'Bagnols', prix: 435000, surface: 130, pieces: 5, type: 'Maison/villa',
       photo: 'https://groupementprimmo.staticlbi.com/wa/images/biens/10/b65839405141bda0d653bed097312829/photo_efdd4482865e6f34cc296cef5f960855.jpg',
-      forts: ['Grande surface, idéale pour une famille', 'Piscine en L et vue Estérel', 'Calme absolu, fin de chemin'],
-      atts: ['Budget dépassé de ~7 %', 'Secteur moins demandé que Fréjus'],
-      postit: 'Budget limite —\nvérifier marge avec eux.',
+      forts: ['Grande surface (130 m²), idéale si la famille s\'agrandit', 'Piscine privée et terrasse avec vue Estérel confirmées en description', 'Calme absolu, fin de chemin, aucun vis-à-vis'],
+      atts: ['Hors secteur demandé — Bagnols vs Agay/Fréjus, 30 min de route', 'Budget dépassé de ~7 % — prévoir négociation'],
+      postit: 'À montrer en 3e option si les\npremiers ne convainquent pas.',
     },
   ]
 
@@ -286,13 +286,22 @@ function MatchingMock() {
 
             {/* Barre d'action */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', background: '#fbfcfe', borderTop: '1px solid #f1f5f9' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: '#fff', border: '1px solid #e8eef5', fontSize: 11, fontWeight: 600, color: '#94a3b8', cursor: 'default' }}>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: '#fff', border: '1px solid #e8eef5', fontSize: 11, fontWeight: 600, color: '#94a3b8', cursor: 'pointer', transition: 'all 0.18s' }}
+                onMouseEnter={e => { e.currentTarget.style.background='#fef2f2'; e.currentTarget.style.borderColor='#fecaca'; e.currentTarget.style.color='#dc2626' }}
+                onMouseLeave={e => { e.currentTarget.style.background='#fff'; e.currentTarget.style.borderColor='#e8eef5'; e.currentTarget.style.color='#94a3b8' }}
+              >
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/><line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" strokeWidth="2"/><line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" strokeWidth="2"/></svg>
                 Refuser
               </div>
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 10, color: '#94a3b8' }}>1 bien sélectionné</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', color: '#fff', fontSize: 11, fontWeight: 700, boxShadow: '0 4px 12px rgba(56,189,248,.35)', cursor: 'default' }}>
+                <div
+                  onClick={() => document.getElementById('feat-email')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 9, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', color: '#fff', fontSize: 11, fontWeight: 700, boxShadow: '0 4px 12px rgba(56,189,248,.35)', cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 6px 18px rgba(56,189,248,.45)' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 4px 12px rgba(56,189,248,.35)' }}
+                >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Envoyer la sélection →
                 </div>
@@ -1132,7 +1141,7 @@ export default function FeaturesSection() {
           {FEATURES.map((feat, i) => {
             const Mock = feat.Mock
             return (
-              <div key={feat.id} className="feature-block" style={{ transitionDelay: `${i * 60}ms` }}>
+              <div key={feat.id} id={`feat-${feat.id}`} className="feature-block" style={{ transitionDelay: `${i * 60}ms` }}>
                 <div className="feature-row" style={{ flexDirection: feat.reversed ? 'row-reverse' : 'row' }}>
 
                   {/* ── Visuel mock ── */}
