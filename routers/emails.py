@@ -228,13 +228,28 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     # Logo block
     logo_fond_colore = bool(agency.get("agency_logo_fond_colore") or agency.get("logo_fond_colore"))
     if has_logo:
-        logo_bg = color if logo_fond_colore else "#FFFFFF"
-        logo_border = "" if logo_fond_colore else "border-bottom:1px solid #E5E7EB;"
-        logo_block = f"""
+        if logo_fond_colore:
+            # Logo avec fond coloré : capsule colorée ajustée autour du logo uniquement
+            logo_block = f"""
         <tr>
-          <td style="padding:24px 20px;background:{logo_bg};{logo_border}">
-            <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}" height="70"
-                 style="display:block;border:0;height:70px;width:auto;" />
+          <td style="padding:20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="padding:10px 18px;background:{color};border-radius:10px;">
+                  <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
+                       style="display:block;border:0;max-height:56px;height:56px;width:auto;max-width:280px;" />
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        """
+        else:
+            logo_block = f"""
+        <tr>
+          <td style="padding:20px 20px 16px 20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
+            <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
+                 style="display:block;border:0;max-height:64px;height:64px;width:auto;max-width:280px;" />
           </td>
         </tr>
         """

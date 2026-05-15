@@ -28,6 +28,20 @@ def init_db(db_path: str = "immomatch.db"):
         )
     ''')
 
+    # Migration : ajouter archive si absent (prospects)
+    try:
+        conn.execute("ALTER TABLE prospects ADD COLUMN archive INTEGER DEFAULT 0")
+        conn.commit()
+    except Exception:
+        pass
+
+    # Migration : ajouter demo si absent (prospects)
+    try:
+        conn.execute("ALTER TABLE prospects ADD COLUMN demo INTEGER DEFAULT 0")
+        conn.commit()
+    except Exception:
+        pass
+
     # Migration : ajouter nom_agence si absent
     try:
         conn.execute("ALTER TABLE biens ADD COLUMN nom_agence TEXT DEFAULT 'SAINT FRANCOIS IMMOBILIER'")

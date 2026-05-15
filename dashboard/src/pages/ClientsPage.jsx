@@ -247,7 +247,14 @@ function ClientsPage() {
             {prospect.nom ? (() => { const p = prospect.nom.trim().split(' ').filter(x=>x); return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : p[0].substring(0,2).toUpperCase() })() : '?'}
           </div>
           <div>
-            <p className="font-semibold text-[#1E3A5F]">{prospect.nom || 'Sans nom'}</p>
+            <p className="font-semibold text-[#1E3A5F] flex items-center gap-2">
+              {prospect.nom || 'Sans nom'}
+              {!!prospect.demo && (
+                <span className="text-[10px] font-medium text-gray-400 border border-dashed border-gray-300 rounded px-1.5 py-0.5 leading-tight">
+                  exemple
+                </span>
+              )}
+            </p>
             <p className="text-xs text-gray-400">{prospect.mail || '-'}</p>
           </div>
         </div>
