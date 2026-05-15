@@ -129,6 +129,7 @@ export default function AdministrationPage() {
   const [lastSync, setLastSync] = useState(null)
   const [lastSyncError, setLastSyncError] = useState(null)
   const [lastSyncErrorAt, setLastSyncErrorAt] = useState(null)
+  const [syncExpanded, setSyncExpanded] = useState(false)
 
   // ── Claude usage ──────────────────────────────────────────────────────────
   const [claudeUsage, setClaudeUsage] = useState(null)
@@ -151,7 +152,10 @@ export default function AdministrationPage() {
   // ── Load ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     apiFetch('/settings').then(r => r.json()).then(d => {
-      if (d && !d.error) setSettings(p => ({ ...p, ...d }))
+      if (d && !d.error) {
+        setSettings(p => ({ ...p, ...d }))
+        if (d.ftp_host) setSyncExpanded(true)
+      }
     }).catch(() => {})
     apiFetch('/admin/claude-usage').then(r => r.json()).then(d => {
       if (d && !d.error) setClaudeUsage(d)
@@ -964,12 +968,29 @@ export default function AdministrationPage() {
       </Section>
 
       {/* ══════════════════════════════════════════════════════════════════ */}
-      {/* 6. SYNCHRONISATION HEKTOR                                         */}
+      {/* 6. SYNCHRONISATION AUTOMATIQUE (FTP)                              */}
       {/* ══════════════════════════════════════════════════════════════════ */}
-      <Section title="Synchronisation Hektor" icon={RefreshCw}>
+      <Section title="Synchronisation automatique" icon={RefreshCw}>
+        {/* Toggle d'activation */}
+        <button
+          type="button"
+          onClick={() => setSyncExpanded(o => !o)}
+          className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 mb-4 transition-colors"
+        >
+          <div className="text-left">
+            <p className="text-sm font-medium text-gray-700">Import FTP automatique</p>
+            <p className="text-xs text-gray-400">Compatible Hektor, Apimo, LogicImmo ou tout export CSV/FTP</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {settings.ftp_host && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">Configuré</span>}
+            <ChevronDown size={16} className={`text-gray-400 transition-transform ${syncExpanded ? 'rotate-180' : ''}`} />
+          </div>
+        </button>
+
+        {syncExpanded && <>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <Field label="Hôte FTP">
-            <Input value={settings.ftp_host} onChange={e => chg('ftp_host', e.target.value)} placeholder="ftp.hektor.fr" />
+            <Input value={settings.ftp_host} onChange={e => chg('ftp_host', e.target.value)} placeholder="ftp.hektor.fr / ftp.apimo.com…" />
           </Field>
           <Field label="Port">
             <Input value={settings.ftp_port} onChange={e => chg('ftp_port', e.target.value)} placeholder="21" />
@@ -997,7 +1018,7 @@ export default function AdministrationPage() {
         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 mb-4">
           <div>
             <p className="text-sm font-medium text-gray-700">Fréquence de sync automatique</p>
-            <p className="text-xs text-gray-400">Intervalle entre chaque synchronisation Hektor</p>
+            <p className="text-xs text-gray-400">Intervalle entre chaque synchronisation</p>
           </div>
           <div className="flex items-center gap-2">
             <select value={settings.sync_interval_hours} onChange={e => chg('sync_interval_hours', e.target.value)}
@@ -1052,6 +1073,7 @@ export default function AdministrationPage() {
             </span>
           )}
         </div>
+        </>}
 
       </Section>
 
