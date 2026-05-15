@@ -124,7 +124,7 @@ function NewProspectPage() {
       if (saved) return JSON.parse(saved)
     } catch {}
     return {
-      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', domicile: '',
+      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', domicile: '', showContact2: false,
       bien: [], villes: [], quartiers: [], quartiersExclus: '',
       budget_max: '', surface_min: '', pieces_min: '',
       etat: [], expo: [], stationnement: '', exterieur: [],
@@ -565,27 +565,30 @@ function NewProspectPage() {
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
               />
             </div>
-            {/* 2ème contact */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2 <span className="text-gray-400 font-normal">(conjoint·e)</span></label>
-              <input
-                type="tel"
-                value={formData.telephone2}
-                onChange={(e) => handleChange('telephone2', e.target.value)}
-                placeholder="06 98 76 54 32"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email 2 <span className="text-gray-400 font-normal">(conjoint·e)</span></label>
-              <input
-                type="email"
-                value={formData.email2}
-                onChange={(e) => handleChange('email2', e.target.value)}
-                placeholder="conjoint@exemple.com"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
-              />
-            </div>
+            {/* 2ème contact optionnel */}
+            {!formData.showContact2 ? (
+              <div className="col-span-2">
+                <button type="button" onClick={() => handleChange('showContact2', true)}
+                  className="text-sm text-[#1E3A5F] hover:underline flex items-center gap-1">
+                  <span className="text-lg leading-none">+</span> Ajouter un 2ème contact (conjoint·e)
+                </button>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2</label>
+                  <input type="tel" value={formData.telephone2} onChange={(e) => handleChange('telephone2', e.target.value)}
+                    placeholder="06 98 76 54 32"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email 2</label>
+                  <input type="email" value={formData.email2} onChange={(e) => handleChange('email2', e.target.value)}
+                    placeholder="conjoint@exemple.com"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
+                </div>
+              </>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Domicile actuel</label>
               <input
@@ -973,14 +976,14 @@ function NewProspectPage() {
             {/* Chambre plain-pied + SDB min + WC min */}
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Accessibilité</label>
                 <button
                   type="button"
                   onClick={() => handleChange('chambre_plain_pied', !formData.chambre_plain_pied)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${formData.chambre_plain_pied ? 'border-[#1E3A5F] text-[#1E3A5F]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-                  style={formData.chambre_plain_pied ? { background: 'var(--gradient-primary)', color: 'white', border: 'none' } : {}}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${formData.chambre_plain_pied ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                  style={formData.chambre_plain_pied ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                 >
-                  <span className="text-base">🛏</span>
-                  Chambre de plain-pied exigée
+                  Chambre de plain-pied
                 </button>
               </div>
               <div>
