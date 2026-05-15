@@ -237,27 +237,13 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     use_capsule = bool(logo_bg_color and logo_bg_color.lower() not in ("#ffffff", "#fff", "white", ""))
 
     if has_logo:
-        if use_capsule:
-            logo_block = f"""
+        bg = logo_bg_color if use_capsule else "#FFFFFF"
+        border = "" if use_capsule else "border-bottom:1px solid #E5E7EB;"
+        logo_block = f"""
         <tr>
-          <td style="padding:20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
-            <table cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                <td style="padding:10px 20px;background:{logo_bg_color};border-radius:10px;">
-                  <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
-                       style="display:block;border:0;max-height:56px;height:56px;width:auto;max-width:280px;" />
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        """
-        else:
-            logo_block = f"""
-        <tr>
-          <td style="padding:20px 20px 16px 20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
+          <td style="padding:20px 24px;background:{bg};{border}">
             <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
-                 style="display:block;border:0;max-height:64px;height:64px;width:auto;max-width:280px;" />
+                 style="display:block;border:0;max-height:64px;height:64px;width:auto;max-width:300px;" />
           </td>
         </tr>
         """
