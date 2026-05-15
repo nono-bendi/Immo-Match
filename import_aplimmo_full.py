@@ -12,7 +12,7 @@ _client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
 DB = "/app/data/aplimmo.db"
 AGENCY_SLUG = "aplimmo"
-APP_BASE_URL = "https://app.immoflash.fr"
+APP_BASE_URL = "https://immoflash.app/api"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0",
     "Accept-Language": "fr-FR,fr;q=0.9",
