@@ -7,18 +7,27 @@ import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
 import NewBienModal from './components/NewBienModal'
 
-const LoginPage           = lazy(() => import('./pages/LoginPage'))
-const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'))
-const DashboardPage    = lazy(() => import('./pages/DashboardPage'))
-const ClientsPage      = lazy(() => import('./pages/ClientsPage'))
-const BiensPage        = lazy(() => import('./pages/BiensPage'))
-const MatchingsPage    = lazy(() => import('./pages/MatchingsPage'))
-const MatchingsPageV2  = lazy(() => import('./pages/MatchingsPageV2'))
-const HistoriquePage   = lazy(() => import('./pages/HistoriquePage'))
-const SettingsPage     = lazy(() => import('./pages/SettingsPage'))
-const AdministrationPage = lazy(() => import('./pages/AdministrationPage'))
-const NewProspectPage  = lazy(() => import('./pages/NewProspectPage'))
-const LandingPage      = lazy(() => import('./pages/LandingPage'))
+const lazyLoad = (factory) => lazy(() =>
+  factory().catch((e) => {
+    if (e?.name === 'ChunkLoadError' || e?.message?.includes('Failed to fetch dynamically imported module') || e?.message?.includes('Importing a module script failed')) {
+      window.location.reload()
+    }
+    throw e
+  })
+)
+
+const LoginPage           = lazyLoad(() => import('./pages/LoginPage'))
+const ResetPasswordPage   = lazyLoad(() => import('./pages/ResetPasswordPage'))
+const DashboardPage    = lazyLoad(() => import('./pages/DashboardPage'))
+const ClientsPage      = lazyLoad(() => import('./pages/ClientsPage'))
+const BiensPage        = lazyLoad(() => import('./pages/BiensPage'))
+const MatchingsPage    = lazyLoad(() => import('./pages/MatchingsPage'))
+const MatchingsPageV2  = lazyLoad(() => import('./pages/MatchingsPageV2'))
+const HistoriquePage   = lazyLoad(() => import('./pages/HistoriquePage'))
+const SettingsPage     = lazyLoad(() => import('./pages/SettingsPage'))
+const AdministrationPage = lazyLoad(() => import('./pages/AdministrationPage'))
+const NewProspectPage  = lazyLoad(() => import('./pages/NewProspectPage'))
+const LandingPage      = lazyLoad(() => import('./pages/LandingPage'))
 
 function PageLoader() {
   return (
