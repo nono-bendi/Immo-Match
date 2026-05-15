@@ -701,13 +701,13 @@ export default function MatchingsPageV2() {
           </button>
           {/* Glass group score */}
           <div className="glass-sort-group">
-            {[{ v: 'all', label: 'Tous' }, { v: 'match', label: 'Matchs ≥ 40' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
+            {[{ v: 'all', label: 'Tous' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
               <button key={f.v} onClick={() => setFilterScore(f.v)}
                 className={`glass-sort-btn${filterScore === f.v ? ' active' : ''}`}>
                 {f.label}
               </button>
             ))}
-            <div className="glass-sort-glider" style={{ transform: `translateX(${['all', 'match', 'bon65', 'excellent'].indexOf(filterScore) * 100}%)` }} />
+            <div className="glass-sort-glider" style={{ transform: `translateX(${['all', 'bon65', 'excellent'].indexOf(filterScore) * 100}%)` }} />
           </div>
         </div>
 
