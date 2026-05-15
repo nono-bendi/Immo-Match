@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from html import escape
 from pydantic import BaseModel
 from agencies_db import get_db_path, AGENCIES_DB_PATH
-from config import SMTP_FALLBACK
+from config import SMTP_FALLBACK, APP_BASE_URL
 
 router = APIRouter()
 
@@ -197,6 +197,8 @@ def _render_page(bien: dict, agency: dict) -> str:
     ag_color  = (agency.get("couleur_primaire") or "#1E3A5F").strip()
 
     # ── Logo ──────────────────────────────────────────────────────────────────
+    if ag_logo.startswith("/"):
+        ag_logo = APP_BASE_URL.rstrip("/") + ag_logo
     if ag_logo.startswith("http"):
         logo_hdr  = f'<img src="{escape(ag_logo)}" alt="{ag_nom}" class="hdr-logo">'
         logo_card = f'<img src="{escape(ag_logo)}" alt="{ag_nom}" class="card-logo">'
