@@ -220,6 +220,7 @@ def get_user_with_agency(email: str) -> dict | None:
             a.logo_url           AS agency_logo_url,
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
+            a.logo_bg_color      AS agency_logo_bg_color,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
             a.plan_id       AS agency_plan_id
@@ -253,6 +254,7 @@ def get_user_by_id(user_id: int) -> dict | None:
             a.logo_url           AS agency_logo_url,
             a.couleur_primaire   AS agency_couleur,
             a.logo_fond_colore   AS agency_logo_fond_colore,
+            a.logo_bg_color      AS agency_logo_bg_color,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
             a.plan_id       AS agency_plan_id
