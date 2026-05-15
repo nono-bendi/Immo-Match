@@ -504,7 +504,7 @@ export default function MatchingsPageV2() {
   const [matchings, setMatchings]       = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
-  const [filterScore, setFilterScore]   = useState('all')
+  const [filterScore, setFilterScore]   = useState('match')
   const [filterNew, setFilterNew]       = useState(false)
   const [sortBy, setSortBy]             = useState('recent')
   const [sendingEmail, setSendingEmail] = useState(null)
@@ -608,6 +608,7 @@ export default function MatchingsPageV2() {
         m.prospect_nom?.toLowerCase().includes(s) ||
         m.bien_reference?.toLowerCase().includes(s)
       )) return false
+      if (filterScore === 'match'     && m.score < 40) return false
       if (filterScore === 'bon65'     && m.score < 65) return false
       if (filterScore === 'excellent' && m.score < 80) return false
       if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
@@ -700,13 +701,13 @@ export default function MatchingsPageV2() {
           </button>
           {/* Glass group score */}
           <div className="glass-sort-group">
-            {[{ v: 'all', label: 'Tous' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
+            {[{ v: 'all', label: 'Tous' }, { v: 'match', label: 'Matchs ≥ 40' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
               <button key={f.v} onClick={() => setFilterScore(f.v)}
                 className={`glass-sort-btn${filterScore === f.v ? ' active' : ''}`}>
                 {f.label}
               </button>
             ))}
-            <div className="glass-sort-glider" style={{ transform: `translateX(${['all', 'bon65', 'excellent'].indexOf(filterScore) * 100}%)` }} />
+            <div className="glass-sort-glider" style={{ transform: `translateX(${['all', 'match', 'bon65', 'excellent'].indexOf(filterScore) * 100}%)` }} />
           </div>
         </div>
 

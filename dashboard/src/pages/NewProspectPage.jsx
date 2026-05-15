@@ -124,11 +124,12 @@ function NewProspectPage() {
       if (saved) return JSON.parse(saved)
     } catch {}
     return {
-      nom: '', mail: '', telephone: '', domicile: '',
+      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', domicile: '',
       bien: [], villes: [], quartiers: [], quartiersExclus: '',
       budget_max: '', surface_min: '', pieces_min: '',
       etat: [], expo: [], stationnement: '', exterieur: [],
-      etage: [], copro: '', destination: '', observation: ''
+      etage: [], copro: '', destination: '', observation: '',
+      chambre_plain_pied: false, sdb_min: '', wc_min: ''
     }
   })
 
@@ -313,7 +314,10 @@ function NewProspectPage() {
         formData.quartiersExclus ? `Éviter: ${formData.quartiersExclus}` : '',
         formData.surface_min ? `Surface min: ${formData.surface_min}m²` : '',
         formData.pieces_min ? `Pièces min: ${formData.pieces_min}` : ''
-      ].filter(Boolean).join(' | ')
+      ].filter(Boolean).join(' | '),
+      sdb_min: formData.sdb_min ? parseInt(formData.sdb_min) : 0,
+      wc_min: formData.wc_min ? parseInt(formData.wc_min) : 0,
+      chambre_plain_pied: formData.chambre_plain_pied ? 1 : 0
     }
 
     try {
@@ -501,17 +505,46 @@ function NewProspectPage() {
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
-              <input
-                type="text"
-                required
-                value={formData.nom}
-                onChange={(e) => handleChange('nom', e.target.value)}
-                placeholder="Ex: Mr et Mme Dupont"
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
-              />
+            {/* Titre + Nom + Prénom */}
+            <div className="col-span-2 grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                <select
+                  value={formData.titre}
+                  onChange={(e) => handleChange('titre', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] bg-white text-sm"
+                >
+                  <option value="">—</option>
+                  <option value="M.">M.</option>
+                  <option value="Mme">Mme</option>
+                  <option value="M. et Mme">M. et Mme</option>
+                  <option value="Mme et Mme">Mme et Mme</option>
+                  <option value="M. et M.">M. et M.</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.nom}
+                  onChange={(e) => handleChange('nom', e.target.value)}
+                  placeholder="DUPONT"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                <input
+                  type="text"
+                  value={formData.prenom}
+                  onChange={(e) => handleChange('prenom', e.target.value)}
+                  placeholder="Jean"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                />
+              </div>
             </div>
+            {/* Contact principal */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
               <input
@@ -529,6 +562,27 @@ function NewProspectPage() {
                 value={formData.mail}
                 onChange={(e) => handleChange('mail', e.target.value)}
                 placeholder="email@exemple.com"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+              />
+            </div>
+            {/* 2ème contact */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2 <span className="text-gray-400 font-normal">(conjoint·e)</span></label>
+              <input
+                type="tel"
+                value={formData.telephone2}
+                onChange={(e) => handleChange('telephone2', e.target.value)}
+                placeholder="06 98 76 54 32"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email 2 <span className="text-gray-400 font-normal">(conjoint·e)</span></label>
+              <input
+                type="email"
+                value={formData.email2}
+                onChange={(e) => handleChange('email2', e.target.value)}
+                placeholder="conjoint@exemple.com"
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
               />
             </div>
@@ -914,6 +968,40 @@ function NewProspectPage() {
                     {option.label}
                   </button>
                 ))}
+              </div>
+            </div>
+            {/* Chambre plain-pied + SDB min + WC min */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-3">
+                <button
+                  type="button"
+                  onClick={() => handleChange('chambre_plain_pied', !formData.chambre_plain_pied)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${formData.chambre_plain_pied ? 'border-[#1E3A5F] text-[#1E3A5F]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  style={formData.chambre_plain_pied ? { background: 'var(--gradient-primary)', color: 'white', border: 'none' } : {}}
+                >
+                  <span className="text-base">🛏</span>
+                  Chambre de plain-pied exigée
+                </button>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Salles de bain min</label>
+                <select value={formData.sdb_min} onChange={(e) => handleChange('sdb_min', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] bg-white text-sm">
+                  <option value="">Indifférent</option>
+                  <option value="1">1 minimum</option>
+                  <option value="2">2 minimum</option>
+                  <option value="3">3 minimum</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">WC séparés min</label>
+                <select value={formData.wc_min} onChange={(e) => handleChange('wc_min', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] bg-white text-sm">
+                  <option value="">Indifférent</option>
+                  <option value="1">1 minimum</option>
+                  <option value="2">2 minimum</option>
+                  <option value="3">3 minimum</option>
+                </select>
               </div>
             </div>
           </div>

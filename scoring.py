@@ -214,6 +214,9 @@ def _safe_field(text, max_length=300):
 def construire_contexte_prospect(prospect):
     """Formate le profil d'un prospect pour le prompt Claude."""
 
+    sdb_min = prospect.get("sdb_min") or 0
+    wc_min  = prospect.get("wc_min") or 0
+
     champs = [
         ("Type de bien recherché", prospect.get("bien")),
         ("Zone géographique", prospect.get("villes")),
@@ -226,6 +229,9 @@ def construire_contexte_prospect(prospect):
         ("Copropriété", prospect.get("copro")),
         ("Extérieur", prospect.get("exterieur")),
         ("Étage préféré", prospect.get("etage")),
+        ("Chambre de plain-pied exigée", "Oui" if prospect.get("chambre_plain_pied") else None),
+        ("Salles de bain minimum", f"{sdb_min}" if sdb_min > 0 else None),
+        ("WC séparés minimum", f"{wc_min}" if wc_min > 0 else None),
         ("Destination", prospect.get("destination")),
         ("Observations", _safe_field(prospect.get("observation"))),
     ]

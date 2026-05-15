@@ -198,13 +198,17 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO prospects (date, nom, mail, telephone, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, sdb_min, wc_min)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         datetime.now().strftime("%Y-%m-%d"),
         prospect.get('nom'),
+        prospect.get('prenom'),
+        prospect.get('titre'),
         prospect.get('mail'),
+        prospect.get('email2'),
         prospect.get('telephone'),
+        prospect.get('telephone2'),
         prospect.get('domicile'),
         prospect.get('bien'),
         prospect.get('villes'),
@@ -218,7 +222,10 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
         prospect.get('exterieur'),
         prospect.get('etage'),
         prospect.get('destination'),
-        prospect.get('observation')
+        prospect.get('observation'),
+        1 if prospect.get('chambre_plain_pied') else 0,
+        prospect.get('sdb_min') or 0,
+        prospect.get('wc_min') or 0,
     ))
 
     prospect_id = cursor.lastrowid
@@ -240,14 +247,19 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
 
     conn.execute('''
         UPDATE prospects SET
-            nom = ?, mail = ?, telephone = ?, domicile = ?, bien = ?, villes = ?,
-            quartiers = ?, budget_max = ?, criteres = ?, etat = ?, expo = ?,
-            stationnement = ?, copro = ?, exterieur = ?, etage = ?, destination = ?, observation = ?
+            nom = ?, prenom = ?, titre = ?, mail = ?, email2 = ?, telephone = ?, telephone2 = ?,
+            domicile = ?, bien = ?, villes = ?, quartiers = ?, budget_max = ?, criteres = ?,
+            etat = ?, expo = ?, stationnement = ?, copro = ?, exterieur = ?, etage = ?,
+            destination = ?, observation = ?, chambre_plain_pied = ?, sdb_min = ?, wc_min = ?
         WHERE id = ?
     ''', (
         prospect.get('nom'),
+        prospect.get('prenom'),
+        prospect.get('titre'),
         prospect.get('mail'),
+        prospect.get('email2'),
         prospect.get('telephone'),
+        prospect.get('telephone2'),
         prospect.get('domicile'),
         prospect.get('bien'),
         prospect.get('villes'),
@@ -262,6 +274,9 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
         prospect.get('etage'),
         prospect.get('destination'),
         prospect.get('observation'),
+        1 if prospect.get('chambre_plain_pied') else 0,
+        prospect.get('sdb_min') or 0,
+        prospect.get('wc_min') or 0,
         prospect_id
     ))
 

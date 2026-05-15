@@ -273,6 +273,22 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # Migration : champs contact enrichis + critères sanitaires
+    for col, dfn in [
+        ("prenom",             "TEXT"),
+        ("titre",              "TEXT"),
+        ("telephone2",         "TEXT"),
+        ("email2",             "TEXT"),
+        ("chambre_plain_pied", "INTEGER DEFAULT 0"),
+        ("sdb_min",            "INTEGER DEFAULT 0"),
+        ("wc_min",             "INTEGER DEFAULT 0"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE prospects ADD COLUMN {col} {dfn}")
+            conn.commit()
+        except Exception:
+            pass
+
     # Migration : date_creation matchings (date du premier calcul, jamais modifiée)
     try:
         conn.execute("ALTER TABLE matchings ADD COLUMN date_creation TEXT")
