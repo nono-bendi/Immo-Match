@@ -344,7 +344,7 @@ def _render_page(bien: dict, agency: dict) -> str:
         amenities.append((ICONS["charges"], f"Charges {int(float(charges))} €/mois"))
     if surface_cave and float(surface_cave) > 0:
         amenities.append((ICONS["cave"], f"Cave {surface_cave} m²"))
-    if copropriete:
+    if copropriete and copropriete not in ("0", "0.0", "false", "non"):
         amenities.append((ICONS["copropriete"], copropriete))
     if dpe and dpe in "ABCDEFG":
         amenities.append((ICONS["dpe"], f"DPE classe {dpe}"))
