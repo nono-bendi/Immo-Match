@@ -109,6 +109,9 @@ ICONS = {
     "box":        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><rect x="2" y="10" width="20" height="11" rx="1"/><path d="M5 10V7a7 7 0 0114 0v3" stroke-linecap="round"/><path d="M8 10h8" stroke-linecap="round"/></svg>',
     "dpe":        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     "copropriete":'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><path d="M3 21h18M5 21V7l7-4 7 4v14" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21v-6h6v6" stroke-linecap="round"/></svg>',
+    "chauffage":  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><path d="M12 2C8 6 8 10 12 13s4 7 0 9" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 4C5 7 5 10 7 12.5S9 18 7 20" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 4c2 3 2 6 0 8.5S15 18 17 20" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    "revenus":    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7l18 10" stroke-linecap="round" stroke="none"/></svg>',
+    "immeuble":   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="24" height="24"><path d="M3 21h18M5 21V5h14v16" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 9h2M13 9h2M9 13h2M13 13h2M9 17h2M13 17h2" stroke-linecap="round"/></svg>',
 }
 
 # ── Extraction mots-clés description ─────────────────────────────────────────
@@ -130,13 +133,39 @@ KEYWORDS = [
     (["digicode", "interphone", "visiophone"], "gardien",  "Accès sécurisé"),
     (["plain-pied", "plain pied"],             "etage",    "Plain-pied"),
     (["cheminée", "cheminee"],                 "lumineux", "Cheminée"),
+    (["chauffage-climatisation", "climatisation réversible",
+      "climatisation reversible", "clim réversible",
+      "clim reversible", "pompe à chaleur", "pompe a chaleur",
+      "chauffage central", "plancher chauffant"],
+                                               "chauffage","Chauffage / Climatisation"),
+    (["investissement locatif", "revenu locatif",
+      "revenus locatifs", "rendement locatif"], "revenus",  "Investissement locatif"),
 ]
 
 def _extract_keywords(description: str) -> list:
     """Retourne les (icon_key, label) détectés dans la description."""
+    import re
     desc_low = description.lower()
     found = []
     seen_icons = set()
+
+    # Revenus locatifs avec montant (ex: "revenus potentiels mensuels estimés à 2700€")
+    rev_match = re.search(
+        r"revenu[s]?\s+(?:potentiel[s]?|locatif[s]?|mensuel[s]?)[^\d]{0,40}([\d\s]+)[\s]*[€e]",
+        desc_low
+    )
+    if rev_match and "revenus" not in seen_icons:
+        montant = rev_match.group(1).replace(" ", "").strip()
+        found.append(("revenus", f"Revenus estimés à {montant} €/mois"))
+        seen_icons.add("revenus")
+
+    # Nombre de lots (ex: "comprend 7 lots")
+    lots_match = re.search(r"(\d+)\s+lots?", desc_low)
+    if lots_match and "immeuble" not in seen_icons:
+        n = lots_match.group(1)
+        found.append(("immeuble", f"{n} lots"))
+        seen_icons.add("immeuble")
+
     for keywords, icon_key, label in KEYWORDS:
         if any(kw in desc_low for kw in keywords):
             if icon_key not in seen_icons:
