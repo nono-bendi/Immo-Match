@@ -855,7 +855,7 @@ def _render_page(bien: dict, agency: dict) -> str:
 # ════════════════════════════════════════════════════════════════════════════
 
 @router.get("/public/bien/{agency_slug}/{bien_id}", response_class=HTMLResponse)
-def page_bien_public(agency_slug: str, bien_id: int):
+def page_bien_public(agency_slug: str, bien_id: str):
     if not agency_slug.replace("_", "").replace("-", "").isalnum():
         return HTMLResponse("<h1>Lien invalide</h1>", status_code=400)
 
@@ -867,7 +867,9 @@ def page_bien_public(agency_slug: str, bien_id: int):
     try:
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
-        bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
+        bien = conn.execute("SELECT * FROM biens WHERE reference = ?", (bien_id,)).fetchone()
+        if not bien and bien_id.isdigit():
+            bien = conn.execute("SELECT * FROM biens WHERE id = ?", (int(bien_id),)).fetchone()
         conn.close()
     except Exception:
         return HTMLResponse("<h1>Erreur base de données</h1>", status_code=500)
