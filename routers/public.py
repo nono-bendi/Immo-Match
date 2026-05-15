@@ -692,7 +692,7 @@ def _render_page(bien: dict, agency: dict) -> str:
   <header class="hdr">
     <div class="hdr-left">
       {logo_hdr}
-      <span class="hdr-name">{ag_nom}</span>
+      {'' if ag_logo else f'<span class="hdr-name">{ag_nom}</span>'}
     </div>
     <span class="hdr-badge">Vente</span>
   </header>
