@@ -65,13 +65,14 @@ async def upload_logo(file: UploadFile = File(...), current_user: dict = Depends
 
     ext = file.filename.rsplit(".", 1)[-1].lower() if "." in (file.filename or "") else "png"
     slug = current_user["agency_slug"]
+    ts = int(datetime.now().timestamp())
 
     os.makedirs("static/logos", exist_ok=True)
-    filepath = f"static/logos/{slug}.{ext}"
+    filepath = f"static/logos/{slug}_{ts}.{ext}"
     with open(filepath, "wb") as f:
         f.write(content)
 
-    logo_url = f"/static/logos/{slug}.{ext}"
+    logo_url = f"/static/logos/{slug}_{ts}.{ext}"
     conn = sqlite3.connect(AGENCIES_DB_PATH)
     conn.execute("UPDATE agencies SET logo_url = ? WHERE id = ?", (logo_url, current_user["agency_id"]))
     conn.commit()
