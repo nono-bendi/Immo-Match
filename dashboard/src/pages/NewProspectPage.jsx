@@ -9,6 +9,7 @@ function NewProspectPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
   const [villeInput, setVilleInput] = useState('')
+  const [quartierInput, setQuartierInput] = useState('')
   const [searchConfig, setSearchConfig] = useState({ villes: [], quartiers: [] })
 
   // — Vocal —
@@ -258,6 +259,25 @@ function NewProspectPage() {
     if (e.key === 'Enter') {
       e.preventDefault()
       addVille(villeInput)
+    }
+  }
+
+  const addQuartier = (q) => {
+    const qClean = q.trim()
+    if (qClean && !formData.quartiers.includes(qClean)) {
+      setFormData(prev => ({ ...prev, quartiers: [...prev.quartiers, qClean] }))
+    }
+    setQuartierInput('')
+  }
+
+  const removeQuartier = (q) => {
+    setFormData(prev => ({ ...prev, quartiers: prev.quartiers.filter(v => v !== q) }))
+  }
+
+  const handleQuartierKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      addQuartier(quartierInput)
     }
   }
 
@@ -636,25 +656,64 @@ function NewProspectPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Quartiers souhaités
-                  <span className="text-gray-400 font-normal ml-2">(plusieurs choix possibles)</span>
+                  <span className="text-gray-400 font-normal ml-2">(tapez ou cliquez)</span>
                 </label>
-                <div className="flex flex-wrap gap-2">
-                  {quartiersOptions.map(option => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => handleMultiSelect('quartiers', option.value)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        formData.quartiers.includes(option.value)
-                          ? 'text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                      style={formData.quartiers.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+
+                {formData.quartiers.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {formData.quartiers.map(q => (
+                      <span
+                        key={q}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-white"
+                        style={{ background: 'var(--gradient-primary)' }}
+                      >
+                        {q}
+                        <button
+                          type="button"
+                          onClick={() => removeQuartier(q)}
+                          className="p-0.5 hover:bg-white/20 rounded"
+                        >
+                          <X size={14} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={quartierInput}
+                    onChange={(e) => setQuartierInput(e.target.value)}
+                    onKeyDown={handleQuartierKeyDown}
+                    placeholder="Tapez un quartier et appuyez sur Entrée..."
+                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addQuartier(quartierInput)}
+                    disabled={!quartierInput.trim()}
+                    className="px-4 py-2.5 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+                  >
+                    <Plus size={20} />
+                  </button>
                 </div>
+
+                {quartiersOptions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {quartiersOptions.filter(o => !formData.quartiers.includes(o.value)).map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => addQuartier(option.value)}
+                        className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        + {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers à éviter</label>
