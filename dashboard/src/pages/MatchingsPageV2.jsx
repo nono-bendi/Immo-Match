@@ -504,7 +504,7 @@ export default function MatchingsPageV2() {
   const [matchings, setMatchings]       = useState([])
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
-  const [filterScore, setFilterScore]   = useState('match')
+  const [filterScore, setFilterScore]   = useState('all')
   const [filterNew, setFilterNew]       = useState(false)
   const [sortBy, setSortBy]             = useState('recent')
   const [sendingEmail, setSendingEmail] = useState(null)
