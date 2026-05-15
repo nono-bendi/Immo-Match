@@ -226,16 +226,24 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         analyse_block = ""
 
     # Logo block
+    # logo_bg_color : couleur de fond explicite (prioritaire)
+    # logo_fond_colore = 1 sans logo_bg_color → capsule couleur primaire (legacy)
+    # logo_bg_color = '#ffffff' ou absent → fond blanc, pas de capsule
+    logo_bg_color = (agency.get("agency_logo_bg_color") or agency.get("logo_bg_color") or "").strip()
     logo_fond_colore = bool(agency.get("agency_logo_fond_colore") or agency.get("logo_fond_colore"))
+    if not logo_bg_color and logo_fond_colore:
+        logo_bg_color = color  # legacy : utilisait la couleur primaire
+
+    use_capsule = bool(logo_bg_color and logo_bg_color.lower() not in ("#ffffff", "#fff", "white", ""))
+
     if has_logo:
-        if logo_fond_colore:
-            # Logo avec fond coloré : capsule colorée ajustée autour du logo uniquement
+        if use_capsule:
             logo_block = f"""
         <tr>
           <td style="padding:20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="padding:10px 18px;background:{color};border-radius:10px;">
+                <td style="padding:10px 20px;background:{logo_bg_color};border-radius:10px;">
                   <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
                        style="display:block;border:0;max-height:56px;height:56px;width:auto;max-width:280px;" />
                 </td>

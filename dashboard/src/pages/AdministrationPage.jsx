@@ -96,7 +96,7 @@ export default function AdministrationPage() {
   // ── Agency form (admin only) ──────────────────────────────────────────────
   const [agencyForm, setAgencyForm] = useState({
     nom: '', nom_court: '', nom_filtre: '', adresse: '', telephone: '', email: '',
-    logo_url: '', couleur_primaire: '#1E3A5F', logo_fond_colore: 0,
+    logo_url: '', couleur_primaire: '#1E3A5F', logo_fond_colore: 0, logo_bg_color: '#ffffff',
     smtp_user: '', smtp_password: '', smtp_from_name: '', smtp_reply_to: '',
     smtp_server: 'smtp.gmail.com', smtp_port: 587
   })
@@ -176,7 +176,7 @@ export default function AdministrationPage() {
         setAgencyForm({
           nom: d.nom || '', nom_court: d.nom_court || '', nom_filtre: d.nom_filtre || '',
           adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '',
-          logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0,
+          logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0, logo_bg_color: d.logo_bg_color || '#ffffff',
           smtp_user: d.smtp_user || '', smtp_password: d.smtp_password || '',
           smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || '',
           smtp_server: d.smtp_server || 'smtp.gmail.com', smtp_port: d.smtp_port || 587
@@ -524,7 +524,8 @@ export default function AdministrationPage() {
               <p className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2"><Image size={16} /> Logo</p>
               <div className="flex items-start gap-4">
                 {/* Prévisualisation */}
-                <div className="w-32 h-20 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center bg-gray-50 flex-shrink-0 overflow-hidden">
+                <div className="w-32 h-20 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+                  style={{ background: agencyForm.logo_bg_color || '#ffffff' }}>
                   {logoSrc
                     ? <img src={logoSrc} alt="Logo" className="max-h-full max-w-full object-contain p-2" />
                     : <Building2 size={28} className="text-gray-300" />}
@@ -546,14 +547,30 @@ export default function AdministrationPage() {
                     <input ref={logoRef} type="file" accept="image/*" className="hidden"
                       onChange={e => e.target.files[0] && uploadLogo(e.target.files[0])} />
                   </div>
-                  <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer mt-1">
-                    <input type="checkbox"
-                      checked={!!agencyForm.logo_fond_colore}
-                      onChange={e => chgA('logo_fond_colore', e.target.checked ? 1 : 0)}
-                      className="w-4 h-4 accent-[#1E3A5F]" />
-                    Fond coloré derrière le logo dans les emails
-                    <span className="text-xs text-gray-400">(recommandé si le logo est blanc)</span>
-                  </label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <label className="text-sm text-gray-600 whitespace-nowrap">Fond du logo dans les emails</label>
+                    <input
+                      type="color"
+                      value={agencyForm.logo_bg_color || '#ffffff'}
+                      onChange={e => chgA('logo_bg_color', e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer border border-gray-200 p-0.5"
+                      title="Couleur de fond derrière le logo"
+                    />
+                    <span className="text-xs text-gray-400">
+                      {(agencyForm.logo_bg_color || '#ffffff').toLowerCase() === '#ffffff'
+                        ? 'Blanc (pas de fond)'
+                        : agencyForm.logo_bg_color}
+                    </span>
+                    {(agencyForm.logo_bg_color || '#ffffff').toLowerCase() !== '#ffffff' && (
+                      <button type="button" onClick={() => chgA('logo_bg_color', '#ffffff')}
+                        className="text-xs text-gray-400 hover:text-gray-600 underline">
+                        Effacer
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Logo blanc sur fond sombre → choisissez la couleur du fond de votre logo
+                  </p>
                 </div>
               </div>
             </div>

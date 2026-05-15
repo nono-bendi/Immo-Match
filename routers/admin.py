@@ -34,7 +34,7 @@ def get_agency_config(current_user: dict = Depends(require_admin)):
 def update_agency_config(data: dict, current_user: dict = Depends(require_admin)):
     allowed = {
         "nom", "nom_court", "nom_filtre", "adresse", "telephone", "email",
-        "logo_url", "couleur_primaire", "logo_fond_colore",
+        "logo_url", "couleur_primaire", "logo_fond_colore", "logo_bg_color",
         "smtp_user", "smtp_password", "smtp_from_name", "smtp_reply_to",
         "smtp_server", "smtp_port"
     }
