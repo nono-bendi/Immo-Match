@@ -254,7 +254,7 @@ for b in biens:
                 1 if b.get("orientation_est") else 0,
                 1 if b.get("orientation_ouest") else 0,
                 1 if b.get("orientation_nord") else 0,
-                desc, photos_str, f"{APP_BASE_URL}/public/bien/{AGENCY_SLUG}/{ref}", b.get("stationnement"),
+                desc, photos_str, "", b.get("stationnement"),
                 "scraper", "APL Immo",
                 datetime.now().isoformat(), datetime.now().isoformat(), "actif"
             )
