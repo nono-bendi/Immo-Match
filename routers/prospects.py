@@ -17,10 +17,10 @@ router = APIRouter()
 
 _anthropic = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-VOICE_PARSE_PROMPT = """Tu es un assistant pour agents immobiliers. On te donne une transcription vocale décrivant un prospect immobilier.
+VOICE_PARSE_PROMPT_TEMPLATE = """Tu es un assistant pour agents immobiliers. On te donne une transcription vocale décrivant un prospect immobilier.
 Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (laisse vide si non mentionné) :
 
-{
+{{
   "nom": "",
   "telephone": "",
   "mail": "",
@@ -40,12 +40,12 @@ Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (
   "copro": "",
   "destination": "",
   "observation": ""
-}
+}}
 
 Règles :
 - "bien" : liste parmi ["Maison", "Appartement", "T1", "T2", "T3", "T4", "T5+", "Local commercial", "Terrain", "Tous biens"]
-- "villes" : liste de noms de villes
-- "quartiers" : liste parmi ["Port Fréjus", "Centre historique", "Les Arènes", "Villepey", "Saint-Aygulf", "Valescure", "Santa Lucia", "Boulouris", "Agay", "Bord de mer", "Résidentiel calme"]
+- "villes" : liste de noms de villes (villes connues de l'agence : {villes})
+- "quartiers" : liste parmi les quartiers connus de l'agence : {quartiers}
 - "budget_max" : nombre entier (euros), null si non mentionné
 - "surface_min" : string (ex: "60")
 - "pieces_min" : string (ex: "3")
@@ -59,6 +59,23 @@ Règles :
 - "observation" : informations complémentaires non catégorisables
 
 Retourne UNIQUEMENT le JSON, sans markdown, sans explication."""
+
+
+def build_voice_prompt(agency_slug: str) -> str:
+    try:
+        conn = sqlite3.connect(get_db_path(agency_slug))
+        villes = [r[0] for r in conn.execute(
+            "SELECT DISTINCT ville FROM biens WHERE ville IS NOT NULL AND ville != '' ORDER BY ville"
+        ).fetchall()]
+        quartiers = [r[0] for r in conn.execute(
+            "SELECT DISTINCT quartier FROM biens WHERE quartier IS NOT NULL AND quartier != '' ORDER BY quartier"
+        ).fetchall()]
+        conn.close()
+    except Exception:
+        villes, quartiers = [], []
+    villes_str = ", ".join(f'"{v}"' for v in villes) if villes else "toutes villes"
+    quartiers_str = ", ".join(f'"{q}"' for q in quartiers) if quartiers else "tous quartiers"
+    return VOICE_PARSE_PROMPT_TEMPLATE.format(villes=villes_str, quartiers=quartiers_str)
 
 
 @router.get("/prospects")
@@ -118,10 +135,11 @@ async def voice_parse(req: VoiceParseRequest, current_user: dict = Depends(get_c
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise HTTPException(status_code=503, detail="Clé API Anthropic non configurée")
     try:
+        prompt = build_voice_prompt(current_user["agency_slug"])
         response = _anthropic.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=1024,
-            messages=[{"role": "user", "content": f"{VOICE_PARSE_PROMPT}\n\nTranscription : {req.transcript}"}]
+            messages=[{"role": "user", "content": f"{prompt}\n\nTranscription : {req.transcript}"}]
         )
         raw = response.content[0].text.strip()
         match = re.search(r'\{.*\}', raw, re.DOTALL)

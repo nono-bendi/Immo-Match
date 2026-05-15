@@ -1,4 +1,5 @@
 import sqlite3
+import json
 import re
 from datetime import datetime, timedelta
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
@@ -158,6 +159,27 @@ def parse_hektor_cols(cols):
 # ============================================================
 # ROUTES
 # ============================================================
+
+@router.get("/biens/search-config")
+def get_search_config(current_user: dict = Depends(get_current_user)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    villes = [r[0] for r in conn.execute(
+        "SELECT DISTINCT ville FROM biens WHERE ville IS NOT NULL AND ville != '' ORDER BY ville"
+    ).fetchall()]
+    # Check settings first (allows manual override), fallback to biens table
+    q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
+    if q_row:
+        try:
+            quartiers = json.loads(q_row[0])
+        except Exception:
+            quartiers = []
+    else:
+        quartiers = [r[0] for r in conn.execute(
+            "SELECT DISTINCT quartier FROM biens WHERE quartier IS NOT NULL AND quartier != '' ORDER BY quartier"
+        ).fetchall()]
+    conn.close()
+    return {"villes": villes, "quartiers": quartiers}
+
 
 @router.get("/biens")
 def get_biens(current_user: dict = Depends(get_current_user)):

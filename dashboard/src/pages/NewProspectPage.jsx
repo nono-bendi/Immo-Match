@@ -9,6 +9,7 @@ function NewProspectPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
   const [villeInput, setVilleInput] = useState('')
+  const [searchConfig, setSearchConfig] = useState({ villes: [], quartiers: [] })
 
   // — Vocal —
   const [voiceOpen, setVoiceOpen]       = useState(false)
@@ -134,10 +135,14 @@ function NewProspectPage() {
     sessionStorage.setItem('immoflash_new_prospect_draft', JSON.stringify(formData))
   }, [formData])
 
-  const villesSuggestions = [
-    'Fréjus', 'Saint-Raphaël', 'Le Muy', 'Roquebrune-sur-Argens', 
-    'Puget-sur-Argens', 'Saint-Aygulf', 'Les Adrets', 'Bagnols-en-Forêt'
-  ]
+  useEffect(() => {
+    apiFetch('/biens/search-config')
+      .then(r => r.json())
+      .then(data => setSearchConfig(data))
+      .catch(() => {})
+  }, [])
+
+  const villesSuggestions = searchConfig.villes
 
   const typeBienOptions = [
     { value: 'Maison', label: 'Maison' },
@@ -181,19 +186,7 @@ function NewProspectPage() {
     { value: 'Contemporain', label: 'Contemporain' },
   ]
 
-  const quartiersOptions = [
-    { value: 'Port Fréjus', label: 'Port Fréjus' },
-    { value: 'Centre historique', label: 'Centre historique' },
-    { value: 'Les Arènes', label: 'Les Arènes' },
-    { value: 'Villepey', label: 'Villepey' },
-    { value: 'Saint-Aygulf', label: 'Saint-Aygulf' },
-    { value: 'Valescure', label: 'Valescure' },
-    { value: 'Santa Lucia', label: 'Santa Lucia' },
-    { value: 'Boulouris', label: 'Boulouris' },
-    { value: 'Agay', label: 'Agay' },
-    { value: 'Bord de mer', label: 'Bord de mer' },
-    { value: 'Résidentiel calme', label: 'Résidentiel calme' },
-  ]
+  const quartiersOptions = searchConfig.quartiers.map(q => ({ value: q, label: q }))
 
   const etageOptions = [
     { value: 'RDC', label: 'RDC' },
