@@ -129,7 +129,7 @@ function NewProspectPage() {
       budget_max: '', surface_min: '', pieces_min: '',
       etat: [], expo: [], stationnement: '', exterieur: [],
       etage: [], copro: '', destination: '', observation: '',
-      chambre_plain_pied: false, sdb_min: '', wc_min: ''
+      chambre_plain_pied: false, plain_pied_total: false, sdb_min: '', wc_min: ''
     }
   })
 
@@ -317,7 +317,8 @@ function NewProspectPage() {
       ].filter(Boolean).join(' | '),
       sdb_min: formData.sdb_min ? parseInt(formData.sdb_min) : 0,
       wc_min: formData.wc_min ? parseInt(formData.wc_min) : 0,
-      chambre_plain_pied: formData.chambre_plain_pied ? 1 : 0
+      chambre_plain_pied: formData.chambre_plain_pied ? 1 : 0,
+      plain_pied_total: formData.plain_pied_total ? 1 : 0
     }
 
     try {
@@ -977,14 +978,24 @@ function NewProspectPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Accessibilité</label>
-                <button
-                  type="button"
-                  onClick={() => handleChange('chambre_plain_pied', !formData.chambre_plain_pied)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${formData.chambre_plain_pied ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  style={formData.chambre_plain_pied ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
-                >
-                  Chambre de plain-pied
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('chambre_plain_pied', !formData.chambre_plain_pied)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${formData.chambre_plain_pied ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    style={formData.chambre_plain_pied ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                  >
+                    Chambre de plain-pied
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('plain_pied_total', !formData.plain_pied_total)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${formData.plain_pied_total ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    style={formData.plain_pied_total ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                  >
+                    Plain-pied / PMR
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Salles de bain min</label>

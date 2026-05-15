@@ -280,6 +280,7 @@ def init_db(db_path: str = "immomatch.db"):
         ("telephone2",         "TEXT"),
         ("email2",             "TEXT"),
         ("chambre_plain_pied", "INTEGER DEFAULT 0"),
+        ("plain_pied_total",   "INTEGER DEFAULT 0"),
         ("sdb_min",            "INTEGER DEFAULT 0"),
         ("wc_min",             "INTEGER DEFAULT 0"),
     ]:

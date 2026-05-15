@@ -11,6 +11,7 @@ import BienModal from '../components/BienModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import { API_URL } from '../config'
 import { apiFetch } from '../api'
+import { useAuth } from '../contexts/AuthContext'
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, ReferenceLine
@@ -124,6 +125,8 @@ export default function DashboardPage() {
   const [analyzeProgress, setAnalyzeProgress] = useState({ done: 0, total: 0 })
   const [analyzingProspectName, setAnalyzingProspectName] = useState('')
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isReseau = user?.agency_plan_id === 'reseau'
 
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
@@ -280,7 +283,7 @@ export default function DashboardPage() {
           iconColor="#10b981" iconBg="#f0fdf4"
           valueColor="#10b981"
           delay="0.13s" onClick={() => navigate('/biens')}
-          badge={{ text: 'Groupement Primmo', color: '#2563eb', bg: '#eff6ff' }}
+          badge={isReseau ? { text: 'Groupement Primmo', color: '#2563eb', bg: '#eff6ff' } : null}
         />
         <KpiCard
           icon={Star} label="Excellents matchs"

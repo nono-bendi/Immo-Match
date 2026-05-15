@@ -230,6 +230,7 @@ def construire_contexte_prospect(prospect):
         ("Extérieur", prospect.get("exterieur")),
         ("Étage préféré", prospect.get("etage")),
         ("Chambre de plain-pied exigée", "Oui" if prospect.get("chambre_plain_pied") else None),
+        ("Plain-pied total / PMR exigé", "Oui" if prospect.get("plain_pied_total") else None),
         ("Salles de bain minimum", f"{sdb_min}" if sdb_min > 0 else None),
         ("WC séparés minimum", f"{wc_min}" if wc_min > 0 else None),
         ("Destination", prospect.get("destination")),

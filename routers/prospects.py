@@ -198,8 +198,8 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, sdb_min, wc_min)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         datetime.now().strftime("%Y-%m-%d"),
         prospect.get('nom'),
@@ -224,6 +224,7 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
         prospect.get('destination'),
         prospect.get('observation'),
         1 if prospect.get('chambre_plain_pied') else 0,
+        1 if prospect.get('plain_pied_total') else 0,
         prospect.get('sdb_min') or 0,
         prospect.get('wc_min') or 0,
     ))
@@ -250,7 +251,7 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
             nom = ?, prenom = ?, titre = ?, mail = ?, email2 = ?, telephone = ?, telephone2 = ?,
             domicile = ?, bien = ?, villes = ?, quartiers = ?, budget_max = ?, criteres = ?,
             etat = ?, expo = ?, stationnement = ?, copro = ?, exterieur = ?, etage = ?,
-            destination = ?, observation = ?, chambre_plain_pied = ?, sdb_min = ?, wc_min = ?
+            destination = ?, observation = ?, chambre_plain_pied = ?, plain_pied_total = ?, sdb_min = ?, wc_min = ?
         WHERE id = ?
     ''', (
         prospect.get('nom'),
@@ -275,6 +276,7 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
         prospect.get('destination'),
         prospect.get('observation'),
         1 if prospect.get('chambre_plain_pied') else 0,
+        1 if prospect.get('plain_pied_total') else 0,
         prospect.get('sdb_min') or 0,
         prospect.get('wc_min') or 0,
         prospect_id
