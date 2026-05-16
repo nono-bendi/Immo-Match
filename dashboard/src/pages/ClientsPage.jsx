@@ -37,6 +37,169 @@ const AV_PAL = [
 ]
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
+const INP = "w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+
+function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
+  const [tab, setTab] = useState('contact')
+  const tabs = [
+    { id: 'contact', label: 'Contact' },
+    { id: 'recherche', label: 'Recherche' },
+    { id: 'criteres', label: 'Critères' },
+  ]
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col" style={{ maxHeight: '90vh' }}>
+        {/* Header */}
+        <div className="px-6 pt-6 pb-0 flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-[#1E3A5F]">Modifier le prospect</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{[prospect.titre, prospect.nom, prospect.prenom].filter(Boolean).join(' ')}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors -mt-1">
+            <X size={20} className="text-gray-400" />
+          </button>
+        </div>
+        {/* Tabs */}
+        <div className="px-6 mt-4 flex gap-1 border-b border-gray-100">
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.id ? 'text-[#1E3A5F] border-b-2 border-[#1E3A5F] -mb-px' : 'text-gray-400 hover:text-gray-600'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
+          {tab === 'contact' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Titre</label>
+                  <select value={prospect.titre || ''} onChange={e => onChange('titre', e.target.value)} className={INP}>
+                    <option value="">—</option>
+                    <option>M.</option><option>Mme</option><option>M. et Mme</option><option>Mme et Mme</option><option>M. et M.</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Nom</label>
+                  <input type="text" value={prospect.nom || ''} onChange={e => onChange('nom', e.target.value)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Prénom</label>
+                  <input type="text" value={prospect.prenom || ''} onChange={e => onChange('prenom', e.target.value)} className={INP} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone</label>
+                  <input type="tel" value={prospect.telephone || ''} onChange={e => onChange('telephone', e.target.value)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                  <input type="email" value={prospect.mail || ''} onChange={e => onChange('mail', e.target.value)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone 2</label>
+                  <input type="tel" value={prospect.telephone2 || ''} onChange={e => onChange('telephone2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Email 2</label>
+                  <input type="email" value={prospect.email2 || ''} onChange={e => onChange('email2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Domicile actuel</label>
+                <input type="text" value={prospect.domicile || ''} onChange={e => onChange('domicile', e.target.value)} className={INP} />
+              </div>
+            </div>
+          )}
+          {tab === 'recherche' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Type de bien</label>
+                  <input type="text" value={prospect.bien || ''} onChange={e => onChange('bien', e.target.value)} placeholder="Maison, Appartement…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Budget max (€)</label>
+                  <input type="number" value={prospect.budget_max || ''} onChange={e => onChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Villes</label>
+                  <input type="text" value={prospect.villes || ''} onChange={e => onChange('villes', e.target.value)} placeholder="Fréjus, Saint-Raphaël…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Quartiers souhaités</label>
+                  <input type="text" value={prospect.quartiers || ''} onChange={e => onChange('quartiers', e.target.value)} placeholder="Villeneuve, Saint-Aygulf…" className={INP} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Destination</label>
+                <select value={prospect.destination || ''} onChange={e => onChange('destination', e.target.value)} className={INP}>
+                  <option value="">—</option>
+                  <option>Résidence principale</option>
+                  <option>Inv. Locatif à l'année</option>
+                  <option>Inv. Locatif saisonnier</option>
+                  <option>Résidence secondaire</option>
+                  <option>Marchand de biens</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Observations</label>
+                <textarea value={prospect.observation || ''} onChange={e => onChange('observation', e.target.value)} rows={3} className={`${INP} resize-none`} />
+              </div>
+            </div>
+          )}
+          {tab === 'criteres' && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Extérieur</label>
+                  <input type="text" value={prospect.exterieur || ''} onChange={e => onChange('exterieur', e.target.value)} placeholder="Jardin, Terrasse…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Stationnement</label>
+                  <select value={prospect.stationnement || ''} onChange={e => onChange('stationnement', e.target.value)} className={INP}>
+                    <option value="">—</option>
+                    <option>Garage</option><option>Parking</option><option>Box</option><option>Obligatoire</option><option>Pas nécessaire</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">État accepté</label>
+                  <input type="text" value={prospect.etat || ''} onChange={e => onChange('etat', e.target.value)} placeholder="Bon état, Menus travaux…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Exposition</label>
+                  <input type="text" value={prospect.expo || ''} onChange={e => onChange('expo', e.target.value)} placeholder="Sud, Est…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Étage</label>
+                  <input type="text" value={prospect.etage || ''} onChange={e => onChange('etage', e.target.value)} placeholder="RDC, Dernier étage…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Copropriété</label>
+                  <select value={prospect.copro || ''} onChange={e => onChange('copro', e.target.value)} className={INP}>
+                    <option value="">—</option>
+                    <option>Oui</option><option>Faibles charges</option><option>Non</option><option>Peu importe</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
+          <button onClick={onSave} disabled={saving} className="px-5 py-2 text-sm text-white font-semibold rounded-lg disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
+            {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={15} />}
+            Sauvegarder
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ClientsPage() {
   const [prospects, setProspects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -515,135 +678,14 @@ function ClientsPage() {
 
       {/* Modal Édition */}
       {editingProspect && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }}>
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-[#1E3A5F]">Modifier le prospect</h2>
-              <button onClick={() => setEditingProspect(null)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <X size={20} className="text-gray-400" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-5">
-              {/* Contact */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Contact</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
-                    <select value={editingProspect.titre || ''} onChange={(e) => handleEditChange('titre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 bg-white text-sm transition-all">
-                      <option value="">—</option>
-                      <option value="M.">M.</option>
-                      <option value="Mme">Mme</option>
-                      <option value="M. et Mme">M. et Mme</option>
-                      <option value="Mme et Mme">Mme et Mme</option>
-                      <option value="M. et M.">M. et M.</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                    <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
-                    <input type="text" value={editingProspect.prenom || ''} onChange={(e) => handleEditChange('prenom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                    <input type="text" value={editingProspect.telephone || ''} onChange={(e) => handleEditChange('telephone', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" value={editingProspect.mail || ''} onChange={(e) => handleEditChange('mail', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2</label>
-                    <input type="text" value={editingProspect.telephone2 || ''} onChange={(e) => handleEditChange('telephone2', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email 2</label>
-                    <input type="email" value={editingProspect.email2 || ''} onChange={(e) => handleEditChange('email2', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Domicile actuel</label>
-                    <input type="text" value={editingProspect.domicile || ''} onChange={(e) => handleEditChange('domicile', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Recherche */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Recherche</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type de bien</label>
-                    <input type="text" value={editingProspect.bien || ''} onChange={(e) => handleEditChange('bien', e.target.value)} placeholder="Maison, Appartement…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Villes</label>
-                    <input type="text" value={editingProspect.villes || ''} onChange={(e) => handleEditChange('villes', e.target.value)} placeholder="Fréjus, Saint-Raphaël…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers souhaités</label>
-                    <input type="text" value={editingProspect.quartiers || ''} onChange={(e) => handleEditChange('quartiers', e.target.value)} placeholder="Villeneuve, Saint-Aygulf…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Budget max (€)</label>
-                    <input type="number" value={editingProspect.budget_max || ''} onChange={(e) => handleEditChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Critères */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Critères spécifiques</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Extérieur</label>
-                    <input type="text" value={editingProspect.exterieur || ''} onChange={(e) => handleEditChange('exterieur', e.target.value)} placeholder="Jardin, Terrasse, Piscine…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Stationnement</label>
-                    <input type="text" value={editingProspect.stationnement || ''} onChange={(e) => handleEditChange('stationnement', e.target.value)} placeholder="Garage, Parking…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">État accepté</label>
-                    <input type="text" value={editingProspect.etat || ''} onChange={(e) => handleEditChange('etat', e.target.value)} placeholder="Bon état, Menus travaux…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Exposition</label>
-                    <input type="text" value={editingProspect.expo || ''} onChange={(e) => handleEditChange('expo', e.target.value)} placeholder="Sud, Est…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Étage</label>
-                    <input type="text" value={editingProspect.etage || ''} onChange={(e) => handleEditChange('etage', e.target.value)} placeholder="RDC, Dernier étage…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Copropriété</label>
-                    <input type="text" value={editingProspect.copro || ''} onChange={(e) => handleEditChange('copro', e.target.value)} placeholder="Oui, Non, Faibles charges…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Destination</label>
-                    <input type="text" value={editingProspect.destination || ''} onChange={(e) => handleEditChange('destination', e.target.value)} placeholder="Résidence principale…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Observations</label>
-                <textarea value={editingProspect.observation || ''} onChange={(e) => handleEditChange('observation', e.target.value)} rows={3} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 resize-none transition-all" />
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
-              <button onClick={() => setEditingProspect(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
-              <button onClick={handleSaveEdit} disabled={saving} className="px-4 py-2 text-white rounded-lg btn-press disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
-                {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={18} />}
-                Sauvegarder
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditProspectModal
+          prospect={editingProspect}
+          saving={saving}
+          onChange={handleEditChange}
+          onSave={handleSaveEdit}
+          onClose={() => setEditingProspect(null)}
+        />
+      )}
       )}
 
       {/* Modal Confirmation Suppression */}
