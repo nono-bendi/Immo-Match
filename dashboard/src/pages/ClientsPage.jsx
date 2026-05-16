@@ -524,39 +524,108 @@ function ClientsPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                  <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+            <div className="p-6 space-y-5">
+              {/* Contact */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Contact</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                    <select value={editingProspect.titre || ''} onChange={(e) => handleEditChange('titre', e.target.value)} className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 bg-white text-sm transition-all">
+                      <option value="">—</option>
+                      <option value="M.">M.</option>
+                      <option value="Mme">Mme</option>
+                      <option value="M. et Mme">M. et Mme</option>
+                      <option value="Mme et Mme">Mme et Mme</option>
+                      <option value="M. et M.">M. et M.</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                    <input type="text" value={editingProspect.nom || ''} onChange={(e) => handleEditChange('nom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                    <input type="text" value={editingProspect.prenom || ''} onChange={(e) => handleEditChange('prenom', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                    <input type="text" value={editingProspect.telephone || ''} onChange={(e) => handleEditChange('telephone', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" value={editingProspect.mail || ''} onChange={(e) => handleEditChange('mail', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2</label>
+                    <input type="text" value={editingProspect.telephone2 || ''} onChange={(e) => handleEditChange('telephone2', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email 2</label>
+                    <input type="email" value={editingProspect.email2 || ''} onChange={(e) => handleEditChange('email2', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Domicile actuel</label>
+                    <input type="text" value={editingProspect.domicile || ''} onChange={(e) => handleEditChange('domicile', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                  <input type="text" value={editingProspect.telephone || ''} onChange={(e) => handleEditChange('telephone', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+              </div>
+
+              {/* Recherche */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Recherche</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type de bien</label>
+                    <input type="text" value={editingProspect.bien || ''} onChange={(e) => handleEditChange('bien', e.target.value)} placeholder="Maison, Appartement…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Villes</label>
+                    <input type="text" value={editingProspect.villes || ''} onChange={(e) => handleEditChange('villes', e.target.value)} placeholder="Fréjus, Saint-Raphaël…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers souhaités</label>
+                    <input type="text" value={editingProspect.quartiers || ''} onChange={(e) => handleEditChange('quartiers', e.target.value)} placeholder="Villeneuve, Saint-Aygulf…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Budget max (€)</label>
+                    <input type="number" value={editingProspect.budget_max || ''} onChange={(e) => handleEditChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input type="email" value={editingProspect.mail || ''} onChange={(e) => handleEditChange('mail', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Domicile</label>
-                  <input type="text" value={editingProspect.domicile || ''} onChange={(e) => handleEditChange('domicile', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type de bien</label>
-                  <input type="text" value={editingProspect.bien || ''} onChange={(e) => handleEditChange('bien', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Villes</label>
-                  <input type="text" value={editingProspect.villes || ''} onChange={(e) => handleEditChange('villes', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Budget max</label>
-                  <input type="number" value={editingProspect.budget_max || ''} onChange={(e) => handleEditChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Destination</label>
-                  <input type="text" value={editingProspect.destination || ''} onChange={(e) => handleEditChange('destination', e.target.value)} className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+              </div>
+
+              {/* Critères */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Critères spécifiques</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Extérieur</label>
+                    <input type="text" value={editingProspect.exterieur || ''} onChange={(e) => handleEditChange('exterieur', e.target.value)} placeholder="Jardin, Terrasse, Piscine…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Stationnement</label>
+                    <input type="text" value={editingProspect.stationnement || ''} onChange={(e) => handleEditChange('stationnement', e.target.value)} placeholder="Garage, Parking…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">État accepté</label>
+                    <input type="text" value={editingProspect.etat || ''} onChange={(e) => handleEditChange('etat', e.target.value)} placeholder="Bon état, Menus travaux…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Exposition</label>
+                    <input type="text" value={editingProspect.expo || ''} onChange={(e) => handleEditChange('expo', e.target.value)} placeholder="Sud, Est…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Étage</label>
+                    <input type="text" value={editingProspect.etage || ''} onChange={(e) => handleEditChange('etage', e.target.value)} placeholder="RDC, Dernier étage…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Copropriété</label>
+                    <input type="text" value={editingProspect.copro || ''} onChange={(e) => handleEditChange('copro', e.target.value)} placeholder="Oui, Non, Faibles charges…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                    <input type="text" value={editingProspect.destination || ''} onChange={(e) => handleEditChange('destination', e.target.value)} placeholder="Résidence principale…" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 transition-all" />
+                  </div>
                 </div>
               </div>
 

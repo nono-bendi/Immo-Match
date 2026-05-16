@@ -126,7 +126,7 @@ export default function DashboardPage() {
   const [analyzingProspectName, setAnalyzingProspectName] = useState('')
   const navigate = useNavigate()
   const { user } = useAuth()
-  const isReseau = user?.agency_plan_id === 'reseau'
+  const isReseau = user?.agency_slug === 'saint_francois'
 
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
