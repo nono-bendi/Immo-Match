@@ -72,7 +72,10 @@ function Layout({ children }) {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64" style={{ position: 'relative', zIndex: 1 }}>
+      {/* Spacer pour compenser la sidebar fixed sur desktop */}
+      <div className="hidden lg:block w-64 flex-shrink-0" />
+
+      <div className="flex-1 flex flex-col min-w-0" style={{ position: 'relative', zIndex: 1 }}>
         <TrialBanner user={user} />
         <Header
           onOpenTutorial={() => { localStorage.removeItem('immo_tutorial_seen'); setShowTuto(true) }}
