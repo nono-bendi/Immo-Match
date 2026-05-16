@@ -478,7 +478,7 @@ function NewProspectPage() {
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
-          onClick={() => navigate('/clients')}
+          onClick={() => { sessionStorage.removeItem('immoflash_new_prospect_draft'); navigate('/clients') }}
           className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <ArrowLeft size={20} className="text-gray-600" />
@@ -1075,7 +1075,7 @@ function NewProspectPage() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate('/clients')}
+              onClick={() => { sessionStorage.removeItem('immoflash_new_prospect_draft'); navigate('/clients') }}
               className="px-6 py-3 text-gray-600 font-medium rounded-xl hover:bg-gray-100 transition-colors"
             >
               Annuler
