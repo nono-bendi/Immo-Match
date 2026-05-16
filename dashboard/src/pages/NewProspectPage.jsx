@@ -500,7 +500,7 @@ function NewProspectPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Section: Informations de base */}
-        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
+        <div className="rounded-xl p-6 section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <User size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Informations de contact</h2>
@@ -605,7 +605,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Recherche immobilière */}
-        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
+        <div className="rounded-xl p-6 section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Home size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Recherche immobilière</h2>
@@ -842,7 +842,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Critères spécifiques */}
-        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
+        <div className="rounded-xl p-6 section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Settings size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Critères spécifiques</h2>
@@ -1023,7 +1023,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Projet */}
-        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
+        <div className="rounded-xl p-6 section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Target size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Projet</h2>
