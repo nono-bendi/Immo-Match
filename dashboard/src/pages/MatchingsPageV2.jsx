@@ -217,7 +217,7 @@ function RecoPostit({ text, paletteIdx = 0 }) {
     <div style={{ background: p.bg, borderRadius: 4, padding: '18px 20px 22px', transform: 'rotate(-1deg)', boxShadow: '0 10px 28px rgba(0,0,0,0.30),0 1px 0 rgba(255,255,255,0.4) inset', position: 'relative', alignSelf: 'flex-start', width: '100%' }}>
       <div style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%) rotate(2deg)', width: 58, height: 15, background: p.tape, border: '1px solid rgba(0,0,0,0.04)', borderRadius: 2 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-        <FileText size={14} style={{ color: p.header, flexShrink: 0 }} />
+        <span style={{ fontSize: 15 }}>📝</span>
         <span style={{ fontSize: 10, fontWeight: 700, color: p.header, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Recommandation</span>
       </div>
       <p style={{ fontSize: 18, color: p.text, lineHeight: 1.55, margin: 0, fontFamily: '"Caveat","Comic Sans MS",cursive', fontWeight: 500 }}>{text}</p>
