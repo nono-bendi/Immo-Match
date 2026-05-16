@@ -48,7 +48,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
   ]
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col" style={{ maxHeight: '90vh' }}>
+      <div className="w-full max-w-xl overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '90vh' }}>
         {/* Header */}
         <div className="px-6 pt-6 pb-0 flex items-start justify-between">
           <div>
@@ -686,12 +686,11 @@ function ClientsPage() {
           onClose={() => setEditingProspect(null)}
         />
       )}
-      )}
 
       {/* Modal Confirmation Suppression */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="rounded-2xl shadow-xl w-full max-w-md p-6 animate-bounce-in" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)' }}>
+          <div className="rounded-2xl shadow-xl w-full max-w-md p-6 animate-bounce-in" style={{ background: 'white', border: '1px solid #e5e7eb' }}>
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={32} className="text-red-500 animate-shake" />
