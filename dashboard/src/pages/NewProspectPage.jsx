@@ -82,6 +82,7 @@ function NewProspectPage() {
       setFormData(prev => ({
         ...prev,
         ...(data.nom        && { nom: data.nom }),
+        ...(data.prenom     && { prenom: data.prenom }),
         ...(data.telephone  && { telephone: data.telephone }),
         ...(data.mail       && { mail: data.mail }),
         ...(data.domicile   && { domicile: data.domicile }),

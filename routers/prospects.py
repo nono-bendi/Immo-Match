@@ -22,6 +22,7 @@ Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (
 
 {{
   "nom": "",
+  "prenom": "",
   "telephone": "",
   "mail": "",
   "domicile": "",
@@ -43,9 +44,13 @@ Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (
 }}
 
 Règles :
+- "nom" : UNIQUEMENT le nom de famille (ex: "Fontaine"). Jamais le prénom dans ce champ.
+- "prenom" : le ou les prénoms (ex: "Jean-Pierre", ou "Jean-Pierre et Sophie" pour un couple)
+- "mail" : l'adresse email. Si la transcription vocale déforme l'email (ex: "jean tiret pierre" → "jean-pierre", "arobase" → "@", "point" → "."), corrige-la intelligemment.
 - "bien" : liste parmi ["Maison", "Appartement", "T1", "T2", "T3", "T4", "T5+", "Local commercial", "Terrain", "Tous biens"]
 - "villes" : liste de noms de villes (villes connues de l'agence : {villes})
-- "quartiers" : liste parmi les quartiers connus de l'agence : {quartiers}
+- "quartiers" : TOUS les quartiers/secteurs souhaités mentionnés, même s'ils ne sont pas dans la liste connue. Quartiers connus : {quartiers}
+- "quartiersExclus" : quartiers ou zones que le prospect veut ÉVITER (ex: "centre-ville"). Ne pas mettre dans observation.
 - "budget_max" : nombre entier (euros), null si non mentionné
 - "surface_min" : string (ex: "60")
 - "pieces_min" : string (ex: "3")
@@ -56,7 +61,7 @@ Règles :
 - "etage" : liste parmi ["RDC", "Étage bas", "Étage élevé", "Dernier étage", "Avec ascenseur"]
 - "copro" : une valeur parmi ["Oui", "Faibles charges", "Non", "Peu importe"] ou ""
 - "destination" : une valeur parmi ["Résidence principale", "Inv. Locatif à l'année", "Inv. Locatif saisonnier", "Résidence secondaire", "Marchand de biens"] ou ""
-- "observation" : informations complémentaires non catégorisables
+- "observation" : UNIQUEMENT les informations non catégorisables par les autres champs
 
 Retourne UNIQUEMENT le JSON, sans markdown, sans explication."""
 
