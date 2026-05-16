@@ -35,7 +35,7 @@ function ProspectLink({ prospect, children, className = '' }) {
       </button>
 
       {showModal && !fullProspect && loading && createPortal(
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
+        <div className="fixed inset-0 lg:left-64 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
           <Loader2 size={32} className="animate-spin text-white" />
         </div>,
         document.body

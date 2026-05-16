@@ -47,7 +47,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
     { id: 'criteres', label: 'Critères' },
   ]
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 lg:left-64 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="w-full max-w-xl overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '90vh' }}>
         {/* Header */}
         <div className="px-6 pt-6 pb-0 flex items-start justify-between">
@@ -689,7 +689,7 @@ function ClientsPage() {
 
       {/* Modal Confirmation Suppression */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 lg:left-64 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="rounded-2xl shadow-xl w-full max-w-md p-6 animate-bounce-in" style={{ background: 'white', border: '1px solid #e5e7eb' }}>
             <div className="text-center">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">

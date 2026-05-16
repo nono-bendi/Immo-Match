@@ -51,7 +51,7 @@ function AnalysisOverlay({ isVisible, totalProspects, currentProspect, currentPr
   /* ── Écran d'erreur dédié ── */
   if (showErrors && errors.length > 0) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 lg:left-64 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="rounded-2xl p-8 max-w-md w-full mx-4 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

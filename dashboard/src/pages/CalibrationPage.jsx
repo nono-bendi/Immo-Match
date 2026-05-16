@@ -40,7 +40,7 @@ function BienDetailModal({ m, onClose }) {
   const [photoIdx, setPhotoIdx] = useState(0)
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 lg:left-64 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="relative bg-gray-100" style={{ height: '200px' }}>
           {photos.length > 0 ? (

@@ -67,7 +67,7 @@ function BienModal({ bien, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 lg:left-64 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
       style={{ zIndex: 9999 }}
       onClick={onClose}
     >
