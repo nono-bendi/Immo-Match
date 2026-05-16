@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -217,7 +217,7 @@ function RecoPostit({ text, paletteIdx = 0 }) {
     <div style={{ background: p.bg, borderRadius: 4, padding: '18px 20px 22px', transform: 'rotate(-1deg)', boxShadow: '0 10px 28px rgba(0,0,0,0.30),0 1px 0 rgba(255,255,255,0.4) inset', position: 'relative', alignSelf: 'flex-start', width: '100%' }}>
       <div style={{ position: 'absolute', top: -9, left: '50%', transform: 'translateX(-50%) rotate(2deg)', width: 58, height: 15, background: p.tape, border: '1px solid rgba(0,0,0,0.04)', borderRadius: 2 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-        <span style={{ fontSize: 15 }}>📝</span>
+        <FileText size={14} style={{ color: p.header, flexShrink: 0 }} />
         <span style={{ fontSize: 10, fontWeight: 700, color: p.header, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Recommandation</span>
       </div>
       <p style={{ fontSize: 18, color: p.text, lineHeight: 1.55, margin: 0, fontFamily: '"Caveat","Comic Sans MS",cursive', fontWeight: 500 }}>{text}</p>
@@ -251,7 +251,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
           <div>
             <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_type}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
-              <span>📍 {match.bien_ville}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={13} style={{ opacity: 0.7, flexShrink: 0 }} />{match.bien_ville}</span>
               {match.bien_surface && <><span style={{ opacity: 0.4 }}>·</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{match.bien_surface} m²</span></>}
               {match.bien_pieces  && <><span style={{ opacity: 0.4 }}>·</span><span>{match.bien_pieces} pièces</span></>}
             </div>
