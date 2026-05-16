@@ -238,6 +238,7 @@ function LoginPage() {
         .sbtn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 28px rgba(0,0,0,0.3); }
         .sbtn:active:not(:disabled) { transform:translateY(0); }
         .sbtn:disabled { opacity:0.6; cursor:not-allowed; }
+        @media (max-height: 700px), (max-width: 480px) { .login-hero-logo { display: none !important; } }
       `}</style>
 
       {/* Fond plein écran */}
@@ -285,8 +286,8 @@ function LoginPage() {
         {/* Particules */}
         <ParticlesCanvas />
 
-        {/* Logo en haut */}
-        <div style={{
+        {/* Logo en haut — masqué sur petits écrans (overlap formulaire) */}
+        <div className="login-hero-logo" style={{
           position: 'absolute', top: '140px',
           width: '100%', display: 'flex', justifyContent: 'center',
           zIndex: 10,

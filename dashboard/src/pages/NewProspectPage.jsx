@@ -414,7 +414,7 @@ function NewProspectPage() {
       {/* Modal vocale */}
       {voiceOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+          <div className="w-full max-w-lg overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '90vh' }}>
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-[#1E3A5F]">Remplir par la voix</h3>
@@ -425,7 +425,7 @@ function NewProspectPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-5">
+            <div className="p-6 space-y-5 overflow-y-auto flex-1">
               {/* Exemple */}
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-700">
                 <span className="font-semibold">Exemple :</span> "Monsieur Dupont, il cherche un appartement à Fréjus, budget 250 000 euros, 3 pièces minimum, avec parking, pour une résidence principale"

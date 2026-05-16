@@ -161,6 +161,13 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
   height: 100vh !important;
   overflow-y: auto !important;
 }
+/* Sur mobile la sidebar DOIT rester fixed (pas sticky) */
+@media (max-width: 1023px) {
+  .dark aside {
+    position: fixed !important;
+    height: 100dvh !important;
+  }
+}
 
 .dark aside .w-11.h-11 {
   background: rgba(255,255,255,0.07) !important;
