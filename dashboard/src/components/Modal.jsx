@@ -10,7 +10,7 @@ function Modal({ isOpen, onClose, onConfirm, title, message, type = 'info', conf
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="rounded-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="rounded-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
         {/* Header avec close */}
         <div className="flex justify-end p-2">
           <button 

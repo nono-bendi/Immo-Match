@@ -362,7 +362,7 @@ function NewProspectPage() {
       {/* Modal de proposition d'analyse */}
       {showAnalyzePrompt && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="rounded-2xl max-w-md w-full overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="rounded-2xl max-w-md w-full overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -500,7 +500,7 @@ function NewProspectPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Section: Informations de base */}
-        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <User size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Informations de contact</h2>
@@ -605,7 +605,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Recherche immobilière */}
-        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Home size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Recherche immobilière</h2>
@@ -842,7 +842,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Critères spécifiques */}
-        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Settings size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Critères spécifiques</h2>
@@ -1023,7 +1023,7 @@ function NewProspectPage() {
         </div>
 
         {/* Section: Projet */}
-        <div className="rounded-xl p-6" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="rounded-xl p-6" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div className="flex items-center gap-2 mb-4">
             <Target size={20} className="text-[#1E3A5F]" />
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Projet</h2>

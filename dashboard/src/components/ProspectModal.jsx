@@ -16,7 +16,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }} onClick={e => e.stopPropagation()}>
+      <div className="rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
         
         {/* Header avec dégradé subtil */}
         <div className="p-8 text-white relative overflow-hidden" style={{ background: gradientFrom ? `linear-gradient(135deg, ${gradientFrom}, ${gradientTo || '#38bdf8'})` : 'var(--gradient-primary)' }}>

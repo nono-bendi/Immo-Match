@@ -309,7 +309,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 sm:gap-5">
 
         {/* À contacter */}
-        <div className="sm:col-span-3 rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+        <div className="sm:col-span-3 rounded-2xl section-card overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div className="sec-icon sec-icon--navy">
@@ -423,7 +423,7 @@ export default function DashboardPage() {
         <div className="sm:col-span-2 flex flex-col gap-4">
 
           {/* Distribution */}
-          <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+          <div className="rounded-2xl section-card overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div className="sec-icon sec-icon--violet">
@@ -504,7 +504,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Graphique évolution — caché sur mobile ───────── */}
-      <div className="hidden sm:block rounded-2xl section-card overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="hidden sm:block rounded-2xl section-card overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
         <div style={{ padding: '18px 24px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="sec-icon sec-icon--gray">

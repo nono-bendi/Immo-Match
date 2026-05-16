@@ -414,7 +414,7 @@ function ClientsPage() {
       </div>
 
       {/* Table prospects actifs */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
         {loading ? (
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -489,7 +489,7 @@ function ClientsPage() {
           </button>
 
           {showArchived && (
-            <div className="rounded-2xl overflow-hidden mt-2" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+            <div className="rounded-2xl overflow-hidden mt-2" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>

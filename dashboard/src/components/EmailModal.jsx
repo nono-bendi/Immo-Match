@@ -38,7 +38,7 @@ function EmailModal({
         onClick={onClose}
       />
 
-      <div className={`relative overflow-hidden animate-in fade-in duration-200 w-full sm:mx-4 rounded-t-2xl sm:rounded-2xl ${type === 'confirm' ? 'sm:max-w-4xl max-h-[88vh] sm:max-h-[90vh] flex flex-col' : 'sm:max-w-md'}`} style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
+      <div className={`relative overflow-hidden animate-in fade-in duration-200 w-full sm:mx-4 rounded-t-2xl sm:rounded-2xl ${type === 'confirm' ? 'sm:max-w-4xl max-h-[88vh] sm:max-h-[90vh] flex flex-col' : 'sm:max-w-md'}`} style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
         {type === 'confirm' && (
           <div className="px-3 py-2 sm:px-6 sm:py-4 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
             <div className="flex items-center justify-between gap-2">
