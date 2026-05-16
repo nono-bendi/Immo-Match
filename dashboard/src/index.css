@@ -154,19 +154,7 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .dark aside {
   background: linear-gradient(180deg, #0d1826 0%, #0a1520 100%) !important;
   border-right: 1px solid rgba(255,255,255,0.06) !important;
-  box-shadow: 2px 0 24px rgba(0,0,0,0.5) !important;
-  /* Préserver sticky + hauteur */
-  position: sticky !important;
-  top: 0 !important;
-  height: 100vh !important;
-  overflow-y: auto !important;
-}
-/* Sur mobile la sidebar DOIT rester fixed (pas sticky) */
-@media (max-width: 1023px) {
-  .dark aside {
-    position: fixed !important;
-    height: 100dvh !important;
-  }
+  box-shadow: none !important;
 }
 
 .dark aside .w-11.h-11 {
@@ -1830,8 +1818,8 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: background 0.25s ease;
 }
-.sec-icon--navy  { background: #dce7f3; }
-.sec-icon--navy  .sec-icon-svg { color: #1E3A5F; }
+.sec-icon--navy  { background: #fffbeb; }
+.sec-icon--navy  .sec-icon-svg { color: #f59e0b; }
 
 .sec-icon--violet { background: #f5f3ff; }
 .sec-icon--violet .sec-icon-svg { color: #7c3aed; }
@@ -1839,13 +1827,13 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .sec-icon--blue  { background: #eff6ff; }
 .sec-icon--blue  .sec-icon-svg { color: #3b82f6; }
 
-.sec-icon--gray  { background: #f8fafc; }
-.sec-icon--gray  .sec-icon-svg { color: #64748b; }
+.sec-icon--gray  { background: #ecfdf5; }
+.sec-icon--gray  .sec-icon-svg { color: #10b981; }
 
 /* Dark — tous les fonds d'icône passent en semi-transparent
    avec la teinte de la couleur associée                     */
-.dark .sec-icon--navy   { background: rgba(45,90,138,0.35) !important; }
-.dark .sec-icon--navy   .sec-icon-svg { color: #7dd3fc !important; }
+.dark .sec-icon--navy   { background: rgba(245,158,11,0.2) !important; }
+.dark .sec-icon--navy   .sec-icon-svg { color: #fcd34d !important; }
 
 .dark .sec-icon--violet { background: rgba(124,58,237,0.18) !important; }
 .dark .sec-icon--violet .sec-icon-svg { color: #a78bfa !important; }
@@ -1853,8 +1841,8 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
 .dark .sec-icon--blue   { background: rgba(59,130,246,0.18) !important; }
 .dark .sec-icon--blue   .sec-icon-svg { color: #60a5fa !important; }
 
-.dark .sec-icon--gray   { background: rgba(255,255,255,0.07) !important; }
-.dark .sec-icon--gray   .sec-icon-svg { color: rgba(255,255,255,0.5) !important; }
+.dark .sec-icon--gray   { background: rgba(16,185,129,0.15) !important; }
+.dark .sec-icon--gray   .sec-icon-svg { color: #6ee7b7 !important; }
 
 /* ── Bouton "Tout voir" ──────────────────────────────────── */
 .sec-link-btn {
