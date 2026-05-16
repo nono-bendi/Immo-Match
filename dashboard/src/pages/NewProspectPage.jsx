@@ -413,7 +413,7 @@ function NewProspectPage() {
 
       {/* Modal vocale */}
       {voiceOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start justify-center z-[9999] p-4 pt-12 sm:items-center sm:pt-4">
           <div className="w-full max-w-lg overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '90vh' }}>
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <div>

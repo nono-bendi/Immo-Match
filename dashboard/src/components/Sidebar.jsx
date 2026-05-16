@@ -25,8 +25,8 @@ function Sidebar({ isOpen, onClose }) {
 
   return (
     <aside className={`
-      fixed lg:sticky top-0 left-0 z-40
-      w-64 h-screen
+      fixed top-0 left-0 z-40
+      w-64 h-screen lg:h-dvh
       bg-gradient-to-b from-[#0f1e30] to-[#0a1424]
       px-4 py-6 flex flex-col shadow-2xl shrink-0
       transition-transform duration-300 ease-in-out
