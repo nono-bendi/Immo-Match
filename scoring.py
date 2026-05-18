@@ -4,6 +4,7 @@ log = get_logger('scoring')
 from dotenv import load_dotenv
 import os
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 load_dotenv()
 
@@ -108,11 +109,12 @@ def calculer_score_objectif(prospect, bien):
     criteres_txt = (prospect.get("criteres") or "").lower()
     surface_bien = bien.get("surface") or 0
 
+    # Surface/pièces = gates de pénalité uniquement (pas de bonus → max objectif reste /60)
     m_surf = _re.search(r'surface\s+min\s*:\s*(\d+)', criteres_txt)
     if m_surf:
         surface_min = int(m_surf.group(1))
         if surface_bien >= surface_min:
-            pts = 5
+            pts = 0
             note = f"Surface OK ({surface_bien}m² ≥ {surface_min}m²)"
         else:
             pts = -15
@@ -129,7 +131,7 @@ def calculer_score_objectif(prospect, bien):
     if m_pieces:
         pieces_min = int(m_pieces.group(1))
         if nb_pieces_bien >= pieces_min:
-            pts = 3
+            pts = 0
             note = f"Pièces OK ({nb_pieces_bien} ≥ {pieces_min})"
         else:
             pts = -8
@@ -503,14 +505,16 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514', ag
     """
     Point d'entrée principal. Remplace scorer_biens() de prompt_scoring.py.
     Retourne une liste de résultats triés par score final décroissant.
+    Les appels Claude sont parallélisés (max 4 threads simultanés).
     """
-    resultats = []
-
+    # Pré-calcul objectif (instantané, pas d'API)
+    biens_avec_objectif = []
     for bien in biens_candidats:
-        # 1. Score objectif (instantané, gratuit)
         score_obj, detail_obj = calculer_score_objectif(prospect, bien)
+        biens_avec_objectif.append((bien, score_obj, detail_obj))
 
-        # 2. Score qualitatif (Claude)
+    def _analyser_bien(args):
+        bien, score_obj, detail_obj = args
         try:
             qualitatif = scorer_bien_claude(prospect, bien, score_obj, detail_obj, model=model, agency_slug=agency_slug)
         except Exception as e:
@@ -521,23 +525,25 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514', ag
                 "points_attention": ["Erreur lors de l'analyse IA"],
                 "recommandation": "Vérifier manuellement ce bien."
             }
-
-        score_final = score_obj + qualitatif["score_qualitatif"]
-
-        resultats.append({
+        return {
             "bien_id": bien.get("id"),
             "bien_ref": bien.get("reference"),
             "bien_label": f"{bien.get('type')} à {bien.get('ville')}",
-            "score": score_final,
+            "score": score_obj + qualitatif["score_qualitatif"],
             "score_objectif": score_obj,
             "score_qualitatif": qualitatif["score_qualitatif"],
             "detail_objectif": detail_obj,
             "points_forts": qualitatif["points_forts"],
             "points_attention": qualitatif["points_attention"],
             "recommandation": qualitatif["recommandation"],
-        })
+        }
 
-    # Trier du plus pertinent au moins pertinent
+    resultats = []
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(_analyser_bien, args) for args in biens_avec_objectif]
+        for future in as_completed(futures):
+            resultats.append(future.result())
+
     resultats.sort(key=lambda x: x["score"], reverse=True)
     return resultats
 
