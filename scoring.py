@@ -87,8 +87,9 @@ def calculer_score_objectif(prospect, bien):
     ville_bien = (bien.get("ville") or "").lower().strip()
 
     if not ville_prospect or "tous secteurs" in ville_prospect or "tout secteur" in ville_prospect:
-        pts = 5
-        note = "Zone non spécifiée, profil incomplet"
+        # Flexible = neutre, ne pénalise pas
+        pts = 15
+        note = "Tout secteur accepté"
     elif ville_prospect in ville_bien or ville_bien in ville_prospect:
         pts = 15
         note = f"Ville exacte ({bien.get('ville')})"
@@ -100,6 +101,43 @@ def calculer_score_objectif(prospect, bien):
         note = f"Hors zone ({bien.get('ville')} vs {prospect.get('villes')})"
 
     detail["ville"] = {"points": pts, "note": note}
+    score += pts
+
+    # --- SURFACE MIN (parsée depuis criteres) ---
+    import re as _re
+    criteres_txt = (prospect.get("criteres") or "").lower()
+    surface_bien = bien.get("surface") or 0
+
+    m_surf = _re.search(r'surface\s+min\s*:\s*(\d+)', criteres_txt)
+    if m_surf:
+        surface_min = int(m_surf.group(1))
+        if surface_bien >= surface_min:
+            pts = 5
+            note = f"Surface OK ({surface_bien}m² ≥ {surface_min}m²)"
+        else:
+            pts = -15
+            note = f"Surface insuffisante ({surface_bien}m² < {surface_min}m²)"
+    else:
+        pts = 0
+        note = "Surface min non spécifiée"
+    detail["surface"] = {"points": pts, "note": note}
+    score += pts
+
+    # --- PIÈCES MIN (parsée depuis criteres) ---
+    nb_pieces_bien = bien.get("nb_pieces") or 0
+    m_pieces = _re.search(r'pi[eè]ces?\s+min\s*:\s*(\d+)', criteres_txt)
+    if m_pieces:
+        pieces_min = int(m_pieces.group(1))
+        if nb_pieces_bien >= pieces_min:
+            pts = 3
+            note = f"Pièces OK ({nb_pieces_bien} ≥ {pieces_min})"
+        else:
+            pts = -8
+            note = f"Pas assez de pièces ({nb_pieces_bien} < {pieces_min})"
+    else:
+        pts = 0
+        note = "Pièces min non spécifiées"
+    detail["pieces"] = {"points": pts, "note": note}
     score += pts
 
     return score, detail
