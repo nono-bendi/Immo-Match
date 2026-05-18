@@ -247,8 +247,13 @@ function NewProspectPage() {
 
   const addVille = (ville) => {
     const villeClean = ville.trim()
-    if (villeClean && !formData.villes.includes(villeClean)) {
+    if (!villeClean) return
+    if (!formData.villes.includes(villeClean))
       setFormData(prev => ({ ...prev, villes: [...prev.villes, villeClean] }))
+    // Nouveau : mémoriser si pas dans les suggestions existantes
+    if (!searchConfig.villes.includes(villeClean)) {
+      setSearchConfig(prev => ({ ...prev, villes: [...prev.villes, villeClean].sort() }))
+      apiFetch('/biens/search-config/custom', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ villes: [villeClean] }) }).catch(() => {})
     }
     setVilleInput('')
   }
@@ -266,8 +271,13 @@ function NewProspectPage() {
 
   const addQuartier = (q) => {
     const qClean = q.trim()
-    if (qClean && !formData.quartiers.includes(qClean)) {
+    if (!qClean) return
+    if (!formData.quartiers.includes(qClean))
       setFormData(prev => ({ ...prev, quartiers: [...prev.quartiers, qClean] }))
+    // Nouveau : mémoriser si pas dans les suggestions existantes
+    if (!searchConfig.quartiers.includes(qClean)) {
+      setSearchConfig(prev => ({ ...prev, quartiers: [...prev.quartiers, qClean].sort() }))
+      apiFetch('/biens/search-config/custom', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quartiers: [qClean] }) }).catch(() => {})
     }
     setQuartierInput('')
   }

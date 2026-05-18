@@ -163,22 +163,51 @@ def parse_hektor_cols(cols):
 @router.get("/biens/search-config")
 def get_search_config(current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
-    villes = [r[0] for r in conn.execute(
+    # Villes from biens table + custom saved villes
+    biens_villes = [r[0] for r in conn.execute(
         "SELECT DISTINCT ville FROM biens WHERE ville IS NOT NULL AND ville != '' ORDER BY ville"
     ).fetchall()]
-    # Check settings first (allows manual override), fallback to biens table
+    v_row = conn.execute("SELECT value FROM settings WHERE key = 'search_villes_custom'").fetchone()
+    custom_villes = json.loads(v_row[0]) if v_row else []
+    villes = sorted(set(biens_villes) | set(custom_villes))
+
+    # Quartiers from settings or biens table + custom saved quartiers
     q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
     if q_row:
         try:
-            quartiers = json.loads(q_row[0])
+            base_quartiers = json.loads(q_row[0])
         except Exception:
-            quartiers = []
+            base_quartiers = []
     else:
-        quartiers = [r[0] for r in conn.execute(
+        base_quartiers = [r[0] for r in conn.execute(
             "SELECT DISTINCT quartier FROM biens WHERE quartier IS NOT NULL AND quartier != '' ORDER BY quartier"
         ).fetchall()]
+    cq_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers_custom'").fetchone()
+    custom_quartiers = json.loads(cq_row[0]) if cq_row else []
+    quartiers = sorted(set(base_quartiers) | set(custom_quartiers))
+
     conn.close()
     return {"villes": villes, "quartiers": quartiers}
+
+
+@router.post("/biens/search-config/custom")
+def save_custom_search_config(data: dict, current_user: dict = Depends(get_current_user)):
+    """Sauvegarde les villes/quartiers personnalisés tapés par l'utilisateur."""
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    for key, field in [("search_villes_custom", "villes"), ("search_quartiers_custom", "quartiers")]:
+        new_items = [v.strip() for v in data.get(field, []) if v.strip()]
+        if not new_items:
+            continue
+        row = conn.execute(f"SELECT value FROM settings WHERE key = '{key}'").fetchone()
+        existing = json.loads(row[0]) if row else []
+        merged = sorted(set(existing) | set(new_items))
+        conn.execute(
+            "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            (key, json.dumps(merged))
+        )
+    conn.commit()
+    conn.close()
+    return {"ok": True}
 
 
 @router.get("/biens")
