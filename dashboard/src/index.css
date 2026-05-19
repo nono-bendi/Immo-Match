@@ -2041,4 +2041,9 @@ html:not(.dark) a.bg-\[\#1E3A5F\]:hover {
   .prospect-actions button { padding: 5px !important; }
   .biens-actions          { opacity: 1 !important; }
   .biens-actions button   { padding: 5px !important; }
+
+/* ── Header masqué quand une modal est ouverte ── */
+body.modal-open header {
+  display: none !important;
+}
 }

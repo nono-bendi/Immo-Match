@@ -61,9 +61,8 @@ function BienModal({ bien, onClose }) {
 
   // Cache le header pendant que la modal est ouverte
   useEffect(() => {
-    const hdr = document.querySelector('header')
-    if (hdr) { hdr.style.visibility = 'hidden'; hdr.style.pointerEvents = 'none' }
-    return () => { if (hdr) { hdr.style.visibility = ''; hdr.style.pointerEvents = '' } }
+    document.body.classList.add('modal-open')
+    return () => document.body.classList.remove('modal-open')
   }, [])
 
   // Précharge toutes les photos dès l'ouverture
