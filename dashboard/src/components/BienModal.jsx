@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import {
   Building2, MapPin, Maximize, Home, X, Euro,
@@ -10,6 +11,7 @@ import { apiFetch } from '../api'
 
 function BienModal({ bien, onClose }) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
+  const [imgLoaded, setImgLoaded] = useState(false)
   const [analyseState, setAnalyseState] = useState('idle')
   const [analyseResult, setAnalyseResult] = useState(null)
   const [matchingsCount, setMatchingsCount] = useState(0)
@@ -56,8 +58,21 @@ function BienModal({ bien, onClose }) {
   if (!bien) return null
 
   const photos = bien.photos ? bien.photos.split('|').filter(p => p.trim()) : []
-  const next = () => setCurrentPhoto(p => (p + 1) % photos.length)
-  const prev = () => setCurrentPhoto(p => (p - 1 + photos.length) % photos.length)
+
+  // Cache le header pendant que la modal est ouverte
+  useEffect(() => {
+    const hdr = document.querySelector('header')
+    if (hdr) { hdr.style.visibility = 'hidden'; hdr.style.pointerEvents = 'none' }
+    return () => { if (hdr) { hdr.style.visibility = ''; hdr.style.pointerEvents = '' } }
+  }, [])
+
+  // Précharge toutes les photos dès l'ouverture
+  useEffect(() => {
+    photos.forEach(src => { const i = new window.Image(); i.src = src })
+  }, [bien.id])
+
+  const next = () => { setImgLoaded(false); setCurrentPhoto(p => (p + 1) % photos.length) }
+  const prev = () => { setImgLoaded(false); setCurrentPhoto(p => (p - 1 + photos.length) % photos.length) }
 
   const formatPrix = v =>
     v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '-'
@@ -65,10 +80,10 @@ function BienModal({ bien, onClose }) {
   const dpeColor = l =>
     ({ A: 'bg-green-500', B: 'bg-green-400', C: 'bg-lime-400', D: 'bg-yellow-400', E: 'bg-orange-400', F: 'bg-orange-600' }[l] || 'bg-red-600')
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 lg:left-64 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-      style={{ zIndex: 9999 }}
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+      style={{ zIndex: 99999 }}
       onClick={onClose}
     >
       <div
@@ -79,9 +94,17 @@ function BienModal({ bien, onClose }) {
         {/* Header avec photo */}
         <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700">
           {photos.length > 0 ? (
-            <div className="relative h-64">
-              <img src={photos[currentPhoto]} alt={`Photo ${currentPhoto + 1}`} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="relative h-64 bg-slate-200">
+              {!imgLoaded && (
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200" />
+              )}
+              <img
+                src={photos[currentPhoto]}
+                alt={`Photo ${currentPhoto + 1}`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoad={() => setImgLoaded(true)}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
               {photos.length > 1 && (
                 <>
                   <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 rounded-full transition-all hover:scale-110">
@@ -304,7 +327,8 @@ function BienModal({ bien, onClose }) {
 
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

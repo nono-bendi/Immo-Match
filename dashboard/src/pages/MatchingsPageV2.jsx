@@ -190,7 +190,7 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
     <div style={{ position: 'relative' }}>
       <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
         <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
-          {photo && <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+          {photo && <img src={photo} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
           <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>

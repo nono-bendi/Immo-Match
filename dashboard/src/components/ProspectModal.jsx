@@ -1,7 +1,15 @@
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
 import { API_URL } from '../config'
 
 function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
+  useEffect(() => {
+    const hdr = document.querySelector('header')
+    if (hdr) { hdr.style.visibility = 'hidden'; hdr.style.pointerEvents = 'none' }
+    return () => { if (hdr) { hdr.style.visibility = ''; hdr.style.pointerEvents = '' } }
+  }, [])
+
   if (!prospect) return null
 
   const formatBudget = (budget) => {
@@ -14,51 +22,45 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
     return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
   }
 
-  return (
-    <div className="fixed inset-0 lg:left-64 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
-        
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }} onClick={onClose}>
+      <div className="rounded-2xl w-full max-w-3xl max-h-[88vh] overflow-hidden shadow-2xl flex flex-col" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
+
         {/* Header avec dégradé subtil */}
-        <div className="p-8 text-white relative overflow-hidden" style={{ background: gradientFrom ? `linear-gradient(135deg, ${gradientFrom}, ${gradientTo || '#38bdf8'})` : 'var(--gradient-primary)' }}>
+        <div className="p-5 text-white relative overflow-hidden flex-shrink-0" style={{ background: gradientFrom ? `linear-gradient(135deg, ${gradientFrom}, ${gradientTo || '#38bdf8'})` : 'var(--gradient-primary)' }}>
           {/* Cercle décoratif */}
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full"></div>
           <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full"></div>
           
           <div className="relative flex items-start justify-between">
-            <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl font-bold shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-xl font-bold shadow-lg flex-shrink-0">
                 {prospect.nom ? prospect.nom.charAt(0).toUpperCase() : '?'}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">{prospect.nom || 'Sans nom'}</h2>
-                <div className="flex items-center gap-2 mt-1 text-white/70">
-                  <Calendar size={14} />
-                  <span className="text-sm">Inscrit le {formatDate(prospect.date)}</span>
+                <h2 className="text-xl font-bold">{prospect.nom || 'Sans nom'}</h2>
+                <div className="flex items-center gap-3 mt-0.5 text-white/70 text-sm flex-wrap">
+                  <span className="flex items-center gap-1"><Calendar size={12} />Inscrit le {formatDate(prospect.date)}</span>
+                  {prospect.domicile && <span className="flex items-center gap-1"><MapPin size={12} />Habite à {prospect.domicile}</span>}
                 </div>
-                {prospect.domicile && (
-                  <div className="flex items-center gap-2 mt-1 text-white/70">
-                    <MapPin size={14} />
-                    <span className="text-sm">Habite à {prospect.domicile}</span>
-                  </div>
-                )}
               </div>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
-              <X size={24} />
+            <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-xl transition-colors flex-shrink-0">
+              <X size={20} />
             </button>
           </div>
 
           {/* Contact rapide */}
-          <div className="relative flex gap-3 mt-6">
+          <div className="relative flex gap-2 mt-4 flex-wrap">
             {prospect.telephone && (
-              <a href={"tel:" + prospect.telephone.replace(/,/g, '')} className="flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all">
-                <Phone size={16} />
+              <a href={"tel:" + prospect.telephone.replace(/,/g, '')} className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all">
+                <Phone size={14} />
                 <span className="text-sm font-medium">{prospect.telephone}</span>
               </a>
             )}
             {prospect.mail && (
-              <a href={"mailto:" + prospect.mail} className="flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all">
-                <Mail size={16} />
+              <a href={"mailto:" + prospect.mail} className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all">
+                <Mail size={14} />
                 <span className="text-sm font-medium">{prospect.mail}</span>
               </a>
             )}
@@ -66,8 +68,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
         </div>
 
         {/* Contenu */}
-        <div className="p-8 overflow-y-auto max-h-[60vh] bg-gradient-to-b from-gray-50/50 to-white">
-          <div className="grid grid-cols-2 gap-10">
+        <div className="p-5 overflow-y-auto flex-1 bg-gradient-to-b from-gray-50/50 to-white">
+          <div className="grid grid-cols-2 gap-5">
             
             {/* Colonne gauche - Recherche */}
             <div>
@@ -234,15 +236,15 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
 
           {/* Observations */}
           {prospect.observation && (
-            <div className="mt-8 p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-100">
-              <p className="text-xs text-amber-700 font-bold uppercase tracking-wide mb-2">📝 Observations</p>
-              <p className="text-sm text-amber-900">{prospect.observation}</p>
+            <div className="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-100">
+              <p className="text-xs text-amber-700 font-bold uppercase tracking-wide mb-1.5 flex items-center gap-1"><FileText size={11} /> Observations</p>
+              <p className="text-sm text-amber-900 leading-relaxed">{prospect.observation}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-8 py-4 border-t border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
           <button
             onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/prospect/${prospect.id}?token=${t}`, '_blank') }}
             onMouseEnter={e => { e.currentTarget.style.background='var(--gradient-primary)'; e.currentTarget.style.color='#fff'; e.currentTarget.style.border='none'; e.currentTarget.style.padding='9px 17px'; e.currentTarget.style.boxShadow='var(--shadow-button)' }}
@@ -257,7 +259,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
