@@ -528,7 +528,11 @@ export default function MatchingsPageV2() {
 
   const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
-  const fetchData = useCallback(() => { setLoading(true); return apiFetch('/matchings').then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false)) }, [])
+  const fetchData = useCallback(() => {
+    setLoading(true)
+    const url = filterBienId ? `/matchings?bien_id=${filterBienId}` : '/matchings'
+    return apiFetch(url).then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false))
+  }, [filterBienId])
   useEffect(() => { fetchData() }, [fetchData])
 
 

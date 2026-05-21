@@ -425,6 +425,7 @@ def _calculer_completude(prospect: dict) -> float:
 def get_matchings(
     destination: str = None,
     tri: str = "pondere",  # "pondere" | "score" | "completude"
+    bien_id: int = None,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -442,7 +443,14 @@ def get_matchings(
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
-    cursor = conn.execute('''
+
+    where_extras = ""
+    params = [score_minimum]
+    if bien_id is not None:
+        where_extras = "AND m.bien_id = ?"
+        params.append(bien_id)
+
+    cursor = conn.execute(f'''
         SELECT m.*, p.nom as prospect_nom, p.budget_max as prospect_budget,
                p.mail as prospect_mail, p.telephone as prospect_tel,
                p.bien as prospect_type, p.villes as prospect_villes,
@@ -457,8 +465,9 @@ def get_matchings(
         JOIN biens b ON m.bien_id = b.id
         WHERE (p.archive = 0 OR p.archive IS NULL)
           AND m.score >= ?
+          {where_extras}
         ORDER BY m.prospect_id, m.score DESC
-    ''', (score_minimum,))
+    ''', params)
     all_matchings = [dict(row) for row in cursor.fetchall()]
     conn.close()
 
@@ -484,18 +493,19 @@ def get_matchings(
         completude = _calculer_completude(prospect_data)
         m['completude'] = completude
         m['completude_pct'] = int(completude * 100)
-        # Score pondéré : profil vide = 60% du score, profil complet = 100%
-        # Formule : score * (0.60 + 0.40 * completude)
         m['score_pondere'] = round(m['score'] * (0.60 + 0.40 * completude))
 
-    # Limiter à max_matchings par prospect (déjà triés score DESC)
-    seen = {}
-    result = []
-    for m in all_matchings:
-        pid = m['prospect_id']
-        if seen.get(pid, 0) < max_matchings:
-            result.append(m)
-            seen[pid] = seen.get(pid, 0) + 1
+    # Limiter à max_matchings par prospect — ignoré quand on filtre par bien_id
+    if bien_id is None:
+        seen = {}
+        result = []
+        for m in all_matchings:
+            pid = m['prospect_id']
+            if seen.get(pid, 0) < max_matchings:
+                result.append(m)
+                seen[pid] = seen.get(pid, 0) + 1
+    else:
+        result = all_matchings
 
     # Tri final selon le paramètre
     if tri == "score":
