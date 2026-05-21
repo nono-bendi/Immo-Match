@@ -394,6 +394,24 @@ async def import_hektor(file: UploadFile = File(...), current_user: dict = Depen
         return {"error": "Une erreur interne est survenue"}
 
 
+_EXTERIEUR_KEYWORDS = [
+    ("toit-terrasse", "toit-terrasse"), ("toit terrasse", "toit-terrasse"),
+    ("terrasse", "terrasse"), ("balcon", "balcon"), ("loggia", "loggia"),
+    ("jardin", "jardin"), ("patio", "patio"), ("cour ", "cour"),
+]
+
+def _infer_exterieur(current: str | None, description: str | None) -> str | None:
+    """Retourne `current` si déjà renseigné, sinon détecte dans la description."""
+    if current:
+        return current
+    desc_low = (description or "").lower()
+    found = []
+    for kw, label in _EXTERIEUR_KEYWORDS:
+        if kw in desc_low and label not in found:
+            found.append(label)
+    return ", ".join(found) if found else None
+
+
 @router.post("/biens/add")
 def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
@@ -414,7 +432,7 @@ def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
         bien.get('exposition'),
         bien.get('stationnement'),
         bien.get('copropriete'),
-        bien.get('exterieur'),
+        _infer_exterieur(bien.get('exterieur'), bien.get('description')),
         bien.get('etage'),
         bien.get('description'),
         datetime.now().strftime("%Y-%m-%d")
@@ -454,7 +472,7 @@ def update_bien(bien_id: int, bien: dict, current_user: dict = Depends(get_curre
         bien.get('exposition'),
         bien.get('stationnement'),
         bien.get('copropriete'),
-        bien.get('exterieur'),
+        _infer_exterieur(bien.get('exterieur'), bien.get('description')),
         bien.get('etage'),
         bien.get('description'),
         bien.get('defauts'),

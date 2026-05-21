@@ -185,6 +185,18 @@ def construire_contexte_bien(bien):
         exterieurs.append(f"{bien['nb_balcons']} balcon(s)")
     if bien.get("exterieur"):
         exterieurs.append(bien["exterieur"])
+
+    # Si aucune donnée structurée, inférer depuis la description (évite faux point d'attention)
+    if not exterieurs:
+        desc_low = (bien.get("description") or "").lower()
+        for kw, label in [
+            ("toit-terrasse", "toit-terrasse"), ("toit terrasse", "toit-terrasse"),
+            ("terrasse", "terrasse"), ("balcon", "balcon"), ("loggia", "loggia"),
+            ("jardin", "jardin"), ("patio", "patio"), ("cour ", "cour"),
+        ]:
+            if kw in desc_low and label not in exterieurs:
+                exterieurs.append(label)
+
     exterieur_str = ", ".join(exterieurs) if exterieurs else "Aucun"
 
     # Stationnement
