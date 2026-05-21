@@ -943,12 +943,52 @@ export default function AdministrationPage() {
               <p className="text-sm font-semibold text-violet-700">Score minimum à afficher</p>
               <p className="text-xs text-violet-500 mt-0.5">Les matchings en dessous sont masqués</p>
             </div>
-            <span className="text-lg font-extrabold text-violet-700">{settings.score_minimum === 0 ? 'Tous' : settings.score_minimum + '+'}</span>
+            <div className="text-right">
+              <span className="text-lg font-extrabold text-violet-700">{settings.score_minimum === 0 ? 'Tous' : settings.score_minimum + '+'}</span>
+              <p className="text-xs mt-0.5 font-medium" style={{ color: '#7c3aed', opacity: 0.7 }}>
+                {settings.score_minimum === 0 && 'Tous les matchings visibles'}
+                {settings.score_minimum > 0  && settings.score_minimum < 40 && 'Filtre les plus faibles'}
+                {settings.score_minimum >= 40 && settings.score_minimum < 65 && 'Matchings compatibles+'}
+                {settings.score_minimum >= 65 && settings.score_minimum < 80 && 'Bons matchings uniquement'}
+                {settings.score_minimum >= 80 && 'Excellents uniquement'}
+              </p>
+            </div>
           </div>
           <input type="range" min="0" max="80" step="5" value={settings.score_minimum}
             onChange={e => chg('score_minimum', +e.target.value)}
             className="w-full h-2 rounded-lg appearance-none cursor-pointer"
             style={{ accentColor: '#7c3aed', background: 'rgba(124,58,237,0.18)' }} />
+          {/* Repères */}
+          <div className="flex justify-between mt-2 px-0.5">
+            {[
+              { val: 0,  label: 'Tous',       sub: 'tout afficher' },
+              { val: 40, label: '40',          sub: 'compatibles' },
+              { val: 65, label: '65',          sub: 'bons matchs' },
+              { val: 80, label: '80',          sub: 'excellents' },
+            ].map(({ val, label, sub }) => {
+              const pct = val / 80
+              const active = settings.score_minimum === val
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => chg('score_minimum', val)}
+                  style={{ width: '22%', textAlign: 'center', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                >
+                  <span style={{
+                    display: 'block', fontSize: 11, fontWeight: active ? 700 : 500,
+                    color: active ? '#7c3aed' : 'rgba(124,58,237,0.45)',
+                    transition: 'color 150ms',
+                  }}>{label}</span>
+                  <span style={{
+                    display: 'block', fontSize: 10,
+                    color: active ? 'rgba(124,58,237,0.7)' : 'rgba(124,58,237,0.3)',
+                    transition: 'color 150ms',
+                  }}>{sub}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         {/* Max matchings */}
