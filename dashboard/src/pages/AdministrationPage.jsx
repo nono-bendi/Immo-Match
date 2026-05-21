@@ -958,22 +958,28 @@ export default function AdministrationPage() {
             onChange={e => chg('score_minimum', +e.target.value)}
             className="w-full h-2 rounded-lg appearance-none cursor-pointer"
             style={{ accentColor: '#7c3aed', background: 'rgba(124,58,237,0.18)' }} />
-          {/* Repères */}
-          <div className="flex justify-between mt-2 px-0.5">
+          {/* Repères alignés sur la piste du slider */}
+          <div style={{ position: 'relative', height: 32, marginTop: 4 }}>
             {[
-              { val: 0,  label: 'Tous',       sub: 'tout afficher' },
-              { val: 40, label: '40',          sub: 'compatibles' },
-              { val: 65, label: '65',          sub: 'bons matchs' },
-              { val: 80, label: '80',          sub: 'excellents' },
+              { val: 0,  label: 'Tous', sub: 'tout afficher' },
+              { val: 40, label: '40',   sub: 'compatibles' },
+              { val: 65, label: '65',   sub: 'bons matchs' },
+              { val: 80, label: '80',   sub: 'excellents' },
             ].map(({ val, label, sub }) => {
-              const pct = val / 80
+              const pct = val / 80 * 100
               const active = settings.score_minimum === val
+              const anchor = val === 0 ? 'left' : val === 80 ? 'right' : 'center'
               return (
                 <button
                   key={val}
                   type="button"
                   onClick={() => chg('score_minimum', val)}
-                  style={{ width: '22%', textAlign: 'center', cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
+                  style={{
+                    position: 'absolute',
+                    left: `${pct}%`,
+                    transform: anchor === 'center' ? 'translateX(-50%)' : anchor === 'right' ? 'translateX(-100%)' : 'none',
+                    textAlign: 'center', cursor: 'pointer', background: 'none', border: 'none', padding: 0,
+                  }}
                 >
                   <span style={{
                     display: 'block', fontSize: 11, fontWeight: active ? 700 : 500,
