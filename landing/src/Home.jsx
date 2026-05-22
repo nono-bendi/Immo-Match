@@ -768,9 +768,12 @@ export default function Home() {
                   <h3 style={{ color: '#ffffff', fontWeight: 700, fontSize: 20, margin: '0 0 4px' }}>{plan.name}</h3>
                   <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>{plan.subtitle}</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ fontSize: 48, fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>{plan.price}€</span>
-                  <span style={{ color: '#64748b', fontSize: 14 }}>HT / mois</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                    <span style={{ fontSize: 48, fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>{plan.price}€</span>
+                    <span style={{ color: '#64748b', fontSize: 14 }}>HT / mois</span>
+                  </div>
+                  <span style={{ color: '#38bdf8', fontSize: 12, fontWeight: 600, letterSpacing: '0.04em' }}>Sans engagement</span>
                 </div>
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' }} />
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -813,6 +816,8 @@ export default function Home() {
           {/* Garanties sobres */}
           <div className="reveal" style={{ textAlign: 'center', marginTop: '2.5rem' }}>
             <p style={{ color: '#475569', fontSize: 13, margin: 0, lineHeight: 1.8 }}>
+              Sans engagement · résiliable à tout moment
+              <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
               Tarif de lancement garanti à vie pour les premières agences
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
               Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours
