@@ -820,7 +820,7 @@ export default function Home() {
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
               Tarif de lancement garanti à vie pour les premières agences
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
-              Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours
+              Remboursé intégralement si vous n'êtes pas satisfait dans les 14&nbsp;jours
             </p>
           </div>
         </div>
