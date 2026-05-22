@@ -192,9 +192,9 @@ function MatchingMock() {
             {/* Gauche — prospect */}
             <div style={{ padding: '12px 10px', borderRight: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>DC</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#38bdf8,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 10, flexShrink: 0 }}>MD</div>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>Mr Durand Charles</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>Mathis Duverger</div>
                   <div style={{ fontSize: 9, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
                     Actif · 3 matchs
