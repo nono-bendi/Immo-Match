@@ -815,13 +815,13 @@ export default function Home() {
 
           {/* Garanties sobres */}
           <div className="reveal" style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-            <p style={{ color: '#475569', fontSize: 13, margin: 0, lineHeight: 1.8 }}>
-              Sans engagement · résiliable à tout moment
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '6px 0', color: '#475569', fontSize: 13 }}>
+              <span style={{ whiteSpace: 'nowrap' }}>Sans engagement · résiliable à tout moment</span>
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
-              Tarif de lancement garanti à vie pour les premières agences
+              <span style={{ whiteSpace: 'nowrap' }}>Tarif de lancement garanti à vie pour les premières agences</span>
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
-              Remboursé intégralement si vous n'êtes pas satisfait dans les 14&nbsp;jours
-            </p>
+              <span style={{ whiteSpace: 'nowrap' }}>Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours</span>
+            </div>
           </div>
         </div>
       </section>
