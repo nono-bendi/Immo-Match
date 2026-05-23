@@ -458,48 +458,6 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════════════
-          3. BANDE LOGOS
-          ════════════════════════════════════════════ */}
-      <section style={{ background: '#f8fafc', padding: '2.5rem 1.5rem', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p className="reveal" style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-            Ils font confiance à ImmoFlash
-          </p>
-          <div className="reveal logo-marquee-wrapper">
-            <div className="logo-marquee-track">
-              {(() => {
-                const b = import.meta.env.BASE_URL
-                return [
-                { src: `${b}logo/b&b.png`,          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
-                { src: `${b}logo/rastel.png`,        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
-                { src: `${b}logo/saintfrancois.png`, alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
-                { src: `${b}logo/sierra.png`,        alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
-                { src: `${b}logo/revedesud.svg`,     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
-                { src: `${b}logo/intramuros.jpg`,    alt: 'Intramuros',           h: 60, href: '#' },
-                /* Duplicata boucle infinie */
-                { src: `${b}logo/b&b.png`,          alt: 'B&B Immobilier',       h: 72, href: 'https://www.agencebb.fr/' },
-                { src: `${b}logo/rastel.png`,        alt: 'Rastel Agay',          h: 68, href: 'https://www.rastelagay.com/' },
-                { src: `${b}logo/saintfrancois.png`, alt: 'Saint-François Immo',  h: 76, href: 'https://www.saintfrancoisimmobilier.fr/' },
-                { src: `${b}logo/sierra.png`,        alt: 'Sierra Immo',          h: 64, href: 'https://www.sierra-immo.fr/' },
-                { src: `${b}logo/revedesud.svg`,     alt: 'Rêve du Sud',          h: 68, href: 'https://www.revedesud.com/' },
-                { src: `${b}logo/intramuros.jpg`,    alt: 'Intramuros',           h: 60, href: '#' },
-                ]
-              })().map((logo, i) => (
-                <a key={i} href={logo.href} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, display: 'inline-flex' }}>
-                  <img
-                    src={logo.src} alt={logo.alt}
-                    style={{ height: logo.h, width: 'auto', opacity: 0.65, filter: 'grayscale(20%)', transition: 'opacity 0.3s, filter 0.3s, transform 0.3s' }}
-                    onMouseEnter={e => { e.target.style.opacity = '1'; e.target.style.filter = 'grayscale(0%)'; e.target.style.transform = 'scale(1.05)' }}
-                    onMouseLeave={e => { e.target.style.opacity = '0.65'; e.target.style.filter = 'grayscale(20%)'; e.target.style.transform = 'scale(1)' }}
-                  />
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ════════════════════════════════════════════
           4. COMMENT ÇA MARCHE — 4 étapes
           ════════════════════════════════════════════ */}
       <section className="section" style={{ background: '#f8fafc' }}>
