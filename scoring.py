@@ -444,7 +444,7 @@ ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 - PROFIL INCOMPLET : si le prospect a peu de critères renseignés, tu as moins d'éléments pour scorer — c'est une incertitude, pas une permission d'être généreux. Reste dans la tranche 16-25 par défaut si tu manques d'information. N'attribue pas 30+ sans éléments qualitatifs positifs concrets.
 - ÉCHELLE COMPLÈTE : tu dois utiliser 0-5 quand le bien est clairement inadapté. Ne jamais éviter les scores extrêmes par prudence — les agents ont besoin de signaux forts pour prioriser.
 
-=== PROSPECT : {prospect.get('nom', 'N/A')} ===
+=== PROSPECT #{prospect.get('id', 'N/A')} ===
 {construire_contexte_prospect(prospect)}
 
 === BIEN #{bien.get('id')} ===

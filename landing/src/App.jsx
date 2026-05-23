@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import CookieBanner from './components/CookieBanner'
 import Home from './Home'
 import FAQ from './pages/FAQ'
 import MentionsLegales from './pages/MentionsLegales'
@@ -13,6 +14,7 @@ import Onboarding from './pages/Onboarding'
 export default function App() {
   return (
     <BrowserRouter>
+      <CookieBanner />
       <Routes>
         <Route path="/"                         element={<Home />} />
         <Route path="/demarrer"                 element={<Onboarding />} />

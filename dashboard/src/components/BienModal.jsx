@@ -55,20 +55,22 @@ function BienModal({ bien, onClose }) {
     }
   }
 
-  if (!bien) return null
-
-  const photos = bien.photos ? bien.photos.split('|').filter(p => p.trim()) : []
-
   // Cache le header pendant que la modal est ouverte
   useEffect(() => {
+    if (!bien) return
     document.body.classList.add('modal-open')
     return () => document.body.classList.remove('modal-open')
-  }, [])
+  }, [bien])
 
   // Précharge toutes les photos dès l'ouverture
   useEffect(() => {
-    photos.forEach(src => { const i = new window.Image(); i.src = src })
-  }, [bien.id])
+    if (!bien?.photos) return
+    bien.photos.split('|').filter(p => p.trim()).forEach(src => { const i = new window.Image(); i.src = src })
+  }, [bien?.id])
+
+  if (!bien) return null
+
+  const photos = bien.photos ? bien.photos.split('|').filter(p => p.trim()) : []
 
   const next = () => { setImgLoaded(false); setCurrentPhoto(p => (p + 1) % photos.length) }
   const prev = () => { setImgLoaded(false); setCurrentPhoto(p => (p - 1 + photos.length) % photos.length) }
