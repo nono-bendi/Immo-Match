@@ -321,8 +321,8 @@ export default function Home() {
       a: "Oui. Pour chaque matching, l'IA génère un email personnalisé qui explique pourquoi CE bien correspond à CE prospect — avec les arguments concrets. Vous relisez, vous envoyez.",
     },
     {
-      q: 'Mes données sont-elles sécurisées ?',
-      a: "ImmoFlash ne vend, ne loue et ne partage pas vos données personnelles à des tiers à des fins commerciales. Vos données restent accessibles pendant 30 jours après la fin de votre abonnement.",
+      q: 'Mes données sont-elles sécurisées ? Êtes-vous conformes RGPD ?',
+      a: "Oui, à plusieurs niveaux. Les données sont hébergées exclusivement en Europe (Hetzner, Allemagne). Chaque agence dispose de sa propre base de données isolée. Les critères de recherche des prospects envoyés à l'IA sont anonymisés (aucun nom, email ni téléphone ne quitte notre serveur). Un contrat de sous-traitance RGPD Article 28 est fourni à chaque agence cliente. ImmoFlash agit en qualité de sous-traitant : vos données vous appartiennent et restent accessibles 30 jours après résiliation.",
     },
     {
       q: "C'est quoi la période d'essai ?",
@@ -780,6 +780,28 @@ export default function Home() {
               <span style={{ margin: '0 12px', color: '#334155' }}>·</span>
               <span style={{ whiteSpace: 'nowrap' }}>Remboursé intégralement si vous n'êtes pas satisfait dans les 14 jours</span>
             </div>
+          </div>
+
+          {/* Badges RGPD */}
+          <div className="reveal" style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+            {[
+              { icon: '🇪🇺', label: 'Hébergement EU', sub: 'Hetzner, Allemagne' },
+              { icon: '🔒', label: 'RGPD conforme', sub: 'Données isolées par agence' },
+              { icon: '📄', label: 'Contrat Art. 28', sub: 'Fourni à chaque agence' },
+              { icon: '🔍', label: 'Données anonymisées', sub: 'Avant envoi à l\'IA' },
+            ].map(b => (
+              <div key={b.label} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 10, padding: '8px 14px',
+              }}>
+                <span style={{ fontSize: 18 }}>{b.icon}</span>
+                <div>
+                  <div style={{ color: '#f1f5f9', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>{b.label}</div>
+                  <div style={{ color: '#64748b', fontSize: 11, lineHeight: 1.2 }}>{b.sub}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
