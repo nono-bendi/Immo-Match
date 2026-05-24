@@ -869,6 +869,74 @@ function BiensMock() {
 
 /* ──────────────────────────────────────────────────────────────── */
 
+function RapportMock() {
+  const mois = 'Avril 2025'
+  const stats = [
+    { label: 'Analyses lancées', value: '43', delta: '+12 vs mars', up: true },
+    { label: 'Matchings générés', value: '187', delta: '+34 vs mars', up: true },
+    { label: 'Score moyen', value: '71/100', delta: 'Stable', up: null },
+    { label: 'Emails envoyés', value: '29', delta: '+8 vs mars', up: true },
+  ]
+  const top = [
+    { nom: 'Mme Marchand Sophie',  score: 94, bien: 'Maison · Fréjus',        statut: 'Contactée' },
+    { nom: 'Mr Blanchard Luc',     score: 88, bien: 'Appartement · Agay',     statut: 'En cours' },
+    { nom: 'Mme Torres Elena',     score: 82, bien: 'Maison · Saint-Raphaël', statut: 'Contactée' },
+  ]
+  const sColor = s => s >= 85 ? '#10b981' : s >= 70 ? '#f59e0b' : '#ef4444'
+
+  return (
+    <div style={{ fontFamily: 'Inter, sans-serif', background: '#fff', WebkitFontSmoothing: 'antialiased' }}>
+
+      {/* En-tête rapport */}
+      <div style={{ background: 'linear-gradient(135deg, #1E3A5F 0%, #2D5A8A 100%)', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Rapport mensuel</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginTop: 2 }}>Saint François Immo — {mois}</div>
+        </div>
+        <div style={{ background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: 8, padding: '4px 10px' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8' }}>PDF généré auto</span>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: '#f1f5f9', borderBottom: '1px solid #e2e8f0' }}>
+        {stats.map((s, i) => (
+          <div key={i} style={{ background: '#fff', padding: '10px 12px', textAlign: 'center' }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: 9, color: '#94a3b8', margin: '3px 0 4px', lineHeight: 1.3 }}>{s.label}</div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: s.up === true ? '#10b981' : s.up === false ? '#ef4444' : '#94a3b8' }}>{s.delta}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Top matchings */}
+      <div style={{ padding: '10px 16px 4px' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>Top matchings du mois</div>
+        {top.map((t, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: i < top.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: `${sColor(t.score)}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: sColor(t.score) }}>{t.score}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.nom}</div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>{t.bien}</div>
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 99, background: '#f0fdf4', color: '#059669', flexShrink: 0 }}>{t.statut}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Pied */}
+      <div style={{ margin: '8px 16px', padding: '8px 12px', background: '#f8fafc', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 10, color: '#94a3b8' }}>Rapport prospect individuel disponible</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#1E3A5F' }}>+ 187 pages</span>
+      </div>
+    </div>
+  )
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+
 function DashboardMock() {
   const kpis = [
     { label: 'Prospects', value: '57',  color: '#3b82f6', bg: '#eff6ff', badge: '4 à analyser',      bC: '#d97706', bBg: '#fef3c7',
@@ -1089,6 +1157,19 @@ const FEATURES = [
     rotation: -1.5,
     reversed: false,
     glow: true,
+  },
+  {
+    id: 'rapports',
+    label: 'Rapports',
+    title: 'Un compte-rendu complet, sans effort.',
+    description: "Chaque mois, ImmoFlash génère automatiquement un rapport PDF : matchings, scores, emails envoyés, top prospects. Et pour chaque prospect, un rapport individuel détaillé à partager ou archiver.",
+    proof: 'Rapport mensuel + rapport par prospect — générés automatiquement',
+    Mock: RapportMock,
+    height: 360,
+    scrollable: false,
+    rotation: 1,
+    reversed: true,
+    glow: false,
   },
 ]
 
