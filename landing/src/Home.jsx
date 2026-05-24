@@ -782,26 +782,17 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Badges RGPD */}
-          <div className="reveal" style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
-            {[
-              { icon: '🇪🇺', label: 'Hébergement EU', sub: 'Hetzner, Allemagne' },
-              { icon: '🔒', label: 'RGPD conforme', sub: 'Données isolées par agence' },
-              { icon: '📄', label: 'Contrat Art. 28', sub: 'Fourni à chaque agence' },
-              { icon: '🔍', label: 'Données anonymisées', sub: 'Avant envoi à l\'IA' },
-            ].map(b => (
-              <div key={b.label} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 10, padding: '8px 14px',
-              }}>
-                <span style={{ fontSize: 18 }}>{b.icon}</span>
-                <div>
-                  <div style={{ color: '#f1f5f9', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>{b.label}</div>
-                  <div style={{ color: '#64748b', fontSize: 11, lineHeight: 1.2 }}>{b.sub}</div>
-                </div>
-              </div>
-            ))}
+          {/* Ligne RGPD sobre */}
+          <div className="reveal" style={{ textAlign: 'center', marginTop: '1.25rem' }}>
+            <p style={{ color: '#334155', fontSize: 12, margin: 0, lineHeight: 2 }}>
+              🇪🇺 Hébergement EU (Hetzner, Allemagne)
+              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
+              🔒 RGPD conforme
+              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
+              📄 Contrat Art. 28 fourni
+              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
+              🔍 Données anonymisées avant envoi à l'IA
+            </p>
           </div>
         </div>
       </section>
