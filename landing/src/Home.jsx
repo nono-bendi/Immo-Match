@@ -329,6 +329,10 @@ export default function Home() {
       a: "Vous commencez avec une démo guidée sur vos vraies données. Si ça ne vous convient pas, vous ne payez rien. Aucune carte bancaire demandée à l'inscription.",
     },
     {
+      q: "Est-ce vraiment rentable pour une agence ?",
+      a: "À 89 € HT par mois, une seule vente supplémentaire dans l'année — un rapprochement qu'un CRM classique aurait raté — couvre plusieurs années d'abonnement. ImmoFlash ne remplace pas votre jugement, il s'assure que vous ne laissez passer aucune opportunité.",
+    },
+    {
       q: "Ça marche avec plusieurs agents dans une agence ?",
       a: "Oui, le plan Agence+ prend en charge jusqu'à 5 agents avec des accès séparés. Chaque agent voit son propre portefeuille.",
     },
@@ -689,41 +693,6 @@ export default function Home() {
           ════════════════════════════════════════════ */}
       <FeaturesSection />
 
-
-      {/* ════════════════════════════════════════════
-          7. ROI
-          ════════════════════════════════════════════ */}
-      <section className="section" style={{ background: '#f8fafc' }}>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <div className="reveal" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <p style={{ color: '#38bdf8', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 1rem' }}>Retour sur investissement</p>
-            <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.6px', margin: '0 0 1rem', lineHeight: 1.15 }}>
-              Une vente de plus dans l'année.<br />L'abonnement est rentabilisé pour trois ans.
-            </h2>
-            <p style={{ color: '#64748b', fontSize: 16, margin: 0, maxWidth: 560, marginInline: 'auto' }}>
-              ImmoFlash repère les rapprochements que votre CRM laisse passer. Un seul suffit.
-            </p>
-          </div>
-
-          <div className="reveal-group" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-            {[
-              { value: '89 €', label: 'par mois', sub: 'Plan Cabinet — sans engagement' },
-              { value: '1 068 €', label: 'par an', sub: "Coût total d'un abonnement annuel" },
-              { value: '1 vente', label: 'supplémentaire', sub: 'Rapprochement raté par votre CRM actuel' },
-              { value: '3 ans', label: 'remboursés', sub: "D'abonnement couverts par une seule commission" },
-            ].map(item => (
-              <div key={item.value} className="reveal-child" style={{
-                background: '#ffffff', borderRadius: 16, padding: '1.75rem 1.5rem',
-                border: '1px solid #e2e8f0', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: 'clamp(28px, 4vw, 38px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-1px', lineHeight: 1 }}>{item.value}</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#38bdf8', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{item.label}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8, lineHeight: 1.4 }}>{item.sub}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ════════════════════════════════════════════
           8. PRICING
