@@ -782,18 +782,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Ligne RGPD sobre */}
-          <div className="reveal" style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-            <p style={{ color: '#334155', fontSize: 12, margin: 0, lineHeight: 2 }}>
-              🇪🇺 Hébergement EU (Hetzner, Allemagne)
-              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
-              🔒 RGPD conforme
-              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
-              📄 Contrat Art. 28 fourni
-              <span style={{ margin: '0 10px', opacity: 0.4 }}>·</span>
-              🔍 Données anonymisées avant envoi à l'IA
-            </p>
-          </div>
         </div>
       </section>
 
