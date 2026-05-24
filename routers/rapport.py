@@ -364,13 +364,18 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         ('bien', 'Type recherché'), ('villes', 'Villes cibles'), ('quartiers', 'Quartiers'),
         ('budget_max', 'Budget max'), ('exposition', 'Exposition'), ('stationnement', 'Stationnement'),
         ('copro', 'Copropriété'), ('exterieur', 'Extérieur'), ('etage', 'Étage'),
-        ('destination', 'Destination'), ('observation', 'Observation'),
+        ('destination', 'Destination'),
     ]
     for key, label in crit_map:
         val = p.get(key)
         if val and str(val).strip() and str(val) != 'None':
             display = fmt_prix(val) if key == 'budget_max' else str(val)
             criteres_items += f'<div class="crit-item"><span class="crit-label">{label}</span><span class="crit-val">{display}</span></div>'
+
+    observation_html = ''
+    obs_val = p.get('observation')
+    if obs_val and str(obs_val).strip() and str(obs_val) != 'None':
+        observation_html = f'<div class="obs-block"><span class="crit-label">Observation</span><p class="obs-text">{obs_val}</p></div>'
 
     matching_cards = ''
     for m in matchings:
@@ -382,9 +387,9 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         pts_att = (md.get('points_attention') or '').strip()
         recomm = (md.get('recommandation') or '').strip()
         ref_html = f'<div class="matching-ref">Réf. {md["reference"]}</div>' if md.get("reference") else ''
-        forts_html = f'<div class="analysis-block forts"><div class="ab-title">✓ Points forts</div><div class="ab-text">{pts_forts}</div></div>' if pts_forts else ''
+        forts_html = f'<div class="analysis-block forts"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M20 6L9 17l-5-5" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Points forts</div><div class="ab-text">{pts_forts}</div></div>' if pts_forts else ''
         att_label = "Points d'attention"
-        att_html = f'<div class="analysis-block att"><div class="ab-title">⚠ {att_label}</div><div class="ab-text">{pts_att}</div></div>' if pts_att else ''
+        att_html = f'<div class="analysis-block att"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{att_label}</div><div class="ab-text">{pts_att}</div></div>' if pts_att else ''
         recomm_html = f'<div class="recomm-block"><strong>Recommandation :</strong> {recomm}</div>' if recomm else ''
         date_str = md["date_analyse"][:10] if md.get("date_analyse") else "—"
         matching_cards += f'''
@@ -445,6 +450,8 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     .crit-item {{ display:flex; justify-content:space-between; padding:8px 12px; background:#f8fafc; border-radius:8px; font-size:13px; }}
     .crit-label {{ color:#64748b; font-weight:500; }}
     .crit-val {{ color:#1e293b; font-weight:600; text-align:right; max-width:55%; }}
+    .obs-block {{ padding:10px 12px; background:#f8fafc; border-radius:8px; font-size:13px; margin-top:8px; }}
+    .obs-text {{ color:#1e293b; font-weight:400; margin-top:6px; line-height:1.6; white-space:pre-wrap; }}
     .matchings-section {{ padding:32px 40px 40px; }}
     .matching-card {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:14px; margin-bottom:16px; overflow:hidden; }}
     .matching-header {{ display:flex; align-items:center; gap:16px; padding:18px 20px; background:white; }}
@@ -489,9 +496,9 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     </div>
     <div class="prospect-name">{p["nom"]}</div>
     <div class="prospect-contact">
-      {f'<span>📧 {p["mail"]}</span>' if p.get("mail") else ''}
-      {f'<span>📞 {p["telephone"]}</span>' if p.get("telephone") else ''}
-      {f'<span>📍 {p["domicile"]}</span>' if p.get("domicile") else ''}
+      {f'<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:5px;opacity:.7"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="white" stroke-width="1.8"/><polyline points="22,6 12,13 2,6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>{p["mail"]}</span>' if p.get("mail") else ''}
+      {f'<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:5px;opacity:.7"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.09-1.26a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>{p["telephone"]}</span>' if p.get("telephone") else ''}
+      {f'<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:5px;opacity:.7"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" stroke="white" stroke-width="1.8"/><circle cx="12" cy="10" r="3" stroke="white" stroke-width="1.8"/></svg>{p["domicile"]}</span>' if p.get("domicile") else ''}
       {f'<span>Entré le {p["date"][:10]}</span>' if p.get("date") else ''}
     </div>
   </div>
@@ -514,6 +521,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     <div class="criteres-section">
       <div class="section-title">Critères de recherche</div>
       <div class="criteres-grid">{criteres_items or '<p style="color:#94a3b8;font-size:13px;">Aucun critère renseigné.</p>'}</div>
+      {observation_html}
     </div>
 
     <div class="matchings-section">
