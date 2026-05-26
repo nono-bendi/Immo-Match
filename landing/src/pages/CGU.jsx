@@ -47,9 +47,10 @@ export default function CGU() {
         <Li>Ne pas utiliser ImmoFlash à des fins illicites, frauduleuses ou contraires aux présentes CGU.</Li>
       </ul>
 
-      <S>5. Données utilisateurs</S>
+      <S>5. Données utilisateurs et analyse comportementale</S>
       <P>Les données importées dans ImmoFlash (biens, prospects, coordonnées) restent la propriété de l'agence utilisatrice. ImmoFlash s'engage à ne pas les utiliser à d'autres fins que la fourniture du service.</P>
       <P>L'agence est responsable de la licéité des données qu'elle importe, notamment au regard du RGPD pour les données personnelles de ses prospects.</P>
+      <P>À des fins d'amélioration du service, ImmoFlash utilise un outil d'analyse comportementale (PostHog) qui enregistre les interactions des utilisateurs avec la plateforme (clics, navigation, durée de session). Ces données sont utilisées exclusivement pour améliorer l'ergonomie et la qualité du service. Aucune donnée saisie dans les formulaires (coordonnées, données prospects) n'est collectée par cet outil.</P>
 
       <S>6. Disponibilité du service</S>
       <P>ImmoFlash s'engage à maintenir le service disponible 24h/24 et 7j/7, sous réserve de maintenances programmées communiquées à l'avance. Des interruptions ponctuelles peuvent survenir pour cause de maintenance ou d'incidents techniques. ImmoFlash ne pourra être tenu responsable des conséquences d'une indisponibilité temporaire.</P>
@@ -73,7 +74,7 @@ export default function CGU() {
       <P>Les présentes CGU sont soumises au droit français. Tout litige relatif à leur interprétation ou exécution relève de la compétence exclusive des tribunaux français.</P>
 
       <p style={{ color: '#94a3b8', fontSize: 13, marginTop: '3rem', fontStyle: 'italic' }}>
-        Dernière mise à jour : avril 2026
+        Dernière mise à jour : mai 2026
       </p>
     </PageLayout>
   )
