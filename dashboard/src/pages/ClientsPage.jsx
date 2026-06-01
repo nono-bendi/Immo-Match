@@ -425,8 +425,15 @@ function ClientsPage() {
       <td className="p-4 hidden sm:table-cell">
         <span className="text-sm text-gray-600">{prospect.bien || <span className='text-gray-300'>—</span>}</span>
       </td>
-      <td className="p-4 hidden sm:table-cell">
-        <span className="text-sm text-gray-600">{prospect.villes || <span className='text-gray-300'>—</span>}</span>
+      <td className="p-4 hidden sm:table-cell" style={{ maxWidth: 140 }}>
+        {prospect.villes ? (() => {
+          const villes = prospect.villes.split(/[,;]/).map(v => v.trim()).filter(Boolean)
+          const shown = villes.slice(0, 2)
+          const rest = villes.length - 2
+          return <span className="text-sm text-gray-600">
+            {shown.join(', ')}{rest > 0 && <span className="text-xs text-gray-400 ml-1">+{rest}</span>}
+          </span>
+        })() : <span className='text-gray-300'>—</span>}
       </td>
       <td className="p-4">
         <span className="text-sm font-medium text-[#1E3A5F]">{formatBudget(prospect.budget_max)}</span>

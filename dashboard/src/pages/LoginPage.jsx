@@ -294,23 +294,6 @@ function LoginPage() {
         {/* Particules */}
         <ParticlesCanvas />
 
-        {/* Logo en haut — masqué sur petits écrans (overlap formulaire) */}
-        <div className="login-hero-logo" style={{
-          position: 'absolute', top: '140px',
-          width: '100%', display: 'flex', justifyContent: 'center',
-          zIndex: 10,
-          opacity: mounted ? 1 : 0,
-          animation: mounted ? 'logoIn 0.5s ease both' : 'none',
-        }}>
-          <span style={{
-            fontWeight: 900, fontSize: '48px', letterSpacing: '-0.04em', lineHeight: 1,
-            background: 'linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            filter: 'drop-shadow(0 0 18px rgba(56,189,248,0.55))',
-          }}>
-            ImmoFlash
-          </span>
-        </div>
 
         {/* Formulaire centré */}
         <div style={{
@@ -382,7 +365,10 @@ function LoginPage() {
             ) : (<>
 
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '4px' }}>Connexion</h1>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontWeight: 900, fontSize: '32px', letterSpacing: '-0.04em', lineHeight: 1, background: 'linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', filter: 'drop-shadow(0 0 14px rgba(56,189,248,0.5))' }}>ImmoFlash</span>
+              </div>
+              <h1 style={{ color: 'white', fontSize: '16px', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '3px' }}>Connexion</h1>
               <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px' }}>Accédez à votre espace</p>
             </div>
 

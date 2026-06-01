@@ -197,8 +197,8 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
   const _sub = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
   return (
     <div style={{ position: 'relative' }}>
-      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 10, borderRadius: 14, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
-        <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
+      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: 8, borderRadius: 12, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
+        <div style={{ width: 44, height: 44, borderRadius: 9, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
           {photo && <img src={photo} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
           <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
         </div>
@@ -466,7 +466,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
 
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
-            {(expanded ? sorted : sorted.slice(0, 4)).map(m => (
+            {(expanded ? sorted : sorted.slice(0, 3)).map(m => (
               <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
@@ -474,13 +474,13 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 emailEnvoye={m.date_email_envoye}
               />
             ))}
-            {sorted.length > 4 && (
+            {sorted.length > 3 && (
               <button onClick={() => setExpanded(v => !v)}
                 style={{ fontSize: 12, color: '#94a3b8', paddingLeft: 10, marginTop: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 10px', transition: 'color 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.color='#3b82f6'}
                 onMouseLeave={e => e.currentTarget.style.color='#94a3b8'}
               >
-                {expanded ? 'Voir moins' : `+${sorted.length - 4} autre${sorted.length - 4 > 1 ? 's' : ''}`}
+                {expanded ? 'Voir moins' : `+${sorted.length - 3} autre${sorted.length - 3 > 1 ? 's' : ''}`}
               </button>
             )}
           </div>
