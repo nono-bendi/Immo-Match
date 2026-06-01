@@ -62,6 +62,15 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
 const _NOW     = Date.now()
 const _24H_AGO = _NOW - 24 * 60 * 60 * 1000
 
+function dateBucket(ts) {
+  if (!ts) return null
+  const j = Math.floor((Date.now() - ts) / 86400000)
+  if (j === 0) return "Aujourd'hui"
+  if (j === 1) return 'Hier'
+  if (j < 7) return `Il y a ${j} jours`
+  return new Date(ts).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })
+}
+
 function fmtAnalyse(dateStr) {
   if (!dateStr) return null
   const d = new Date(dateStr), diff = _NOW - d
@@ -178,7 +187,7 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye }) {
   const c = sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -199,6 +208,7 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
             <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
             {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{pieces}p</span></>}
+            {emailEnvoye && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 6px' }}>Proposé</span></>}
           </div>
         </div>
       </button>
@@ -461,6 +471,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
+                emailEnvoye={m.date_email_envoye}
               />
             ))}
             {sorted.length > 4 && (
@@ -503,7 +514,6 @@ export default function MatchingsPageV2() {
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
-  const [filterNew, setFilterNew]       = useState(false)
   const [sortBy, setSortBy]             = useState('recent')
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
@@ -605,7 +615,6 @@ export default function MatchingsPageV2() {
     try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
   }, [])
 
-  const nbNew = useMemo(() => matchings.filter(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO).length, [matchings])
 
   const { filtered, groups } = useMemo(() => {
     const s = search.toLowerCase()
@@ -617,7 +626,6 @@ export default function MatchingsPageV2() {
       if (filterScore === 'match'     && m.score < 40) return false
       if (filterScore === 'bon65'     && m.score < 65) return false
       if (filterScore === 'excellent' && m.score < 80) return false
-      if (filterNew && !(m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)) return false
       if (filterBienId    && m.bien_id     !== filterBienId)    return false
       if (filterProspectId && m.prospect_id !== filterProspectId) return false
       return true
@@ -641,10 +649,10 @@ export default function MatchingsPageV2() {
       return b._maxRaw - a._maxRaw
     })
     return { filtered, groups }
-  }, [matchings, search, filterScore, filterNew, filterBienId, filterProspectId, sortBy])
+  }, [matchings, search, filterScore, filterBienId, filterProspectId, sortBy])
 
   // Reset page quand les filtres changent
-  useEffect(() => { setPage(1) }, [search, filterScore, filterNew, sortBy])
+  useEffect(() => { setPage(1) }, [search, filterScore, sortBy])
 
   const totalPages  = Math.ceil(groups.length / PAGE_SIZE)
   const pagedGroups = groups.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -691,20 +699,6 @@ export default function MatchingsPageV2() {
       <div className="flex items-center justify-between gap-3 mb-6 flex-wrap">
         {/* Filtres score */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Pill Nouveaux — toggle indépendant */}
-          <button onClick={() => setFilterNew(v => !v)} style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            padding: '6px 13px', borderRadius: 20, cursor: 'pointer',
-            fontSize: 12, fontWeight: 600, transition: 'all .25s ease',
-            background: filterNew ? '#059669' : 'rgba(255,255,255,.65)',
-            backdropFilter: 'blur(12px)',
-            border: filterNew ? '1px solid rgba(5,150,105,.3)' : '1px solid rgba(0,0,0,.07)',
-            boxShadow: filterNew ? '0 2px 8px rgba(5,150,105,.25)' : 'inset 1px 1px 3px rgba(255,255,255,.8),0 2px 6px rgba(0,0,0,.06)',
-            color: filterNew ? 'white' : '#64748b',
-          }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: filterNew ? 'rgba(255,255,255,.8)' : '#10b981', flexShrink: 0 }} />
-            Nouveaux{nbNew > 0 && <span style={{ opacity: .8 }}> ({nbNew})</span>}
-          </button>
           {/* Glass group score */}
           <div className="glass-sort-group">
             {[{ v: 'all', label: 'Tous' }, { v: 'bon65', label: '≥ 65' }, { v: 'excellent', label: '≥ 80' }].map(f => (
@@ -792,15 +786,29 @@ export default function MatchingsPageV2() {
       ) : (
         <>
         <div className="space-y-4">
-          {pagedGroups.map((g, idx) => (
-            <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0 && page === 1}
-              onRunSingle={runSingle}
-              onPropose={openEmail}
-              onRefuse={handleRefuse}
-              sendingEmail={sendingEmail}
-              analyzing={analyzing}
-            />
-          ))}
+          {(() => {
+            let lastBucket = null
+            return pagedGroups.flatMap((g, idx) => {
+              const bucket = sortBy === 'recent' ? dateBucket(g._maxDate) : null
+              const sep = bucket && bucket !== lastBucket
+              lastBucket = bucket
+              return [
+                sep && (
+                  <div key={`sep-${bucket}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '4px 0' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{bucket}</span>
+                    <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
+                  </div>
+                ),
+                <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0 && page === 1}
+                  onRunSingle={runSingle}
+                  onPropose={openEmail}
+                  onRefuse={handleRefuse}
+                  sendingEmail={sendingEmail}
+                  analyzing={analyzing}
+                />
+              ].filter(Boolean)
+            })
+          })()}
         </div>
 
         {totalPages > 1 && (
