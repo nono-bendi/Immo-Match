@@ -422,8 +422,8 @@ function ClientsPage() {
           </div>
         </div>
       </td>
-      <td className="p-4 hidden sm:table-cell">
-        <span className="text-sm text-gray-600">{prospect.bien || <span className='text-gray-300'>—</span>}</span>
+      <td className="p-4 hidden sm:table-cell" style={{ maxWidth: 130 }}>
+        <span className="text-sm text-gray-600" style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prospect.bien || <span className='text-gray-300'>—</span>}</span>
       </td>
       <td className="p-4 hidden sm:table-cell" style={{ maxWidth: 140 }}>
         {prospect.villes ? (() => {
@@ -584,7 +584,7 @@ function ClientsPage() {
       </div>
 
       {/* Table prospects actifs */}
-      <div className="rounded-2xl overflow-hidden section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
+      <div className="rounded-2xl section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', overflowX: 'auto' }}>
         {loading ? (
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
