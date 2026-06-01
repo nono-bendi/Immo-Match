@@ -219,7 +219,7 @@ function ClientsPage() {
   const [resultModal, setResultModal] = useState({ isOpen: false, type: 'info', title: '', message: '' })
 
   const navigate = useNavigate()
-  const itemsPerPage = 10
+  const itemsPerPage = 20
   const [importing, setImporting] = useState(false)
   const importInputRef = useRef(null)
 

@@ -518,7 +518,7 @@ export default function MatchingsPageV2() {
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [page, setPage]                 = useState(1)
-  const PAGE_SIZE = 10
+  const PAGE_SIZE = 20
 
   const [analyzing, setAnalyzing]               = useState(false)
   const [showOverlay, setShowOverlay]           = useState(false)
