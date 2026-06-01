@@ -425,12 +425,12 @@ function ClientsPage() {
       <td className="p-4 hidden sm:table-cell" style={{ maxWidth: 130 }}>
         <span className="text-sm text-gray-600" style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prospect.bien || <span className='text-gray-300'>—</span>}</span>
       </td>
-      <td className="p-4 hidden sm:table-cell" style={{ maxWidth: 140 }}>
+      <td className="p-4 hidden sm:table-cell">
         {prospect.villes ? (() => {
           const villes = prospect.villes.split(/[,;]/).map(v => v.trim()).filter(Boolean)
           const shown = villes.slice(0, 2)
           const rest = villes.length - 2
-          return <span className="text-sm text-gray-600">
+          return <span className="text-sm text-gray-600" style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {shown.join(', ')}{rest > 0 && <span className="text-xs text-gray-400 ml-1">+{rest}</span>}
           </span>
         })() : <span className='text-gray-300'>—</span>}
@@ -584,7 +584,7 @@ function ClientsPage() {
       </div>
 
       {/* Table prospects actifs */}
-      <div className="rounded-2xl section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)', overflowX: 'auto' }}>
+      <div className="rounded-2xl overflow-hidden section-card" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }}>
         {loading ? (
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -618,7 +618,15 @@ function ClientsPage() {
             </button>
           </div>
         ) : (
-          <table className="w-full">
+          <table className="w-full" style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '22%' }} />
+              <col style={{ width: '14%' }} className="hidden sm:table-column" />
+              <col style={{ width: '13%' }} className="hidden sm:table-column" />
+              <col style={{ width: '11%' }} />
+              <col style={{ width: '16%' }} className="hidden sm:table-column" />
+              <col style={{ width: '24%' }} />
+            </colgroup>
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Client</th>
