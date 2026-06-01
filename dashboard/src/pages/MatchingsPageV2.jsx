@@ -404,7 +404,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
         <div className="pc-grid" style={{ '--pc-sep': _sep }}>
 
           {/* ── GAUCHE — PCBriefGlow ── */}
-          <div className="pc-sep-right" style={{ padding: '28px', display: 'flex', flexDirection: 'column', gap: 16, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <div className="pc-sep-right" style={{ padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: -60, left: -50, width: 200, height: 200, borderRadius: '50%', background: `radial-gradient(circle at 30% 30%,${a}24 0%,transparent 70%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
 
             {/* Avatar + nom */}
@@ -459,9 +459,9 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
           </div>
 
           {/* ── CENTRE — ScoreRing ── */}
-          <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '22px 16px', background: _mid, position: 'relative' }}>
+          <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '14px 12px', background: _mid, position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
-            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={140} />}</div>
+            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={116} />}</div>
           </div>
 
           {/* ── DROITE — GemBadges ── */}

@@ -443,7 +443,7 @@ function ClientsPage() {
             : d.includes('pied')
             ? 'bg-emerald-100 text-emerald-700'
             : 'bg-gray-100 text-gray-600'
-          return <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${style}`}>{prospect.destination}</span>
+          return <span className={`text-xs px-2.5 py-1 rounded-lg font-medium whitespace-nowrap ${style}`}>{prospect.destination}</span>
         })() : <span className="text-gray-300 text-sm">—</span>}
       </td>
       <td className="p-4">
