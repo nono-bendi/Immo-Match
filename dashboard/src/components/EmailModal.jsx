@@ -15,6 +15,9 @@ function EmailModal({
   setEmailContent,
   onRegeneratePreview,
   smtpConfigured,
+  photos,
+  selectedPhoto,
+  onPhotoChange,
 }) {
   const [activeTab, setActiveTab] = useState('preview')
   const navigate = useNavigate()
@@ -190,6 +193,30 @@ function EmailModal({
                     </div>
                     <p className="text-xs text-blue-600 mt-1">Les modifications seront visibles dans l'aperçu après avoir cliqué sur "Mettre à jour"</p>
                   </div>
+
+                  {photos && photos.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Photo de couverture</label>
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {photos.map((url, i) => (
+                          <button
+                            key={i}
+                            onClick={() => { onPhotoChange(url); onRegeneratePreview(); setActiveTab('preview') }}
+                            className="shrink-0 rounded-lg overflow-hidden transition-all"
+                            style={{
+                              width: 88, height: 66,
+                              border: url === selectedPhoto ? '2.5px solid #38bdf8' : '2.5px solid transparent',
+                              boxShadow: url === selectedPhoto ? '0 0 0 1px #38bdf8' : 'none',
+                              outline: 'none',
+                            }}
+                          >
+                            <img src={url} alt={`Photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">Cliquez sur une photo pour l'utiliser dans l'email</p>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Sujet de l'email</label>
