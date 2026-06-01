@@ -795,7 +795,7 @@ export default function MatchingsPageV2() {
               return [
                 sep && (
                   <div key={`sep-${bucket}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0 4px' }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1E3A5F', background: '#e8f0fa', border: '1px solid #c7d9f0', borderRadius: 8, padding: '3px 12px', whiteSpace: 'nowrap' }}>{bucket}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 8, padding: '3px 12px', whiteSpace: 'nowrap' }}>{bucket}</span>
                     <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
                   </div>
                 ),
