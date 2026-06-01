@@ -156,6 +156,8 @@ function NewProspectPage() {
     { value: 'T4', label: 'T4' },
     { value: 'T5+', label: 'T5 et +' },
     { value: 'Local commercial', label: 'Local commercial' },
+    { value: 'Immeuble', label: 'Immeuble' },
+    { value: 'Immeuble de rapport', label: 'Immeuble de rapport' },
     { value: 'Terrain', label: 'Terrain' },
     { value: 'Tous biens', label: 'Tous types' }
   ]
