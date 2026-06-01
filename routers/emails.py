@@ -134,24 +134,29 @@ def normalize_points(text):
 
 
 def format_salutation(full_name):
-    """Formate la salutation : Bonjour M./Mme Nom"""
+    """Formate la salutation en détectant la civilité dans le nom."""
     if not full_name or not full_name.strip():
         return "Madame, Monsieur"
 
-    name_parts = full_name.strip().split()
+    s = full_name.strip()
+    s_low = s.lower()
 
-    if len(name_parts) == 0:
-        return "Madame, Monsieur"
+    PREFIXES_M = ["monsieur ", "m. ", "mr. ", "mr "]
+    PREFIXES_F = ["madame ", "mme. ", "mme "]
 
-    # Si on a un nom composé, prendre le dernier mot comme nom de famille
-    if len(name_parts) == 1:
-        # Un seul mot : on l'utilise tel quel
-        return f"M./Mme {name_parts[0].title()}"
-    else:
-        # Plusieurs mots : prénom(s) + nom
-        # On prend le dernier comme nom de famille
-        nom_famille = name_parts[-1].upper()
-        return f"M./Mme {nom_famille}"
+    for prefix in PREFIXES_M:
+        if s_low.startswith(prefix):
+            nom = s[len(prefix):].strip().split()[-1].upper() if s[len(prefix):].strip() else s
+            return f"M. {nom}"
+
+    for prefix in PREFIXES_F:
+        if s_low.startswith(prefix):
+            nom = s[len(prefix):].strip().split()[-1].upper() if s[len(prefix):].strip() else s
+            return f"Mme {nom}"
+
+    parts = s.split()
+    nom_famille = parts[-1].upper() if len(parts) > 1 else parts[0].title()
+    return f"M./Mme {nom_famille}"
 
 
 def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict = None) -> str:
