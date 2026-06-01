@@ -812,26 +812,37 @@ export default function MatchingsPageV2() {
         </div>
 
         {totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '24px 0 8px' }}>
-            <button
-              onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-              disabled={page === 1}
-              style={{ padding: '7px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: page === 1 ? '#f8fafc' : '#fff', color: page === 1 ? '#cbd5e1' : '#1E3A5F', fontWeight: 600, fontSize: 13, cursor: page === 1 ? 'default' : 'pointer', transition: 'all 0.15s' }}
-            >← Précédent</button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '24px 0 8px' }}>
+            {/* Flèche gauche */}
+            <button onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }} disabled={page === 1}
+              style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', color: page === 1 ? '#cbd5e1' : '#64748b', cursor: page === 1 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
 
-            <div style={{ display: 'flex', gap: 4 }}>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                <button key={n} onClick={() => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                  style={{ width: 34, height: 34, borderRadius: 9, border: '1px solid', borderColor: n === page ? '#1E3A5F' : '#e2e8f0', background: n === page ? '#1E3A5F' : '#fff', color: n === page ? '#fff' : '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s' }}
-                >{n}</button>
-              ))}
-            </div>
+            {/* Numéros avec ellipsis */}
+            {(() => {
+              const pages = []
+              const delta = 1
+              const left = Math.max(2, page - delta)
+              const right = Math.min(totalPages - 1, page + delta)
+              pages.push(1)
+              if (left > 2) pages.push('...')
+              for (let i = left; i <= right; i++) pages.push(i)
+              if (right < totalPages - 1) pages.push('...')
+              if (totalPages > 1) pages.push(totalPages)
+              return pages.map((n, i) => n === '...'
+                ? <span key={`dot-${i}`} style={{ width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 13 }}>…</span>
+                : <button key={n} onClick={() => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                    style={{ width: 34, height: 34, borderRadius: 10, border: 'none', background: n === page ? 'linear-gradient(135deg, #1E3A5F, #38bdf8)' : 'transparent', color: n === page ? '#fff' : '#64748b', fontWeight: n === page ? 700 : 500, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s', boxShadow: n === page ? '0 4px 12px rgba(56,189,248,0.35)' : 'none' }}
+                  >{n}</button>
+              )
+            })()}
 
-            <button
-              onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-              disabled={page === totalPages}
-              style={{ padding: '7px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: page === totalPages ? '#f8fafc' : '#fff', color: page === totalPages ? '#cbd5e1' : '#1E3A5F', fontWeight: 600, fontSize: 13, cursor: page === totalPages ? 'default' : 'pointer', transition: 'all 0.15s' }}
-            >Suivant →</button>
+            {/* Flèche droite */}
+            <button onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }) }} disabled={page === totalPages}
+              style={{ width: 34, height: 34, borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', color: page === totalPages ? '#cbd5e1' : '#64748b', cursor: page === totalPages ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
           </div>
         )}
         </>
