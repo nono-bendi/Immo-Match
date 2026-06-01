@@ -481,7 +481,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
         <div style={{ maxHeight: sel ? '1000px' : '0px', opacity: sel ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease' }}>
           {sel && (
             <BienDetail match={sel} mail={group.prospect_mail} nom={group.prospect_nom} sending={sendingEmail === sel.id}
-              onPropose={() => onPropose(sel, group.prospect_mail, group.prospect_nom)}
+              onPropose={() => onPropose(sel, group.prospect_mail, (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom)}
               onRefuse={() => onRefuse(sel)}
             />
           )}
@@ -625,7 +625,7 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped)

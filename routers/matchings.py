@@ -451,7 +451,7 @@ def get_matchings(
         params.append(bien_id)
 
     cursor = conn.execute(f'''
-        SELECT m.*, p.nom as prospect_nom, p.budget_max as prospect_budget,
+        SELECT m.*, p.nom as prospect_nom, p.titre as prospect_titre, p.budget_max as prospect_budget,
                p.mail as prospect_mail, p.telephone as prospect_tel,
                p.bien as prospect_type, p.villes as prospect_villes,
                p.destination as prospect_destination, p.criteres as prospect_criteres,
