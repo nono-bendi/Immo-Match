@@ -335,11 +335,9 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
 
 // ─── ProspectCard ──────────────────────────────────────────────────────────────
 const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen }) {
-  const sorted = [...group.matchings].sort((a, b) => {
-    const rA = a.statut_prospect === 'refused' ? 1 : 0
-    const rB = b.statut_prospect === 'refused' ? 1 : 0
-    return rA - rB || b.score - a.score
-  })
+  const sorted = [...group.matchings]
+    .filter(m => m.statut_prospect !== 'refused')
+    .sort((a, b) => b.score - a.score)
   const best = sorted[0]
   const [selId, setSelId]         = useState(defaultOpen && best ? best.id : null)
   const [prospectData, setProspectData] = useState(null)
@@ -628,7 +626,7 @@ export default function MatchingsPageV2() {
       if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
-    const vals = Object.values(grouped)
+    const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))
     // Précalculer les valeurs de tri une seule fois par groupe
     for (const g of vals) {
       g._maxScore  = Math.max(...g.matchings.map(m => m.score_pondere ?? m.score))
