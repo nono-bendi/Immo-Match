@@ -201,7 +201,7 @@ function EmailModal({
                         {photos.map((url, i) => (
                           <button
                             key={i}
-                            onClick={() => { onPhotoChange(url); onRegeneratePreview(); setActiveTab('preview') }}
+                            onClick={() => { onPhotoChange(url); setActiveTab('preview') }}
                             className="shrink-0 rounded-lg overflow-hidden transition-all"
                             style={{
                               width: 88, height: 66,
