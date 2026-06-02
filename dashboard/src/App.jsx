@@ -63,13 +63,7 @@ function AppRoutes() {
   const [showTuto, setShowTuto] = useState(false)
   const [newBienId, setNewBienId] = useState(null)
 
-  // Afficher le tutorial dès que l'utilisateur est connu et qu'il ne l'a pas encore vu
-  useEffect(() => {
-    if (user) {
-      const key = `immoFlash_tuto_done_${user.id}`
-      setShowTuto(!window.localStorage.getItem(key))
-    }
-  }, [user?.id])
+  // Guide uniquement à la demande via le bouton Guide dans le header
 
   useEffect(() => {
     const handler = (e) => setNewBienId(e.detail.bienId)
