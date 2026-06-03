@@ -416,7 +416,9 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 </div>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.prospect_nom}</div>
+                <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {[group.prospect_titre, group.prospect_prenom, group.prospect_nom].filter(Boolean).join(' ')}
+                </div>
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
                   <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
@@ -631,7 +633,7 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))
