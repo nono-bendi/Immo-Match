@@ -276,8 +276,20 @@ function BienModal({ bien, onClose }) {
             </div>
           )}
 
-          {/* Analyse par bien */}
+          {/* Voir les prospects */}
           <div className="pt-2 border-t border-gray-100">
+            <button
+              onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}`) }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all mb-2"
+              style={{ background: '#f0f9ff', color: '#0369a1', border: '1px solid #bae6fd' }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/></svg>
+              Voir les prospects pour ce bien
+            </button>
+          </div>
+
+          {/* Analyse par bien */}
+          <div className="border-t border-gray-100 pt-2">
             <button
               onClick={lancerAnalyse}
               disabled={analyseState === 'loading'}
