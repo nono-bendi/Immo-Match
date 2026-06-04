@@ -7,7 +7,7 @@ import socket
 import zipfile
 import ftplib
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends
 
 from agencies_db import get_db_path, all_agencies
@@ -182,7 +182,7 @@ def sync_hektor_ftp(db_path: str = None):
                     f'Nouveau bien — {d["type_bien"]} a {d["ville"]}',
                     f'{d["nom_agence"]} · {d["prix"]}EUR - Ajoutez des notes avant analyse',
                     f'/nouveau-bien/{nouveau_id}',
-                    datetime.now().isoformat()
+                    datetime.now(timezone.utc).isoformat()
                 ))
                 imported += 1
 
@@ -234,7 +234,7 @@ def sync_hektor_ftp(db_path: str = None):
                 'Sync Hektor terminée',
                 f'{", ".join(parts)}, {updated} mis à jour',
                 '/biens',
-                datetime.now().isoformat()
+                datetime.now(timezone.utc).isoformat()
             ))
             conn.commit()
 
@@ -279,7 +279,7 @@ def sync_hektor_ftp(db_path: str = None):
         _conn.execute('''
             INSERT INTO notifications (type, title, message, link, created_at)
             VALUES (?, ?, ?, ?, ?)
-        ''', ('sync_error', 'Erreur sync FTP', msg, '/administration', datetime.now().isoformat()))
+        ''', ('sync_error', 'Erreur sync FTP', msg, '/administration', datetime.now(timezone.utc).isoformat()))
         _conn.commit()
         _conn.close()
     except Exception:

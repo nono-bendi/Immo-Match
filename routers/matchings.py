@@ -4,7 +4,7 @@ log = get_logger('matchings')
 import os
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 
 from config import _analyse_all_lock, COOLDOWN_SECONDS
@@ -1152,7 +1152,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
                 "Excellent match trouvé !",
                 f"Score {best_score} pour {prospect.get('nom')}",
                 "/matchings",
-                datetime.now().isoformat()
+                datetime.now(timezone.utc).isoformat()
             ))
             conn.commit()
 

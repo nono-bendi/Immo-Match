@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 
 from agencies_db import get_db_path
@@ -49,7 +49,7 @@ def add_notification(notif: dict, current_user: dict = Depends(get_current_user)
         notif.get('title'),
         notif.get('message'),
         notif.get('link'),
-        datetime.now().isoformat()
+        datetime.now(timezone.utc).isoformat()
     ))
     conn.commit()
     conn.close()
