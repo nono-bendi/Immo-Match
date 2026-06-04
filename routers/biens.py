@@ -440,7 +440,10 @@ def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
 
     conn.commit()
     conn.close()
-    track(current_user["id"], "bien_created", {"type": bien.get("type"), "ville": bien.get("ville"), "agency": current_user["agency_slug"]})
+    try:
+        track(current_user["id"], "bien_created", {"type": bien.get("type"), "ville": bien.get("ville"), "agency": current_user["agency_slug"]})
+    except Exception:
+        pass
     return {"message": "Bien ajouté avec succès"}
 
 

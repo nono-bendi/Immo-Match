@@ -238,7 +238,10 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     conn.commit()
     conn.close()
 
-    track(current_user["id"], "prospect_created", {"agency": current_user["agency_slug"]})
+    try:
+        track(current_user["id"], "prospect_created", {"agency": current_user["agency_slug"]})
+    except Exception:
+        pass
     return {"message": "Prospect ajouté avec succès", "id": prospect_id}
 
 

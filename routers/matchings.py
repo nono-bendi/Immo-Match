@@ -1156,10 +1156,26 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
             ))
             conn.commit()
 
+        # Si aucun matching inséré (tous sous le score minimum), insérer un sentinelle
+        # pour que le prospect ne reste pas en boucle dans "prospects_sans_matching"
+        if nb_matchings == 0:
+            try:
+                conn.execute(
+                    "INSERT INTO matchings (prospect_id, bien_id, score, recommandation, statut_prospect, date_analyse, date_creation) VALUES (?, NULL, 0, 'Aucun bien ne correspond au score minimum', 'no_match', ?, ?)",
+                    (prospect_id, now_iso, now_iso)
+                )
+                conn.commit()
+            except Exception:
+                pass
+
         conn.close()
 
         increment_monthly_usage(current_user["agency_slug"], "matchings_count")
-        track(current_user["id"], "matching_run", {"nb_matchings": nb_matchings, "prospect_id": prospect_id, "agency": current_user["agency_slug"]})
+        try:
+            track(current_user["id"], "matching_run", {"nb_matchings": nb_matchings, "prospect_id": prospect_id, "agency": current_user["agency_slug"]})
+        except Exception as track_err:
+            log.warning(f"track() non-fatal: {track_err}")
+
         return {
             "message": f"Analyse terminée, {nb_matchings} matching(s) trouvé(s)",
             "matchings_count": nb_matchings,
@@ -1167,6 +1183,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
         }
 
     except Exception as e:
+        log.error(f"[run_matching] prospect {prospect_id}: {e}")
         return {"error": "Une erreur interne est survenue"}
 
 
