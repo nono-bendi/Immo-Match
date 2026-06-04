@@ -125,7 +125,7 @@ function NewProspectPage() {
       if (saved) return JSON.parse(saved)
     } catch {}
     return {
-      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', domicile: '', showContact2: false,
+      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', nom2: '', prenom2: '', domicile: '', showContact2: false,
       bien: [], villes: [], quartiers: [], quartiersExclus: '',
       budget_max: '', surface_min: '', pieces_min: '',
       etat: [], expo: [], stationnement: '', exterieur: [],
@@ -178,20 +178,45 @@ function NewProspectPage() {
     { value: 'Lumineux', label: 'Lumineux (peu importe)' }
   ]
 
-  const exterieurOptions = [
-    { value: 'Balcon', label: 'Balcon' },
-    { value: 'Terrasse', label: 'Terrasse' },
-    { value: 'Jardin', label: 'Jardin' },
-    { value: 'Piscine', label: 'Piscine' },
-    { value: 'Vue mer', label: 'Vue mer' },
-    { value: 'Mer à pied', label: 'Mer à pied' },
-    { value: 'Commerces à pied', label: 'Commerces à pied' },
-    { value: 'Plage et commerces à pied', label: 'Plage et commerces à pied' },
-    { value: 'Tout à pied', label: 'Tout à pied' },
-    { value: 'Au calme', label: 'Au calme' },
-    { value: 'Cuisine fermée', label: 'Cuisine fermée' },
-    { value: 'Contemporain', label: 'Contemporain' },
+  const exterieurGroups = [
+    {
+      label: 'Extérieur',
+      options: [
+        { value: 'Balcon', label: 'Balcon' },
+        { value: 'Terrasse', label: 'Terrasse' },
+        { value: 'Très grande terrasse', label: 'Très grande terrasse' },
+        { value: 'Rez-de-jardin', label: 'Rez-de-jardin' },
+        { value: 'Pas obligatoire', label: 'Pas obligatoire' },
+      ]
+    },
+    {
+      label: 'Environnement',
+      options: [
+        { value: 'Plages à pieds', label: 'Plages à pieds' },
+        { value: 'Commerces à pieds', label: 'Commerces à pieds' },
+        { value: 'Plages et commerces à pieds', label: 'Plages et commerces à pieds' },
+        { value: 'Au calme', label: 'Calme' },
+        { value: 'Calme absolu', label: 'Calme absolu' },
+        { value: 'Piscine', label: 'Piscine' },
+        { value: 'Vue mer souhaitée', label: 'Vue mer souhaitée' },
+        { value: 'Vue mer indispensable', label: 'Vue mer indispensable' },
+      ]
+    },
+    {
+      label: 'Prestations',
+      options: [
+        { value: 'Cuisine fermée', label: 'Cuisine fermée' },
+        { value: 'Mini 1 chambre de plain-pied', label: 'Min. 1 chambre de plain-pied' },
+        { value: 'Tout plain-pied', label: 'Tout plain-pied' },
+        { value: 'Accès PMR', label: 'Accès PMR' },
+        { value: 'Contemporain', label: 'Contemporain' },
+        { value: 'Atypique', label: 'Atypique' },
+        { value: 'Ancien', label: 'Ancien' },
+      ]
+    },
   ]
+  // Toutes les options à plat pour la compatibilité avec handleCSVToggle
+  const exterieurOptions = exterieurGroups.flatMap(g => g.options)
 
   const quartiersOptions = searchConfig.quartiers.map(q => ({ value: q, label: q }))
 
@@ -604,6 +629,18 @@ function NewProspectPage() {
             ) : (
               <>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Prénom conjoint·e</label>
+                  <input type="text" value={formData.prenom2} onChange={(e) => handleChange('prenom2', e.target.value)}
+                    placeholder="Prénom"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom conjoint·e</label>
+                  <input type="text" value={formData.nom2} onChange={(e) => handleChange('nom2', e.target.value)}
+                    placeholder="Nom de famille"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]" />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone 2</label>
                   <input type="tel" value={formData.telephone2} onChange={(e) => handleChange('telephone2', e.target.value)}
                     placeholder="06 98 76 54 32"
@@ -939,25 +976,29 @@ function NewProspectPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Extérieur souhaité</label>
-              <div className="flex flex-wrap gap-2">
-                {exterieurOptions.map(option => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handleMultiSelect('exterieur', option.value)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      formData.exterieur.includes(option.value)
-                        ? 'text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                    style={formData.exterieur.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
+            <div className="space-y-3">
+              {exterieurGroups.map(group => (
+                <div key={group.label}>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{group.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.options.map(option => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handleCSVToggle('exterieur', option.value)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          (formData.exterieur || '').includes(option.value)
+                            ? 'text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                        style={(formData.exterieur || '').includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div>

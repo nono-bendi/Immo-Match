@@ -99,6 +99,14 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
                   <input type="email" value={prospect.mail || ''} onChange={e => onChange('mail', e.target.value)} className={INP} />
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Prénom conjoint·e</label>
+                  <input type="text" value={prospect.prenom2 || ''} onChange={e => onChange('prenom2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Nom conjoint·e</label>
+                  <input type="text" value={prospect.nom2 || ''} onChange={e => onChange('nom2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone 2</label>
                   <input type="tel" value={prospect.telephone2 || ''} onChange={e => onChange('telephone2', e.target.value)} placeholder="Optionnel" className={INP} />
                 </div>
@@ -412,6 +420,9 @@ function ClientsPage() {
           <div>
             <p className="font-semibold text-[#1E3A5F] flex items-center gap-2">
               {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
+              {(prospect.prenom2 || prospect.nom2) && (
+                <span className="text-xs font-normal text-gray-400">&amp; {[prospect.prenom2, prospect.nom2].filter(Boolean).join(' ')}</span>
+              )}
               {!!prospect.demo && (
                 <span className="text-[10px] font-medium text-gray-400 border border-dashed border-gray-300 rounded px-1.5 py-0.5 leading-tight">
                   exemple
