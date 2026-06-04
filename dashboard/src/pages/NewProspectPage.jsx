@@ -185,6 +185,8 @@ function NewProspectPage() {
     { value: 'Piscine', label: 'Piscine' },
     { value: 'Vue mer', label: 'Vue mer' },
     { value: 'Mer à pied', label: 'Mer à pied' },
+    { value: 'Commerces à pied', label: 'Commerces à pied' },
+    { value: 'Plage et commerces à pied', label: 'Plage et commerces à pied' },
     { value: 'Tout à pied', label: 'Tout à pied' },
     { value: 'Au calme', label: 'Au calme' },
     { value: 'Cuisine fermée', label: 'Cuisine fermée' },
@@ -205,6 +207,7 @@ function NewProspectPage() {
     { value: 'Garage', label: 'Garage' },
     { value: 'Parking', label: 'Parking' },
     { value: 'Box', label: 'Box' },
+    { value: 'Cave', label: 'Cave' },
     { value: 'Obligatoire', label: 'Obligatoire (type indifférent)' },
     { value: 'Pas nécessaire', label: 'Pas nécessaire' }
   ]
@@ -235,6 +238,17 @@ function NewProspectPage() {
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
+
+  const handleCSVToggle = (field, value) => {
+    setFormData(prev => {
+      const current = prev[field] ? prev[field].split(',').map(v => v.trim()).filter(Boolean) : []
+      const idx = current.indexOf(value)
+      if (idx >= 0) current.splice(idx, 1)
+      else current.push(value)
+      return { ...prev, [field]: current.join(',') }
+    })
+  }
+  const isCSVSelected = (field, value) => (formData[field] || '').split(',').map(v => v.trim()).includes(value)
 
   const handleMultiSelect = (field, value) => {
     setFormData(prev => {
@@ -968,19 +982,19 @@ function NewProspectPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Copropriété</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Copropriété <span className="text-xs text-gray-400 font-normal">— sélection multiple possible</span></label>
               <div className="flex flex-wrap gap-2">
                 {coproOptions.map(option => (
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => handleChange('copro', formData.copro === option.value ? '' : option.value)}
+                    onClick={() => handleCSVToggle('copro', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      formData.copro === option.value
+                      isCSVSelected('copro', option.value)
                         ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
-                    style={formData.copro === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                    style={isCSVSelected('copro', option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -1043,19 +1057,19 @@ function NewProspectPage() {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Destination du bien</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Destination du bien <span className="text-xs text-gray-400 font-normal">— sélection multiple possible</span></label>
               <div className="flex flex-wrap gap-2">
                 {destinationOptions.map(option => (
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => handleChange('destination', formData.destination === option.value ? '' : option.value)}
+                    onClick={() => handleCSVToggle('destination', option.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      formData.destination === option.value
+                      isCSVSelected('destination', option.value)
                         ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
-                    style={formData.destination === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                    style={isCSVSelected('destination', option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>

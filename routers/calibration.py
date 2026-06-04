@@ -151,7 +151,8 @@ def set_statut_prospect(matching_id: int, body: dict, current_user: dict = Depen
     """Marque un matching comme refusé ou réinitialise"""
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     statut = body.get("statut")
-    conn.execute("UPDATE matchings SET statut_prospect = ? WHERE id = ?", (statut, matching_id))
+    motif = body.get("motif_refus")
+    conn.execute("UPDATE matchings SET statut_prospect = ?, motif_refus = ? WHERE id = ?", (statut, motif, matching_id))
     conn.commit()
     conn.close()
     return {"success": True, "statut_prospect": statut}

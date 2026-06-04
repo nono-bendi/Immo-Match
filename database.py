@@ -300,4 +300,11 @@ def init_db(db_path: str = "immomatch.db"):
     conn.execute("UPDATE matchings SET date_creation = date_analyse WHERE date_creation IS NULL")
     conn.commit()
 
+    # Migration : motif_refus
+    try:
+        conn.execute("ALTER TABLE matchings ADD COLUMN motif_refus TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.close()

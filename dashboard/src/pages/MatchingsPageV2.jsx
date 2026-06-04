@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -187,7 +187,7 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onRefuse }) {
   const c = sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -212,15 +212,65 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
           </div>
         </div>
       </button>
-      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 34, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
         onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(125,211,252,0.12)':'#eff6ff'; e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
         onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
       ><ExternalLink size={12} /></button>
+      <button onClick={e => { e.stopPropagation(); onRefuse() }} title="Refuser ce bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+        onMouseEnter={e => { e.currentTarget.style.background='#fef2f2'; e.currentTarget.style.color='#ef4444'; e.currentTarget.style.borderColor='#fecaca' }}
+        onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
+      ><X size={12} /></button>
     </div>
   )
 }
 
 // ─── RecoPostit — variantes de couleur ─────────────────────────────────────────
+const MOTIFS_REFUS = [
+  'Pas secteur calme',
+  'Hors secteur',
+  'Budget insuffisant',
+  'Pas d\'extérieur',
+  'Mauvais état / travaux trop importants',
+  'Ne correspond pas aux critères principaux',
+]
+
+function RefuseModal({ match, onConfirm, onClose }) {
+  const [motif, setMotif] = useState('')
+  const [custom, setCustom] = useState('')
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 420, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.2)' }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 4 }}>Refuser ce matching</div>
+        <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
+          {match.bien_type} à {match.bien_ville} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Motif (optionnel)</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+          {MOTIFS_REFUS.map(m => (
+            <button key={m} onClick={() => setMotif(motif === m ? '' : m)}
+              style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', transition: 'all 0.15s',
+                borderColor: motif === m ? '#ef4444' : '#e2e8f0',
+                background: motif === m ? '#fef2f2' : '#f8fafc',
+                color: motif === m ? '#dc2626' : '#64748b' }}
+            >{m}</button>
+          ))}
+        </div>
+        <input value={custom} onChange={e => { setCustom(e.target.value); setMotif('') }}
+          placeholder="Ou précisez un autre motif..."
+          style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', marginBottom: 20, boxSizing: 'border-box' }}
+        />
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+          <button onClick={() => onConfirm(motif || custom || null)}
+            style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: '#ef4444', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            Refuser ce bien
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function RecoPostit({ text, paletteIdx = 0 }) {
   const p = postitPal(paletteIdx)
   return (
@@ -474,6 +524,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
                 emailEnvoye={m.date_email_envoye}
+                onRefuse={() => onRefuse(m)}
               />
             ))}
             {sorted.length > 3 && (
@@ -529,6 +580,7 @@ export default function MatchingsPageV2() {
   const [currentProspectIndex, setCurrentProspectIndex] = useState(0)
   const [currentProspectName, setCurrentProspectName]   = useState('')
   const cancelRef  = useRef(false)
+  const [refuseModal, setRefuseModal] = useState(null) // { match }
 
   const [emailModal, setEmailModal]     = useState({ isOpen: false, type: 'confirm', data: null, isLoading: false })
   const [pendingEmail, setPendingEmail] = useState(null)
@@ -612,10 +664,25 @@ export default function MatchingsPageV2() {
   useEffect(() => { if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail) sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent)) }, [emailContent])
   const closeEmail = () => { setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false }); setPendingEmail(null); setPreviewHtml(null) }
 
-  const handleRefuse = useCallback(async (match) => {
-    const refused = match.statut_prospect === 'refused'
-    try { await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: refused ? null : 'refused' }) }); setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: refused ? null : 'refused' } : m)) } catch {}
+  const handleRefuse = useCallback((match) => {
+    if (match.statut_prospect === 'refused') {
+      apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: null, motif_refus: null }) })
+        .then(() => setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: null, motif_refus: null } : m)))
+        .catch(() => {})
+    } else {
+      setRefuseModal({ match })
+    }
   }, [])
+
+  const confirmRefuse = async (motif) => {
+    if (!refuseModal) return
+    const { match } = refuseModal
+    try {
+      await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: 'refused', motif_refus: motif || null }) })
+      setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: 'refused', motif_refus: motif } : m))
+    } catch {}
+    setRefuseModal(null)
+  }
 
 
   const { filtered, groups } = useMemo(() => {
@@ -664,6 +731,11 @@ export default function MatchingsPageV2() {
 
     <div style={{ maxWidth: 1020, margin: '0 auto', position: 'relative', zIndex: 1 }}>
       <Confetti show={showConfetti} />
+
+      {/* Modale refus avec motif */}
+      {refuseModal && (
+        <RefuseModal match={refuseModal.match} onConfirm={confirmRefuse} onClose={() => setRefuseModal(null)} />
+      )}
       <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} photos={pendingEmail ? (pendingEmail.match.bien_photos || '').split('|').map(u => u.trim()).filter(u => /^https?:\/\//i.test(u)) : []} selectedPhoto={selectedPhoto} onPhotoChange={(url) => { setSelectedPhoto(url); if (pendingEmail) loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent, url) }} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
 

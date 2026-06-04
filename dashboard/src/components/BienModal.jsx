@@ -164,7 +164,17 @@ function BienModal({ bien, onClose }) {
 
           {/* Détails */}
           <div className="grid grid-cols-2 gap-3">
-            {bien.quartier && <div className="flex items-center gap-2 text-sm"><MapPin size={14} className="text-gray-400" /><span className="text-gray-600">{bien.quartier}</span></div>}
+            {(bien.quartier || bien.ville) && (
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin size={14} className="text-gray-400 flex-shrink-0" />
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([bien.quartier, bien.ville].filter(Boolean).join(', '))}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-700 hover:underline"
+                  onClick={e => e.stopPropagation()}
+                >{[bien.quartier, bien.ville].filter(Boolean).join(', ')}</a>
+              </div>
+            )}
             {bien.etat && <div className="flex items-center gap-2 text-sm"><Building2 size={14} className="text-gray-400" /><span className="text-gray-600">{bien.etat}</span></div>}
             {bien.exposition && <div className="flex items-center gap-2 text-sm"><Compass size={14} className="text-gray-400" /><span className="text-gray-600">{bien.exposition}</span></div>}
             {bien.stationnement && <div className="flex items-center gap-2 text-sm"><Car size={14} className="text-gray-400" /><span className="text-gray-600">{bien.stationnement}</span></div>}

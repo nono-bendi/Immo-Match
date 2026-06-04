@@ -411,14 +411,17 @@ function ClientsPage() {
           </div>
           <div>
             <p className="font-semibold text-[#1E3A5F] flex items-center gap-2">
-              {prospect.nom || 'Sans nom'}
+              {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
               {!!prospect.demo && (
                 <span className="text-[10px] font-medium text-gray-400 border border-dashed border-gray-300 rounded px-1.5 py-0.5 leading-tight">
                   exemple
                 </span>
               )}
             </p>
-            <p className="text-xs text-gray-400">{prospect.mail || '-'}</p>
+            <p className="text-xs text-gray-400">
+              {prospect.mail || '-'}
+              {prospect.date_ajout && <span className="ml-2 text-gray-300">· {new Date(prospect.date_ajout).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
+            </p>
           </div>
         </div>
       </td>
