@@ -184,7 +184,6 @@ function NewProspectPage() {
       options: [
         { value: 'Balcon', label: 'Balcon' },
         { value: 'Terrasse', label: 'Terrasse' },
-        { value: 'Très grande terrasse', label: 'Très grande terrasse' },
         { value: 'Rez-de-jardin', label: 'Rez-de-jardin' },
         { value: 'Pas obligatoire', label: 'Pas obligatoire' },
       ]
@@ -192,23 +191,20 @@ function NewProspectPage() {
     {
       label: 'Environnement',
       options: [
-        { value: 'Plages à pieds', label: 'Plages à pieds' },
-        { value: 'Commerces à pieds', label: 'Commerces à pieds' },
-        { value: 'Plages et commerces à pieds', label: 'Plages et commerces à pieds' },
-        { value: 'Au calme', label: 'Calme' },
-        { value: 'Calme absolu', label: 'Calme absolu' },
-        { value: 'Piscine', label: 'Piscine' },
+        { value: 'Au calme', label: 'Au calme' },
         { value: 'Vue mer souhaitée', label: 'Vue mer souhaitée' },
         { value: 'Vue mer indispensable', label: 'Vue mer indispensable' },
+        { value: 'Plages à pieds', label: 'Plages à pieds' },
+        { value: 'Commerces à pieds', label: 'Commerces à pieds' },
+        { value: 'Piscine', label: 'Piscine' },
       ]
     },
     {
       label: 'Prestations',
       options: [
-        { value: 'Cuisine fermée', label: 'Cuisine fermée' },
-        { value: 'Mini 1 chambre de plain-pied', label: 'Min. 1 chambre de plain-pied' },
-        { value: 'Tout plain-pied', label: 'Tout plain-pied' },
+        { value: 'Plain-pied', label: 'Plain-pied' },
         { value: 'Accès PMR', label: 'Accès PMR' },
+        { value: 'Cuisine fermée', label: 'Cuisine fermée' },
         { value: 'Contemporain', label: 'Contemporain' },
         { value: 'Atypique', label: 'Atypique' },
         { value: 'Ancien', label: 'Ancien' },
