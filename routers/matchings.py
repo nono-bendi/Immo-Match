@@ -17,6 +17,32 @@ from analytics import track
 router = APIRouter()
 
 
+def _charger_motifs_refus(db_path):
+    """Retourne {bien_id: [motif1, motif2, ...]} pour les biens refusés avec motif."""
+    conn = sqlite3.connect(db_path)
+    rows = conn.execute(
+        "SELECT bien_id, motif_refus FROM matchings "
+        "WHERE statut_prospect = 'refused' AND motif_refus IS NOT NULL AND bien_id IS NOT NULL"
+    ).fetchall()
+    conn.close()
+    motifs = {}
+    for bien_id, motif in rows:
+        if bien_id not in motifs:
+            motifs[bien_id] = []
+        if motif not in motifs[bien_id]:
+            motifs[bien_id].append(motif)
+    return motifs
+
+
+def _enrichir_biens(biens, motifs_map):
+    """Ajoute motifs_refus_agents à chaque bien depuis le map."""
+    for b in biens:
+        m = motifs_map.get(b['id'])
+        if m:
+            b['motifs_refus_agents'] = m
+    return biens
+
+
 # ============================================================
 # FONCTIONS PARTAGÉES
 # ============================================================
@@ -1045,6 +1071,9 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
     # Limiter au max configuré, triés par score objectif Python (budget+type+ville)
     biens_filtres = trier_biens_par_score_objectif(prospect, biens_filtres, max_biens)
 
+    # Enrichir avec les motifs de refus des autres prospects
+    _enrichir_biens(biens_filtres, _charger_motifs_refus(db_path))
+
     try:
         if not os.getenv("ANTHROPIC_API_KEY"):
             return {"error": "Clé API Anthropic non configurée"}
@@ -1178,12 +1207,13 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
     if not os.getenv("ANTHROPIC_API_KEY"):
         return {"error": "Clé API Anthropic non configurée"}
 
-    # Charger les refus une seule fois
+    # Charger les refus et motifs une seule fois
     conn = sqlite3.connect(db_path)
     refused_map = {(row[0], row[1]) for row in conn.execute(
         "SELECT prospect_id, bien_id FROM matchings WHERE statut_prospect = 'refused'"
     ).fetchall()}
     conn.close()
+    motifs_map = _charger_motifs_refus(db_path)
 
     total_matchings = 0
     prospects_analyses = 0
@@ -1210,6 +1240,7 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
 
             # Limiter au max configuré, triés par score objectif Python (budget+type+ville)
             biens_filtres = trier_biens_par_score_objectif(prospect, biens_filtres, max_biens)
+            _enrichir_biens(biens_filtres, motifs_map)
 
             try:
                 resultats = scorer_biens_hybride(prospect, biens_filtres, model=settings['model'], agency_slug=current_user["agency_slug"])

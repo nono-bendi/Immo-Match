@@ -238,7 +238,7 @@ def construire_contexte_bien(bien):
 - Orientation : {orientation_str}
 - DPE : {dpe_str} | GES : {ges_str}
 - Description : {(bien.get('description') or 'Aucune')[:1200]}
-- Points négatifs (usage interne) : {(bien.get('defauts') or 'Aucun renseigné')}"""
+- Points négatifs (usage interne) : {(bien.get('defauts') or 'Aucun renseigné')}{''.join(chr(10) + '- Signalements agents (refus motivés) : ' + m for m in (bien.get('motifs_refus_agents') or []))}"""
 
 
 def _safe_field(text, max_length=300):
