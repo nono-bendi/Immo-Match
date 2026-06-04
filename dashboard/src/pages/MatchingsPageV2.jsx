@@ -463,7 +463,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
           {/* ── CENTRE — ScoreRing ── */}
           <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '10px 10px', background: _mid, position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
-            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={104} />}</div>
+            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={window.innerWidth >= 1400 ? 140 : window.innerWidth >= 1200 ? 124 : 104} />}</div>
           </div>
 
           {/* ── DROITE — GemBadges ── */}
