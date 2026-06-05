@@ -10,7 +10,7 @@ TODAY = date.today().isoformat()
 
 # ── Pages publiques du landing ────────────────────────────────────────────────
 _PAGES = [
-    ("",                    "1.0", "weekly"),
+    ("/",                   "1.0", "weekly"),
     ("/demarrer",           "0.9", "monthly"),
     ("/showcase",           "0.8", "monthly"),
     ("/faq",                "0.7", "monthly"),
