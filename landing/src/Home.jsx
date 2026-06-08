@@ -223,7 +223,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'outline',
       featured: false,
-      stripeUrl: 'https://buy.stripe.com/test_5kQfZj4ZK7Pu1xi2qacAo04',
+      stripeUrl: 'https://buy.stripe.com/5kQ4gB0KYbmsggA4Mk0Fi01',
     },
     {
       name: 'Pro',
@@ -265,7 +265,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'outline',
       featured: false,
-      stripeUrl: 'https://buy.stripe.com/test_cNi4gBcscc5KcbW4yicAo03',
+      stripeUrl: 'https://buy.stripe.com/fZu3cxdxK76c5BW1A80Fi00',
     },
   ]
 
