@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 PLANS: dict[str, dict] = {
     "agence": {
         "plan_id": "agence",
-        "plan_name": "Plan Agence",
+        "plan_name": "Plan Essentiel",
         "price_eur_month": 49,
         "max_agents": 1,
         "max_biens": 50,
@@ -23,7 +23,7 @@ PLANS: dict[str, dict] = {
     },
     "cabinet": {
         "plan_id": "cabinet",
-        "plan_name": "Plan Cabinet",
+        "plan_name": "Plan Pro",
         "price_eur_month": 89,
         "max_agents": 3,
         "max_biens": 200,

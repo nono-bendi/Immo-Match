@@ -419,9 +419,9 @@ export default function AdministrationPage() {
   const roleBadgeColor = r => r === 'admin' ? 'bg-amber-100 text-amber-700' : r === 'demo' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
 
   const PLAN_LABELS = {
-    agence:  { label: 'Plan Agence',  price: '49€/mois',  color: 'bg-sky-100 text-sky-700 border-sky-200' },
-    cabinet: { label: 'Plan Cabinet', price: '89€/mois',  color: 'bg-violet-100 text-violet-700 border-violet-200' },
-    reseau:  { label: 'Plan Réseau',  price: '179€/mois', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+    agence:  { label: 'Plan Essentiel', price: '49€/mois',  color: 'bg-sky-100 text-sky-700 border-sky-200' },
+    cabinet: { label: 'Plan Pro',       price: '89€/mois',  color: 'bg-violet-100 text-violet-700 border-violet-200' },
+    reseau:  { label: 'Plan Réseau',    price: '179€/mois', color: 'bg-amber-100 text-amber-700 border-amber-200' },
   }
   const planInfo = PLAN_LABELS[user?.agency_plan_id] || PLAN_LABELS.agence
 

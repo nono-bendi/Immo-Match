@@ -208,7 +208,7 @@ export default function Home() {
   /* ── PRICING DATA ── */
   const plans = [
     {
-      name: 'Agence',
+      name: 'Essentiel',
       price: '49',
       subtitle: 'L\'agence solo qui veut démarrer',
       features: [
@@ -226,7 +226,7 @@ export default function Home() {
       stripeUrl: 'https://buy.stripe.com/test_5kQfZj4ZK7Pu1xi2qacAo04',
     },
     {
-      name: 'Cabinet',
+      name: 'Pro',
       price: '89',
       subtitle: 'L\'agence active avec une équipe',
       badge: 'Recommandé',
