@@ -243,7 +243,7 @@ export default function Home() {
       cta: 'Commencer',
       ctaStyle: 'filled',
       featured: true,
-      stripeUrl: 'https://buy.stripe.com/test_6oUaEZ77S9XCgsc9SCcAo02',
+      stripeUrl: 'https://buy.stripe.com/9B65kFdxKaio4xS3Ig0Fi02',
     },
     {
       name: 'Réseau',
