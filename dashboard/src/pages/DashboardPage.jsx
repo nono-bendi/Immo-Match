@@ -142,7 +142,11 @@ export default function DashboardPage() {
       try {
         const res = await apiFetch(`/matching/run/${prospects[i].id}`, { method: 'POST' })
         const data = await res.json()
-        if (data.error) errMsg = data.error
+        if (data.error) {
+          errMsg = data.error
+        } else if ((data.matchings_count ?? 0) === 0) {
+          errMsg = `Aucun bien ne correspond aux critères de ${prospects[i].nom} (localisation, budget, type).`
+        }
       } catch {
         errMsg = 'Erreur réseau'
       }
@@ -151,7 +155,7 @@ export default function DashboardPage() {
       if (errMsg) {
         localErrors.push({ nom: prospects[i].nom, msg: errMsg })
         setAnalyzeProgress(p => ({ ...p, errors: [...localErrors], showErrors: true }))
-        await new Promise(r => setTimeout(r, 3000))
+        await new Promise(r => setTimeout(r, 4000))
       }
     }
     // Retirer les prospects traités du bandeau localement
@@ -159,7 +163,8 @@ export default function DashboardPage() {
     setAnalyzeProgress(p => ({ ...p, done: prospects.length }))
     await new Promise(r => setTimeout(r, 800))
     setAnalyzing(false)
-    if (localErrors.length < prospects.length) navigate('/matchings')
+    const nbSuccess = prospects.length - localErrors.length
+    if (nbSuccess > 0) navigate('/matchings')
   }
 
   const openBien = (id) => {
@@ -333,7 +338,7 @@ export default function DashboardPage() {
                 const isTop = m.score >= 85
                 return (
                   <div key={m.id} className="dash-match-row"
-                    onClick={() => navigate('/matchings', { state: { prospectId: m.prospect_id } })}
+                    onClick={() => navigate(`/matchings?prospect=${m.prospect_id}`)}
                     style={{
                       padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 16,
                       borderBottom: i < 4 ? '1px solid #f8fafc' : 'none',
