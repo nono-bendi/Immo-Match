@@ -964,6 +964,29 @@ def creer_snapshot(body: dict, _user=Depends(require_not_demo), current_user: di
     }
 
 
+class StatutProspectBody(dict):
+    pass
+
+from pydantic import BaseModel
+from typing import Optional
+
+class StatutProspectUpdate(BaseModel):
+    statut: Optional[str] = None
+    motif_refus: Optional[str] = None
+
+@router.patch("/matchings/{matching_id}/statut-prospect")
+def update_statut_prospect(matching_id: int, body: StatutProspectUpdate, current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        "UPDATE matchings SET statut_prospect = ?, motif_refus = ? WHERE id = ?",
+        (body.statut, body.motif_refus, matching_id)
+    )
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
+
 @router.get("/historique")
 def get_historique(current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
@@ -1316,6 +1339,46 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
             "prospects_sans_biens": prospects_sans_biens,
             "total_matchings": total_matchings
         }
+    }
+
+
+@router.get("/matchings/preview-pour-bien/{bien_id}")
+def preview_prospects_pour_bien(bien_id: int, current_user: dict = Depends(get_current_user)):
+    """Retourne les prospects compatibles avec un bien via préfiltre rapide (sans IA)."""
+    db_path = get_db_path(current_user["agency_slug"])
+    settings = get_settings_values(db_path)
+    budget_min = int(settings.get("budget_tolerance_min", 70))
+    budget_max = int(settings.get("budget_tolerance_max", 130))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
+    if not bien:
+        conn.close()
+        return {"error": "Bien non trouvé"}
+    bien = dict(bien)
+    prospects = [dict(r) for r in conn.execute(
+        "SELECT * FROM prospects WHERE archive = 0 OR archive IS NULL"
+    ).fetchall()]
+    conn.close()
+
+    compatibles = prefiltre_prospects_pour_bien(bien, prospects, budget_min, budget_max)
+    return {
+        "nb_compatibles": len(compatibles),
+        "prospects": [
+            {
+                "id": p["id"],
+                "nom": p.get("nom", ""),
+                "prenom": p.get("prenom", ""),
+                "telephone": p.get("telephone", ""),
+                "mail": p.get("mail", ""),
+                "budget_max": p.get("budget_max"),
+                "bien": p.get("bien", ""),
+                "villes": p.get("villes", ""),
+                "destination": p.get("destination", ""),
+            }
+            for p in compatibles
+        ]
     }
 
 
