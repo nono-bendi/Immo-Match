@@ -320,6 +320,200 @@ def rapport_mensuel(mois: Optional[str] = None, current_user: dict = Depends(get
     return HTMLResponse(content=html)
 
 
+@router.get("/rapport/bien/{bien_id}", response_class=HTMLResponse)
+def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_param)):
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    conn.row_factory = sqlite3.Row
+
+    bien = conn.execute("SELECT * FROM biens WHERE id = ?", (bien_id,)).fetchone()
+    if not bien:
+        conn.close()
+        return HTMLResponse(content="<h1>Bien introuvable</h1>", status_code=404)
+
+    matchings = conn.execute('''
+        SELECT m.score, m.points_forts, m.recommandation, m.date_analyse,
+               p.nom as prospect_nom, p.telephone, p.mail, p.budget_max,
+               p.bien as prospect_type_recherche, p.villes as prospect_villes
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        WHERE m.bien_id = ? AND m.score IS NOT NULL
+          AND (m.statut_prospect IS NULL OR m.statut_prospect != 'refused')
+          AND (p.archive = 0 OR p.archive IS NULL)
+        ORDER BY m.score DESC
+    ''', (bien_id,)).fetchall()
+
+    conn.close()
+
+    b = dict(bien)
+    now = datetime.now()
+
+    def fmt_prix(v):
+        if not v: return '—'
+        return f"{int(v):,}".replace(',', ' ') + ' €'
+
+    def score_color(s):
+        if s >= 75: return '#10b981'
+        if s >= 50: return '#f59e0b'
+        return '#ef4444'
+
+    def score_label(s):
+        if s >= 75: return 'Excellent'
+        if s >= 50: return 'Compatible'
+        return 'Partiel'
+
+    nb_exc = sum(1 for m in matchings if m['score'] >= 75)
+    best = matchings[0]['score'] if matchings else 0
+    photo_principale = (b.get('photos') or '').split('|')[0].strip()
+
+    prospect_rows = ''
+    for i, m in enumerate(matchings):
+        md = dict(m)
+        sc = md['score']
+        pts_forts = (md.get('points_forts') or '').strip()
+        forts_html = f'<div class="pf-text">{pts_forts}</div>' if pts_forts else ''
+        prospect_rows += f'''
+        <div class="prospect-card">
+          <div class="prospect-header" style="border-left:4px solid {score_color(sc)}">
+            <div class="prospect-rank">#{i+1}</div>
+            <div class="prospect-info">
+              <div class="prospect-name">{md["prospect_nom"]}</div>
+              <div class="prospect-sub">Budget : {fmt_prix(md["budget_max"])} · Recherche : {md["prospect_type_recherche"] or "—"}</div>
+              <div class="prospect-sub">{md["prospect_villes"] or ""}</div>
+            </div>
+            <div class="score-block" style="background:{score_color(sc)}">
+              <div class="score-num">{sc}</div>
+              <div class="score-lbl">{score_label(sc)}</div>
+            </div>
+          </div>
+          {f'<div class="prospect-body">{forts_html}</div>' if forts_html else ''}
+        </div>'''
+
+    photo_html = f'<img src="{photo_principale}" class="bien-hero-photo" alt="" />' if photo_principale else ''
+
+    html = f'''<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapport bien — {b.get("type","Bien")} à {b.get("ville","")}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    * {{ margin:0; padding:0; box-sizing:border-box; }}
+    body {{ font-family:'Inter',sans-serif; background:#f1f5f9; color:#1e293b; padding:40px 20px; }}
+    .page {{ max-width:900px; margin:0 auto; }}
+    .header {{ background:linear-gradient(135deg,#1E3A5F 0%,#2D5A8A 100%); padding:48px 56px 40px; color:white; border-radius:20px 20px 0 0; }}
+    .header-top {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }}
+    .logo {{ font-size:22px; font-weight:800; letter-spacing:-.04em; }}
+    .logo span {{ color:#60a5fa; }}
+    .badge {{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; }}
+    .bien-title {{ font-size:36px; font-weight:800; margin-bottom:8px; }}
+    .bien-sub {{ opacity:.8; font-size:15px; display:flex; gap:20px; flex-wrap:wrap; margin-bottom:6px; }}
+    .card {{ background:white; border-radius:0 0 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.08); overflow:hidden; }}
+    .summary-bar {{ display:grid; grid-template-columns:repeat(3,1fr); background:#f8fafc; border-bottom:1px solid #e2e8f0; }}
+    .summary-item {{ padding:24px 32px; text-align:center; border-right:1px solid #e2e8f0; }}
+    .summary-item:last-child {{ border-right:none; }}
+    .summary-value {{ font-size:32px; font-weight:800; color:#1E3A5F; }}
+    .summary-label {{ font-size:11px; color:#64748b; margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.05em; }}
+    .bien-hero-photo {{ width:100%; max-height:260px; object-fit:cover; display:block; }}
+    .bien-detail {{ padding:28px 40px; border-bottom:1px solid #f1f5f9; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }}
+    .detail-item {{ background:#f8fafc; border-radius:10px; padding:12px 16px; }}
+    .detail-label {{ font-size:11px; color:#94a3b8; font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }}
+    .detail-val {{ font-size:15px; font-weight:700; color:#1e293b; }}
+    .desc-section {{ padding:24px 40px; border-bottom:1px solid #f1f5f9; }}
+    .section-title {{ font-size:16px; font-weight:700; color:#1E3A5F; margin-bottom:16px; display:flex; align-items:center; gap:10px; }}
+    .section-title::before {{ content:""; display:block; width:4px; height:18px; background:linear-gradient(#1E3A5F,#60a5fa); border-radius:2px; }}
+    .desc-text {{ font-size:13px; color:#475569; line-height:1.7; white-space:pre-wrap; }}
+    .prospects-section {{ padding:32px 40px 40px; }}
+    .prospect-card {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:14px; margin-bottom:12px; overflow:hidden; }}
+    .prospect-header {{ display:flex; align-items:center; gap:16px; padding:16px 20px; background:white; }}
+    .prospect-rank {{ font-size:13px; font-weight:700; color:#94a3b8; width:28px; flex-shrink:0; }}
+    .prospect-info {{ flex:1; min-width:0; }}
+    .prospect-name {{ font-size:15px; font-weight:700; color:#1E3A5F; }}
+    .prospect-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
+    .score-block {{ padding:10px 16px; border-radius:10px; text-align:center; color:white; flex-shrink:0; }}
+    .score-num {{ font-size:24px; font-weight:800; line-height:1; }}
+    .score-lbl {{ font-size:10px; font-weight:600; opacity:.85; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }}
+    .prospect-body {{ padding:12px 20px; border-top:1px solid #f1f5f9; }}
+    .pf-text {{ font-size:13px; color:#374151; line-height:1.6; background:#f0fdf4; padding:10px 14px; border-radius:8px; }}
+    .no-match {{ padding:48px; text-align:center; color:#94a3b8; }}
+    .footer {{ text-align:center; color:#94a3b8; font-size:12px; padding:24px; }}
+    .toolbar {{ max-width:900px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center; }}
+    .toolbar-btn {{ display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:.15s; }}
+    .btn-back {{ background:white; color:#1E3A5F; box-shadow:0 1px 4px rgba(0,0,0,.1); }}
+    .btn-back:hover {{ background:#f1f5f9; }}
+    .btn-pdf {{ background:#1E3A5F; color:white; box-shadow:0 2px 8px rgba(30,58,95,.3); }}
+    .btn-pdf:hover {{ background:#2D5A8A; }}
+    .accroche {{ background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1px solid #bae6fd; border-radius:14px; padding:20px 24px; margin:0 40px 24px; }}
+    .accroche-title {{ font-size:15px; font-weight:700; color:#0369a1; margin-bottom:6px; }}
+    .accroche-text {{ font-size:13px; color:#0c4a6e; line-height:1.6; }}
+    @media print {{ * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }} body {{ background:white; padding:0; }} .page {{ max-width:100%; }} .header {{ border-radius:0; }} .card {{ box-shadow:none; border-radius:0; }} .no-print {{ display:none !important; }} }}
+  </style>
+</head>
+<body>
+<div class="toolbar no-print">
+  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back">&#8592; Retour</button>
+  <button onclick="window.print()" class="toolbar-btn btn-pdf">&#8615; T&eacute;l&eacute;charger PDF</button>
+</div>
+<div class="page">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">Immo<span>Flash</span></div>
+      <span class="badge">Rapport bien</span>
+    </div>
+    <div class="bien-title">{b.get("type","Bien")} à {b.get("ville","")}</div>
+    <div class="bien-sub">
+      <span>{fmt_prix(b.get("prix"))}</span>
+      {f'<span>{int(b["surface"])} m²</span>' if b.get("surface") else ''}
+      {f'<span>{b["pieces"]} pièces</span>' if b.get("pieces") else ''}
+      {f'<span>Réf. {b["reference"]}</span>' if b.get("reference") else ''}
+    </div>
+  </div>
+  <div class="card">
+    {photo_html}
+    <div class="summary-bar">
+      <div class="summary-item">
+        <div class="summary-value">{len(matchings)}</div>
+        <div class="summary-label">Prospects analysés</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value" style="color:#10b981">{nb_exc}</div>
+        <div class="summary-label">Scores excellents</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value">{best}</div>
+        <div class="summary-label">Meilleur score</div>
+      </div>
+    </div>
+
+    <div class="bien-detail">
+      {f'<div class="detail-item"><div class="detail-label">Prix</div><div class="detail-val">{fmt_prix(b.get("prix"))}</div></div>' if b.get("prix") else ''}
+      {f'<div class="detail-item"><div class="detail-label">Surface</div><div class="detail-val">{int(b["surface"])} m²</div></div>' if b.get("surface") else ''}
+      {f'<div class="detail-item"><div class="detail-label">Pièces</div><div class="detail-val">{b["pieces"]}</div></div>' if b.get("pieces") else ''}
+      {f'<div class="detail-item"><div class="detail-label">Chambres</div><div class="detail-val">{b["chambres"]}</div></div>' if b.get("chambres") else ''}
+      {f'<div class="detail-item"><div class="detail-label">État</div><div class="detail-val">{b["etat"]}</div></div>' if b.get("etat") else ''}
+      {f'<div class="detail-item"><div class="detail-label">Exposition</div><div class="detail-val">{b["exposition"]}</div></div>' if b.get("exposition") else ''}
+    </div>
+
+    {f'<div class="desc-section"><div class="section-title">Description</div><p class="desc-text">{b["description"]}</p></div>' if b.get("description") else ''}
+
+    <div class="accroche">
+      <div class="accroche-title">Argument pour le vendeur</div>
+      <div class="accroche-text">Votre bien a été analysé par notre IA auprès de {len(matchings)} prospect{"s" if len(matchings) > 1 else ""} en portefeuille. {nb_exc} {"d'entre eux présentent" if nb_exc > 1 else "présente"} un profil excellent (score ≥ 75/100), ce qui représente une forte probabilité de correspondance. Notre base acheteurs est activement mise à jour.</div>
+    </div>
+
+    <div class="prospects-section">
+      <div class="section-title">{len(matchings)} prospect{"s" if len(matchings) > 1 else ""} — triés par score IA</div>
+      {prospect_rows if prospect_rows else '<div class="no-match"><p>Aucun matching pour ce bien.</p></div>'}
+    </div>
+  </div>
+  <div class="footer">ImmoFlash · Rapport confidentiel · {now.strftime("%d/%m/%Y")} · {b.get("type","Bien")} à {b.get("ville","")}</div>
+</div>
+</body>
+</html>'''
+
+    return HTMLResponse(content=html)
+
+
 @router.get("/rapport/prospect/{prospect_id}", response_class=HTMLResponse)
 def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_from_token_param)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))

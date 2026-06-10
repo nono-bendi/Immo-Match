@@ -8,6 +8,7 @@ import {
   Link, Save, ExternalLink
 } from 'lucide-react'
 import { apiFetch } from '../api'
+import { API_URL } from '../config'
 
 function BienModal({ bien, onClose }) {
   const [currentPhoto, setCurrentPhoto] = useState(0)
@@ -105,7 +106,7 @@ function BienModal({ bien, onClose }) {
                 className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImgLoaded(true)}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
               {photos.length > 1 && (
                 <>
                   <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 rounded-full transition-all hover:scale-110">
@@ -286,8 +287,35 @@ function BienModal({ bien, onClose }) {
             </div>
           )}
 
-          {/* Voir les prospects */}
+          {/* Motifs de refus agents */}
+          {bien.motifs_refus_agents?.length > 0 && (
+            <div className="p-4 bg-red-50 rounded-xl border border-red-100">
+              <p className="text-xs text-red-500 mb-2 font-semibold">Motifs de refus (usage interne)</p>
+              <ul className="space-y-1">
+                {bien.motifs_refus_agents.map((m, i) => (
+                  <li key={i} className="text-sm text-red-700 flex items-start gap-2">
+                    <span className="mt-0.5 shrink-0">—</span>
+                    <span>{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Rapport bien PDF */}
           <div className="pt-2 border-t border-gray-100">
+            <button
+              onClick={() => { const t = localStorage.getItem('token'); window.open(`${API_URL}/rapport/bien/${bien.id}?token=${t}`, '_blank') }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all mb-2"
+              style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              Rapport bien PDF
+            </button>
+          </div>
+
+          {/* Voir les prospects */}
+          <div className="border-t border-gray-100">
             <button
               onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}`) }}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all mb-2"
