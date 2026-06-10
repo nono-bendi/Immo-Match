@@ -336,7 +336,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
                p.bien as prospect_type_recherche, p.villes as prospect_villes
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
-        WHERE m.bien_id = ? AND m.score IS NOT NULL
+        WHERE m.bien_id = ? AND m.score >= 75
           AND (m.statut_prospect IS NULL OR m.statut_prospect != 'refused')
           AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
@@ -369,23 +369,20 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
     for i, m in enumerate(matchings):
         md = dict(m)
         sc = md['score']
-        pts_forts = (md.get('points_forts') or '').strip()
-        forts_html = f'<div class="pf-text">{pts_forts}</div>' if pts_forts else ''
         prospect_rows += f'''
         <div class="prospect-card">
           <div class="prospect-header" style="border-left:4px solid {score_color(sc)}">
             <div class="prospect-rank">#{i+1}</div>
             <div class="prospect-info">
               <div class="prospect-name">{md["prospect_nom"]}</div>
-              <div class="prospect-sub">Budget : {fmt_prix(md["budget_max"])} · Recherche : {md["prospect_type_recherche"] or "—"}</div>
-              <div class="prospect-sub">{md["prospect_villes"] or ""}</div>
+              <div class="prospect-sub">Budget : {fmt_prix(md["budget_max"])} · {md["prospect_type_recherche"] or "—"}</div>
+              {f'<div class="prospect-sub">{md["prospect_villes"]}</div>' if md.get("prospect_villes") else ''}
             </div>
             <div class="score-block" style="background:{score_color(sc)}">
               <div class="score-num">{sc}</div>
               <div class="score-lbl">{score_label(sc)}</div>
             </div>
           </div>
-          {f'<div class="prospect-body">{forts_html}</div>' if forts_html else ''}
         </div>'''
 
     photo_html = f'<img src="{photo_principale}" class="bien-hero-photo" alt="" />' if photo_principale else ''
@@ -498,7 +495,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
 
     <div class="accroche">
       <div class="accroche-title">Argument pour le vendeur</div>
-      <div class="accroche-text">Votre bien a été analysé par notre IA auprès de {len(matchings)} prospect{"s" if len(matchings) > 1 else ""} en portefeuille. {nb_exc} {"d'entre eux présentent" if nb_exc > 1 else "présente"} un profil excellent (score ≥ 75/100), ce qui représente une forte probabilité de correspondance. Notre base acheteurs est activement mise à jour.</div>
+      <div class="accroche-text">Notre IA a identifié {len(matchings)} acheteur{"s" if len(matchings) > 1 else ""} en portefeuille avec un score de compatibilité excellent (≥ 75/100) pour votre bien. Ces profils ont été sélectionnés parmi l'ensemble de notre base prospects et présentent une forte probabilité de correspondance.</div>
     </div>
 
     <div class="prospects-section">
