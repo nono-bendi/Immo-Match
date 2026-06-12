@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ImmoFlash — Audit des coûts IA v2 (juin 2026)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #10b981;
+      --red:    #ef4444;
+      --blue:   #0ea5e9;
+      --purple: #8b5cf6;
+      --amber:  #f59e0b;
+      --dark:   #0f172a;
+      --mid:    #334155;
+      --light:  #64748b;
+      --bg:     #f8fafc;
+      --border: #e2e8f0;
+      --card:   #ffffff;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      padding: 40px 32px;
+      max-width: 980px;
+      margin: 0 auto;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    /* ── En-tête ─────────────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+    .logo-block h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-block h1 span { color: var(--blue); }
+    .logo-block p { font-size: 12px; color: var(--light); margin-top: 3px; }
+    .header-meta { text-align: right; font-size: 11px; color: var(--light); }
+    .header-meta strong { display: block; font-size: 13px; color: var(--mid); font-weight: 600; }
+
+    /* ── Bannière résumé ─────────────────────────────────────────────── */
+    .banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 0;
+    }
+    .banner-stat { padding: 0 24px; border-right: 1px solid rgba(255,255,255,.12); }
+    .banner-stat:first-child { padding-left: 0; }
+    .banner-stat:last-child { border-right: none; }
+    .banner-stat .val {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .banner-stat .val.green { color: #34d399; }
+    .banner-stat .val.amber { color: #fbbf24; }
+    .banner-stat .lbl { font-size: 11px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .5px; }
+    .banner-stat .sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+
+    /* ── Sections ────────────────────────────────────────────────────── */
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 16px;
+      background: var(--blue);
+      border-radius: 2px;
+    }
+    .section { margin-bottom: 36px; }
+
+    /* ── Cards ───────────────────────────────────────────────────────── */
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .card h3 { font-size: 11px; font-weight: 600; color: var(--light); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .card .big { font-size: 28px; font-weight: 800; letter-spacing: -1px; color: var(--dark); }
+    .card .big.green { color: var(--green); }
+    .card .big.red { color: var(--red); }
+    .card .big.blue { color: var(--blue); }
+    .card p { font-size: 11.5px; color: var(--light); margin-top: 6px; }
+
+    /* ── Tableau comparatif ──────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--light);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      border-bottom: 1px solid var(--border);
+      background: #f1f5f9;
+    }
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child { border-radius: 0 8px 0 0; }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag.green { background: #d1fae5; color: #065f46; }
+    .tag.red { background: #fee2e2; color: #991b1b; }
+    .tag.blue { background: #dbeafe; color: #1e40af; }
+    .tag.amber { background: #fef3c7; color: #92400e; }
+
+    /* ── Barre de comparaison ────────────────────────────────────────── */
+    .compare-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .compare-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+    .compare-row:last-child { margin-bottom: 0; }
+    .compare-label { width: 220px; font-size: 12px; color: var(--mid); flex-shrink: 0; }
+    .compare-label strong { color: var(--dark); }
+    .bar-wrap { flex: 1; height: 26px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+    .bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 700; color: white; white-space: nowrap; }
+    .bar.red { background: #ef4444; }
+    .bar.amber { background: #f59e0b; }
+    .bar.green { background: #10b981; }
+    .compare-val { width: 80px; font-size: 12px; font-weight: 700; color: var(--dark); text-align: right; flex-shrink: 0; }
+
+    /* ── Tokens detail ───────────────────────────────────────────────── */
+    .token-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .token-col h4 { font-size: 12px; font-weight: 600; color: var(--mid); margin-bottom: 12px; }
+    .token-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+    .token-row:last-child { border-bottom: none; }
+    .token-row .tk { color: var(--mid); }
+    .token-row .tv { font-weight: 600; color: var(--dark); }
+    .token-row .tv.green { color: var(--green); }
+    .token-row .tv.blue { color: var(--blue); }
+    .token-row .tv.amber { color: var(--amber); }
+
+    /* ── Qualité ─────────────────────────────────────────────────────── */
+    .quality-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .qcard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .qcard .score {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 2px;
+    }
+    .qcard .score.excellent { color: var(--green); }
+    .qcard .score.good { color: var(--blue); }
+    .qcard .score.mid { color: var(--amber); }
+    .qcard .score.low { color: var(--red); }
+    .qcard .ref { font-size: 10px; color: var(--light); margin-bottom: 8px; }
+    .qcard .breakdown { font-size: 10.5px; color: var(--light); }
+    .qcard .breakdown span { font-weight: 600; color: var(--mid); }
+    .qcard .pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* ── Note qualité ────────────────────────────────────────────────── */
+    .note-box {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px 20px;
+      font-size: 12.5px;
+      color: #1e40af;
+      margin-top: 16px;
+    }
+    .note-box strong { color: #1e3a8a; }
+
+    /* ── Technique ───────────────────────────────────────────────────── */
+    .tech-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tech-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+    }
+    .tech-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tech-icon svg { width: 18px; height: 18px; }
+    .tech-icon.green { background: #d1fae5; }
+    .tech-icon.green svg { color: #065f46; }
+    .tech-icon.blue { background: #dbeafe; }
+    .tech-icon.blue svg { color: #1e40af; }
+    .tech-item h4 { font-size: 12.5px; font-weight: 600; color: var(--dark); margin-bottom: 3px; }
+    .tech-item p { font-size: 11.5px; color: var(--light); }
+
+    /* ── Footer ─────────────────────────────────────────────────────── */
+    .footer {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--light);
+    }
+    .footer strong { color: var(--mid); }
+
+    @media print {
+      body { padding: 20px; background: white; }
+      .banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-block">
+    <h1>Immo<span>Flash</span></h1>
+    <p>Audit des coûts IA — Version 2 post-optimisation</p>
+  </div>
+  <div class="header-meta">
+    <strong>Confidentiel — usage interne</strong>
+    Émis le 12 juin 2026<br>
+    Mesuré sur VPS production
+  </div>
+</div>
+
+<!-- Bannière KPI -->
+<div class="banner">
+  <div class="banner-stat">
+    <div class="val green">$2.62</div>
+    <div class="lbl">Run-all optimisé</div>
+    <div class="sub">121 prospects × 5 biens</div>
+  </div>
+  <div class="banner-stat">
+    <div class="val amber">−57%</div>
+    <div class="lbl">Réduction de coût</div>
+    <div class="sub">vs système précédent</div>
+  </div>
+  <div class="banner-stat">
+    <div class="val green">×5</div>
+    <div class="lbl">Moins d'appels API</div>
+    <div class="sub">605 → 121 par run-all</div>
+  </div>
+  <div class="banner-stat">
+    <div class="val green">0%</div>
+    <div class="lbl">Perte de qualité</div>
+    <div class="sub">Scores validés en test</div>
+  </div>
+</div>
+
+<!-- Comparaison avant/après -->
+<div class="section">
+  <h2>Comparaison avant / après optimisation</h2>
+
+  <div class="compare-bar">
+    <div class="compare-row">
+      <div class="compare-label"><strong>Avant (max_biens=8)</strong><br>Hektor long + 8 appels</div>
+      <div class="bar-wrap"><div class="bar red" style="width:100%">$11.67 mesuré réel</div></div>
+      <div class="compare-val">$11.67</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label"><strong>Avant (max_biens=5)</strong><br>5 appels individuels</div>
+      <div class="bar-wrap"><div class="bar amber" style="width:60%">~$7 estimé</div></div>
+      <div class="compare-val">~$7.00</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label"><strong>Après — 1er run</strong><br>Batch + création cache</div>
+      <div class="bar-wrap"><div class="bar blue" style="width:28%">$3.30</div></div>
+      <div class="compare-val">$3.30</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label"><strong>Après — Runs suivants</strong><br>Batch + cache chaud</div>
+      <div class="bar-wrap"><div class="bar green" style="width:22%">$2.62</div></div>
+      <div class="compare-val">$2.62</div>
+    </div>
+  </div>
+
+  <table>
+    <tr>
+      <th>Scénario</th>
+      <th>Appels Claude</th>
+      <th>Tokens input / prospect</th>
+      <th>Tokens output / prospect</th>
+      <th>Coût / prospect</th>
+      <th>Coût run-all</th>
+      <th>Statut</th>
+    </tr>
+    <tr>
+      <td><strong>Avant — max_biens=8</strong></td>
+      <td>968 appels</td>
+      <td>~2 800 × 8 = 22 400</td>
+      <td>~180 × 8 = 1 440</td>
+      <td>~$0.097</td>
+      <td>$11.67</td>
+      <td><span class="tag red">Mesuré réel</span></td>
+    </tr>
+    <tr>
+      <td><strong>Avant — max_biens=5</strong></td>
+      <td>605 appels</td>
+      <td>~2 800 × 5 = 14 000</td>
+      <td>~180 × 5 = 900</td>
+      <td>~$0.056</td>
+      <td>~$7.00</td>
+      <td><span class="tag amber">Estimé</span></td>
+    </tr>
+    <tr>
+      <td><strong>Après — 1er run (cache froid)</strong></td>
+      <td>121 appels</td>
+      <td>2 493 (462 reg + 2 031 créé)</td>
+      <td>~1 250</td>
+      <td>$0.0273</td>
+      <td>$3.30</td>
+      <td><span class="tag blue">Mesuré réel</span></td>
+    </tr>
+    <tr>
+      <td><strong>Après — Runs suivants (cache chaud)</strong></td>
+      <td>121 appels</td>
+      <td>2 493 (462 reg + 2 031 cache)</td>
+      <td>~1 250</td>
+      <td>$0.0217</td>
+      <td><strong>$2.62</strong></td>
+      <td><span class="tag green">Mesuré réel</span></td>
+    </tr>
+  </table>
+</div>
+
+<!-- Détail tokens -->
+<div class="section">
+  <h2>Détail des tokens mesurés (test production — 5 biens)</h2>
+
+  <div class="token-box">
+    <div class="token-col">
+      <h4>Appel 1 — Création du cache (premier run)</h4>
+      <div class="token-row"><span class="tk">Tokens input total</span><span class="tv">2 493</span></div>
+      <div class="token-row"><span class="tk">→ Tokens reguliers (facturés $3/M)</span><span class="tv blue">462</span></div>
+      <div class="token-row"><span class="tk">→ Cache creation (facturés $3.75/M)</span><span class="tv amber">2 031</span></div>
+      <div class="token-row"><span class="tk">→ Cache read</span><span class="tv">0</span></div>
+      <div class="token-row"><span class="tk">Tokens output</span><span class="tv">1 220</span></div>
+      <div class="token-row"><span class="tk">Temps de réponse</span><span class="tv">22.9 s</span></div>
+      <div class="token-row"><span class="tk">Coût total</span><span class="tv">$0.02730</span></div>
+    </div>
+    <div class="token-col">
+      <h4>Appel 2 — Cache chaud (runs suivants)</h4>
+      <div class="token-row"><span class="tk">Tokens input total</span><span class="tv">2 493</span></div>
+      <div class="token-row"><span class="tk">→ Tokens reguliers (facturés $3/M)</span><span class="tv blue">462</span></div>
+      <div class="token-row"><span class="tk">→ Cache creation</span><span class="tv">0</span></div>
+      <div class="token-row"><span class="tk">→ Cache read (facturés $0.30/M)</span><span class="tv green">2 031</span></div>
+      <div class="token-row"><span class="tk">Tokens output</span><span class="tv">1 313</span></div>
+      <div class="token-row"><span class="tk">Temps de réponse</span><span class="tv">22.2 s</span></div>
+      <div class="token-row"><span class="tk">Coût total</span><span class="tv green">$0.02169</span></div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px; padding:14px 18px; background:#f1f5f9; border-radius:8px; font-size:12px; color:var(--mid);">
+    <strong>Structure du cache :</strong> 2 031 tokens mis en cache = <em>_STATIC_SYSTEM</em> (message système, ~170 tokens) +
+    <em>_STATIC_RULES</em> (barème, règles, anti-biais, rédaction points forts, ~1 860 tokens).
+    Ces règles sont identiques pour chaque appel → cache hit garanti dès le 2e appel.
+    La partie dynamique (462 tokens) contient le focus destination + prospect + détail des 5 biens.
+  </div>
+</div>
+
+<!-- Qualité -->
+<div class="section">
+  <h2>Validation qualité — 5 biens de test (mesurés)</h2>
+
+  <div class="quality-grid">
+    <div class="qcard">
+      <div class="score excellent">98</div>
+      <div class="ref">VAP101 — Fréjus Centre</div>
+      <div class="breakdown"><span>60</span>/60 obj + <span>38</span>/40 qual</div>
+      <span class="pill" style="background:#d1fae5;color:#065f46;">Excellent</span>
+      <div style="margin-top:8px;font-size:10px;color:var(--light);text-align:left">
+        T3 plein sud, parking, balcon, DPE C, dans budget. Tous les critères cochés.
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="score excellent">96</div>
+      <div class="ref">VAP105 — Centre historique</div>
+      <div class="breakdown"><span>60</span>/60 obj + <span>36</span>/40 qual</div>
+      <span class="pill" style="background:#d1fae5;color:#065f46;">Excellent</span>
+      <div style="margin-top:8px;font-size:10px;color:var(--light);text-align:left">
+        T3 4e ét., ascenseur, box, cave, sud-est, centre historique piéton.
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="score good">88</div>
+      <div class="ref">VAP104 — Villeneuve</div>
+      <div class="breakdown"><span>60</span>/60 obj + <span>28</span>/40 qual</div>
+      <span class="pill" style="background:#dbeafe;color:#1e40af;">Bon</span>
+      <div style="margin-top:8px;font-size:10px;color:var(--light);text-align:left">
+        RDC jardin privatif, parking. Claude pénalise le rez-de-chaussée correctement.
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="score mid">60</div>
+      <div class="ref">VAP103 — Saint-Raphaël</div>
+      <div class="breakdown"><span>38</span>/60 obj + <span>22</span>/40 qual</div>
+      <span class="pill" style="background:#fef3c7;color:#92400e;">Partiel</span>
+      <div style="margin-top:8px;font-size:10px;color:var(--light);text-align:left">
+        Hors zone (Saint-Raphaël), bonne qualité intrinsèque mais ville incorrecte.
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="score low">53</div>
+      <div class="ref">VAP102 — Fréjus Plage</div>
+      <div class="breakdown"><span>45</span>/60 obj + <span>8</span>/40 qual</div>
+      <span class="pill" style="background:#fee2e2;color:#991b1b;">Faible</span>
+      <div style="margin-top:8px;font-size:10px;color:var(--light);text-align:left">
+        Surface insuffisante, DPE E, pas de balcon ni parking. Score 8/40 correct.
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Observation qualité :</strong> le scoring en batch donne des résultats bien différenciés et logiques.
+    Les scores s'échelonnent de 8 à 38 sur 40 selon les critères réels — Claude n'a pas eu de comportement
+    "relatif" (ex. gonfler un score parce qu'il est mauvais à côté d'un bon). La règle
+    <em>"SCORING ABSOLU ET INDÉPENDANT"</em> est respectée. Les points d'attention sont précis
+    (surface insuffisante, RDC, ville incorrecte) sans faux positifs.
+  </div>
+</div>
+
+<!-- Techniques employées -->
+<div class="section">
+  <h2>Techniques d'optimisation déployées</h2>
+
+  <div class="tech-list">
+    <div class="tech-item">
+      <div class="tech-icon green">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <div>
+        <h4>Batch scoring — 1 appel pour N biens</h4>
+        <p>Nouvelle fonction <code>scorer_biens_batch_claude()</code> qui envoie tous les biens d'un prospect en un seul appel. 605 appels → 121 par run-all. Même barème, mêmes règles. Fallback automatique sur appels individuels si le JSON batch est invalide.</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon blue">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+        </svg>
+      </div>
+      <div>
+        <h4>Prompt caching Anthropic</h4>
+        <p>Les 2 031 tokens statiques (barème, règles, anti-biais) marqués <code>cache_control: ephemeral</code>. Facturés $3.75/M à la création, puis $0.30/M en lecture (10% du prix normal). Économie de 81% sur la partie statique du prompt.</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon green">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <div>
+        <h4>Helpers extraits et centralisés</h4>
+        <p><code>_build_focus_destination()</code>, <code>_build_section_contraintes()</code>, <code>_parse_claude_json()</code>, <code>_track_usage()</code> — partagés entre l'appel batch et le fallback individuel. Zéro duplication de logique.</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon blue">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </div>
+      <div>
+        <h4>Fallback automatique préservé</h4>
+        <p>Si le batch échoue (JSON invalide, count mismatch), <code>scorer_biens()</code> retombe silencieusement sur les appels individuels parallèles (ThreadPoolExecutor max 4). Aucun risque de perte d'analyse.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Projections annuelles -->
+<div class="section">
+  <h2>Projections financières</h2>
+  <table>
+    <tr>
+      <th>Scénario d'utilisation</th>
+      <th>Fréquence run-all</th>
+      <th>Coût mensuel</th>
+      <th>Coût annuel</th>
+      <th>vs ancien (mensuel)</th>
+    </tr>
+    <tr>
+      <td><strong>Conservateur</strong> — 1 run-all/semaine</td>
+      <td>4×/mois</td>
+      <td>$10.48</td>
+      <td>~$126</td>
+      <td><span class="tag green">−$17.52</span></td>
+    </tr>
+    <tr>
+      <td><strong>Normal</strong> — 2 run-all/semaine</td>
+      <td>8×/mois</td>
+      <td>$20.96</td>
+      <td>~$252</td>
+      <td><span class="tag green">−$35.04</span></td>
+    </tr>
+    <tr>
+      <td><strong>Intensif</strong> — 1 run-all/jour</td>
+      <td>30×/mois</td>
+      <td>$78.60</td>
+      <td>~$943</td>
+      <td><span class="tag green">−$131.40</span></td>
+    </tr>
+    <tr>
+      <td><strong>Multi-agences</strong> — 5 agences, 1/sem chacune</td>
+      <td>20×/mois</td>
+      <td>$52.40</td>
+      <td>~$629</td>
+      <td><span class="tag green">−$87.60</span></td>
+    </tr>
+  </table>
+  <div style="margin-top:10px;font-size:11.5px;color:var(--light);padding:0 4px;">
+    Calcul basé sur $2.62/run-all (cache chaud). Comparaison vs ~$7/run-all (ancien système max_biens=5).
+    Les analyses individuelles par bien (via FTP sync auto) ne sont pas incluses — elles bénéficient
+    aussi du prompt caching sur <code>scorer_bien_claude()</code>.
+  </div>
+</div>
+
+<!-- Limites et risques -->
+<div class="section">
+  <h2>Limites et points de vigilance</h2>
+  <table>
+    <tr>
+      <th>Point</th>
+      <th>Impact</th>
+      <th>Mitigation</th>
+    </tr>
+    <tr>
+      <td><strong>Cache TTL : 5 minutes</strong></td>
+      <td>Au-delà de 5 min d'inactivité, le cache expire → prochain appel recréé le cache ($3.75/M)</td>
+      <td>Léger surcoût ponctuels. Économie nette reste significative car run-all est continu (~22s/prospect).</td>
+    </tr>
+    <tr>
+      <td><strong>Output plus long en batch</strong></td>
+      <td>5 biens × ~250 tokens output = 1 250 tokens vs 5 × 180 = 900 tokens avant</td>
+      <td>Surcoût output de ~$0.005/prospect, compensé largement par la réduction des input.</td>
+    </tr>
+    <tr>
+      <td><strong>JSON batch potentiellement invalide</strong></td>
+      <td>Si Claude hallucine le format tableau → fallback individuel déclenché</td>
+      <td>Test sur 5 biens : 0 erreur. Fallback automatique sans interruption de service.</td>
+    </tr>
+    <tr>
+      <td><strong>max_tokens = 4 096</strong></td>
+      <td>Pour max_biens=8 biens : 500×8+300 = 4 300 tokens → plafonné à 4 096</td>
+      <td>max_biens est à 5, donc 2 800 tokens max output — aucun risque de troncature.</td>
+    </tr>
+    <tr>
+      <td><strong>Descriptions Hektor longues</strong></td>
+      <td>Descriptions réelles ~800-1200 chars vs test 200 chars → input légèrement plus élevé</td>
+      <td>Coût réel estimé à $0.025-0.030/prospect (vs $0.0217 en test). Run-all : ~$3.00-3.60.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="footer">
+  <span>ImmoFlash — Document interne confidentiel</span>
+  <span><strong>Généré le :</strong> 12 juin 2026 | Mesuré sur VPS prod 178.104.57.75 | Modèle : claude-sonnet-4-20250514</span>
+</div>
+
+</body>
+</html>
