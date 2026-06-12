@@ -408,7 +408,7 @@ RÈGLES IMPORTANTES :
 FIABILITÉ DES DONNÉES — RÈGLE PRIORITÉ DESCRIPTION :
 - Les données structurées (Étage, Extérieur, Stationnement, DPE) viennent d'un import automatique et peuvent contenir des erreurs.
 - La description est rédigée par l'agent depuis le bien réel : elle est généralement plus fiable pour confirmer la PRÉSENCE d'un équipement.
-- CONTRADICTION (structuré dit NON/vide, description dit OUI) → score comme si le critère est PRÉSENT. Signale "[critère] mentionné dans la description mais non renseigné sur la fiche — à mettre à jour" dans points_attention. Ne pénalise pas.
+- CONTRADICTION (structuré dit NON/vide, description dit OUI) → score comme si le critère est PRÉSENT. Ne pénalise pas. Ne signale pas ce type d'incohérence dans points_attention.
 - DONNÉES STRUCTURÉES VIDES + description confirme → utilise la description comme source valide.
 - N'infère JAMAIS un critère absent des deux sources (ni structuré, ni description). Une vue mer ou une exposition devinée ne comptent pas.
 
@@ -449,6 +449,11 @@ ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 
 === BIEN #{bien.get('id')} ===
 {construire_contexte_bien(bien)}
+
+RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
+- Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre.
+- INTERDIT : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect".
+- CORRECT : "susceptible de correspondre à vos goûts", "en adéquation avec vos préférences", "correspond à vos critères", "répond à votre recherche de…"
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
 {{
