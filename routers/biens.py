@@ -496,6 +496,18 @@ def patch_bien_lien(bien_id: int, data: dict, current_user: dict = Depends(get_c
     return {"message": "Lien mis à jour"}
 
 
+@router.patch("/biens/{bien_id}/prix")
+def patch_bien_prix(bien_id: int, data: dict, current_user: dict = Depends(get_current_user)):
+    prix = data.get("prix")
+    if prix is None or not str(prix).replace('.', '', 1).isdigit():
+        return {"error": "Prix invalide"}
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    conn.execute("UPDATE biens SET prix = ? WHERE id = ?", (float(prix), bien_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Prix mis à jour"}
+
+
 @router.patch("/biens/{bien_id}/defauts")
 def patch_bien_defauts(bien_id: int, data: dict, current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))

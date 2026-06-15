@@ -19,7 +19,27 @@ function BienModal({ bien, onClose }) {
   const [lien, setLien] = useState(bien?.lien_annonce || '')
   const [lienSaving, setLienSaving] = useState(false)
   const [lienSaved, setLienSaved] = useState(false)
+  const [prix, setPrix] = useState(bien?.prix ? String(Math.round(bien.prix)) : '')
+  const [prixSaving, setPrixSaving] = useState(false)
+  const [prixSaved, setPrixSaved] = useState(false)
   const navigate = useNavigate()
+
+  const savePrix = async () => {
+    const val = parseFloat(prix.replace(/\s/g, '').replace(',', '.'))
+    if (!val || val <= 0) return
+    setPrixSaving(true)
+    try {
+      await apiFetch(`/biens/${bien.id}/prix`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prix: val })
+      })
+      bien.prix = val
+      setPrixSaved(true)
+      setTimeout(() => setPrixSaved(false), 2000)
+    } catch { /* ignore */ }
+    setPrixSaving(false)
+  }
 
   const saveLien = async () => {
     setLienSaving(true)
@@ -240,6 +260,31 @@ function BienModal({ bien, onClose }) {
               <p className="text-sm font-medium text-blue-700">{bien.vendeur}</p>
             </div>
           )}
+
+          {/* Modifier le prix */}
+          <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1.5">
+              <Euro size={12} /> Prix de vente
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={prix}
+                onChange={e => { setPrix(e.target.value); setPrixSaved(false) }}
+                placeholder="Ex : 94900"
+                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+              />
+              <button
+                onClick={savePrix}
+                disabled={prixSaving}
+                className="flex items-center gap-1.5 px-3 py-2 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition-all" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+              >
+                {prixSaving ? <Loader2 size={14} className="animate-spin" /> : prixSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
+                {prixSaved ? 'Sauvegardé' : 'Sauvegarder'}
+              </button>
+            </div>
+            <p className="text-xs text-gray-400">Modifie le prix directement sans attendre la prochaine sync Hektor.</p>
+          </div>
 
           {/* Lien annonce externe */}
           <div className="p-4 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2">
