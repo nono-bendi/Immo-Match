@@ -121,6 +121,7 @@ def sync_hektor_ftp(db_path: str = None):
             ).fetchone()
 
             if existing:
+                bien_id = existing[0]
                 cursor.execute('''
                     UPDATE biens SET
                         type=?, ville=?, quartier=?, prix=?, surface=?, pieces=?, chambres=?,
@@ -132,7 +133,7 @@ def sync_hektor_ftp(db_path: str = None):
                         latitude=?, longitude=?, video_url=?,
                         nb_salles_bain=?, nb_salles_eau=?, nb_wc=?, surface_cave=?, prix_hn=?, honoraires_pct=?,
                         date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
-                    WHERE reference=?
+                    WHERE id=?
                 ''', (
                     d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -144,7 +145,7 @@ def sync_hektor_ftp(db_path: str = None):
                     d["latitude"], d["longitude"], d["video_url"],
                     d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"], d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
                     datetime.now().isoformat(), d["nom_agence"], "actif", "ftp",
-                    d["reference"]
+                    bien_id
                 ))
                 updated += 1
             else:
