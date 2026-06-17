@@ -123,25 +123,22 @@ function FaqItem({ q, a }) {
 /* ════════════════════════════════════════════════════════════════
    HERO VIDEO
    ════════════════════════════════════════════════════════════════ */
-function HeroVideo({ prefersReducedMotion }) {
+function HeroVideo() {
   const videoRef = useRef(null)
   const [ended, setEnded] = useState(false)
   const [started, setStarted] = useState(false)
 
   useEffect(() => {
     const v = videoRef.current
-    if (!v || prefersReducedMotion) return
+    if (!v) return
 
     v.addEventListener('play',    () => setStarted(true), { once: true })
     v.addEventListener('ended',   () => setEnded(true),   { once: true })
-
-    // load() réinitialise complètement le lecteur (currentTime=0, ended=false)
-    // puis on joue dès que la vidéo est prête
     v.addEventListener('canplay', () => v.play().catch(() => {}), { once: true })
     v.load()
 
     return () => {}
-  }, [prefersReducedMotion])
+  }, [])
 
   const replay = () => {
     const v = videoRef.current
@@ -159,18 +156,7 @@ function HeroVideo({ prefersReducedMotion }) {
     borderRadius: 16, overflow: 'hidden',
     boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
     border: '1px solid rgba(255,255,255,0.08)',
-    position: 'relative', cursor: 'pointer',
-  }
-
-  if (prefersReducedMotion) {
-    return (
-      <div style={wrapper}>
-        <div style={{ ...frame, cursor: 'default' }}>
-          <img src="/assets/hero-poster.jpg" alt="ImmoFlash — présentation"
-            style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }} />
-        </div>
-      </div>
-    )
+    position: 'relative',
   }
 
   return (
@@ -552,7 +538,7 @@ export default function Home() {
         </div>
 
         {/* Vidéo de présentation — pleine largeur hors du container 800px */}
-        <HeroVideo prefersReducedMotion={prefersReducedMotion} />
+        <HeroVideo />
       </section>
 
       {/* ════════════════════════════════════════════
