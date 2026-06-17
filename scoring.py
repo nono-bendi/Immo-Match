@@ -497,12 +497,12 @@ Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne pe
 {construire_contexte_bien(bien)}
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
-Contraintes de longueur STRICTES : chaque item de liste = max 8 mots, recommandation = max 12 mots.
+Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = max 20 mots.
 {{
   "score_qualitatif": <entier 0-40>,
-  "points_forts": ["max 8 mots", "max 8 mots", "max 8 mots"],
-  "points_attention": ["max 8 mots", "max 8 mots"],
-  "recommandation": "Une phrase courte, max 12 mots"
+  "points_forts": ["max 20 mots", "max 20 mots", "max 20 mots"],
+  "points_attention": ["max 20 mots", "max 20 mots"],
+  "recommandation": "Une phrase d'action concrète, max 20 mots"
 }}"""
 
     message = client.messages.create(
@@ -574,9 +574,9 @@ RÈGLE CRITIQUE — SCORING ABSOLU ET INDÉPENDANT :
 {prospect_ctx}
 {biens_blocks}
 Réponds UNIQUEMENT en JSON valide — tableau de {n} objets dans le même ordre que les biens ci-dessus.
-Contraintes de longueur STRICTES : chaque item de liste = max 8 mots, recommandation = max 12 mots.
+Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = max 20 mots.
 [
-  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["max 8 mots", "max 8 mots"], "points_attention": ["max 8 mots"], "recommandation": "max 12 mots"}},
+  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["max 20 mots", "max 20 mots"], "points_attention": ["max 20 mots"], "recommandation": "max 20 mots"}},
   ...
 ]"""
 
