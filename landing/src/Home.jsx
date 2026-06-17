@@ -125,30 +125,34 @@ function FaqItem({ q, a }) {
    ════════════════════════════════════════════════════════════════ */
 function HeroVideo({ prefersReducedMotion }) {
   const videoRef = useRef(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [ended, setEnded] = useState(false)
+  const [started, setStarted] = useState(false)
 
   useEffect(() => {
     const v = videoRef.current
     if (!v || prefersReducedMotion) return
 
-    const tryPlay = () => v.play().then(() => setIsPlaying(true)).catch(() => {})
-
-    // Tente immédiatement, puis sur chaque événement de disponibilité
-    tryPlay()
-    v.addEventListener('loadedmetadata', tryPlay, { once: true })
-    v.addEventListener('canplay', tryPlay, { once: true })
-    v.addEventListener('play', () => setIsPlaying(true))
-
-    return () => {
-      v.removeEventListener('loadedmetadata', tryPlay)
-      v.removeEventListener('canplay', tryPlay)
+    const doPlay = () => {
+      v.currentTime = 0   // force début même si le navigateur cache la position
+      v.play().catch(() => {})
     }
+
+    v.addEventListener('play',    () => setStarted(true),  { once: true })
+    v.addEventListener('ended',   () => setEnded(true),    { once: true })
+    v.addEventListener('canplay', doPlay,                   { once: true })
+
+    // Tente immédiatement (fonctionne si les données sont déjà en cache)
+    doPlay()
+
+    return () => v.removeEventListener('canplay', doPlay)
   }, [prefersReducedMotion])
 
-  const handleClick = () => {
+  const replay = () => {
     const v = videoRef.current
     if (!v) return
-    if (v.paused) { v.play().catch(() => {}) } else { v.pause() }
+    v.currentTime = 0
+    setEnded(false)
+    v.play().catch(() => {})
   }
 
   const wrapper = {
@@ -175,12 +179,12 @@ function HeroVideo({ prefersReducedMotion }) {
 
   return (
     <div style={wrapper}>
-      <div style={frame} onClick={handleClick}>
-        {/* Bouton play visible si autoplay bloqué */}
-        {!isPlaying && (
-          <div style={{
+      <div style={frame}>
+        {/* Play : visible si autoplay bloqué ET vidéo pas encore démarrée */}
+        {!started && (
+          <div onClick={replay} style={{
             position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(6,13,24,0.45)', zIndex: 2, pointerEvents: 'none',
+            background: 'rgba(6,13,24,0.45)', zIndex: 2, cursor: 'pointer',
           }}>
             <div style={{
               width: 72, height: 72, borderRadius: '50%',
@@ -192,6 +196,22 @@ function HeroVideo({ prefersReducedMotion }) {
                 <path d="M8 5v14l11-7z"/>
               </svg>
             </div>
+          </div>
+        )}
+        {/* Replay : visible quand la vidéo est terminée */}
+        {ended && (
+          <div onClick={replay} style={{
+            position: 'absolute', bottom: 16, right: 16, zIndex: 2, cursor: 'pointer',
+            background: 'rgba(6,13,24,0.7)', border: '1px solid rgba(56,189,248,0.4)',
+            borderRadius: 8, padding: '6px 14px',
+            color: '#38bdf8', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6,
+            backdropFilter: 'blur(8px)',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M1 4v6h6M23 20v-6h-6"/>
+              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+            </svg>
+            Revoir
           </div>
         )}
         <video
