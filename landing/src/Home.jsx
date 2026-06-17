@@ -191,7 +191,7 @@ function HeroVideo() {
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 1.5rem', position: 'relative', zIndex: 1 }}>
       <div
-        style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.08)', position: 'relative', cursor: 'none' }}
+        style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.08)', position: 'relative', cursor: 'none', transform: 'translateZ(0)', willChange: 'transform' }}
         onMouseMove={showControls}
         onMouseLeave={() => { clearTimeout(hideTimer.current); setShowCtrl(false) }}
       >
@@ -201,7 +201,7 @@ function HeroVideo() {
           poster="/assets/hero-poster.jpg"
           autoPlay muted playsInline preload="auto"
           width="1280" height="720"
-          style={{ width: '100%', display: 'block', aspectRatio: '16/9', transform: 'translateZ(0)', willChange: 'transform' }}
+          style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
           onClick={togglePlay}
         />
 
