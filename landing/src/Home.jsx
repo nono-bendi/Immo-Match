@@ -121,36 +121,51 @@ function FaqItem({ q, a }) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   HERO VIDEO — pas de reveal (opacity:0 bloque l'autoplay Chrome)
+   HERO VIDEO
    ════════════════════════════════════════════════════════════════ */
 function HeroVideo({ prefersReducedMotion }) {
   const videoRef = useRef(null)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video || prefersReducedMotion) return
-    // autoPlay attribute suffit normalement, mais on force en JS au cas où
-    video.play().catch(() => {})
+    const v = videoRef.current
+    if (!v || prefersReducedMotion) return
+
+    const tryPlay = () => v.play().then(() => setIsPlaying(true)).catch(() => {})
+
+    // Tente immédiatement, puis sur chaque événement de disponibilité
+    tryPlay()
+    v.addEventListener('loadedmetadata', tryPlay, { once: true })
+    v.addEventListener('canplay', tryPlay, { once: true })
+    v.addEventListener('play', () => setIsPlaying(true))
+
+    return () => {
+      v.removeEventListener('loadedmetadata', tryPlay)
+      v.removeEventListener('canplay', tryPlay)
+    }
   }, [prefersReducedMotion])
 
+  const handleClick = () => {
+    const v = videoRef.current
+    if (!v) return
+    if (v.paused) { v.play().catch(() => {}) } else { v.pause() }
+  }
+
   const wrapper = {
-    maxWidth: 1080,
-    margin: '0 auto',
-    padding: '0 1.5rem',
-    position: 'relative',
-    zIndex: 1,
+    maxWidth: 1080, margin: '0 auto', padding: '0 1.5rem',
+    position: 'relative', zIndex: 1,
   }
   const frame = {
-    borderRadius: 16,
-    overflow: 'hidden',
+    borderRadius: 16, overflow: 'hidden',
     boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
     border: '1px solid rgba(255,255,255,0.08)',
+    position: 'relative', cursor: 'pointer',
   }
 
   if (prefersReducedMotion) {
     return (
       <div style={wrapper}>
-        <div style={frame}>
+        <div style={{ ...frame, cursor: 'default' }}>
           <img src="/assets/hero-poster.jpg" alt="ImmoFlash — présentation"
             style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }} />
         </div>
@@ -160,7 +175,25 @@ function HeroVideo({ prefersReducedMotion }) {
 
   return (
     <div style={wrapper}>
-      <div style={frame}>
+      <div style={frame} onClick={handleClick}>
+        {/* Bouton play visible si autoplay bloqué */}
+        {!isPlaying && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(6,13,24,0.45)', zIndex: 2, pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'rgba(56,189,248,0.18)', border: '2px solid rgba(56,189,248,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backdropFilter: 'blur(8px)',
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#38bdf8">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+        )}
         <video
           ref={videoRef}
           src="/assets/hero.mp4"
