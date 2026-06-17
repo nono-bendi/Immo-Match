@@ -223,8 +223,8 @@ function HeroVideo() {
           }}>
             <div style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.35)',
-              backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(10,20,40,0.6)', border: '1.5px solid rgba(255,255,255,0.35)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'transform 0.15s ease, background 0.15s ease',
             }}>
               {paused
