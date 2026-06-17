@@ -466,7 +466,7 @@ def _track_usage(agency_slug, usage):
         pass
 
 
-def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='claude-sonnet-4-20250514', agency_slug=None):
+def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='claude-sonnet-4-6', agency_slug=None):
     """
     Score qualitatif /40 pour un seul bien (utilisé en fallback et pour _core_analyser_bien).
     Retourne un dict avec score_qualitatif, points_forts, points_attention, recommandation.
@@ -532,7 +532,7 @@ Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
     return _parse_claude_json(message.content[0].text)
 
 
-def scorer_biens_batch_claude(prospect, biens_avec_objectif, model='claude-sonnet-4-20250514', agency_slug=None):
+def scorer_biens_batch_claude(prospect, biens_avec_objectif, model='claude-sonnet-4-6', agency_slug=None):
     """
     Score N biens en UN SEUL appel Claude (batch scoring).
     biens_avec_objectif : liste de tuples (bien, score_objectif, detail_objectif)
@@ -624,7 +624,7 @@ def trier_biens_par_score_objectif(prospect, biens, max_biens):
     return [bien for _, bien in scores[:max_biens]]
 
 
-def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-20250514', agency_slug=None):
+def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-6', agency_slug=None):
     """
     Point d'entrée principal. Score tous les biens en un seul appel batch Claude.
     Fallback automatique sur appels individuels parallèles en cas d'erreur.

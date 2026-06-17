@@ -54,7 +54,7 @@ def get_settings_values(db_path: str = None):
 
     # Valeurs par défaut
     settings = {
-        'model': 'claude-sonnet-4-20250514',
+        'model': 'claude-sonnet-4-6',
         'max_biens_par_prospect': 5,
         'max_matchings_par_prospect': 5,
         'score_minimum': 0,
