@@ -201,7 +201,7 @@ function HeroVideo() {
           poster="/assets/hero-poster.jpg"
           autoPlay muted playsInline preload="auto"
           width="1280" height="720"
-          style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
+          style={{ width: '100%', display: 'block', aspectRatio: '16/9', transform: 'translateZ(0)', willChange: 'transform' }}
           onClick={togglePlay}
         />
 
