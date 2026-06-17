@@ -121,7 +121,7 @@ function FaqItem({ q, a }) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   HERO VIDEO — pleine largeur, autoplay fiable via IO
+   HERO VIDEO — pas de reveal (opacity:0 bloque l'autoplay Chrome)
    ════════════════════════════════════════════════════════════════ */
 function HeroVideo({ prefersReducedMotion }) {
   const videoRef = useRef(null)
@@ -129,16 +129,8 @@ function HeroVideo({ prefersReducedMotion }) {
   useEffect(() => {
     const video = videoRef.current
     if (!video || prefersReducedMotion) return
-    // Force play dès que l'élément entre dans le viewport
-    // (l'attribut autoPlay seul est parfois ignoré si opacity=0 au chargement)
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        video.play().catch(() => {})
-        io.disconnect()
-      }
-    }, { threshold: 0.1 })
-    io.observe(video)
-    return () => io.disconnect()
+    // autoPlay attribute suffit normalement, mais on force en JS au cas où
+    video.play().catch(() => {})
   }, [prefersReducedMotion])
 
   const wrapper = {
@@ -167,7 +159,7 @@ function HeroVideo({ prefersReducedMotion }) {
   }
 
   return (
-    <div className="reveal" style={wrapper}>
+    <div style={wrapper}>
       <div style={frame}>
         <video
           ref={videoRef}
