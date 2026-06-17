@@ -185,8 +185,10 @@ function HeroVideo() {
     const v = videoRef.current; if (!v) return
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {})
-    } else {
+    } else if (v.requestFullscreen) {
       v.requestFullscreen().catch(() => {})
+    } else if (v.webkitEnterFullscreen) {
+      v.webkitEnterFullscreen()
     }
   }
 
@@ -203,6 +205,7 @@ function HeroVideo() {
         style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(56,189,248,0.15), 0 0 60px 20px rgba(56,189,248,0.25), 0 0 120px 40px rgba(99,102,241,0.2), 0 40px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.08)', position: 'relative', cursor: 'none', transform: 'translateZ(0)', willChange: 'transform', backdropFilter: 'blur(0px)' }}
         onMouseMove={showControls}
         onMouseLeave={() => { clearTimeout(hideTimer.current); setShowCtrl(false) }}
+        onTouchStart={showControls}
       >
         <video
           ref={videoRef}
