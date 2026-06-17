@@ -496,12 +496,13 @@ Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne pe
 === BIEN #{bien.get('id')} ===
 {construire_contexte_bien(bien)}
 
-Réponds UNIQUEMENT en JSON valide, sans texte avant ou après :
+Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
+Contraintes de longueur STRICTES : chaque item de liste = max 8 mots, recommandation = max 12 mots.
 {{
   "score_qualitatif": <entier 0-40>,
-  "points_forts": ["point 1", "point 2", "point 3"],
-  "points_attention": ["point 1", "point 2"],
-  "recommandation": "Une phrase d'action concrète pour l'agent"
+  "points_forts": ["max 8 mots", "max 8 mots", "max 8 mots"],
+  "points_attention": ["max 8 mots", "max 8 mots"],
+  "recommandation": "Une phrase courte, max 12 mots"
 }}"""
 
     message = client.messages.create(
@@ -572,9 +573,10 @@ RÈGLE CRITIQUE — SCORING ABSOLU ET INDÉPENDANT :
 === PROSPECT #{prospect.get('id', 'N/A')} ===
 {prospect_ctx}
 {biens_blocks}
-Réponds UNIQUEMENT en JSON valide — tableau de {n} objets dans le même ordre que les biens ci-dessus :
+Réponds UNIQUEMENT en JSON valide — tableau de {n} objets dans le même ordre que les biens ci-dessus.
+Contraintes de longueur STRICTES : chaque item de liste = max 8 mots, recommandation = max 12 mots.
 [
-  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["..."], "points_attention": ["..."], "recommandation": "..."}},
+  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["max 8 mots", "max 8 mots"], "points_attention": ["max 8 mots"], "recommandation": "max 12 mots"}},
   ...
 ]"""
 
