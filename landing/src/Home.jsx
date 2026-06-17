@@ -1,30 +1,20 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import FeaturesSection from './FeaturesSection'
 import ContactModal from './components/ContactModal'
 
-const RemotionPlayer = lazy(() =>
-  Promise.all([
-    import('@remotion/player'),
-    import('./remotion/ImmoMatchVideo'),
-  ]).then(([{ Player }, { ImmoFlashVideo }]) => ({
-    default: () => (
-      <Player
-        component={ImmoFlashVideo}
-        durationInFrames={3600}
-        fps={120}
-        compositionWidth={1280}
-        compositionHeight={720}
-        style={{ width: '100%', display: 'block' }}
-        autoPlay
-        loop
-        controls={false}
-        clickToPlay={false}
-        spaceKeyToPlayOrPause={false}
-      />
-    ),
-  }))
-)
+function usePrefersReducedMotion() {
+  const [pref, setPref] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handler = (e) => setPref(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return pref
+}
 
 /* ════════════════════════════════════════════════════════════════
    HOOK — Scroll Progress Bar
@@ -137,6 +127,7 @@ export default function Home() {
   useScrollProgress()
   useReveal()
 
+  const prefersReducedMotion = usePrefersReducedMotion()
   const isMobile = useIsMobile()
   const [menuOpen, setMenuOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
@@ -452,11 +443,27 @@ export default function Home() {
             Aucune carte bancaire · Opérationnel en 24h · Vos vraies données
           </p>
 
-          {/* Vidéo de présentation — Remotion Player */}
+          {/* Vidéo de présentation */}
           <div className="reveal" style={{ maxWidth: 780, margin: '0 auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <Suspense fallback={<div style={{ aspectRatio: '16/9', background: '#080d17' }} />}>
-              <RemotionPlayer />
-            </Suspense>
+            {prefersReducedMotion ? (
+              <img
+                src="/assets/hero-poster.jpg"
+                alt="ImmoFlash — présentation"
+                style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }}
+              />
+            ) : (
+              <video
+                src="/assets/hero.mp4"
+                poster="/assets/hero-poster.jpg"
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                width="1280"
+                height="720"
+                style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
+              />
+            )}
           </div>
         </div>
       </section>
