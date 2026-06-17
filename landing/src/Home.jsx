@@ -217,7 +217,6 @@ function HeroVideo({ prefersReducedMotion }) {
         <video
           ref={videoRef}
           src="/assets/hero.mp4"
-          poster="/assets/hero-poster.jpg"
           autoPlay
           muted
           playsInline
