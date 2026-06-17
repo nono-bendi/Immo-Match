@@ -121,6 +121,72 @@ function FaqItem({ q, a }) {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   HERO VIDEO — pleine largeur, autoplay fiable via IO
+   ════════════════════════════════════════════════════════════════ */
+function HeroVideo({ prefersReducedMotion }) {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || prefersReducedMotion) return
+    // Force play dès que l'élément entre dans le viewport
+    // (l'attribut autoPlay seul est parfois ignoré si opacity=0 au chargement)
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        video.play().catch(() => {})
+        io.disconnect()
+      }
+    }, { threshold: 0.1 })
+    io.observe(video)
+    return () => io.disconnect()
+  }, [prefersReducedMotion])
+
+  const wrapper = {
+    maxWidth: 1080,
+    margin: '0 auto',
+    padding: '0 1.5rem',
+    position: 'relative',
+    zIndex: 1,
+  }
+  const frame = {
+    borderRadius: 16,
+    overflow: 'hidden',
+    boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
+    border: '1px solid rgba(255,255,255,0.08)',
+  }
+
+  if (prefersReducedMotion) {
+    return (
+      <div style={wrapper}>
+        <div style={frame}>
+          <img src="/assets/hero-poster.jpg" alt="ImmoFlash — présentation"
+            style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }} />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="reveal" style={wrapper}>
+      <div style={frame}>
+        <video
+          ref={videoRef}
+          src="/assets/hero.mp4"
+          poster="/assets/hero-poster.jpg"
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          width="1280"
+          height="720"
+          style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════════════════════════
    COMPOSANT PRINCIPAL
    ════════════════════════════════════════════════════════════════ */
 export default function Home() {
@@ -442,30 +508,10 @@ export default function Home() {
           <p className="reveal" style={{ fontSize: 13, color: '#334155', margin: '0 0 3rem' }}>
             Aucune carte bancaire · Opérationnel en 24h · Vos vraies données
           </p>
-
-          {/* Vidéo de présentation */}
-          <div className="reveal" style={{ maxWidth: 780, margin: '0 auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            {prefersReducedMotion ? (
-              <img
-                src="/assets/hero-poster.jpg"
-                alt="ImmoFlash — présentation"
-                style={{ width: '100%', display: 'block', aspectRatio: '16/9', objectFit: 'cover' }}
-              />
-            ) : (
-              <video
-                src="/assets/hero.mp4"
-                poster="/assets/hero-poster.jpg"
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                width="1280"
-                height="720"
-                style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
-              />
-            )}
-          </div>
         </div>
+
+        {/* Vidéo de présentation — pleine largeur hors du container 800px */}
+        <HeroVideo prefersReducedMotion={prefersReducedMotion} />
       </section>
 
       {/* ════════════════════════════════════════════
