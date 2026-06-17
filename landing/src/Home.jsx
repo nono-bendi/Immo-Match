@@ -121,93 +121,142 @@ function FaqItem({ q, a }) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   HERO VIDEO
+   HERO VIDEO — lecteur avec barre de progression + pause
    ════════════════════════════════════════════════════════════════ */
 function HeroVideo() {
-  const videoRef = useRef(null)
-  const [ended, setEnded] = useState(false)
-  const [started, setStarted] = useState(false)
+  const videoRef  = useRef(null)
+  const trackRef  = useRef(null)
+  const hideTimer = useRef(null)
+  const dragging  = useRef(false)
+
+  const [paused,      setPaused]      = useState(true)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration,    setDuration]    = useState(0)
+  const [showCtrl,    setShowCtrl]    = useState(false)
 
   useEffect(() => {
     const v = videoRef.current
     if (!v) return
-
-    v.addEventListener('play',    () => setStarted(true), { once: true })
-    v.addEventListener('ended',   () => setEnded(true),   { once: true })
-    v.addEventListener('canplay', () => v.play().catch(() => {}), { once: true })
+    v.addEventListener('play',        () => setPaused(false))
+    v.addEventListener('pause',       () => setPaused(true))
+    v.addEventListener('ended',       () => setPaused(true))
+    v.addEventListener('timeupdate',  () => setCurrentTime(v.currentTime))
+    v.addEventListener('loadedmetadata', () => setDuration(v.duration))
+    v.addEventListener('canplay',     () => v.play().catch(() => {}), { once: true })
     v.load()
-
-    return () => {}
   }, [])
 
-  const replay = () => {
-    const v = videoRef.current
-    if (!v) return
-    v.currentTime = 0
-    setEnded(false)
-    v.play().catch(() => {})
+  const togglePlay = () => {
+    const v = videoRef.current; if (!v) return
+    if (v.ended) { v.currentTime = 0; v.play().catch(() => {}); return }
+    v.paused ? v.play().catch(() => {}) : v.pause()
   }
 
-  const wrapper = {
-    maxWidth: 1080, margin: '0 auto', padding: '0 1.5rem',
-    position: 'relative', zIndex: 1,
+  const seekTo = (clientX) => {
+    const v = videoRef.current
+    const bar = trackRef.current
+    if (!v || !bar || !duration) return
+    const rect = bar.getBoundingClientRect()
+    const pct  = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    v.currentTime = pct * duration
+    setCurrentTime(pct * duration)
   }
-  const frame = {
-    borderRadius: 16, overflow: 'hidden',
-    boxShadow: '0 40px 100px rgba(0,0,0,0.6)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    position: 'relative',
+
+  const onTrackDown  = (e) => { dragging.current = true;  seekTo(e.clientX) }
+  const onTrackMove  = (e) => { if (dragging.current) seekTo(e.clientX) }
+  const onTrackUp    = ()  => { dragging.current = false }
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onTrackMove)
+    window.addEventListener('mouseup',   onTrackUp)
+    return () => {
+      window.removeEventListener('mousemove', onTrackMove)
+      window.removeEventListener('mouseup',   onTrackUp)
+    }
+  })
+
+  const showControls = () => {
+    setShowCtrl(true)
+    clearTimeout(hideTimer.current)
+    hideTimer.current = setTimeout(() => setShowCtrl(false), 2500)
   }
+
+  const fmt = (s) => {
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60)
+    return `${m}:${String(sec).padStart(2, '0')}`
+  }
+
+  const pct = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (
-    <div style={wrapper}>
-      <div style={frame}>
-        {/* Play : visible si autoplay bloqué ET vidéo pas encore démarrée */}
-        {!started && (
-          <div onClick={replay} style={{
-            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(6,13,24,0.45)', zIndex: 2, cursor: 'pointer',
-          }}>
-            <div style={{
-              width: 72, height: 72, borderRadius: '50%',
-              background: 'rgba(56,189,248,0.18)', border: '2px solid rgba(56,189,248,0.5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backdropFilter: 'blur(8px)',
-            }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="#38bdf8">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </div>
-          </div>
-        )}
-        {/* Replay : visible quand la vidéo est terminée */}
-        {ended && (
-          <div onClick={replay} style={{
-            position: 'absolute', bottom: 16, right: 16, zIndex: 2, cursor: 'pointer',
-            background: 'rgba(6,13,24,0.7)', border: '1px solid rgba(56,189,248,0.4)',
-            borderRadius: 8, padding: '6px 14px',
-            color: '#38bdf8', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6,
-            backdropFilter: 'blur(8px)',
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M1 4v6h6M23 20v-6h-6"/>
-              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
-            </svg>
-            Revoir
-          </div>
-        )}
+    <div style={{ maxWidth: 1080, margin: '0 auto', padding: '0 1.5rem', position: 'relative', zIndex: 1 }}>
+      <div
+        style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.08)', position: 'relative', cursor: 'none' }}
+        onMouseMove={showControls}
+        onMouseLeave={() => { clearTimeout(hideTimer.current); setShowCtrl(false) }}
+      >
         <video
           ref={videoRef}
           src="/assets/hero.mp4"
           poster="/assets/hero-poster.jpg"
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          width="1280"
-          height="720"
+          autoPlay muted playsInline preload="auto"
+          width="1280" height="720"
           style={{ width: '100%', display: 'block', aspectRatio: '16/9' }}
+          onClick={togglePlay}
         />
+
+        {/* Overlay contrôles — apparaît au survol */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: showCtrl ? 'auto' : 'none',
+          opacity: showCtrl ? 1 : 0, transition: 'opacity 0.25s ease',
+        }}>
+          {/* Dégradé bas */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100,
+            background: 'linear-gradient(to top, rgba(6,13,24,0.85) 0%, transparent 100%)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* Bouton play/pause centré */}
+          <div onClick={togglePlay} style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.35)',
+              backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'transform 0.15s ease, background 0.15s ease',
+            }}>
+              {paused
+                ? <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                : <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              }
+            </div>
+          </div>
+
+          {/* Barre de progression + temps */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 16px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace', whiteSpace: 'nowrap' }}>
+                {fmt(currentTime)}
+              </span>
+              {/* Track */}
+              <div
+                ref={trackRef}
+                onMouseDown={onTrackDown}
+                style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', cursor: 'pointer', position: 'relative' }}
+              >
+                {/* Rempli */}
+                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, borderRadius: 2, background: 'linear-gradient(90deg,#38bdf8,#6366f1)', transition: 'width 0.1s linear' }} />
+                {/* Thumb */}
+                <div style={{ position: 'absolute', top: '50%', left: `${pct}%`, width: 12, height: 12, borderRadius: '50%', background: '#fff', transform: 'translate(-50%,-50%)', boxShadow: '0 1px 4px rgba(0,0,0,0.4)' }} />
+              </div>
+              <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace', whiteSpace: 'nowrap' }}>
+                {fmt(duration)}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
