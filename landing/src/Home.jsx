@@ -181,6 +181,15 @@ function HeroVideo() {
     hideTimer.current = setTimeout(() => setShowCtrl(false), 2500)
   }
 
+  const toggleFullscreen = () => {
+    const v = videoRef.current; if (!v) return
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {})
+    } else {
+      v.requestFullscreen().catch(() => {})
+    }
+  }
+
   const fmt = (s) => {
     const m = Math.floor(s / 60), sec = Math.floor(s % 60)
     return `${m}:${String(sec).padStart(2, '0')}`
@@ -254,6 +263,12 @@ function HeroVideo() {
               <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, fontVariantNumeric: 'tabular-nums', fontFamily: 'ui-monospace, monospace', whiteSpace: 'nowrap' }}>
                 {fmt(duration)}
               </span>
+              {/* Bouton plein écran */}
+              <div onClick={toggleFullscreen} style={{ cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" strokeLinecap="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>
+                </svg>
+              </div>
             </div>
           </div>
         </div>
