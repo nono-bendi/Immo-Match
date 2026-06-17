@@ -132,19 +132,23 @@ function HeroVideo({ prefersReducedMotion }) {
     const v = videoRef.current
     if (!v || prefersReducedMotion) return
 
-    const doPlay = () => {
-      v.currentTime = 0   // force début même si le navigateur cache la position
+    const startFromZero = () => {
+      v.currentTime = 0
       v.play().catch(() => {})
     }
 
-    v.addEventListener('play',    () => setStarted(true),  { once: true })
-    v.addEventListener('ended',   () => setEnded(true),    { once: true })
-    v.addEventListener('canplay', doPlay,                   { once: true })
+    v.addEventListener('play',          () => setStarted(true), { once: true })
+    v.addEventListener('ended',         () => setEnded(true),   { once: true })
+    // loadedmetadata = metadata chargée, le seek vers 0 fonctionne
+    v.addEventListener('loadedmetadata', startFromZero,         { once: true })
 
-    // Tente immédiatement (fonctionne si les données sont déjà en cache)
-    doPlay()
+    // Si le navigateur a déjà les métadonnées en cache (readyState >= 1)
+    // l'événement ne se re-déclenchera pas — on force directement
+    if (v.readyState >= 1) startFromZero()
 
-    return () => v.removeEventListener('canplay', doPlay)
+    return () => {
+      v.removeEventListener('loadedmetadata', startFromZero)
+    }
   }, [prefersReducedMotion])
 
   const replay = () => {
@@ -217,6 +221,7 @@ function HeroVideo({ prefersReducedMotion }) {
         <video
           ref={videoRef}
           src="/assets/hero.mp4"
+          poster="/assets/hero-poster.jpg"
           autoPlay
           muted
           playsInline
