@@ -132,22 +132,31 @@ function HeroVideo({ prefersReducedMotion }) {
     const v = videoRef.current
     if (!v || prefersReducedMotion) return
 
+    v.addEventListener('play',  () => setStarted(true), { once: true })
+    v.addEventListener('ended', () => setEnded(true),   { once: true })
+
+    const doPlay = () => v.play().catch(() => {})
+
     const startFromZero = () => {
-      v.currentTime = 0
-      v.play().catch(() => {})
+      if (v.currentTime === 0 && !v.ended) {
+        // Déjà au début — jouer directement
+        doPlay()
+      } else {
+        // Navigateur a mis en cache une position avancée : seek d'abord, play après
+        v.addEventListener('seeked', doPlay, { once: true })
+        v.currentTime = 0
+      }
     }
 
-    v.addEventListener('play',          () => setStarted(true), { once: true })
-    v.addEventListener('ended',         () => setEnded(true),   { once: true })
-    // loadedmetadata = metadata chargée, le seek vers 0 fonctionne
-    v.addEventListener('loadedmetadata', startFromZero,         { once: true })
-
-    // Si le navigateur a déjà les métadonnées en cache (readyState >= 1)
-    // l'événement ne se re-déclenchera pas — on force directement
-    if (v.readyState >= 1) startFromZero()
+    if (v.readyState >= 1) {
+      startFromZero()
+    } else {
+      v.addEventListener('loadedmetadata', startFromZero, { once: true })
+    }
 
     return () => {
       v.removeEventListener('loadedmetadata', startFromZero)
+      v.removeEventListener('seeked', doPlay)
     }
   }, [prefersReducedMotion])
 
