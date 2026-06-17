@@ -132,32 +132,15 @@ function HeroVideo({ prefersReducedMotion }) {
     const v = videoRef.current
     if (!v || prefersReducedMotion) return
 
-    v.addEventListener('play',  () => setStarted(true), { once: true })
-    v.addEventListener('ended', () => setEnded(true),   { once: true })
+    v.addEventListener('play',    () => setStarted(true), { once: true })
+    v.addEventListener('ended',   () => setEnded(true),   { once: true })
 
-    const doPlay = () => v.play().catch(() => {})
+    // load() réinitialise complètement le lecteur (currentTime=0, ended=false)
+    // puis on joue dès que la vidéo est prête
+    v.addEventListener('canplay', () => v.play().catch(() => {}), { once: true })
+    v.load()
 
-    const startFromZero = () => {
-      if (v.currentTime === 0 && !v.ended) {
-        // Déjà au début — jouer directement
-        doPlay()
-      } else {
-        // Navigateur a mis en cache une position avancée : seek d'abord, play après
-        v.addEventListener('seeked', doPlay, { once: true })
-        v.currentTime = 0
-      }
-    }
-
-    if (v.readyState >= 1) {
-      startFromZero()
-    } else {
-      v.addEventListener('loadedmetadata', startFromZero, { once: true })
-    }
-
-    return () => {
-      v.removeEventListener('loadedmetadata', startFromZero)
-      v.removeEventListener('seeked', doPlay)
-    }
+    return () => {}
   }, [prefersReducedMotion])
 
   const replay = () => {
