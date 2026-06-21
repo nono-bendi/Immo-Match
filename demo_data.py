@@ -99,17 +99,6 @@ DEMO_PROSPECTS = [
         "observation": "Famille avec 3 enfants, cherche espace et calme en périphérie",
         "archive": 0, "date": "2024-03-05",
     },
-    {  # idx=6 — Laurent Vidal : prospect vitrine IA — télétravail + chien + calme
-        "nom": "Laurent Vidal", "mail": "l.vidal@demo.fr", "telephone": "06 78 90 12 34",
-        "domicile": "Paris 11ème", "bien": "Appartement",
-        "villes": "Fréjus,Saint-Raphaël", "quartiers": "",
-        "budget_max": 350000, "etat": "bon état", "expo": "Sud",
-        "stationnement": "oui", "copro": "oui", "exterieur": "Terrasse,Jardin", "etage": "Étage bas",
-        "destination": "résidence principale",
-        "criteres": "Appartement 3 pièces minimum, terrasse ou jardin impératif, calme absolu, étage bas ou rez-de-jardin, parking",
-        "observation": "Télétravail 4 jours par semaine — a besoin d'un espace pouvant servir de bureau, lumineux de préférence. A un labrador (grand chien) : extérieur clos ou accès direct jardin indispensable, ascenseur non adapté si étage élevé sans extérieur. Séparation récente, achat en solo, budget vraiment maximum à 350k. Cherche le calme absolu — rue passante ou voisinage bruyant rédhibitoire. Mutation depuis Paris, veut couper avec la vie parisienne.",
-        "archive": 0, "date": "2024-03-15",
-    },
 ]
 
 
