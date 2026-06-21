@@ -36,6 +36,11 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     .glass-sort-btn:hover{color:#1e293b;}
     .glass-sort-btn.active{color:#fff;}
     .glass-sort-glider{position:absolute;top:0;bottom:0;width:calc(100% / 3);border-radius:.85rem;z-index:1;background:var(--gradient-primary);box-shadow:var(--shadow-button);transition:transform .5s cubic-bezier(.37,1.95,.66,.56);}
+    .gem-send{position:relative;overflow:hidden;}
+    .gem-send::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#1E3A5F 0%,#38bdf8 100%);opacity:0;transition:opacity .25s ease;border-radius:inherit;}
+    .gem-send:hover::after{opacity:1;}
+    .gem-send svg{position:relative;z-index:1;transition:color .25s ease;}
+    .gem-send:hover svg{color:#fff !important;}
     .matchings-wrap{padding:32px 24px;}
     .pc-grid{display:grid;grid-template-columns:1.2fr 210px 1.2fr;min-height:250px;}
     .pc-sep-right{border-right:1px solid var(--pc-sep);}
@@ -187,7 +192,7 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onRefuse }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse }) {
   const c = sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -196,8 +201,8 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
   const _tx  = dark ? '#7dd3fc' : '#1E3A5F'
   const _sub = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
   return (
-    <div style={{ position: 'relative' }}>
-      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: 8, borderRadius: 12, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, cursor: 'pointer', transition: 'all 0.18s ease', width: '100%', textAlign: 'left', transform: selected ? 'translateY(-1px)' : 'translateY(0)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 8, borderRadius: 12, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, transition: 'all 0.18s ease' }}>
+      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, transform: selected ? 'translateY(-1px)' : 'translateY(0)', transition: 'transform 0.18s ease' }}>
         <div style={{ width: 44, height: 44, borderRadius: 9, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
           {photo && <img src={photo} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
           <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
@@ -212,11 +217,13 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
           </div>
         </div>
       </button>
-      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ position: 'absolute', top: 8, right: 34, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+      <button onClick={e => { e.stopPropagation(); onOpenBien() }} title="Voir la fiche du bien" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
         onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(125,211,252,0.12)':'#eff6ff'; e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
         onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
       ><ExternalLink size={12} /></button>
-      <button onClick={e => { e.stopPropagation(); onRefuse() }} title="Refuser ce bien" style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+      <button onClick={e => { e.stopPropagation(); onPropose && onPropose() }} disabled={!onPropose} title={emailEnvoye ? 'Renvoyer' : 'Envoyer'} className={onPropose ? 'gem-send' : ''} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: onPropose ? 'pointer' : 'default', color: '#94a3b8', opacity: onPropose ? 1 : 0.4 }}
+      ><Send size={12} /></button>
+      <button onClick={e => { e.stopPropagation(); onRefuse() }} title="Refuser" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
         onMouseEnter={e => { e.currentTarget.style.background='#fef2f2'; e.currentTarget.style.color='#ef4444'; e.currentTarget.style.borderColor='#fecaca' }}
         onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
       ><X size={12} /></button>
@@ -524,6 +531,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
                 emailEnvoye={m.date_email_envoye}
+                onPropose={group.prospect_mail ? () => onPropose(m, group.prospect_mail, (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom) : null}
                 onRefuse={() => onRefuse(m)}
               />
             ))}
@@ -567,7 +575,7 @@ export default function MatchingsPageV2() {
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
-  const [sortBy, setSortBy]             = useState('recent')
+  const [sortBy, setSortBy]             = useState('score')
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [page, setPage]                 = useState(1)
@@ -818,7 +826,6 @@ export default function MatchingsPageV2() {
       ) : groups.length === 0 ? (
         <div className="rounded-2xl p-16 text-center" style={{ background: 'var(--surface-card-bg)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid var(--surface-card-border)', boxShadow: 'var(--shadow-card)' }}>
           <div style={{ position: 'relative', width: 96, height: 86, margin: '0 auto 20px' }}>
-            {/* Étoile principale — même rendu 3D que l'AnalysisOverlay */}
             <svg viewBox="0 0 100 100" width={62} height={62} style={{ position: 'absolute', left: 17, top: 8, animation: 'star-float 3.2s ease-in-out infinite', filter: 'drop-shadow(0 0 10px rgba(124,58,237,.35))' }}>
               <defs>
                 <radialGradient id="es1-da" cx="50" cy="66" fx="50" fy="66" r="30" gradientTransform="translate(0 35) scale(1 0.5)" gradientUnits="userSpaceOnUse">
@@ -832,7 +839,6 @@ export default function MatchingsPageV2() {
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es1-da)"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es1-lb)"/>
             </svg>
-            {/* Étoile secondaire haut-droite */}
             <svg viewBox="0 0 100 100" width={29} height={29} style={{ position: 'absolute', right: 0, top: 0, animation: 'star-drift 4.1s ease-in-out infinite', filter: 'drop-shadow(0 0 6px rgba(167,139,250,.4))' }}>
               <defs>
                 <radialGradient id="es2-da" cx="50" cy="66" fx="50" fy="66" r="30" gradientTransform="translate(0 35) scale(1 0.5)" gradientUnits="userSpaceOnUse">
@@ -846,16 +852,32 @@ export default function MatchingsPageV2() {
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es2-da)"/>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="url(#es2-lb)"/>
             </svg>
-            {/* Petite étoile bas-gauche */}
             <svg viewBox="0 0 100 100" width={17} height={17} style={{ position: 'absolute', left: 0, bottom: 0, animation: 'star-pulse 2.6s ease-in-out infinite', animationDelay: '.9s', filter: 'drop-shadow(0 0 4px rgba(196,181,253,.5))' }}>
               <path d="M63,37c-6.7-4-4-27-13-27s-6.3,23-13,27-27,4-27,13,20.3,9,27,13,4,27,13,27,6.3-23,13-27,27-4,27-13-20.3-9-27-13Z" fill="#C4B5FD"/>
             </svg>
           </div>
-          <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
-          <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
-          <button onClick={runGlobal} className="px-5 py-2.5 text-white font-semibold rounded-xl inline-flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
-            <Sparkles size={16} /> Lancer l'analyse
-          </button>
+          {filterBienId ? (
+            <>
+              <p className="font-semibold text-[#1E3A5F] mb-1">Ce bien n'a pas encore été analysé</p>
+              <p className="text-sm text-gray-400 mb-5">Lance l'analyse pour trouver les prospects compatibles</p>
+              <button onClick={async () => {
+                setAnalyzing(true); setShowOverlay(true); setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName('ce bien')
+                await apiFetch(`/matching/run-by-bien/${filterBienId}`, { method: 'POST' }).then(r => r.json()).catch(() => {})
+                setOverlayCompleted(true)
+                setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false); fetchData() }, 700)
+              }} className="px-5 py-2.5 text-white font-semibold rounded-xl inline-flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
+                <Sparkles size={16} /> Analyser ce bien
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching</p>
+              <p className="text-sm text-gray-400 mb-5">Lance une analyse pour trouver des correspondances</p>
+              <button onClick={runGlobal} className="px-5 py-2.5 text-white font-semibold rounded-xl inline-flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
+                <Sparkles size={16} /> Lancer l'analyse
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <>
