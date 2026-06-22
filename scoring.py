@@ -323,6 +323,7 @@ _STATIC_RULES = """BARÈME DE RÉFÉRENCE (à respecter strictement) :
 
 RÈGLES IMPORTANTES :
 - Un champ vide côté prospect = client flexible sur ce point → jamais de pénalité
+- NE JAMAIS mentionner l'absence d'un équipement (ascenseur, garage, parking, cave, alarme…) en point_attention si ce critère n'est PAS explicitement renseigné dans le profil prospect (champs critères, stationnement, étage, extérieur). Inventer un critère absent est une erreur grave — un champ vide = flexibilité, pas une exigence silencieuse.
 - Ne recalcule pas le budget, le type ou la ville (déjà dans le score objectif)
 - Sois honnête : un bien moyen ne mérite pas 35/40 — utilise toute l'échelle
 - Raisonne sur l'ensemble, pas critère par critère
@@ -348,6 +349,7 @@ COHÉRENCE RECOMMANDATION — RÈGLE PRIORITAIRE :
 - N'évoque JAMAIS la "possibilité d'ajouter" ou "l'absence de" un équipement qui est déjà mentionné dans la description (ex : climatisation, balcon, parking, cave, alarme).
 - Si la description dit "offre la climatisation réversible", ne suggère pas d'ajouter la climatisation.
 - La recommandation doit être cohérente avec TOUT le contenu de la description, pas seulement les premiers paragraphes.
+- RÈGLE ANTI-CONTRADICTION SCORE : si ta recommandation signale une inadéquation majeure avec le projet du prospect (ex : "ce n'est pas ce qu'il/elle cherche", "ne correspond pas au projet"), le score qualitatif DOIT être ≤ 18/40. Un score > 28 couplé à une recommandation négative est incohérent et sera immédiatement détecté par les agents.
 
 STATIONNEMENT — RÈGLE SPÉCIFIQUE (erreur fréquente à éviter) :
 - Le stationnement peut être DANS le bien (box, garage, place privative) OU À PROXIMITÉ (parking public, parking avec abonnement, parking en face, navette, etc.)
@@ -368,9 +370,9 @@ ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 - ÉCHELLE COMPLÈTE : tu dois utiliser 0-5 quand le bien est clairement inadapté. Ne jamais éviter les scores extrêmes par prudence — les agents ont besoin de signaux forts pour prioriser.
 
 RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
-- Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre.
-- INTERDIT : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect".
-- CORRECT : "susceptible de correspondre à vos goûts", "en adéquation avec vos préférences", "correspond à vos critères", "répond à votre recherche de…"
+- Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre, comme un agent qui parle naturellement.
+- INTERDIT (tournures robotiques ou administratives) : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect", "critère indispensable satisfait", "critère satisfait", "critère rempli", "exigence satisfaite", "correspond à votre critère".
+- CORRECT : décris le bénéfice concret du bien de façon naturelle. Ex : "Jardin privatif clos — idéal pour votre chien" plutôt que "Jardin clos — critère indispensable satisfait".
 """
 
 
@@ -407,12 +409,18 @@ def _build_focus_destination(destination):
 - Critères prioritaires : visibilité, accessibilité, surface adaptée, zonage compatible, stationnement
 - Valorise : emplacement à fort passage, vitrine, hauteur sous plafond, accès livraison, parking
 - Pénalise : zone résidentielle pure, accès difficile, surface inadaptée à l'activité visée"""
-    else:
+    elif any(k in dest for k in ["principal", "habiter", "habitation", "primaire"]):
         return """DESTINATION : RÉSIDENCE PRINCIPALE
 - Critères prioritaires : confort de vie quotidien, calme, luminosité, stationnement, commodités proches
 - Les défauts de confort (vis-à-vis, bruit, sans extérieur) ont un impact fort sur la qualité de vie
 - Valorise : exposition, calme, extérieur, stationnement, état du bien
 - Pénalise : nuisances sonores, manque de lumière, absence de parking si demandé"""
+    else:
+        return """DESTINATION : NON RENSEIGNÉE
+- Le prospect n'a pas précisé sa destination — NE PAS supposer d'usage (résidence principale, investissement, etc.)
+- Évalue sur les critères renseignés : type, zone, budget, critères spécifiques, observations
+- Ne génère aucun point fort basé sur un usage supposé ("idéal pour habiter", "bon investissement locatif"…)
+- Si les données disponibles justifient un score élevé, attribue-le — ne te bride pas artificiellement"""
 
 
 def _build_section_contraintes(prospect):
@@ -443,6 +451,43 @@ def _build_section_contraintes(prospect):
             + "\n".join(contraintes_dures_lines)
         )
     return ""
+
+
+def _build_budget_gap_note(prospect, bien):
+    """Signal si l'écart budget/prix est anormalement grand dans un sens ou l'autre."""
+    budget = prospect.get("budget_max")
+    prix = bien.get("prix")
+    if not budget or not prix:
+        return ""
+    ratio = prix / budget
+    if ratio < 0.60:
+        return (
+            f"\nALERTE STANDING : ce bien ({prix:,.0f}€) représente {ratio*100:.0f}% du budget prospect "
+            f"({budget:,.0f}€). Interroge si ce bien correspond au standing visé — "
+            f"si l'écart te semble incohérent avec le profil, signale-le en point_attention."
+        )
+    if ratio > 1.0:
+        return (
+            f"\nALERTE HORS BUDGET : ce bien ({prix:,.0f}€) dépasse le budget prospect "
+            f"({budget:,.0f}€, +{(ratio-1)*100:.0f}%). Signale-le en point_attention si absent du score objectif."
+        )
+    return ""
+
+
+def _build_observation_check(prospect, batch=False):
+    """Section de vérification forcée de l'observation agent avant scoring."""
+    obs = (prospect.get("observation") or "").strip()
+    if not obs:
+        return ""
+    subject = "chaque bien" if batch else "ce bien"
+    return (
+        f'\nVÉRIFICATION OBSERVATION OBLIGATOIRE pour {subject} :\n'
+        f'L\'agent a noté sur ce prospect : "{obs[:300]}"\n'
+        f'→ Vérifie si {subject} contredit directement l\'intention du prospect '
+        f'(ex : prospect veut une maison indépendante = ce bien est en copropriété ; '
+        f'prospect veut habiter ET louer un 2e logement = ce bien n\'a qu\'un seul logement). '
+        f'Si contradiction directe → premier point_attention prioritaire et score qualitatif ≤ 18/40.'
+    )
 
 
 def _parse_claude_json(raw):
@@ -478,6 +523,8 @@ def scorer_bien_claude(prospect, bien, score_objectif, detail_objectif, model='c
 
     focus_destination = _build_focus_destination(prospect.get("destination"))
     section_contraintes = _build_section_contraintes(prospect)
+    budget_gap_note = _build_budget_gap_note(prospect, bien)
+    observation_check = _build_observation_check(prospect)
 
     dynamic_prompt = f"""Tu es un agent immobilier expert sur la Côte d'Azur (Fréjus, Saint-Raphaël).
 
@@ -488,7 +535,7 @@ Détail :
 
 Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne peut pas évaluer.
 
-{focus_destination}{section_contraintes}
+{focus_destination}{section_contraintes}{budget_gap_note}{observation_check}
 
 === PROSPECT #{prospect.get('id', 'N/A')} ===
 {construire_contexte_prospect(prospect)}
@@ -497,12 +544,12 @@ Ton rôle est d'attribuer un SCORE QUALITATIF /40 basé sur ce que le code ne pe
 {construire_contexte_bien(bien)}
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
-Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = max 20 mots.
+Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = 2 phrases max (max 45 mots) — concrète, personnalisée, avec un argument clé et une suggestion d'action.
 {{
   "score_qualitatif": <entier 0-40>,
   "points_forts": ["max 20 mots", "max 20 mots", "max 20 mots"],
   "points_attention": ["max 20 mots", "max 20 mots"],
-  "recommandation": "Une phrase d'action concrète, max 20 mots"
+  "recommandation": "1-2 phrases concrètes et personnalisées, max 45 mots"
 }}"""
 
     message = client.messages.create(
@@ -541,6 +588,7 @@ def scorer_biens_batch_claude(prospect, biens_avec_objectif, model='claude-sonne
     """
     focus_destination = _build_focus_destination(prospect.get("destination"))
     section_contraintes = _build_section_contraintes(prospect)
+    observation_check = _build_observation_check(prospect, batch=True)
     prospect_ctx = construire_contexte_prospect(prospect)
 
     biens_blocks = ""
@@ -549,12 +597,13 @@ def scorer_biens_batch_claude(prospect, biens_avec_objectif, model='claude-sonne
             f"  • {k.capitalize()} : {v['points']} pts — {v['note']}"
             for k, v in detail_obj.items()
         ])
+        budget_gap = _build_budget_gap_note(prospect, bien)
         biens_blocks += f"""
 === BIEN #{bien.get('id')} ===
 Score objectif calculé : {score_obj}/60
 Détail :
 {detail_str}
-{construire_contexte_bien(bien)}
+{construire_contexte_bien(bien)}{budget_gap}
 """
 
     n = len(biens_avec_objectif)
@@ -563,7 +612,7 @@ Détail :
 
 Ton rôle est d'attribuer un SCORE QUALITATIF /40 à CHACUN des {n} biens ci-dessous.
 
-{focus_destination}{section_contraintes}
+{focus_destination}{section_contraintes}{observation_check}
 
 RÈGLE CRITIQUE — SCORING ABSOLU ET INDÉPENDANT :
 - Score chaque bien de façon ABSOLUE par rapport au profil prospect — PAS en comparaison relative avec les autres biens.
@@ -574,9 +623,9 @@ RÈGLE CRITIQUE — SCORING ABSOLU ET INDÉPENDANT :
 {prospect_ctx}
 {biens_blocks}
 Réponds UNIQUEMENT en JSON valide — tableau de {n} objets dans le même ordre que les biens ci-dessus.
-Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = max 20 mots.
+Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = 2 phrases max (max 45 mots) — concrète, personnalisée, avec un argument clé et une suggestion d'action.
 [
-  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["max 20 mots", "max 20 mots"], "points_attention": ["max 20 mots"], "recommandation": "max 20 mots"}},
+  {{"bien_id": <id>, "score_qualitatif": <0-40>, "points_forts": ["max 20 mots", "max 20 mots"], "points_attention": ["max 20 mots"], "recommandation": "1-2 phrases concrètes et personnalisées, max 45 mots"}},
   ...
 ]"""
 
@@ -705,6 +754,20 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-6', agency_sl
             futures = [executor.submit(_analyser_bien, args) for args in biens_avec_objectif]
             for future in as_completed(futures):
                 resultats.append(future.result())
+
+    # Cap déterministe : indépendant de Claude, garantit la cohérence score/reco
+    _RECO_ECARTER    = ["à écarter", "non recommandé", "à éliminer", "incompatible", "inadapté"]
+    _RECO_CONDITIONNEL = ["uniquement si", "seulement si", "sous condition", "à proposer si", "si le projet évolue"]
+    for r in resultats:
+        reco = (r.get("recommandation") or "").lower()
+        cap = None
+        if any(k in reco for k in _RECO_ECARTER):
+            cap = 55
+        elif any(k in reco for k in _RECO_CONDITIONNEL):
+            cap = 65
+        if cap and r["score"] > cap:
+            r["score_qualitatif"] = max(0, r["score_qualitatif"] - (r["score"] - cap))
+            r["score"] = cap
 
     resultats.sort(key=lambda x: x["score"], reverse=True)
     return resultats

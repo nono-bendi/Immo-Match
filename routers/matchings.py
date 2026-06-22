@@ -16,6 +16,9 @@ from analytics import track
 
 router = APIRouter()
 
+# Verrou : évite deux analyses simultanées du même bien (race condition doublons)
+_bien_analyse_en_cours: set = set()
+
 
 def _charger_motifs_refus(db_path):
     """Retourne {bien_id: [motif1, motif2, ...]} pour les biens refusés avec motif."""
@@ -345,6 +348,26 @@ def _core_analyser_bien(bien_id: int, db_path: str = None) -> dict:
     Logique pure d'analyse d'un bien contre tous les prospects compatibles.
     Appelable depuis une route FastAPI ou un thread background.
     """
+    lock_key = (bien_id, db_path)
+    if lock_key in _bien_analyse_en_cours:
+        log.info(f"Bien #{bien_id} déjà en cours d'analyse, ignoré.")
+        return {"message": "Analyse déjà en cours pour ce bien", "matchings_count": 0}
+    _bien_analyse_en_cours.add(lock_key)
+
+    try:
+        return _core_analyser_bien_inner(bien_id, db_path)
+    finally:
+        _bien_analyse_en_cours.discard(lock_key)
+        try:
+            _c = sqlite3.connect(db_path or get_db_path("saint_francois"))
+            _c.execute("UPDATE biens SET statut = 'actif' WHERE id = ? AND statut = 'en_analyse'", (bien_id,))
+            _c.commit()
+            _c.close()
+        except Exception:
+            pass
+
+
+def _core_analyser_bien_inner(bien_id: int, db_path: str = None) -> dict:
     settings = get_settings_values(db_path)
     budget_min = settings["budget_tolerance_min"]
     budget_max = settings["budget_tolerance_max"]
@@ -396,7 +419,7 @@ def _core_analyser_bien(bien_id: int, db_path: str = None) -> dict:
 
             conn = sqlite3.connect(db_path or get_db_path("saint_francois"))
             conn.execute("""
-                INSERT INTO matchings
+                INSERT OR IGNORE INTO matchings
                     (prospect_id, bien_id, score, points_forts, points_attention, recommandation, date_analyse, date_creation)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (

@@ -95,8 +95,8 @@ function NewProspectPage() {
         ...(data.pieces_min         && { pieces_min: data.pieces_min }),
         ...(data.etat?.length       && { etat: data.etat }),
         ...(data.expo?.length       && { expo: data.expo }),
-        ...(data.stationnement      && { stationnement: data.stationnement }),
-        ...(data.exterieur?.length  && { exterieur: data.exterieur }),
+        ...(data.stationnement      && { stationnement: Array.isArray(data.stationnement) ? data.stationnement : data.stationnement.split(',').map(s => s.trim()).filter(Boolean) }),
+        ...(data.exterieur?.length  && { exterieur: Array.isArray(data.exterieur) ? data.exterieur.join(',') : data.exterieur }),
         ...(data.etage?.length      && { etage: data.etage }),
         ...(data.copro              && { copro: data.copro }),
         ...(data.destination        && { destination: data.destination }),
@@ -119,19 +119,26 @@ function NewProspectPage() {
   // États pour l'overlay d'analyse
   const [showOverlay, setShowOverlay] = useState(false)
   
+  const defaultFormData = {
+    titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', nom2: '', prenom2: '', domicile: '', showContact2: false,
+    bien: [], villes: [], quartiers: [], quartiersExclus: '',
+    budget_max: '', surface_min: '', pieces_min: '',
+    etat: [], expo: [], stationnement: [], exterieur: '',
+    etage: [], copro: '', destination: '', observation: '',
+    chambre_plain_pied: false, plain_pied_total: false, sdb_min: '', wc_min: ''
+  }
+
   const [formData, setFormData] = useState(() => {
     try {
       const saved = sessionStorage.getItem('immoflash_new_prospect_draft')
-      if (saved) return JSON.parse(saved)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        // Migrer exterieur si c'est un tableau (ancienne version)
+        if (Array.isArray(parsed.exterieur)) parsed.exterieur = parsed.exterieur.join(',')
+        return { ...defaultFormData, ...parsed }
+      }
     } catch {}
-    return {
-      titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', nom2: '', prenom2: '', domicile: '', showContact2: false,
-      bien: [], villes: [], quartiers: [], quartiersExclus: '',
-      budget_max: '', surface_min: '', pieces_min: '',
-      etat: [], expo: [], stationnement: '', exterieur: [],
-      etage: [], copro: '', destination: '', observation: '',
-      chambre_plain_pied: false, plain_pied_total: false, sdb_min: '', wc_min: ''
-    }
+    return defaultFormData
   })
 
   useEffect(() => {
@@ -158,6 +165,7 @@ function NewProspectPage() {
     { value: 'Local commercial', label: 'Local commercial' },
     { value: 'Immeuble', label: 'Immeuble' },
     { value: 'Immeuble de rapport', label: 'Immeuble de rapport' },
+    { value: 'Maison divisée', label: 'Maison divisée en appts' },
     { value: 'Terrain', label: 'Terrain' },
     { value: 'Tous biens', label: 'Tous types' }
   ]
@@ -205,6 +213,7 @@ function NewProspectPage() {
         { value: 'Plain-pied', label: 'Plain-pied' },
         { value: 'Accès PMR', label: 'Accès PMR' },
         { value: 'Cuisine fermée', label: 'Cuisine fermée' },
+        { value: 'Grande pièce à vivre', label: 'Grande pièce à vivre' },
         { value: 'Contemporain', label: 'Contemporain' },
         { value: 'Atypique', label: 'Atypique' },
         { value: 'Ancien', label: 'Ancien' },
@@ -225,10 +234,9 @@ function NewProspectPage() {
   ]
 
   const stationnementOptions = [
-    { value: 'Garage', label: 'Garage' },
     { value: 'Parking', label: 'Parking' },
-    { value: 'Box', label: 'Box' },
-    { value: 'Cave', label: 'Cave' },
+    { value: 'Box', label: 'Box fermé' },
+    { value: 'Garage', label: 'Garage' },
     { value: 'Obligatoire', label: 'Obligatoire (type indifférent)' },
     { value: 'Pas nécessaire', label: 'Pas nécessaire' }
   ]
@@ -348,36 +356,39 @@ function NewProspectPage() {
     e.preventDefault()
     setSaving(true)
 
-    const dataToSend = {
-      ...formData,
-      bien: formData.bien.join(', '),
-      villes: formData.villes.join(', '),
-      quartiers: formData.quartiers.join(', '),
-      etat: formData.etat.join(', '),
-      expo: formData.expo.join(', '),
-      exterieur: formData.exterieur.join(', '),
-      etage: formData.etage.join(', '),
-      budget_max: formData.budget_max ? parseFloat(formData.budget_max) : null,
-      criteres: [
-        formData.quartiersExclus ? `Éviter: ${formData.quartiersExclus}` : '',
-        formData.surface_min ? `Surface min: ${formData.surface_min}m²` : '',
-        formData.pieces_min ? `Pièces min: ${formData.pieces_min}` : ''
-      ].filter(Boolean).join(' | '),
-      sdb_min: formData.sdb_min ? parseInt(formData.sdb_min) : 0,
-      wc_min: formData.wc_min ? parseInt(formData.wc_min) : 0,
-      chambre_plain_pied: formData.chambre_plain_pied ? 1 : 0,
-      plain_pied_total: formData.plain_pied_total ? 1 : 0
-    }
+    const joinField = (v) => Array.isArray(v) ? v.join(', ') : (v || '')
 
     try {
+      const dataToSend = {
+        ...formData,
+        bien: joinField(formData.bien),
+        villes: joinField(formData.villes),
+        quartiers: joinField(formData.quartiers),
+        etat: joinField(formData.etat),
+        expo: joinField(formData.expo),
+        stationnement: joinField(formData.stationnement),
+        exterieur: formData.exterieur,
+        etage: joinField(formData.etage),
+        budget_max: formData.budget_max ? parseFloat(formData.budget_max) : null,
+        criteres: [
+          formData.quartiersExclus ? `Éviter: ${formData.quartiersExclus}` : '',
+          formData.surface_min ? `Surface min: ${formData.surface_min}m²` : '',
+          formData.pieces_min ? `Pièces min: ${formData.pieces_min}` : ''
+        ].filter(Boolean).join(' | '),
+        sdb_min: formData.sdb_min ? parseInt(formData.sdb_min) : 0,
+        wc_min: formData.wc_min ? parseInt(formData.wc_min) : 0,
+        chambre_plain_pied: formData.chambre_plain_pied ? 1 : 0,
+        plain_pied_total: formData.plain_pied_total ? 1 : 0
+      }
+
       const response = await apiFetch('/prospects/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend)
       })
-      
+
       const data = await response.json()
-      
+
       if (data.error) {
         showModal('error', 'Erreur', data.error)
       } else {
@@ -389,7 +400,7 @@ function NewProspectPage() {
     } catch {
       showModal('error', 'Erreur', 'Une erreur est survenue lors de l\'enregistrement.')
     }
-    
+
     setSaving(false)
   }
 
@@ -958,13 +969,13 @@ function NewProspectPage() {
                   <button
                     key={option.value}
                     type="button"
-                    onClick={() => handleChange('stationnement', formData.stationnement === option.value ? '' : option.value)}
+                    onClick={() => handleChange('stationnement', formData.stationnement.includes(option.value) ? formData.stationnement.filter(v => v !== option.value) : [...formData.stationnement, option.value])}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      formData.stationnement === option.value
+                      formData.stationnement.includes(option.value)
                         ? 'text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
-                    style={formData.stationnement === option.value ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                    style={formData.stationnement.includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                   >
                     {option.label}
                   </button>
@@ -983,11 +994,11 @@ function NewProspectPage() {
                         type="button"
                         onClick={() => handleCSVToggle('exterieur', option.value)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          (formData.exterieur || '').includes(option.value)
+                          isCSVSelected('exterieur', option.value)
                             ? 'text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
-                        style={(formData.exterieur || '').includes(option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
+                        style={isCSVSelected('exterieur', option.value) ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}
                       >
                         {option.label}
                       </button>
@@ -1114,20 +1125,44 @@ function NewProspectPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <div className="flex items-center gap-2">
-                  <FileText size={16} />
-                  Observations / Notes
+            {/* ══ OBSERVATIONS — champ le plus impactant ══ */}
+            <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid #38bdf8', boxShadow: '0 4px 24px rgba(56,189,248,0.15)' }}>
+              {/* Header accrocheur */}
+              <div className="px-5 py-4 flex items-start gap-4" style={{ background: 'var(--gradient-primary)' }}>
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mt-0.5">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
                 </div>
-              </label>
-              <textarea
-                value={formData.observation}
-                onChange={(e) => handleChange('observation', e.target.value)}
-                placeholder="Informations complémentaires, contraintes particulières, délais, financement..."
-                rows={4}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] resize-none"
-              />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-white font-bold text-base">Notes &amp; Observations</h3>
+                    <span className="px-2 py-0.5 text-xs font-bold rounded-full" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
+                      Champ le plus important
+                    </span>
+                  </div>
+                  <p className="text-white/75 text-xs mt-0.5 leading-relaxed">
+                    C'est ici que l'IA fait la différence — chaque détail compte pour trouver le bon bien.
+                  </p>
+                </div>
+              </div>
+
+{/* Textarea */}
+              <div className="p-4" style={{ background: 'white' }}>
+                <textarea
+                  value={formData.observation}
+                  onChange={(e) => handleChange('observation', e.target.value)}
+                  placeholder="Ex : budget réel plus élevé (ne veut pas le montrer), a un chien, travaille depuis chez lui, divorce en cours, veut investir pour sa fille, aime le calme absolu..."
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl resize-none focus:outline-none focus:ring-2"
+                  style={{ border: '1.5px solid #bae6fd', fontSize: 14, lineHeight: 1.6 }}
+                />
+                {formData.observation.trim().length > 0 && (
+                  <p className="mt-2 text-xs font-medium" style={{ color: '#1E6B3F' }}>
+                    {formData.observation.trim().split(/\s+/).length} mots — l'IA va exploiter chaque information
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
