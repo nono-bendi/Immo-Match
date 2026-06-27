@@ -395,16 +395,16 @@ function ClientsPage() {
   }
 
   const sorted = [...prospects].sort((a, b) => b.id - a.id)
-  const actifs = sorted.filter(p => !p.archive).filter(p =>
-    p.nom?.toLowerCase().includes(search.toLowerCase()) ||
-    p.villes?.toLowerCase().includes(search.toLowerCase()) ||
-    p.bien?.toLowerCase().includes(search.toLowerCase())
-  )
-  const archives = sorted.filter(p => p.archive).filter(p =>
-    p.nom?.toLowerCase().includes(search.toLowerCase()) ||
-    p.villes?.toLowerCase().includes(search.toLowerCase()) ||
-    p.bien?.toLowerCase().includes(search.toLowerCase())
-  )
+  const matchFilters = (p) => {
+    if (search && !p.nom?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.villes?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.bien?.toLowerCase().includes(search.toLowerCase())) return false
+    if (filterBien && !p.bien?.includes(filterBien) && !p.bien?.includes('Tous biens')) return false
+    if (filterBudget && p.budget_max && p.budget_max < parseInt(filterBudget)) return false
+    return true
+  }
+  const actifs = sorted.filter(p => !p.archive).filter(matchFilters)
+  const archives = sorted.filter(p => p.archive).filter(matchFilters)
 
   const totalPages = Math.ceil(actifs.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
