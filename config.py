@@ -64,6 +64,7 @@ class EmailRequest(BaseModel):
     bien_image_url: Optional[str] = None
     custom_intro: Optional[str] = None
     custom_conclusion: Optional[str] = None
+    langue: Optional[str] = None
 
 class UserRegister(BaseModel):
     email: str

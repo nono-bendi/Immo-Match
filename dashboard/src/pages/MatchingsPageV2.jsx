@@ -478,7 +478,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 </div>
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
-                  <span>Actif · {group.matchings.length} match{group.matchings.length > 1 ? 's' : ''}</span>
+                  <span>Actif · {sorted.length} match{sorted.length > 1 ? 's' : ''}</span>
                   {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
                 </div>
                 {analyseLabel && <div style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.28)' : '#b0bec9', marginTop: 4, letterSpacing: '0.01em' }}>Analysé {analyseLabel}</div>}
@@ -575,7 +575,7 @@ export default function MatchingsPageV2() {
   const [loading, setLoading]           = useState(true)
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
-  const [sortBy, setSortBy]             = useState('score')
+  const [sortBy, setSortBy]             = useState('recent')
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [page, setPage]                 = useState(1)
@@ -596,6 +596,7 @@ export default function MatchingsPageV2() {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [emailContent, setEmailContent] = useState({ subject: '', intro: '', points_forts: '', points_attention: '', recommandation: '', conclusion: '', lien_annonce: '' })
   const [selectedPhoto, setSelectedPhoto] = useState(null)
+  const [langue, setLangue] = useState('')
 
   const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
@@ -658,7 +659,7 @@ export default function MatchingsPageV2() {
     const { match, prospectMail, prospectNom } = pendingEmail
     setEmailModal(p => ({ ...p, isLoading: true })); setSendingEmail(match.id)
     try {
-      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion }) }).then(r => r.json())
+      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion, langue: langue || null }) }).then(r => r.json())
       if (res.success) {
         sessionStorage.removeItem(`emailDraft_${match.id}`)
         await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
@@ -670,7 +671,7 @@ export default function MatchingsPageV2() {
   }
 
   useEffect(() => { if (emailModal.isOpen && emailModal.type === 'confirm' && pendingEmail) sessionStorage.setItem(`emailDraft_${pendingEmail.match.id}`, JSON.stringify(emailContent)) }, [emailContent])
-  const closeEmail = () => { setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false }); setPendingEmail(null); setPreviewHtml(null) }
+  const closeEmail = () => { setEmailModal({ isOpen: false, type: 'confirm', data: null, isLoading: false }); setPendingEmail(null); setPreviewHtml(null); setLangue('') }
 
   const handleRefuse = useCallback((match) => {
     if (match.statut_prospect === 'refused') {
@@ -714,7 +715,7 @@ export default function MatchingsPageV2() {
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))
     // Précalculer les valeurs de tri une seule fois par groupe
     for (const g of vals) {
-      g._maxScore  = Math.max(...g.matchings.map(m => m.score_pondere ?? m.score))
+      g._maxScore  = Math.max(...g.matchings.filter(m => m.statut_prospect !== 'refused').map(m => m.score))
       g._maxRaw    = Math.max(...g.matchings.map(m => m.score))
       g._maxDate   = Math.max(...g.matchings.map(m => new Date(m.date_creation || 0).getTime()))
     }
@@ -725,6 +726,14 @@ export default function MatchingsPageV2() {
       if (!sameMinute) return b._maxDate - a._maxDate
       return b._maxRaw - a._maxRaw
     })
+    if (sortBy === 'recent') {
+      // Garder uniquement les matchings de la dernière session d'analyse (fenêtre 24h)
+      for (const g of groups) {
+        const cutoff = g._maxDate - 24 * 60 * 60 * 1000
+        const batch = g.matchings.filter(m => new Date(m.date_creation || 0).getTime() >= cutoff)
+        if (batch.length > 0) g.matchings = batch
+      }
+    }
     return { filtered, groups }
   }, [matchings, search, filterScore, filterBienId, filterProspectId, sortBy])
 
@@ -744,7 +753,7 @@ export default function MatchingsPageV2() {
       {refuseModal && (
         <RefuseModal match={refuseModal.match} onConfirm={confirmRefuse} onClose={() => setRefuseModal(null)} />
       )}
-      <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} photos={pendingEmail ? (pendingEmail.match.bien_photos || '').split('|').map(u => u.trim()).filter(u => /^https?:\/\//i.test(u)) : []} selectedPhoto={selectedPhoto} onPhotoChange={(url) => { setSelectedPhoto(url); if (pendingEmail) loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent, url) }} />
+      <EmailModal isOpen={emailModal.isOpen} onClose={closeEmail} type={emailModal.type} data={emailModal.data} onConfirm={confirmSend} isLoading={emailModal.isLoading} previewHtml={previewHtml} previewLoading={previewLoading} emailContent={emailContent} setEmailContent={setEmailContent} onRegeneratePreview={() => pendingEmail && loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent)} smtpConfigured={agency?.smtp_configured ?? true} photos={pendingEmail ? (pendingEmail.match.bien_photos || '').split('|').map(u => u.trim()).filter(u => /^https?:\/\//i.test(u)) : []} selectedPhoto={selectedPhoto} onPhotoChange={(url) => { setSelectedPhoto(url); if (pendingEmail) loadPreview(pendingEmail.match, pendingEmail.prospectMail, pendingEmail.prospectNom, emailContent, url) }} langue={langue} setLangue={setLangue} />
       <AnalysisOverlay isVisible={showOverlay} totalProspects={totalProspects} currentProspect={currentProspectIndex} currentProspectName={currentProspectName} isCompleted={overlayCompleted} onCancel={() => { cancelRef.current = true; setShowOverlay(false); setAnalyzing(false) }} />
 
       {/* Header */}
@@ -858,8 +867,10 @@ export default function MatchingsPageV2() {
           </div>
           {filterBienId ? (
             <>
-              <p className="font-semibold text-[#1E3A5F] mb-1">Ce bien n'a pas encore été analysé</p>
-              <p className="text-sm text-gray-400 mb-5">Lance l'analyse pour trouver les prospects compatibles</p>
+              <p className="font-semibold text-[#1E3A5F] mb-1">Aucun matching pour ce bien</p>
+              <p className="text-sm text-gray-400 mb-5" style={{ maxWidth: 360, margin: '0 auto 20px' }}>
+                Ce bien n'est dans le top 5 d'aucun prospect, ou il a été importé avant que les prospects compatibles n'arrivent. Lance l'analyse pour vérifier s'il y a des correspondances aujourd'hui.
+              </p>
               <button onClick={async () => {
                 setAnalyzing(true); setShowOverlay(true); setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName('ce bien')
                 await apiFetch(`/matching/run-by-bien/${filterBienId}`, { method: 'POST' }).then(r => r.json()).catch(() => {})

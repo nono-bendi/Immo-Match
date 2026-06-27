@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import smtplib
 import traceback
 from datetime import datetime
@@ -8,11 +9,122 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import Optional
 
 from config import SMTP_BASE, SMTP_FALLBACK, EmailRequest, _email_rate, APP_BASE_URL
 from routers.auth import get_current_user
 from agencies_db import get_monthly_usage, increment_monthly_usage
 from plans import check_quota
+
+# ── Traductions des chaînes statiques du template email ──────────────────────
+_TR = {
+    'fr': {
+        'selected_for_you': 'Sélectionné pour vous',
+        'hello': 'Bonjour',
+        'why_this_property': 'Pourquoi ce bien pour vous ?',
+        'matches_search': 'Ce qui correspond à votre recherche',
+        'price': 'Prix',
+        'surface': 'Surface',
+        'pieces': 'Pièces',
+        'see_property': 'Voir ce bien',
+        'open_link': 'Ouvrir le lien dans votre navigateur',
+        'see_you_soon': 'À très bientôt,',
+        'footer': "Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.<br />Pour ne plus recevoir nos propositions, répondez STOP à cet email.",
+        'agent_title_admin': 'Gérante',
+        'agent_title': 'Conseiller immobilier',
+    },
+    'en': {
+        'selected_for_you': 'Selected for you',
+        'hello': 'Hello',
+        'why_this_property': 'Why this property for you?',
+        'matches_search': 'What matches your search',
+        'price': 'Price',
+        'surface': 'Area',
+        'pieces': 'Rooms',
+        'see_property': 'View this property',
+        'open_link': 'Open link in your browser',
+        'see_you_soon': 'Best regards,',
+        'footer': "You are receiving this email because you registered a property search with our agency.<br />To unsubscribe, reply STOP to this email.",
+        'agent_title_admin': 'Director',
+        'agent_title': 'Real estate advisor',
+    },
+    'de': {
+        'selected_for_you': 'Für Sie ausgewählt',
+        'hello': 'Guten Tag',
+        'why_this_property': 'Warum diese Immobilie für Sie?',
+        'matches_search': 'Was Ihrer Suche entspricht',
+        'price': 'Preis',
+        'surface': 'Fläche',
+        'pieces': 'Zimmer',
+        'see_property': 'Immobilie ansehen',
+        'open_link': 'Link im Browser öffnen',
+        'see_you_soon': 'Mit freundlichen Grüßen,',
+        'footer': "Sie erhalten diese E-Mail, weil Sie eine Immobiliensuche bei unserer Agentur registriert haben.<br />Um keine weiteren Angebote zu erhalten, antworten Sie mit STOP.",
+        'agent_title_admin': 'Geschäftsführerin',
+        'agent_title': 'Immobilienberater',
+    },
+    'nl': {
+        'selected_for_you': 'Voor u geselecteerd',
+        'hello': 'Goedendag',
+        'why_this_property': 'Waarom dit pand voor u?',
+        'matches_search': 'Wat overeenkomt met uw zoekopdracht',
+        'price': 'Prijs',
+        'surface': 'Oppervlakte',
+        'pieces': 'Kamers',
+        'see_property': 'Bekijk dit pand',
+        'open_link': 'Open link in uw browser',
+        'see_you_soon': 'Met vriendelijke groeten,',
+        'footer': "U ontvangt deze e-mail omdat u een zoekopdracht heeft geregistreerd bij ons kantoor.<br />Om geen aanbiedingen meer te ontvangen, antwoord STOP.",
+        'agent_title_admin': 'Directeur',
+        'agent_title': 'Vastgoedadviseur',
+    },
+    'it': {
+        'selected_for_you': 'Selezionato per voi',
+        'hello': 'Gentile',
+        'why_this_property': 'Perché questo immobile per voi?',
+        'matches_search': 'Cosa corrisponde alla vostra ricerca',
+        'price': 'Prezzo',
+        'surface': 'Superficie',
+        'pieces': 'Vani',
+        'see_property': 'Vedi questo immobile',
+        'open_link': 'Apri il link nel browser',
+        'see_you_soon': 'Cordiali saluti,',
+        'footer': "State ricevendo questa email perché avete registrato una ricerca immobiliare presso la nostra agenzia.<br />Per non ricevere più le nostre proposte, rispondete STOP.",
+        'agent_title_admin': 'Direttrice',
+        'agent_title': 'Consulente immobiliare',
+    },
+    'es': {
+        'selected_for_you': 'Seleccionado para usted',
+        'hello': 'Estimado/a',
+        'why_this_property': '¿Por qué esta propiedad para usted?',
+        'matches_search': 'Lo que corresponde a su búsqueda',
+        'price': 'Precio',
+        'surface': 'Superficie',
+        'pieces': 'Habitaciones',
+        'see_property': 'Ver esta propiedad',
+        'open_link': 'Abrir enlace en su navegador',
+        'see_you_soon': 'Atentamente,',
+        'footer': "Está recibiendo este email porque registró una búsqueda inmobiliaria en nuestra agencia.<br />Para dejar de recibir nuestras propuestas, responda STOP.",
+        'agent_title_admin': 'Directora',
+        'agent_title': 'Asesor inmobiliario',
+    },
+    'ru': {
+        'selected_for_you': 'Подобрано для вас',
+        'hello': 'Уважаемый',
+        'why_this_property': 'Почему именно этот объект для вас?',
+        'matches_search': 'Что соответствует вашему запросу',
+        'price': 'Цена',
+        'surface': 'Площадь',
+        'pieces': 'Комнаты',
+        'see_property': 'Посмотреть объект',
+        'open_link': 'Открыть ссылку в браузере',
+        'see_you_soon': 'С уважением,',
+        'footer': "Вы получили это письмо, так как зарегистрировали запрос на подбор недвижимости в нашем агентстве.<br />Чтобы отписаться, ответьте STOP.",
+        'agent_title_admin': 'Директор',
+        'agent_title': 'Консультант по недвижимости',
+    },
+}
 
 router = APIRouter()
 
@@ -165,7 +277,8 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     color = escape((agency.get("agency_couleur") or agency.get("couleur_primaire") or "#1E3A5F").strip())
     color_light = _lighten(color, 0.18)
     color_dark  = _darken(color, 0.22)
-    agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
+    tr = _TR.get(data.langue or 'fr', _TR['fr'])
+    agent_title = tr['agent_title_admin'] if agency.get("role") == "admin" else tr['agent_title']
 
     raw_name = (data.to_name or "").strip()
     salutation = format_salutation(raw_name)
@@ -206,7 +319,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         </tr>''' for point in points_forts)
         points_forts_block = f"""
         <div style="margin-bottom:16px;">
-          <p style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:#059669;">Ce qui correspond à votre recherche</p>
+          <p style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:#059669;">{tr['matches_search']}</p>
           <table role="presentation" cellpadding="0" cellspacing="0" border="0">{items}</table>
         </div>
         """
@@ -219,7 +332,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         <tr>
           <td style="padding:0 20px 20px 20px;">
             <div style="background:#FAFAFA;border-radius:12px;padding:20px;border:1px solid #E5E7EB;">
-              <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:{color};">Pourquoi ce bien pour vous ?</p>
+              <p style="margin:0 0 16px 0;font-size:15px;font-weight:700;color:{color};">{tr['why_this_property']}</p>
               {points_forts_block}
 
 
@@ -284,7 +397,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                 <td align="center" style="border-radius:12px;background:{color};background-image:linear-gradient(180deg,{color_light} 0%,{color_dark} 100%);box-shadow:0 6px 20px rgba(0,0,0,0.18);">
                   <a href="{safe_annonce_url}" target="_blank" rel="noopener noreferrer"
                      style="display:inline-block;padding:18px 52px;color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:700;letter-spacing:0.05em;border-radius:12px;">
-                    Voir ce bien &rarr;
+                    {tr['see_property']} &rarr;
                   </a>
                 </td>
               </tr>
@@ -292,7 +405,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                 <td align="center" style="padding-top:10px;">
                   <a href="{safe_annonce_url}" target="_blank" rel="noopener noreferrer"
                      style="font-size:11px;color:#9CA3AF;text-decoration:underline;">
-                    Ouvrir le lien dans votre navigateur
+                    {tr['open_link']}
                   </a>
                 </td>
               </tr>
@@ -311,7 +424,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
           <td style="padding:12px 0;border-bottom:1px solid #F3F4F6;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="color:#6B7280;font-size:14px;">Pièces</td>
+                <td style="color:#6B7280;font-size:14px;">{tr['pieces']}</td>
                 <td align="right" style="color:#111827;font-size:14px;font-weight:600;">{bien_pieces}</td>
               </tr>
             </table>
@@ -342,7 +455,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
           <tr>
             <td style="background:{color};padding:22px 20px;">
               <p style="margin:0;color:#FFFFFF;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;">
-                Sélectionné pour vous
+                {tr['selected_for_you']}
               </p>
             </td>
           </tr>
@@ -351,7 +464,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
           <tr>
             <td style="padding:28px 20px 20px 20px;">
               <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#374151;">
-                Bonjour {safe_html_text(salutation)},
+                {tr['hello']} {safe_html_text(salutation)},
               </p>
               <p style="margin:0;font-size:15px;line-height:1.6;color:#374151;">
                 {safe_html_text(intro_text)}
@@ -378,7 +491,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                         <td style="padding:12px 0;border-bottom:1px solid #F3F4F6;">
                           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
-                              <td style="color:#6B7280;font-size:14px;">Prix</td>
+                              <td style="color:#6B7280;font-size:14px;">{tr['price']}</td>
                               <td align="right" style="color:{color};font-size:20px;font-weight:700;">{bien_prix}</td>
                             </tr>
                           </table>
@@ -388,7 +501,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                         <td style="padding:12px 0;border-bottom:1px solid #F3F4F6;">
                           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                             <tr>
-                              <td style="color:#6B7280;font-size:14px;">Surface</td>
+                              <td style="color:#6B7280;font-size:14px;">{tr['surface']}</td>
                               <td align="right" style="color:#111827;font-size:14px;font-weight:600;">{bien_surface}</td>
                             </tr>
                           </table>
@@ -415,7 +528,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                 {safe_html_text(conclusion_text)}
               </p>
               <p style="margin:0;font-size:15px;line-height:1.6;color:#374151;">
-                À très bientôt,
+                {tr['see_you_soon']}
               </p>
             </td>
           </tr>
@@ -443,8 +556,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
           <tr>
             <td style="background:#F9FAFB;padding:20px;border-top:1px solid #E5E7EB;">
               <p style="margin:0;font-size:11px;line-height:1.6;color:#9CA3AF;text-align:center;">
-                Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.<br />
-                Pour ne plus recevoir nos propositions, répondez STOP à cet email.
+                {tr['footer']}
               </p>
             </td>
           </tr>
@@ -463,7 +575,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict = None) -> str:
     """Génère la version texte de l'email (fallback)"""
     agency = agency or {}
-    agent_title = "Gérant(e)" if agency.get("role") == "admin" else "Conseiller immobilier"
+    agent_title = "Gérante" if agency.get("role") == "admin" else "Conseiller immobilier"
 
     salutation = format_salutation(data.to_name)
     default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
@@ -519,6 +631,53 @@ Pour ne plus recevoir nos propositions : répondez "STOP" à cet email.
 # ============================================================
 # ROUTES
 # ============================================================
+
+class TranslateRequest(BaseModel):
+    langue: str
+    subject: Optional[str] = None
+    intro: Optional[str] = None
+    points_forts: Optional[str] = None
+    conclusion: Optional[str] = None
+
+@router.post("/translate-email")
+async def translate_email(data: TranslateRequest, _user: dict = Depends(get_current_user)):
+    """Traduit le contenu dynamique d'un email via Claude."""
+    import anthropic
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return JSONResponse(status_code=503, content={"error": "Clé API Anthropic non configurée"})
+
+    lang_names = {'en': 'English', 'de': 'German', 'nl': 'Dutch', 'it': 'Italian', 'es': 'Spanish', 'ru': 'Russian'}
+    lang_name = lang_names.get(data.langue, data.langue)
+
+    fields = {}
+    if data.subject:   fields['subject'] = data.subject
+    if data.intro:     fields['intro'] = data.intro
+    if data.points_forts: fields['points_forts'] = data.points_forts
+    if data.conclusion: fields['conclusion'] = data.conclusion
+
+    if not fields:
+        return {"translated": {}}
+
+    prompt = f"""You are a professional real estate email translator. Translate the following JSON fields from French to {lang_name}.
+Keep the same tone: warm, professional, personalized. Preserve line breaks (\\n) in points_forts.
+Return ONLY a valid JSON object with the same keys, values translated.
+
+{json.dumps(fields, ensure_ascii=False)}"""
+
+    try:
+        client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        raw = msg.content[0].text.strip()
+        # Extraire le JSON même si Claude ajoute du texte autour
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        translated = json.loads(match.group()) if match else {}
+        return {"translated": translated}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 @router.post("/send-email")
 async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)):

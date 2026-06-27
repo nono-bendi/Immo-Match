@@ -1,6 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings } from 'lucide-react'
+import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings, Languages } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { apiFetch } from '../api'
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'it', label: 'Italiano' },
+  { code: 'es', label: 'Español' },
+  { code: 'ru', label: 'Русский' },
+]
 
 function EmailModal({
   isOpen,
@@ -18,9 +28,39 @@ function EmailModal({
   photos,
   selectedPhoto,
   onPhotoChange,
+  langue,
+  setLangue,
 }) {
   const [activeTab, setActiveTab] = useState('preview')
+  const [translating, setTranslating] = useState(false)
   const navigate = useNavigate()
+
+  const handleTranslate = async (lang) => {
+    setLangue(lang)
+    if (!lang) return
+    setTranslating(true)
+    try {
+      const res = await apiFetch('/translate-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          langue: lang,
+          subject: emailContent.subject,
+          intro: emailContent.intro,
+          points_forts: emailContent.points_forts,
+          conclusion: emailContent.conclusion,
+        })
+      })
+      const json = await res.json()
+      if (json.translated) {
+        setEmailContent(prev => ({ ...prev, ...json.translated }))
+      }
+    } catch (e) {
+      console.error('Translation error', e)
+    } finally {
+      setTranslating(false)
+    }
+  }
 
   useEffect(() => {
     if (isOpen && type === 'confirm') {
@@ -192,6 +232,22 @@ function EmailModal({
                       <p className="text-sm font-medium">Personnalisez votre email avant l'envoi</p>
                     </div>
                     <p className="text-xs text-blue-600 mt-1">Les modifications seront visibles dans l'aperçu après avoir cliqué sur "Mettre à jour"</p>
+                  </div>
+
+                  {/* Sélecteur de langue */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                    <Languages size={16} className="text-gray-400 shrink-0" />
+                    <select
+                      value={langue || ''}
+                      onChange={e => handleTranslate(e.target.value)}
+                      disabled={translating}
+                      className="flex-1 bg-transparent text-sm font-medium text-gray-700 focus:outline-none"
+                    >
+                      <option value="">Français (original)</option>
+                      {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+                    </select>
+                    {translating && <div className="w-4 h-4 border-2 border-[#1E3A5F] border-t-transparent rounded-full animate-spin shrink-0" />}
+                    {langue && !translating && <span className="text-xs text-emerald-600 font-medium shrink-0">Traduit</span>}
                   </div>
 
                   {photos && photos.length > 0 && (
