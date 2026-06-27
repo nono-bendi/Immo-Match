@@ -685,7 +685,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
       <div class="logo">Immo<span>Flash</span></div>
       <span class="badge">Rapport prospect</span>
     </div>
-    <div class="prospect-name">{p["nom"]}</div>
+    <div class="prospect-name">{' '.join(x for x in [p.get('titre'), p.get('prenom'), p.get('nom')] if x and str(x).strip() not in ('', 'None'))}</div>
     <div class="prospect-contact">
       {f'<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:5px;opacity:.7"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="white" stroke-width="1.8"/><polyline points="22,6 12,13 2,6" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>{p["mail"]}</span>' if p.get("mail") else ''}
       {f'<span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:5px;opacity:.7"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 13a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.09-1.26a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>{p["telephone"]}</span>' if p.get("telephone") else ''}
@@ -730,241 +730,331 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
 
 @router.get("/rapport/portefeuille", response_class=HTMLResponse)
 def rapport_portefeuille(
-    type_bien: Optional[str] = None,
+    type_bien: str = Query(...),
     budget_min: Optional[int] = None,
     current_user: dict = Depends(get_user_from_token_param)
 ):
-    import unicodedata
+    VALID_TYPES = {
+        'Maison', 'Appartement', 'T1', 'T2', 'T3', 'T4', 'T5+',
+        'Local commercial', 'Immeuble', 'Immeuble de rapport',
+        'Maison divisée', 'Terrain', 'Tous biens'
+    }
+    if type_bien not in VALID_TYPES:
+        raise HTTPException(status_code=400, detail="Type de bien invalide")
 
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
 
-    where_clauses = ["(p.archive = 0 OR p.archive IS NULL)"]
-    params: list = []
-    if type_bien:
-        where_clauses.append("(p.bien LIKE ? OR p.bien LIKE ? OR p.bien LIKE ? OR p.bien = ?)")
-        params += [f'{type_bien},%', f'%, {type_bien}%', f'%,{type_bien}', type_bien]
+    query = """
+        SELECT * FROM prospects
+        WHERE (archive = 0 OR archive IS NULL)
+        AND (demo = 0 OR demo IS NULL)
+        AND (bien LIKE ? OR bien LIKE '%Tous biens%')
+    """
+    params = [f'%{type_bien}%']
     if budget_min:
-        where_clauses.append("(p.budget_max IS NULL OR p.budget_max >= ?)")
+        query += " AND (budget_max IS NULL OR budget_max >= ?)"
         params.append(budget_min)
+    query += " ORDER BY budget_max IS NULL, budget_max DESC"
 
-    prospects_raw = conn.execute(
-        f"SELECT * FROM prospects p WHERE {' AND '.join(where_clauses)} ORDER BY p.budget_max DESC, p.date DESC",
-        params
-    ).fetchall()
-
+    prospects = conn.execute(query, params).fetchall()
     conn.close()
 
-    # ── Dédoublonnage ──────────────────────────────────────────────────────────
-    def _norm(s):
-        if not s: return ''
-        s = unicodedata.normalize('NFD', s)
-        s = ''.join(c for c in s if unicodedata.category(c) != 'Mn')
-        return s.strip().upper()
-
-    seen_phone: set = set()
-    seen_name: set = set()
-    prospects = []
-    for row in prospects_raw:
-        pd = dict(row)
-        digits = ''.join(c for c in (pd.get('telephone') or '') if c.isdigit())
-        tel_key = digits[-9:] if len(digits) >= 8 else ''
-        name_key = f"{_norm(pd.get('nom') or '')}|{_norm(pd.get('prenom') or '')[:3]}"
-        if tel_key and tel_key in seen_phone:
-            continue
-        if name_key.strip('|') and name_key in seen_name:
-            continue
-        if tel_key:
-            seen_phone.add(tel_key)
-        if name_key.strip('|'):
-            seen_name.add(name_key)
-        prospects.append(pd)
-
+    prospects = [dict(p) for p in prospects]
     now = datetime.now()
-    agency_nom = current_user.get('agency_nom') or 'ImmoFlash'
-    type_label = type_bien or 'tous types'
 
-    budgets = [p['budget_max'] for p in prospects if (p.get('budget_max') or 0) > 0]
+    budgets = [p['budget_max'] for p in prospects if p.get('budget_max')]
     budget_moyen = int(sum(budgets) / len(budgets)) if budgets else 0
-    budget_max_val = max(budgets) if budgets else 0
+    budget_max_val = int(max(budgets)) if budgets else 0
+    surfaces = [p['surface_min'] for p in prospects if p.get('surface_min')]
+    surface_moy = int(sum(surfaces) / len(surfaces)) if surfaces else 0
+
+    agency_nom = current_user.get('agency_nom', 'ImmoFlash')
+    logo_url = current_user.get('agency_logo_url', '')
+    couleur = current_user.get('agency_couleur') or '#1E3A5F'
 
     def fmt_prix(v):
         if not v: return '—'
-        return f"{int(v):,}".replace(',', ' ') + ' €'
-
-    def fmt_grand(v):
-        if not v: return '—'
-        if v >= 1_000_000: return f"{v/1_000_000:.1f}M €"
-        return f"{int(v):,}".replace(',', ' ') + ' €'
-
-    def badge_level(budget):
-        if not budget: return ('PROSPECT', '#6B7280', '#F3F4F6')
-        if budget >= 800_000: return ('PREMIUM', '#059669', '#ECFDF5')
-        if budget >= 400_000: return ('QUALIFIÉ', '#2563EB', '#EFF6FF')
-        return ('PROSPECT', '#6B7280', '#F3F4F6')
-
-    def fmt_depuis(date_str):
-        if not date_str: return None
         try:
-            d = datetime.fromisoformat(date_str[:19])
-            j = (now - d).days
-            if j < 2: return '1 jour'
-            if j < 60: return f'{j} jours'
-            return f'{j // 30} mois'
-        except: return None
+            return f"{int(v):,}".replace(',', ' ') + ' €'
+        except Exception:
+            return '—'
 
-    _CLOCK = ('<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;">'
-              '<circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2"/>'
-              '<polyline points="12 6 12 12 16 14" stroke="#6B7280" stroke-width="2" stroke-linecap="round"/></svg>')
-    _PIN = ('<svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:3px;">'
-            '<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z" stroke="#9CA3AF" stroke-width="2"/>'
-            '<circle cx="12" cy="10" r="3" stroke="#9CA3AF" stroke-width="2"/></svg>')
+    def full_name(p):
+        parts = [p.get('titre'), p.get('prenom'), p.get('nom')]
+        return ' '.join(x for x in parts if x and str(x).strip() not in ('', 'None'))
+
+    def budget_tier(v):
+        if not v: return 'standard'
+        if v >= 800000: return 'premium'
+        if v >= 400000: return 'solid'
+        return 'standard'
+
+    tier_colors = {'premium': '#10b981', 'solid': '#3b82f6', 'standard': '#94a3b8'}
+    tier_labels = {'premium': 'Premium', 'solid': 'Qualifié', 'standard': 'Prospect'}
 
     cards_html = ''
-    for i, pd in enumerate(prospects):
-        nom_display = ' '.join(filter(None, [pd.get('titre'), pd.get('prenom'), pd.get('nom')])).strip() or '—'
-        villes_display = (pd.get('villes') or '').replace(',', ', ') or 'Tout secteur'
-        budget = pd.get('budget_max')
-        budget_str = fmt_prix(budget)
-        destination = (pd.get('destination') or '').strip()
-        obs = (pd.get('observation') or '').strip()
-        # FIX: masquer les observations < 30 chars (notes internes non destinées aux clients)
-        show_obs = obs if len(obs) >= 30 else ''
-        depuis = fmt_depuis(pd.get('date'))
-        badge_text, badge_color, badge_bg = badge_level(budget)
+    for i, p in enumerate(prospects):
+        tier = budget_tier(p.get('budget_max'))
+        color = tier_colors[tier]
 
-        depuis_chip = (
-            f'<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#374151;'
-            f'background:#F9FAFB;border:1px solid #E5E7EB;border-radius:20px;padding:3px 10px;margin-left:6px;">'
-            f'{_CLOCK} En recherche depuis {depuis}</span>'
-        ) if depuis else ''
+        # Durée de recherche
+        d = p.get('date') or p.get('date_ajout')
+        jours_str = ''
+        date_str = ''
+        if d:
+            try:
+                dt = datetime.fromisoformat(str(d)[:10])
+                date_str = dt.strftime('%d/%m/%Y')
+                jours = (now - dt).days
+                if jours >= 30:
+                    mois = jours // 30
+                    jours_str = f'En recherche depuis {mois} mois'
+                else:
+                    jours_str = f'En recherche depuis {jours} jour{"s" if jours > 1 else ""}'
+            except Exception:
+                pass
 
-        dest_html = (
-            f'<div style="margin-top:8px;">'
-            f'<span style="font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;">Projet&nbsp;</span>'
-            f'<span style="font-size:13px;font-weight:600;color:#111827;">{destination}</span>'
-            f'</div>'
-        ) if destination else ''
+        # Budget
+        bmin = fmt_prix(p.get('budget_min'))
+        bmax = fmt_prix(p.get('budget_max'))
+        budget_range = f'{bmin} → {bmax}' if p.get('budget_min') and p.get('budget_max') else bmax
 
-        obs_html = (
-            f'<div style="margin-top:12px;padding:12px 16px;background:#FAFAF7;border-left:3px solid #E5E7EB;border-radius:0 8px 8px 0;">'
-            f'<p style="font-style:italic;font-size:13px;color:#374151;line-height:1.65;margin:0;">"{show_obs}"</p>'
-            f'</div>'
-        ) if show_obs else ''
+        # Critères
+        villes = (p.get('villes') or '').strip()
+        villes_display = ', '.join(v.strip() for v in villes.split(',') if v.strip()) or 'Tout secteur'
+
+        surf_min = int(p['surface_min']) if p.get('surface_min') else None
+        surf_max = int(p['surface_max']) if p.get('surface_max') else None
+        if surf_min and surf_max:
+            surf_str = f'{surf_min} – {surf_max} m²'
+        elif surf_min:
+            surf_str = f'{surf_min} m² min'
+        elif surf_max:
+            surf_str = f'jusqu\'à {surf_max} m²'
+        else:
+            surf_str = None
+
+        pieces = p.get('pieces_min')
+        pieces_str = f'{pieces} pièce{"s" if int(pieces or 0) > 1 else ""} min' if pieces else None
+
+        dest = (p.get('destination') or '').strip()
+        etat = (p.get('etat_bien') or '').strip()
+
+        financement = (p.get('financement') or '').strip()
+        apport = p.get('apport')
+
+        obs = (p.get('observation') or '').strip()
+
+        # Grille critères
+        criteres = []
+        if surf_str:
+            criteres.append(('📐 Surface', surf_str))
+        if pieces_str:
+            criteres.append(('🚪 Pièces', pieces_str))
+        if etat:
+            criteres.append(('🔧 État', etat[:40]))
+        if dest:
+            criteres.append(('🎯 Projet', dest[:40]))
+        if financement:
+            criteres.append(('💳 Financement', financement[:30]))
+        elif apport:
+            criteres.append(('💳 Apport', fmt_prix(apport)))
+
+        grid_html = ''
+        if criteres:
+            items = ''.join(f'<div class="crit-item"><span class="crit-key">{k}</span><span class="crit-val">{v}</span></div>' for k, v in criteres)
+            grid_html = f'<div class="crit-grid">{items}</div>'
+
+        obs_html = f'<div class="card-obs">"{obs}"</div>' if obs else ''
+        name = full_name(p) or 'Prospect qualifié'
 
         cards_html += f'''
-        <div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:20px 24px;margin-bottom:12px;page-break-inside:avoid;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
-            <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
-              <div style="width:36px;height:36px;border-radius:50%;background:#1E3A5F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;">{i+1:02d}</div>
-              <div style="min-width:0;">
-                <div style="font-size:16px;font-weight:700;color:#111827;">{nom_display}</div>
-                <div style="font-size:13px;color:#6B7280;margin-top:3px;">{_PIN}{villes_display}</div>
+        <div class="prospect-card tier-{tier}">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-num" style="background:{color}">{'%02d' % (i + 1)}</div>
+              <div class="card-identity">
+                <div class="card-name">{name}</div>
+                <div class="card-date">{'📍 ' + villes_display[:50]}</div>
               </div>
             </div>
-            <div style="text-align:right;flex-shrink:0;">
-              <div style="font-size:22px;font-weight:800;color:#111827;">{budget_str}</div>
-              <span style="display:inline-block;font-size:11px;font-weight:700;color:{badge_color};background:{badge_bg};border:1px solid {badge_color}33;border-radius:20px;padding:2px 10px;margin-top:4px;">{badge_text}</span>
+            <div class="card-right">
+              <div class="card-budget">{fmt_prix(p.get("budget_max"))}</div>
+              <div class="card-tier-badge" style="color:{color};border-color:{color}">{tier_labels[tier]}</div>
             </div>
           </div>
-          <div style="margin-top:10px;display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
-            <span style="font-size:12px;color:#374151;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:20px;padding:3px 10px;">Budget&nbsp;: {budget_str}</span>
-            {depuis_chip}
+          <div class="card-meta-row">
+            <span class="meta-budget-range">💰 Budget : {budget_range}</span>
+            {f'<span class="meta-since">🕐 {jours_str}</span>' if jours_str else (f'<span class="meta-since">Enregistré le {date_str}</span>' if date_str else '')}
           </div>
-          {dest_html}
+          {grid_html}
           {obs_html}
         </div>'''
 
-    engagement_html = (
-        f'<div style="margin-bottom:32px;padding:24px 32px;background:#fff;border-radius:12px;border:1px solid #E5E7EB;">'
-        f'<p style="font-size:13px;font-weight:700;color:#1E3A5F;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Notre engagement pour votre bien</p>'
-        f'<p style="font-size:14px;color:#374151;line-height:1.75;">Ces acheteurs sont des clients qualifiés, enregistrés et suivis personnellement par notre équipe. '
-        f'Chacun a exprimé une recherche active pour un bien de type <strong>{type_label}</strong>, avec un budget défini et des critères précis. '
-        f'Grâce à notre système de matching intelligent <strong>ImmoFlash</strong>, chaque nouveau bien entré dans notre portefeuille est instantanément mis en relation '
-        f'avec l\'ensemble de nos acheteurs — garantissant une diffusion immédiate et ciblée. '
-        f'Ces profils sont prêts à se positionner rapidement sur un bien correspondant à leurs attentes.</p>'
-        f'</div>'
-    )
+    if not cards_html:
+        cards_html = '<div class="empty-state"><p>Aucun prospect actif pour ce type de bien.</p></div>'
 
-    html = f'''<!doctype html>
+    logo_html = f'<img src="{logo_url}" class="agency-logo" alt="{agency_nom}" />' if logo_url else ''
+
+    html = f'''<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Portefeuille Acheteurs — {type_label} · {agency_nom}</title>
-<style>
-  * {{ box-sizing:border-box; margin:0; padding:0; }}
-  body {{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:#F3F4F6; color:#111827; }}
-  .wrap {{ max-width:860px; margin:0 auto; padding:32px 20px; }}
-  .cover {{ background:linear-gradient(160deg,#0F2545 0%,#1E3A5F 55%,#2D5A8A 100%); color:#fff; border-radius:16px; padding:48px 48px 36px; margin-bottom:28px; }}
-  .cover-top {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; }}
-  .agency-name {{ font-size:15px; font-weight:600; opacity:.85; }}
-  .cover-badge {{ font-size:11px; font-weight:700; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:4px 14px; border-radius:20px; letter-spacing:.05em; }}
-  .cover-date {{ font-size:12px; opacity:.6; margin-top:6px; text-align:right; }}
-  .cover-sub {{ font-size:12px; font-weight:600; opacity:.5; text-transform:uppercase; letter-spacing:.12em; margin-bottom:12px; }}
-  .cover-title {{ font-size:56px; font-weight:900; letter-spacing:-0.03em; line-height:1; }}
-  .cover-stats {{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:36px; }}
-  .cs {{ text-align:center; }}
-  .cs-val {{ font-size:34px; font-weight:800; color:#60A5FA; }}
-  .cs-lbl {{ font-size:9px; font-weight:600; opacity:.6; text-transform:uppercase; letter-spacing:.08em; margin-top:4px; }}
-  .profiles-header {{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }}
-  .profiles-title {{ font-size:18px; font-weight:700; color:#1E3A5F; }}
-  .profiles-count {{ font-size:13px; color:#6B7280; }}
-  .toolbar {{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }}
-  .tb-btn {{ display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; border:none; text-decoration:none; }}
-  .tb-back {{ background:#fff; color:#1E3A5F; box-shadow:0 1px 4px rgba(0,0,0,.1); }}
-  .tb-pdf {{ background:#1E3A5F; color:#fff; box-shadow:0 2px 8px rgba(30,58,95,.25); }}
-  .foot {{ text-align:center; font-size:12px; color:#9CA3AF; padding:24px 0 8px; display:flex; justify-content:space-between; align-items:center; }}
-  .foot-brand {{ font-weight:700; color:#1E3A5F; letter-spacing:-.01em; }}
-  .foot-brand span {{ color:#60A5FA; }}
-  @media print {{
-    * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }}
-    body {{ background:#fff; }}
-    .no-print {{ display:none !important; }}
-    .cover {{ border-radius:0; margin:0 0 24px; }}
-    .wrap {{ padding:0; max-width:100%; }}
-  }}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portefeuille Acheteurs — {type_bien} · {agency_nom}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    *,*::before,*::after{{margin:0;padding:0;box-sizing:border-box;}}
+    body{{font-family:'Inter',sans-serif;background:#f1f5f9;color:#1e293b;padding:40px 20px;}}
+    .toolbar{{max-width:960px;margin:0 auto 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}}
+    .toolbar-btn{{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all .2s;font-family:inherit;}}
+    .btn-back{{background:white;color:#1E3A5F;box-shadow:0 1px 4px rgba(0,0,0,.1);}}
+    .btn-back:hover{{background:#f1f5f9;transform:translateX(-3px);box-shadow:0 3px 10px rgba(0,0,0,.15);}}
+    .btn-print{{background:{couleur};color:white;box-shadow:0 2px 8px rgba(30,58,95,.3);}}
+    .btn-print:hover{{opacity:.9;}}
+    .page{{max-width:960px;margin:0 auto;background:white;border-radius:24px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.1);}}
+    .header{{background:linear-gradient(135deg,{couleur} 0%,#1d4ed8 100%);padding:52px 60px 48px;color:white;position:relative;overflow:hidden;}}
+    .header::before{{content:'';position:absolute;top:-80px;right:-80px;width:340px;height:340px;background:rgba(255,255,255,.04);border-radius:50%;pointer-events:none;}}
+    .header::after{{content:'';position:absolute;bottom:-60px;left:38%;width:220px;height:220px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none;}}
+    .header-top{{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;position:relative;z-index:1;}}
+    .brand{{display:flex;align-items:center;gap:14px;}}
+    .agency-logo{{height:38px;max-width:130px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9;}}
+    .brand-name{{font-size:20px;font-weight:800;letter-spacing:-.04em;}}
+    .brand-name span{{color:#93c5fd;}}
+    .brand-sep{{opacity:.3;font-size:18px;margin:0 4px;}}
+    .brand-agency{{font-size:14px;font-weight:600;opacity:.75;}}
+    .header-meta{{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}}
+    .badge-conf{{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}}
+    .badge-date{{font-size:12px;opacity:.55;font-weight:500;}}
+    .header-body{{position:relative;z-index:1;}}
+    .header-eyebrow{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;opacity:.55;margin-bottom:12px;}}
+    .header-title{{font-size:46px;font-weight:900;letter-spacing:-.035em;line-height:1.05;margin-bottom:16px;}}
+    .header-pill{{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(10px);padding:9px 22px;border-radius:30px;font-size:15px;font-weight:700;margin-bottom:18px;}}
+    .header-sub{{font-size:14px;opacity:.65;font-weight:500;}}
+    .stats-bar{{display:grid;grid-template-columns:repeat(4,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0;}}
+    .stat{{padding:28px 20px;text-align:center;border-right:1px solid #e2e8f0;}}
+    .stat:last-child{{border-right:none;}}
+    .stat-val{{font-size:26px;font-weight:800;line-height:1;margin-bottom:7px;}}
+    .stat-lbl{{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}}
+    .intro-section{{padding:36px 60px;border-bottom:1px solid #f1f5f9;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);}}
+    .intro-title{{font-size:12px;font-weight:700;color:#0369a1;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:10px;}}
+    .intro-title::before{{content:'';width:3px;height:14px;background:linear-gradient(#0ea5e9,#3b82f6);border-radius:2px;display:block;}}
+    .intro-text{{font-size:14px;color:#0c4a6e;line-height:1.8;}}
+    .cards-section{{padding:40px 60px 60px;}}
+    .section-header{{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}}
+    .section-title{{font-size:15px;font-weight:700;color:#1E3A5F;display:flex;align-items:center;gap:10px;}}
+    .section-title::before{{content:'';width:4px;height:18px;background:linear-gradient(#1E3A5F,#60a5fa);border-radius:2px;display:block;}}
+    .section-count{{font-size:12px;font-weight:600;color:#94a3b8;background:#f1f5f9;padding:4px 12px;border-radius:20px;}}
+    .prospect-card{{border:1px solid #e2e8f0;border-radius:16px;margin-bottom:12px;overflow:hidden;background:white;}}
+    .tier-premium{{border-left:4px solid #10b981;}}
+    .tier-solid{{border-left:4px solid #3b82f6;}}
+    .tier-standard{{border-left:4px solid #cbd5e1;}}
+    .card-header{{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;gap:16px;}}
+    .card-left{{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}}
+    .card-num{{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:white;flex-shrink:0;letter-spacing:-.02em;}}
+    .card-identity{{flex:1;min-width:0;}}
+    .card-name{{font-size:16px;font-weight:700;color:#1e293b;}}
+    .card-date{{font-size:11px;color:#94a3b8;margin-top:3px;font-weight:500;}}
+    .card-right{{text-align:right;flex-shrink:0;}}
+    .card-budget{{font-size:22px;font-weight:800;color:#1E3A5F;letter-spacing:-.02em;white-space:nowrap;}}
+    .card-tier-badge{{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;border:1.5px solid;display:inline-block;margin-top:5px;}}
+    .card-chips{{padding:0 24px 16px;display:flex;flex-wrap:wrap;gap:6px;}}
+    .chip{{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;background:#f1f5f9;color:#475569;white-space:nowrap;}}
+    .chip-loc{{background:#eff6ff;color:#1d4ed8;}}
+    .chip-surf{{background:#f0fdf4;color:#166534;}}
+    .chip-dest{{background:#fdf4ff;color:#7e22ce;}}
+    .card-meta-row{{display:flex;align-items:center;gap:20px;padding:0 24px 12px;flex-wrap:wrap;}}
+    .meta-budget-range{{font-size:13px;font-weight:600;color:#1E3A5F;}}
+    .meta-since{{font-size:12px;font-weight:600;color:#d97706;background:#fffbeb;padding:3px 10px;border-radius:20px;border:1px solid #fde68a;}}
+    .crit-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;padding:0 24px 16px;}}
+    .crit-item{{background:#f8fafc;border-radius:10px;padding:8px 12px;}}
+    .crit-key{{display:block;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}}
+    .crit-val{{display:block;font-size:13px;font-weight:600;color:#1e293b;}}
+    .card-obs{{margin:0 24px 18px;padding:12px 16px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 10px 10px 0;font-size:13px;color:#78350f;line-height:1.65;font-style:italic;}}
+    .empty-state{{padding:80px;text-align:center;color:#94a3b8;font-size:15px;}}
+    .footer{{background:#f8fafc;padding:22px 60px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e2e8f0;}}
+    .footer-info{{font-size:11px;color:#94a3b8;line-height:1.6;}}
+    .footer-brand{{font-size:15px;font-weight:800;letter-spacing:-.03em;color:#1E3A5F;}}
+    .footer-brand span{{color:#60a5fa;}}
+    @media print{{
+      *{{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}}
+      body{{background:white;padding:0;}}
+      .no-print,.toolbar{{display:none !important;}}
+      .page{{box-shadow:none;border-radius:0;max-width:100%;}}
+      .header{{border-radius:0;border-bottom:3px solid {couleur};}}
+      .header,.header .brand-name,.header .brand-agency,.header .header-eyebrow,
+      .header .header-title,.header .header-pill,.header .header-sub,
+      .header .badge-conf,.header .badge-date{{color:#1E3A5F !important;}}
+      .header .brand-name span{{color:#2563eb !important;}}
+      .header .header-pill{{border:1.5px solid #1E3A5F !important;background:transparent !important;}}
+      .header .badge-conf{{border-color:#1E3A5F !important;background:transparent !important;}}
+      .header::before,.header::after{{display:none;}}
+      .prospect-card{{break-inside:avoid;page-break-inside:avoid;box-shadow:none;}}
+      .intro-section{{background:#f8fafc !important;}}
+      .intro-title,.intro-text{{color:#1e293b !important;}}
+    }}
+    @media(max-width:700px){{
+      .header{{padding:36px 24px 32px;}}
+      .header-title{{font-size:32px;}}
+      .stats-bar{{grid-template-columns:repeat(2,1fr);}}
+      .intro-section,.cards-section{{padding:24px 20px;}}
+      .card-budget{{font-size:18px;}}
+      .footer{{padding:18px 20px;flex-direction:column;gap:8px;text-align:center;}}
+    }}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="toolbar no-print">
-    <button onclick="window.opener ? window.close() : history.back()" class="tb-btn tb-back">&#8592; Retour</button>
-    <button onclick="window.print()" class="tb-btn tb-pdf">&#8615; T&eacute;l&eacute;charger PDF</button>
-  </div>
 
-  <div class="cover">
-    <div class="cover-top">
-      <div>
-        <div class="agency-name">{agency_nom}</div>
+<div class="toolbar no-print">
+  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back">&#8592; Retour</button>
+  <button onclick="window.print()" class="toolbar-btn btn-print">&#8615;&nbsp; Imprimer / PDF</button>
+</div>
+
+<div class="page">
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        {logo_html if logo_html else f'<div class="brand-name">Immo<span>Flash</span></div>'}
+        <span class="brand-sep">|</span>
+        <span class="brand-agency">{agency_nom}</span>
       </div>
-      <div style="text-align:right;">
-        <div class="cover-badge">CONFIDENTIEL</div>
-        <div class="cover-date">{now.strftime('%d %B %Y').capitalize()}</div>
+      <div class="header-meta">
+        <span class="badge-conf">Confidentiel</span>
+        <span class="badge-date">{now.strftime("%d %B %Y").capitalize()}</span>
       </div>
     </div>
-    <div class="cover-sub">Document de prospection commerciale</div>
-    <div class="cover-title">Portefeuille<br>Acheteurs</div>
-    <div class="cover-stats">
-      <div class="cs"><div class="cs-val">{len(prospects)}</div><div class="cs-lbl">Acheteurs qualifi&eacute;s</div></div>
-      <div class="cs"><div class="cs-val" style="color:#93C5FD;">{fmt_grand(budget_moyen)}</div><div class="cs-lbl">Budget moyen</div></div>
-      <div class="cs"><div class="cs-val" style="color:#93C5FD;">{fmt_grand(budget_max_val)}</div><div class="cs-lbl">Budget maximum</div></div>
-      <div class="cs"><div class="cs-val" style="color:#93C5FD;">—</div><div class="cs-lbl">Surface moy. recherch&eacute;e</div></div>
+    <div class="header-body">
+      <div class="header-eyebrow">Document de prospection commerciale</div>
+      <div class="header-title">Portefeuille<br>Acheteurs</div>
+      <div class="header-pill">🏢 {type_bien}</div>
+      <div class="header-sub">{len(prospects)} acheteur{"s" if len(prospects) > 1 else ""} qualifié{"s" if len(prospects) > 1 else ""} &nbsp;·&nbsp; Préparé par {agency_nom}</div>
     </div>
   </div>
 
-  {engagement_html}
-
-  <div class="profiles-header">
-    <div class="profiles-title">Profils acheteurs</div>
-    <div class="profiles-count">{len(prospects)} profil{"s" if len(prospects) != 1 else ""} &middot; tri&eacute;s par budget</div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-val" style="color:{couleur}">{len(prospects)}</div><div class="stat-lbl">Acheteurs qualifiés</div></div>
+    <div class="stat"><div class="stat-val" style="color:#3b82f6">{fmt_prix(budget_moyen) if budget_moyen else "—"}</div><div class="stat-lbl">Budget moyen</div></div>
+    <div class="stat"><div class="stat-val" style="color:#10b981">{fmt_prix(budget_max_val) if budget_max_val else "—"}</div><div class="stat-lbl">Budget maximum</div></div>
+    <div class="stat"><div class="stat-val" style="color:#8b5cf6">{f"{surface_moy}&nbsp;m²" if surface_moy else "—"}</div><div class="stat-lbl">Surface moy. recherchée</div></div>
   </div>
 
-  {cards_html if cards_html else '<p style="text-align:center;color:#9CA3AF;padding:48px;">Aucun acheteur correspondant.</p>'}
+  <div class="intro-section">
+    <div class="intro-title">Notre engagement pour votre bien</div>
+    <p class="intro-text">Ces acheteurs sont des clients qualifiés, enregistrés et suivis personnellement par notre équipe. Chacun a exprimé une recherche active pour un bien de type <strong>{type_bien}</strong>, avec un budget défini et des critères précis. Grâce à notre système de matching intelligent <strong>ImmoFlash</strong>, chaque nouveau bien entré dans notre portefeuille est instantanément mis en relation avec l'ensemble de nos acheteurs — garantissant une diffusion immédiate et ciblée. Ces profils sont prêts à se positionner rapidement sur un bien correspondant à leurs attentes.</p>
+  </div>
 
-  <div class="foot">
-    <div style="color:#9CA3AF;">ImmoFlash &middot; Document confidentiel &middot; {now.strftime('%d/%m/%Y')}<br>G&eacute;n&eacute;r&eacute; pour {agency_nom} &middot; Usage interne et commercial exclusivement</div>
-    <div class="foot-brand">Immo<span>Flash</span></div>
+  <div class="cards-section">
+    <div class="section-header">
+      <div class="section-title">Profils acheteurs</div>
+      <span class="section-count">{len(prospects)} profil{"s" if len(prospects) > 1 else ""} &nbsp;·&nbsp; triés par budget</span>
+    </div>
+    {cards_html}
+  </div>
+
+  <div class="footer">
+    <div class="footer-info">ImmoFlash &nbsp;·&nbsp; Document confidentiel &nbsp;·&nbsp; {now.strftime("%d/%m/%Y")}<br>Généré pour {agency_nom} &nbsp;·&nbsp; Usage interne et commercial exclusivement</div>
+    <div class="footer-brand">Immo<span>Flash</span></div>
   </div>
 </div>
 </body>
