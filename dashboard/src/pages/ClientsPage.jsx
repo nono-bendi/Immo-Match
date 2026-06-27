@@ -40,57 +40,18 @@ const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(
 
 const INP = "w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
 
-// Bouton toggle réutilisable
-function Chip({ label, active, onClick }) {
-  return (
-    <button type="button" onClick={onClick}
-      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${active ? 'text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-      style={active ? { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' } : {}}>
-      {label}
-    </button>
-  )
-}
-
 function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
-  const [tab, setTab] = useState('recherche')
+  const [tab, setTab] = useState('contact')
   const tabs = [
     { id: 'contact', label: 'Contact' },
     { id: 'recherche', label: 'Recherche' },
     { id: 'criteres', label: 'Critères' },
   ]
-
-  // Helpers pour les champs CSV (bien, etat, expo, etage, exterieur, copro, destination)
-  const csvToggle = (field, value) => {
-    const current = (prospect[field] || '').split(',').map(v => v.trim()).filter(Boolean)
-    const idx = current.indexOf(value)
-    if (idx >= 0) current.splice(idx, 1)
-    else current.push(value)
-    onChange(field, current.join(', '))
-  }
-  const csvSel = (field, value) => (prospect[field] || '').split(',').map(v => v.trim()).includes(value)
-  const singleToggle = (field, value) => onChange(field, prospect[field] === value ? '' : value)
-
-  const BIENS = ['Maison', 'Appartement', 'T1', 'T2', 'T3', 'T4', 'T5+', 'Local commercial',
-    'Immeuble', 'Immeuble de rapport', 'Maison divisée', 'Terrain', 'Tous biens']
-
-  const ETATS = ['Neuf', 'Bon état', 'Menus travaux', 'À rénover', 'À démolir (marchand)']
-  const EXPOS = ['Sud', 'Est', 'Ouest', 'Nord', 'Lumineux (peu importe)']
-  const ETAGES = ['RDC', 'Étage bas (1-2)', 'Étage élevé (3+)', 'Dernier étage', 'Avec ascenseur']
-  const STATIONN = ['Garage', 'Parking', 'Box', 'Cave', 'Cave ou Garage', 'Obligatoire (type indifférent)', 'Pas nécessaire']
-  const COPRO = ['Copropriété OK', 'Faibles charges uniquement', 'Pas de copropriété', 'Peu importe']
-  const COPRO_VALS = ['Oui', 'Faibles charges', 'Non', 'Peu importe']
-  const DEST = ["Résidence principale", "Inv. Locatif à l'année", "Inv. Locatif saisonnier", "Résidence secondaire", "Marchand de biens"]
-  const EXT_GROUPS = [
-    { label: 'Extérieur', opts: ['Balcon', 'Terrasse', 'Rez-de-jardin', 'Pas obligatoire'] },
-    { label: 'Environnement', opts: ['Au calme', 'Vue mer souhaitée', 'Vue mer indispensable', 'Plages à pieds', 'Commerces à pieds', 'Piscine'] },
-    { label: 'Prestations', opts: ['Grande pièce à vivre', 'Plain-pied', 'Accès PMR', 'Cuisine fermée', 'Contemporain', 'Atypique', 'Ancien'] },
-  ]
-
   return (
     <div className="fixed inset-0 lg:left-64 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="w-full max-w-2xl overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '92vh' }}>
+      <div className="w-full max-w-xl overflow-hidden flex flex-col" style={{ background: '#ffffff', borderRadius: '1rem', boxShadow: '0 25px 50px rgba(0,0,0,0.18)', maxHeight: '90vh' }}>
         {/* Header */}
-        <div className="px-6 pt-5 pb-0 flex items-start justify-between flex-shrink-0">
+        <div className="px-6 pt-6 pb-0 flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-[#1E3A5F]">Modifier le prospect</h2>
             <p className="text-sm text-gray-400 mt-0.5">{[prospect.titre, prospect.nom, prospect.prenom].filter(Boolean).join(' ')}</p>
@@ -100,7 +61,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
           </button>
         </div>
         {/* Tabs */}
-        <div className="px-6 mt-4 flex gap-1 border-b border-gray-100 flex-shrink-0">
+        <div className="px-6 mt-4 flex gap-1 border-b border-gray-100">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${tab === t.id ? 'text-[#1E3A5F] border-b-2 border-[#1E3A5F] -mb-px' : 'text-gray-400 hover:text-gray-600'}`}>
@@ -108,11 +69,8 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
             </button>
           ))}
         </div>
-
         {/* Body */}
-        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
-
-          {/* ── CONTACT ── */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
           {tab === 'contact' && (
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-3">
@@ -133,126 +91,113 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Téléphone</label>
-                  <input type="tel" value={prospect.telephone || ''} onChange={e => onChange('telephone', e.target.value)} className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
-                  <input type="email" value={prospect.mail || ''} onChange={e => onChange('mail', e.target.value)} className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Prénom conjoint·e</label>
-                  <input type="text" value={prospect.prenom2 || ''} onChange={e => onChange('prenom2', e.target.value)} placeholder="Optionnel" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Nom conjoint·e</label>
-                  <input type="text" value={prospect.nom2 || ''} onChange={e => onChange('nom2', e.target.value)} placeholder="Optionnel" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Téléphone 2</label>
-                  <input type="tel" value={prospect.telephone2 || ''} onChange={e => onChange('telephone2', e.target.value)} placeholder="Optionnel" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Email 2</label>
-                  <input type="email" value={prospect.email2 || ''} onChange={e => onChange('email2', e.target.value)} placeholder="Optionnel" className={INP} /></div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone</label>
+                  <input type="tel" value={prospect.telephone || ''} onChange={e => onChange('telephone', e.target.value)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Email</label>
+                  <input type="email" value={prospect.mail || ''} onChange={e => onChange('mail', e.target.value)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Prénom conjoint·e</label>
+                  <input type="text" value={prospect.prenom2 || ''} onChange={e => onChange('prenom2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Nom conjoint·e</label>
+                  <input type="text" value={prospect.nom2 || ''} onChange={e => onChange('nom2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone 2</label>
+                  <input type="tel" value={prospect.telephone2 || ''} onChange={e => onChange('telephone2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Email 2</label>
+                  <input type="email" value={prospect.email2 || ''} onChange={e => onChange('email2', e.target.value)} placeholder="Optionnel" className={INP} />
+                </div>
               </div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Domicile actuel</label>
-                <input type="text" value={prospect.domicile || ''} onChange={e => onChange('domicile', e.target.value)} className={INP} /></div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Domicile actuel</label>
+                <input type="text" value={prospect.domicile || ''} onChange={e => onChange('domicile', e.target.value)} className={INP} />
+              </div>
             </div>
           )}
-
-          {/* ── RECHERCHE ── */}
           {tab === 'recherche' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Type de bien <span className="text-gray-300 font-normal">(plusieurs choix)</span></label>
-                <div className="flex flex-wrap gap-2">
-                  {BIENS.map(b => <Chip key={b} label={b} active={csvSel('bien', b)} onClick={() => csvToggle('bien', b)} />)}
-                </div>
-              </div>
+            <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Budget max (€)</label>
-                  <input type="number" value={prospect.budget_max || ''} onChange={e => onChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Pièces min</label>
-                  <select value={prospect.pieces_min || ''} onChange={e => onChange('pieces_min', e.target.value)} className={INP}>
-                    <option value="">Indifférent</option>
-                    <option value="1">1 pièce</option><option value="2">2 pièces</option><option value="3">3 pièces</option>
-                    <option value="4">4 pièces</option><option value="5">5 pièces +</option>
-                  </select></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Villes <span className="text-gray-300 font-normal">(virgule-séparées)</span></label>
-                  <input type="text" value={prospect.villes || ''} onChange={e => onChange('villes', e.target.value)} placeholder="Fréjus, Saint-Raphaël…" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Quartiers souhaités</label>
-                  <input type="text" value={prospect.quartiers || ''} onChange={e => onChange('quartiers', e.target.value)} placeholder="Villeneuve, Saint-Aygulf…" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Quartiers à éviter</label>
-                  <input type="text" value={prospect.quartiersExclus || ''} onChange={e => onChange('quartiersExclus', e.target.value)} placeholder="Centre-ville…" className={INP} /></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Surface min (m²)</label>
-                  <input type="number" value={prospect.surface_min || ''} onChange={e => onChange('surface_min', e.target.value)} placeholder="50" className={INP} /></div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Destination <span className="text-gray-300 font-normal">(plusieurs choix)</span></label>
-                <div className="flex flex-wrap gap-2">
-                  {DEST.map(d => <Chip key={d} label={d} active={csvSel('destination', d)} onClick={() => csvToggle('destination', d)} />)}
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Type de bien</label>
+                  <input type="text" value={prospect.bien || ''} onChange={e => onChange('bien', e.target.value)} placeholder="Maison, Appartement…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Budget max (€)</label>
+                  <input type="number" value={prospect.budget_max || ''} onChange={e => onChange('budget_max', e.target.value ? parseFloat(e.target.value) : null)} className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Villes</label>
+                  <input type="text" value={prospect.villes || ''} onChange={e => onChange('villes', e.target.value)} placeholder="Fréjus, Saint-Raphaël…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Quartiers souhaités</label>
+                  <input type="text" value={prospect.quartiers || ''} onChange={e => onChange('quartiers', e.target.value)} placeholder="Villeneuve, Saint-Aygulf…" className={INP} />
                 </div>
               </div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Observations</label>
-                <textarea value={prospect.observation || ''} onChange={e => onChange('observation', e.target.value)} rows={3} className={`${INP} resize-none`} /></div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Destination</label>
+                <select value={prospect.destination || ''} onChange={e => onChange('destination', e.target.value)} className={INP}>
+                  <option value="">—</option>
+                  <option>Résidence principale</option>
+                  <option>Inv. Locatif à l'année</option>
+                  <option>Inv. Locatif saisonnier</option>
+                  <option>Résidence secondaire</option>
+                  <option>Marchand de biens</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Observations</label>
+                <textarea value={prospect.observation || ''} onChange={e => onChange('observation', e.target.value)} rows={3} className={`${INP} resize-none`} />
+              </div>
             </div>
           )}
-
-          {/* ── CRITÈRES ── */}
           {tab === 'criteres' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">État du bien</label>
-                <div className="flex flex-wrap gap-2">
-                  {ETATS.map(e => <Chip key={e} label={e} active={csvSel('etat', e)} onClick={() => csvToggle('etat', e)} />)}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Exposition</label>
-                <div className="flex flex-wrap gap-2">
-                  {EXPOS.map(e => <Chip key={e} label={e} active={csvSel('expo', e)} onClick={() => csvToggle('expo', e)} />)}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Stationnement</label>
-                <div className="flex flex-wrap gap-2">
-                  {STATIONN.map((s, i) => <Chip key={s} label={s} active={prospect.stationnement === STATIONN[i]} onClick={() => singleToggle('stationnement', STATIONN[i])} />)}
-                </div>
-              </div>
-              {EXT_GROUPS.map(g => (
-                <div key={g.label}>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{g.label}</label>
-                  <div className="flex flex-wrap gap-2">
-                    {g.opts.map(o => <Chip key={o} label={o} active={csvSel('exterieur', o)} onClick={() => csvToggle('exterieur', o)} />)}
-                  </div>
-                </div>
-              ))}
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Étage</label>
-                <div className="flex flex-wrap gap-2">
-                  {ETAGES.map(e => <Chip key={e} label={e} active={csvSel('etage', e)} onClick={() => csvToggle('etage', e)} />)}
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Copropriété</label>
-                <div className="flex flex-wrap gap-2">
-                  {COPRO.map((label, i) => <Chip key={label} label={label} active={csvSel('copro', COPRO_VALS[i])} onClick={() => csvToggle('copro', COPRO_VALS[i])} />)}
-                </div>
-              </div>
+            <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Salles de bain min</label>
-                  <select value={prospect.sdb_min || ''} onChange={e => onChange('sdb_min', e.target.value)} className={INP}>
-                    <option value="">Indifférent</option><option value="1">1 min</option><option value="2">2 min</option><option value="3">3 min</option>
-                  </select></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">WC séparés min</label>
-                  <select value={prospect.wc_min || ''} onChange={e => onChange('wc_min', e.target.value)} className={INP}>
-                    <option value="">Indifférent</option><option value="1">1 min</option><option value="2">2 min</option><option value="3">3 min</option>
-                  </select></div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-2">Accessibilité</label>
-                <div className="flex flex-wrap gap-2">
-                  <Chip label="Chambre de plain-pied" active={!!prospect.chambre_plain_pied} onClick={() => onChange('chambre_plain_pied', prospect.chambre_plain_pied ? 0 : 1)} />
-                  <Chip label="Plain-pied / PMR" active={!!prospect.plain_pied_total} onClick={() => onChange('plain_pied_total', prospect.plain_pied_total ? 0 : 1)} />
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Extérieur</label>
+                  <input type="text" value={prospect.exterieur || ''} onChange={e => onChange('exterieur', e.target.value)} placeholder="Jardin, Terrasse…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Stationnement</label>
+                  <select value={prospect.stationnement || ''} onChange={e => onChange('stationnement', e.target.value)} className={INP}>
+                    <option value="">—</option>
+                    <option>Garage</option><option>Parking</option><option>Box</option><option>Obligatoire</option><option>Pas nécessaire</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">État accepté</label>
+                  <input type="text" value={prospect.etat || ''} onChange={e => onChange('etat', e.target.value)} placeholder="Bon état, Menus travaux…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Exposition</label>
+                  <input type="text" value={prospect.expo || ''} onChange={e => onChange('expo', e.target.value)} placeholder="Sud, Est…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Étage</label>
+                  <input type="text" value={prospect.etage || ''} onChange={e => onChange('etage', e.target.value)} placeholder="RDC, Dernier étage…" className={INP} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Copropriété</label>
+                  <select value={prospect.copro || ''} onChange={e => onChange('copro', e.target.value)} className={INP}>
+                    <option value="">—</option>
+                    <option>Oui</option><option>Faibles charges</option><option>Non</option><option>Peu importe</option>
+                  </select>
                 </div>
               </div>
             </div>
           )}
         </div>
-
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
+        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Annuler</button>
           <button onClick={onSave} disabled={saving} className="px-5 py-2 text-sm text-white font-semibold rounded-lg disabled:opacity-50 flex items-center gap-2" style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}>
             {saving ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save size={15} />}
@@ -263,9 +208,6 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
     </div>
   )
 }
-
-const BIENS_FILTER = ['Maison', 'Appartement', 'Immeuble', 'Local commercial',
-  'Terrain', 'Maison divisée', 'T1', 'T2', 'T3', 'T4', 'T5+']
 
 function ClientsPage() {
   const [prospects, setProspects] = useState([])
@@ -453,17 +395,16 @@ function ClientsPage() {
   }
 
   const sorted = [...prospects].sort((a, b) => b.id - a.id)
-  const matchesBienFilter = (p) => !filterBien ||
-    (p.bien || '').toLowerCase().includes(filterBien.toLowerCase()) ||
-    (p.bien || '').toLowerCase().includes('tous biens')
-  const matchesBudgetFilter = (p) => !filterBudget ||
-    (p.budget_max && p.budget_max >= parseInt(filterBudget))
-  const matchesSearch = (p) =>
+  const actifs = sorted.filter(p => !p.archive).filter(p =>
     p.nom?.toLowerCase().includes(search.toLowerCase()) ||
     p.villes?.toLowerCase().includes(search.toLowerCase()) ||
     p.bien?.toLowerCase().includes(search.toLowerCase())
-  const actifs = sorted.filter(p => !p.archive).filter(p => matchesBienFilter(p) && matchesBudgetFilter(p) && matchesSearch(p))
-  const archives = sorted.filter(p => p.archive).filter(p => matchesBienFilter(p) && matchesBudgetFilter(p) && matchesSearch(p))
+  )
+  const archives = sorted.filter(p => p.archive).filter(p =>
+    p.nom?.toLowerCase().includes(search.toLowerCase()) ||
+    p.villes?.toLowerCase().includes(search.toLowerCase()) ||
+    p.bien?.toLowerCase().includes(search.toLowerCase())
+  )
 
   const totalPages = Math.ceil(actifs.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -640,7 +581,7 @@ function ClientsPage() {
               placeholder="Rechercher un client..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-full sm:w-72 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
+              className="pl-10 pr-4 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl w-full sm:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all placeholder:text-gray-400 text-[#1E3A5F] font-medium"
             />
           </div>
 
@@ -650,7 +591,7 @@ function ClientsPage() {
             className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
           >
             <option value="">Tous types</option>
-            {BIENS_FILTER.map(b => <option key={b} value={b}>{b}</option>)}
+            {['Maison','Appartement','Immeuble','Local commercial','Terrain','Maison divisée','T1','T2','T3','T4','T5+'].map(b => <option key={b} value={b}>{b}</option>)}
           </select>
 
           {filterBien && (
@@ -676,7 +617,6 @@ function ClientsPage() {
               onClick={openPortefeuille}
               className="px-4 py-2.5 font-semibold rounded-xl btn-press flex items-center gap-2 text-white shadow-md hover:shadow-lg transition-all"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
-              title={`Générer le rapport portefeuille "${filterBien}"`}
             >
               <Printer size={15} />
               <span className="hidden lg:inline">Portefeuille acheteurs</span>
