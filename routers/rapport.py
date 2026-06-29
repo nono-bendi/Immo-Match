@@ -919,7 +919,7 @@ def rapport_portefeuille(
     .header::after{{content:'';position:absolute;bottom:-60px;left:38%;width:220px;height:220px;background:rgba(255,255,255,.03);border-radius:50%;pointer-events:none;}}
     .header-top{{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;position:relative;z-index:1;}}
     .brand{{display:flex;align-items:center;gap:14px;}}
-    .agency-logo{{height:38px;max-width:130px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9;}}
+    .agency-logo{{height:56px;max-width:200px;object-fit:contain;filter:brightness(0) invert(1);}}
     .brand-name{{font-size:20px;font-weight:800;letter-spacing:-.04em;}}
     .brand-name span{{color:#93c5fd;}}
     .brand-sep{{opacity:.3;font-size:18px;margin:0 4px;}}
@@ -978,21 +978,13 @@ def rapport_portefeuille(
     .footer-brand{{font-size:15px;font-weight:800;letter-spacing:-.03em;color:#1E3A5F;}}
     .footer-brand span{{color:#60a5fa;}}
     @media print{{
-      *{{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}}
+      *{{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;color-adjust:exact !important;}}
       body{{background:white;padding:0;}}
       .no-print,.toolbar{{display:none !important;}}
       .page{{box-shadow:none;border-radius:0;max-width:100%;}}
-      .header{{border-radius:0;border-bottom:3px solid {couleur};}}
-      .header,.header .brand-name,.header .brand-agency,.header .header-eyebrow,
-      .header .header-title,.header .header-pill,.header .header-sub,
-      .header .badge-conf,.header .badge-date{{color:#1E3A5F !important;}}
-      .header .brand-name span{{color:#2563eb !important;}}
-      .header .header-pill{{border:1.5px solid #1E3A5F !important;background:transparent !important;}}
-      .header .badge-conf{{border-color:#1E3A5F !important;background:transparent !important;}}
-      .header::before,.header::after{{display:none;}}
+      .header{{border-radius:0;background:linear-gradient(135deg,{couleur} 0%,#1d4ed8 100%) !important;}}
       .prospect-card{{break-inside:avoid;page-break-inside:avoid;box-shadow:none;}}
-      .intro-section{{background:#f8fafc !important;}}
-      .intro-title,.intro-text{{color:#1e293b !important;}}
+      .intro-section{{background:#f0f9ff !important;}}
     }}
     @media(max-width:700px){{
       .header{{padding:36px 24px 32px;}}
@@ -1021,7 +1013,7 @@ def rapport_portefeuille(
       </div>
       <div class="header-meta">
         <span class="badge-conf">Confidentiel</span>
-        <span class="badge-date">{now.strftime("%d %B %Y").capitalize()}</span>
+        <span class="badge-date">{now.strftime("%d")} {["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"][now.month-1]} {now.strftime("%Y")}</span>
       </div>
     </div>
     <div class="header-body">
