@@ -199,12 +199,16 @@ def get_search_config(current_user: dict = Depends(get_current_user)):
                 seen.add(v)
                 villes.append(v)
 
-    # Quartiers : liste de départ curatée + quartiers tapés manuellement par l'agence
-    q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
-    saved_quartiers = json.loads(q_row[0]) if q_row else []
-    cq_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers_custom'").fetchone()
-    custom_quartiers = json.loads(cq_row[0]) if cq_row else []
-    quartiers = sorted(set(_QUARTIERS_DEFAUT) | set(saved_quartiers) | set(custom_quartiers))
+    # Quartiers : override curatée si définie, sinon liste par défaut + tapés manuellement
+    qo_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers_override'").fetchone()
+    if qo_row:
+        quartiers = json.loads(qo_row[0])
+    else:
+        q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
+        saved_quartiers = json.loads(q_row[0]) if q_row else []
+        cq_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers_custom'").fetchone()
+        custom_quartiers = json.loads(cq_row[0]) if cq_row else []
+        quartiers = sorted(set(_QUARTIERS_DEFAUT) | set(saved_quartiers) | set(custom_quartiers))
 
     conn.close()
     return {"villes": villes, "quartiers": quartiers}
