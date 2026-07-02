@@ -160,31 +160,51 @@ def parse_hektor_cols(cols):
 # ROUTES
 # ============================================================
 
+_QUARTIERS_DEFAUT = [
+    "Centre Ville", "Centre Historique", "Centre",
+    "Valescure", "Valescure Golf",
+    "Fréjus Plage", "Fréjus Sud", "Fréjus Nord",
+    "Saint Aygulf", "Les Issambres",
+    "Tour de Mare", "Villeneuve", "Cap Dramont",
+    "Agay", "Anthéor", "Boulouris",
+    "La Garonne", "Le Capitou",
+    "Puget-sur-Argens Centre",
+    "Santa Lucia", "Le Dramont",
+    "Suveret", "Caïs",
+]
+
 @router.get("/biens/search-config")
 def get_search_config(current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
-    # Villes from biens table + custom saved villes
-    biens_villes = [r[0] for r in conn.execute(
-        "SELECT DISTINCT ville FROM biens WHERE ville IS NOT NULL AND ville != '' ORDER BY ville"
-    ).fetchall()]
-    v_row = conn.execute("SELECT value FROM settings WHERE key = 'search_villes_custom'").fetchone()
-    custom_villes = json.loads(v_row[0]) if v_row else []
-    villes = sorted(set(biens_villes) | set(custom_villes))
-
-    # Quartiers from settings or biens table + custom saved quartiers
-    q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
-    if q_row:
-        try:
-            base_quartiers = json.loads(q_row[0])
-        except Exception:
-            base_quartiers = []
+    # Si une liste curatée est définie, elle prend le dessus
+    override_row = conn.execute("SELECT value FROM settings WHERE key = 'search_villes_override'").fetchone()
+    if override_row:
+        villes = json.loads(override_row[0])
     else:
-        base_quartiers = [r[0] for r in conn.execute(
-            "SELECT DISTINCT quartier FROM biens WHERE quartier IS NOT NULL AND quartier != '' ORDER BY quartier"
+        # Villes from biens table triées par fréquence + custom saved villes
+        biens_villes = [r[0] for r in conn.execute(
+            "SELECT ville, COUNT(*) as nb FROM biens WHERE ville IS NOT NULL AND ville != '' GROUP BY ville ORDER BY nb DESC, ville"
         ).fetchall()]
+        v_row = conn.execute("SELECT value FROM settings WHERE key = 'search_villes_custom'").fetchone()
+        custom_villes = json.loads(v_row[0]) if v_row else []
+        # Conserver l'ordre par fréquence pour les biens_villes, ajouter les custom à la fin
+        seen = set()
+        villes = []
+        for v in biens_villes:
+            if v not in seen:
+                seen.add(v)
+                villes.append(v)
+        for v in sorted(custom_villes):
+            if v not in seen:
+                seen.add(v)
+                villes.append(v)
+
+    # Quartiers : liste de départ curatée + quartiers tapés manuellement par l'agence
+    q_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers'").fetchone()
+    saved_quartiers = json.loads(q_row[0]) if q_row else []
     cq_row = conn.execute("SELECT value FROM settings WHERE key = 'search_quartiers_custom'").fetchone()
     custom_quartiers = json.loads(cq_row[0]) if cq_row else []
-    quartiers = sorted(set(base_quartiers) | set(custom_quartiers))
+    quartiers = sorted(set(_QUARTIERS_DEFAUT) | set(saved_quartiers) | set(custom_quartiers))
 
     conn.close()
     return {"villes": villes, "quartiers": quartiers}
@@ -214,7 +234,7 @@ def save_custom_search_config(data: dict, current_user: dict = Depends(get_curre
 def get_biens(current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
-    cursor = conn.execute("SELECT * FROM biens")
+    cursor = conn.execute("SELECT * FROM biens WHERE statut IS NULL OR statut != 'en_analyse' ORDER BY date_ajout DESC")
     biens = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return biens
