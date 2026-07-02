@@ -9,17 +9,18 @@ BASE = APP_BASE_URL.rstrip("/")
 TODAY = date.today().isoformat()
 
 # ── Pages publiques du landing ────────────────────────────────────────────────
+# Slash final obligatoire : les pages prérendues sont des dossiers (nginx 301
+# /faq → /faq/), le sitemap doit déclarer l'URL finale, pas la redirection.
 _PAGES = [
-    ("/",                   "1.0", "weekly"),
-    ("/demarrer",           "0.9", "monthly"),
-    ("/showcase",           "0.8", "monthly"),
-    ("/faq",                "0.7", "monthly"),
-    ("/guide-de-demarrage", "0.7", "monthly"),
-    ("/documentation",      "0.6", "monthly"),
-    ("/mentions-legales",   "0.3", "yearly"),
-    ("/cgu",                "0.3", "yearly"),
-    ("/confidentialite",    "0.3", "yearly"),
-    ("/cookies",            "0.3", "yearly"),
+    ("/",                    "1.0", "weekly"),
+    ("/demarrer/",           "0.9", "monthly"),
+    ("/faq/",                "0.7", "monthly"),
+    ("/guide-de-demarrage/", "0.7", "monthly"),
+    ("/documentation/",      "0.6", "monthly"),
+    ("/mentions-legales/",   "0.3", "yearly"),
+    ("/cgu/",                "0.3", "yearly"),
+    ("/confidentialite/",    "0.3", "yearly"),
+    ("/cookies/",            "0.3", "yearly"),
 ]
 
 
