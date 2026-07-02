@@ -33,3 +33,4 @@ log.txt
 # OS
 .DS_Store
 Thumbs.db
+landing/dist/server/

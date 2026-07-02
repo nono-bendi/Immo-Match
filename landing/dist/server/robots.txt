@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /showcase
-
-Sitemap: https://immoflash.app/sitemap.xml
