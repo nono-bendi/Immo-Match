@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings, Languages } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
@@ -34,10 +34,22 @@ function EmailModal({
   const [activeTab, setActiveTab] = useState('preview')
   const [translating, setTranslating] = useState(false)
   const navigate = useNavigate()
+  const originalContentRef = useRef(null)
 
   const handleTranslate = async (lang) => {
     setLangue(lang)
-    if (!lang) return
+    if (!lang) {
+      // Retour en français → restaurer le contenu original
+      if (originalContentRef.current) {
+        setEmailContent(originalContentRef.current)
+        originalContentRef.current = null
+      }
+      return
+    }
+    // Mémoriser le contenu français avant la première traduction
+    if (!originalContentRef.current) {
+      originalContentRef.current = { ...emailContent }
+    }
     setTranslating(true)
     try {
       const res = await apiFetch('/translate-email', {
@@ -63,6 +75,9 @@ function EmailModal({
   }
 
   useEffect(() => {
+    if (!isOpen) {
+      originalContentRef.current = null
+    }
     if (isOpen && type === 'confirm') {
       setActiveTab('preview')
     }

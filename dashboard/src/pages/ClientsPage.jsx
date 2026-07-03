@@ -73,7 +73,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
         <div className="overflow-y-auto flex-1 px-6 py-5">
           {tab === 'contact' && (
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Titre</label>
                   <select value={prospect.titre || ''} onChange={e => onChange('titre', e.target.value)} className={INP}>
@@ -90,7 +90,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
                   <input type="text" value={prospect.prenom || ''} onChange={e => onChange('prenom', e.target.value)} className={INP} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone</label>
                   <input type="tel" value={prospect.telephone || ''} onChange={e => onChange('telephone', e.target.value)} className={INP} />
@@ -124,7 +124,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
           )}
           {tab === 'recherche' && (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Type de bien</label>
                   <input type="text" value={prospect.bien || ''} onChange={e => onChange('bien', e.target.value)} placeholder="Maison, Appartement…" className={INP} />
@@ -161,7 +161,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
           )}
           {tab === 'criteres' && (
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Extérieur</label>
                   <input type="text" value={prospect.exterieur || ''} onChange={e => onChange('exterieur', e.target.value)} placeholder="Jardin, Terrasse…" className={INP} />
@@ -221,6 +221,7 @@ function ClientsPage() {
   const [showArchived, setShowArchived] = useState(false)
   const [filterBien, setFilterBien] = useState('')
   const [filterBudget, setFilterBudget] = useState('')
+  const [filterBudgetMax, setFilterBudgetMax] = useState('')
 
   const openPortefeuille = () => {
     const t = localStorage.getItem('token')
@@ -401,6 +402,7 @@ function ClientsPage() {
         !p.bien?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterBien && !p.bien?.includes(filterBien) && !p.bien?.includes('Tous biens')) return false
     if (filterBudget && p.budget_max && p.budget_max < parseInt(filterBudget)) return false
+    if (filterBudgetMax && p.budget_max && p.budget_max > parseInt(filterBudgetMax)) return false
     return true
   }
   const actifs = sorted.filter(p => !p.archive).filter(matchFilters)
@@ -464,17 +466,29 @@ function ClientsPage() {
       </td>
       <td className="p-4 hidden sm:table-cell">
         {prospect.destination ? (() => {
-          const d = prospect.destination.toLowerCase()
-          const style = d.includes('locatif') || d.includes('investis')
-            ? 'bg-violet-100 text-violet-700'
-            : d.includes('principal') || d.includes('résidence')
-            ? 'bg-blue-100 text-blue-700'
-            : d.includes('revente') || d.includes('rénovation')
-            ? 'bg-amber-100 text-amber-700'
-            : d.includes('pied')
-            ? 'bg-emerald-100 text-emerald-700'
-            : 'bg-gray-100 text-gray-600'
-          return <span className={`text-xs px-2.5 py-1 rounded-lg font-medium whitespace-nowrap ${style}`}>{prospect.destination}</span>
+          const dests = prospect.destination.split(',').map(s => s.trim()).filter(Boolean)
+          const getBadgeStyle = (val) => {
+            const v = val.toLowerCase()
+            return v.includes('locatif') || v.includes('investis') ? 'bg-violet-100 text-violet-700'
+              : v.includes('principal') ? 'bg-blue-100 text-blue-700'
+              : v.includes('secondaire') ? 'bg-sky-100 text-sky-700'
+              : v.includes('marchand') ? 'bg-amber-100 text-amber-700'
+              : 'bg-gray-100 text-gray-600'
+          }
+          const ABBREV = {
+            'Résidence principale': 'Rés. principale',
+            'Résidence secondaire': 'Rés. secondaire',
+            'Inv. Locatif à l\'année': 'Inv. locatif',
+            'Inv. Locatif saisonnier': 'Inv. saisonnier',
+            'Marchand de biens': 'Marchand biens',
+          }
+          const label = ABBREV[dests[0]] || dests[0]
+          return (
+            <div className="flex items-center gap-1">
+              <span className={`text-xs px-2 py-0.5 rounded-lg font-medium whitespace-nowrap ${getBadgeStyle(dests[0])}`}>{label}</span>
+              {dests.length > 1 && <span className="text-xs px-1.5 py-0.5 rounded-lg font-medium bg-gray-100 text-gray-500">+{dests.length - 1}</span>}
+            </div>
+          )
         })() : <span className="text-gray-300 text-sm">—</span>}
       </td>
       <td className="p-4">
@@ -587,7 +601,7 @@ function ClientsPage() {
 
           <select
             value={filterBien}
-            onChange={e => { setFilterBien(e.target.value); setFilterBudget(''); setCurrentPage(1) }}
+            onChange={e => { setFilterBien(e.target.value); setFilterBudget(''); setFilterBudgetMax(''); setCurrentPage(1) }}
             className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
           >
             <option value="">Tous types</option>
@@ -595,19 +609,35 @@ function ClientsPage() {
           </select>
 
           {filterBien && (
-            <select
-              value={filterBudget}
-              onChange={e => { setFilterBudget(e.target.value); setCurrentPage(1) }}
-              className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
-            >
-              <option value="">Tous budgets</option>
-              <option value="100000">100 000 € min</option>
-              <option value="200000">200 000 € min</option>
-              <option value="300000">300 000 € min</option>
-              <option value="500000">500 000 € min</option>
-              <option value="700000">700 000 € min</option>
-              <option value="1000000">1 000 000 € min</option>
-            </select>
+            <>
+              <select
+                value={filterBudget}
+                onChange={e => { setFilterBudget(e.target.value); setCurrentPage(1) }}
+                className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
+              >
+                <option value="">Budget min</option>
+                <option value="100000">≥ 100 000 €</option>
+                <option value="200000">≥ 200 000 €</option>
+                <option value="300000">≥ 300 000 €</option>
+                <option value="500000">≥ 500 000 €</option>
+                <option value="700000">≥ 700 000 €</option>
+                <option value="1000000">≥ 1 000 000 €</option>
+              </select>
+              <select
+                value={filterBudgetMax}
+                onChange={e => { setFilterBudgetMax(e.target.value); setCurrentPage(1) }}
+                className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
+              >
+                <option value="">Budget max</option>
+                <option value="150000">≤ 150 000 €</option>
+                <option value="200000">≤ 200 000 €</option>
+                <option value="300000">≤ 300 000 €</option>
+                <option value="400000">≤ 400 000 €</option>
+                <option value="500000">≤ 500 000 €</option>
+                <option value="700000">≤ 700 000 €</option>
+                <option value="1000000">≤ 1 000 000 €</option>
+              </select>
+            </>
           )}
         </div>
 

@@ -4,9 +4,12 @@ import { Save, ArrowLeft, User, Home, Settings, Target, FileText, X, Plus, Mic, 
 import Modal from '../components/Modal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import { apiFetch } from '../api'
+import { useAgency } from '../contexts/AgencyContext'
 
 function NewProspectPage() {
   const navigate = useNavigate()
+  const { agency } = useAgency()
+  const isDemo = agency?.slug === 'demo'
   const [saving, setSaving] = useState(false)
   const [villeInput, setVilleInput] = useState('')
   const [quartierInput, setQuartierInput] = useState('')
@@ -81,6 +84,7 @@ function NewProspectPage() {
       if (data.detail) { setVoiceError(data.detail); setParsing(false); return }
       setFormData(prev => ({
         ...prev,
+        ...(data.titre      && { titre: data.titre }),
         ...(data.nom        && { nom: data.nom }),
         ...(data.prenom     && { prenom: data.prenom }),
         ...(data.telephone  && { telephone: data.telephone }),
@@ -154,21 +158,33 @@ function NewProspectPage() {
 
   const villesSuggestions = searchConfig.villes
 
-  const typeBienOptions = [
-    { value: 'Maison', label: 'Maison' },
-    { value: 'Appartement', label: 'Appartement' },
-    { value: 'T1', label: 'T1 / Studio' },
-    { value: 'T2', label: 'T2' },
-    { value: 'T3', label: 'T3' },
-    { value: 'T4', label: 'T4' },
-    { value: 'T5+', label: 'T5 et +' },
-    { value: 'Local commercial', label: 'Local commercial' },
-    { value: 'Immeuble', label: 'Immeuble' },
-    { value: 'Immeuble de rapport', label: 'Immeuble de rapport' },
-    { value: 'Maison divisée', label: 'Maison divisée en appts' },
-    { value: 'Terrain', label: 'Terrain' },
-    { value: 'Tous biens', label: 'Tous types' }
-  ]
+  const typeBienOptions = isDemo
+    ? [
+        { value: 'Maison', label: 'Maison' },
+        { value: 'Appartement', label: 'Appartement' },
+        { value: 'T1', label: 'T1 / Studio' },
+        { value: 'T2', label: 'T2' },
+        { value: 'T3', label: 'T3' },
+        { value: 'T4', label: 'T4' },
+        { value: 'T5+', label: 'T5 et +' },
+        { value: 'Terrain', label: 'Terrain' },
+        { value: 'Tous biens', label: 'Tous types' },
+      ]
+    : [
+        { value: 'Maison', label: 'Maison' },
+        { value: 'Appartement', label: 'Appartement' },
+        { value: 'T1', label: 'T1 / Studio' },
+        { value: 'T2', label: 'T2' },
+        { value: 'T3', label: 'T3' },
+        { value: 'T4', label: 'T4' },
+        { value: 'T5+', label: 'T5 et +' },
+        { value: 'Local commercial', label: 'Local commercial' },
+        { value: 'Immeuble', label: 'Immeuble' },
+        { value: 'Immeuble de rapport', label: 'Immeuble de rapport' },
+        { value: 'Maison divisée', label: 'Maison divisée en appts' },
+        { value: 'Terrain', label: 'Terrain' },
+        { value: 'Tous biens', label: 'Tous types' },
+      ]
 
   const etatOptions = [
     { value: 'Neuf', label: 'Neuf' },
@@ -200,9 +216,11 @@ function NewProspectPage() {
       label: 'Environnement',
       options: [
         { value: 'Au calme', label: 'Au calme' },
-        { value: 'Vue mer souhaitée', label: 'Vue mer souhaitée' },
-        { value: 'Vue mer indispensable', label: 'Vue mer indispensable' },
-        { value: 'Plages à pieds', label: 'Plages à pieds' },
+        ...(!isDemo ? [
+          { value: 'Vue mer souhaitée', label: 'Vue mer souhaitée' },
+          { value: 'Vue mer indispensable', label: 'Vue mer indispensable' },
+          { value: 'Plages à pieds', label: 'Plages à pieds' },
+        ] : []),
         { value: 'Commerces à pieds', label: 'Commerces à pieds' },
         { value: 'Piscine', label: 'Piscine' },
       ]
@@ -564,9 +582,9 @@ function NewProspectPage() {
             <h2 className="text-lg font-semibold text-[#1E3A5F]">Informations de contact</h2>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Titre + Nom + Prénom */}
-            <div className="col-span-2 grid grid-cols-3 gap-3">
+            <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                 <select
@@ -768,16 +786,20 @@ function NewProspectPage() {
                     + Tout secteur
                   </button>
                 )}
-                {villesSuggestions.filter(v => !formData.villes.includes(v)).map(ville => (
-                  <button
-                    key={ville}
-                    type="button"
-                    onClick={() => addVille(ville)}
-                    className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    + {ville}
-                  </button>
-                ))}
+                {villesSuggestions
+                  .filter(v => !formData.villes.includes(v))
+                  .filter(v => villeInput.trim().length >= 2 ? v.toLowerCase().includes(villeInput.trim().toLowerCase()) : true)
+                  .slice(0, 10)
+                  .map(ville => (
+                    <button
+                      key={ville}
+                      type="button"
+                      onClick={() => addVille(ville)}
+                      className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      + {ville}
+                    </button>
+                  ))}
               </div>
             </div>
 
@@ -829,20 +851,28 @@ function NewProspectPage() {
                   </button>
                 </div>
 
-                {quartiersOptions.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {quartiersOptions.filter(o => !formData.quartiers.includes(o.value)).map(option => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => addQuartier(option.value)}
-                        className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200 transition-colors"
-                      >
-                        + {option.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                {(() => {
+                  const input = quartierInput.trim().toLowerCase()
+                  const filtered = quartiersOptions
+                    .filter(o => !formData.quartiers.includes(o.value))
+                    .filter(o => !o.label.match(/^\d|avenue|rue|boulevard|route|chemin|allée|allee|impasse|traverse|lotissement/i))
+                    .filter(o => input.length >= 2 ? o.label.toLowerCase().includes(input) : true)
+                    .slice(0, 10)
+                  return filtered.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {filtered.map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => addQuartier(option.value)}
+                          className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                          + {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null
+                })()}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Quartiers à éviter</label>
@@ -856,7 +886,7 @@ function NewProspectPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Budget maximum *</label>
                 <div className="relative">
@@ -1050,8 +1080,8 @@ function NewProspectPage() {
               </div>
             </div>
             {/* Chambre plain-pied + SDB min + WC min */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="col-span-1 sm:col-span-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Accessibilité</label>
                 <div className="flex flex-wrap gap-2">
                   <button

@@ -184,7 +184,7 @@ function BienModal({ bien, onClose }) {
           </div>
 
           {/* Détails */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {(bien.quartier || bien.ville) && (
               <div className="flex items-center gap-2 text-sm">
                 <MapPin size={14} className="text-gray-400 flex-shrink-0" />

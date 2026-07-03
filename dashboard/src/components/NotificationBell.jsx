@@ -56,15 +56,14 @@ function NotificationBell() {
   }
 
   const handleNotificationClick = (notif) => {
-    if (notif.type === 'new_bien') {
-      const match = notif.link?.match(/\/nouveau-bien\/(\d+)/)
-      if (match) {
-        window.dispatchEvent(new CustomEvent('openNewBienModal', { detail: { bienId: parseInt(match[1]) } }))
-      }
-    } else if (notif.link) {
+    setIsOpen(false)
+    if (!notif.link) return
+    const modalMatch = notif.link.match(/\/nouveau-bien\/(\d+)/)
+    if (modalMatch) {
+      window.dispatchEvent(new CustomEvent('openNewBienModal', { detail: { bienId: parseInt(modalMatch[1]) } }))
+    } else {
       navigate(notif.link)
     }
-    setIsOpen(false)
   }
 
   const handleClear = async (e) => {

@@ -149,7 +149,7 @@ function NewBienModal({ bienId, onClose }) {
               </div>
             ) : (
               <div className="space-y-2">
-                {matchings.map((m, i) => {
+                {matchings.slice(0, 3).map((m, i) => {
                   const style = getScoreStyle(m.score)
                   return (
                     <div key={i} className={`flex items-center gap-3 p-3 ${style.light} rounded-xl`}>

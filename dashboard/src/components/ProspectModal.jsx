@@ -1,13 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
 import { API_URL } from '../config'
+import { apiFetch } from '../api'
+import BienModal from './BienModal'
 
 function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
+  const [presentations, setPresentations] = useState([])
+  const [selectedBien, setSelectedBien] = useState(null)
+
   useEffect(() => {
     document.body.classList.add('modal-open')
     return () => document.body.classList.remove('modal-open')
   }, [])
+
+  useEffect(() => {
+    if (!prospect?.id) return
+    apiFetch(`/prospects/${prospect.id}/presentations`)
+      .then(r => r.json())
+      .then(data => setPresentations(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [prospect?.id])
+
+  const openBien = async (bienId) => {
+    const data = await apiFetch(`/biens/${bienId}`).then(r => r.json()).catch(() => null)
+    if (data) setSelectedBien(data)
+  }
 
   if (!prospect) return null
 
@@ -21,7 +39,10 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
     return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
   }
 
-  return createPortal(
+  return (
+    <>
+      {selectedBien && <BienModal bien={selectedBien} onClose={() => setSelectedBien(null)} />}
+      {createPortal(
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }} onClick={onClose}>
       <div className="rounded-2xl w-full max-w-3xl max-h-[88vh] overflow-hidden shadow-2xl flex flex-col" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
 
@@ -68,7 +89,7 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
 
         {/* Contenu */}
         <div className="p-5 overflow-y-auto flex-1 bg-gradient-to-b from-gray-50/50 to-white">
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             
             {/* Colonne gauche - Recherche */}
             <div>
@@ -240,6 +261,62 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
               <p className="text-sm text-amber-900 leading-relaxed">{prospect.observation}</p>
             </div>
           )}
+
+          {/* Biens visités */}
+          {presentations.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-xs font-bold text-[#1E3A5F] uppercase tracking-widest mb-3 flex items-center gap-2">
+                <span className="w-8 h-0.5 bg-[#1E3A5F] rounded-full"></span>
+                Biens visités ({presentations.length})
+              </h3>
+              <div className="space-y-2">
+                {presentations.map((p, i) => {
+                  const photo = p.bien_photos ? p.bien_photos.split('|').find(u => u.trim().startsWith('http')) : null
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => openBien(p.bien_id)}
+                      className="flex items-stretch gap-0 rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-emerald-200"
+                    >
+                      {/* Photo */}
+                      <div className="w-20 flex-shrink-0 relative">
+                        {photo ? (
+                          <img src={photo} alt="" className="w-full h-full object-cover" style={{ minHeight: 64 }} />
+                        ) : (
+                          <div className="w-full h-full bg-emerald-50 flex items-center justify-center" style={{ minHeight: 64 }}>
+                            <Home size={20} className="text-emerald-300" />
+                          </div>
+                        )}
+                        <div className="absolute top-1.5 left-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      </div>
+                      {/* Infos */}
+                      <div className="flex-1 min-w-0 p-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-semibold text-[#1E3A5F]">{p.bien_type} à {p.bien_ville}</p>
+                          {p.bien_prix && (
+                            <span className="text-xs text-gray-400 font-medium">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(p.bien_prix)}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          {p.bien_surface && <span className="text-[11px] text-gray-400">{p.bien_surface} m²</span>}
+                          {p.bien_pieces && <span className="text-[11px] text-gray-400">{p.bien_pieces}p</span>}
+                          {p.bien_reference && <span className="text-[11px] text-gray-400">Réf. {p.bien_reference}</span>}
+                        </div>
+                        <p className="text-[11px] text-emerald-600 font-medium mt-1">
+                          Visité le {new Date(p.date_presentation).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                        {p.commentaire && (
+                          <p className="text-xs text-gray-500 mt-1 italic">"{p.commentaire}"</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -260,6 +337,8 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
       </div>
     </div>,
     document.body
+  )}
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -192,7 +192,7 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse }) {
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse, presented }) {
   const c = sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -214,6 +214,7 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
             {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{pieces}p</span></>}
             {emailEnvoye && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 6px' }}>Proposé</span></>}
+            {presented && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 9999, padding: '1px 6px' }}>Visité</span></>}
           </div>
         </div>
       </button>
@@ -244,33 +245,60 @@ const MOTIFS_REFUS = [
 function RefuseModal({ match, onConfirm, onClose }) {
   const [motif, setMotif] = useState('')
   const [custom, setCustom] = useState('')
+  const [visite, setVisite] = useState(false)
+  const [commentaireVisite, setCommentaireVisite] = useState('')
+  // visite=true → bien reste dans la liste avec badge "Visité", pas refusé
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 420, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.2)' }}>
-        <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 4 }}>Refuser ce matching</div>
+        <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 4 }}>{visite ? 'Marquer comme visité' : 'Refuser ce matching'}</div>
         <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
           {match.bien_type} à {match.bien_ville} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
         </div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Motif (optionnel)</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-          {MOTIFS_REFUS.map(m => (
-            <button key={m} onClick={() => setMotif(motif === m ? '' : m)}
-              style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', transition: 'all 0.15s',
-                borderColor: motif === m ? '#ef4444' : '#e2e8f0',
-                background: motif === m ? '#fef2f2' : '#f8fafc',
-                color: motif === m ? '#dc2626' : '#64748b' }}
-            >{m}</button>
-          ))}
+
+        {/* Case "Déjà visité/présenté" en premier — change le comportement */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: visite ? '#fffbeb' : '#f8fafc', border: `1px solid ${visite ? '#fde68a' : '#e2e8f0'}`, marginBottom: 16, cursor: 'pointer', transition: 'all 0.15s' }}
+          onClick={() => setVisite(v => !v)}
+        >
+          <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${visite ? '#f59e0b' : '#cbd5e1'}`, background: visite ? '#f59e0b' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+            {visite && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          </div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: visite ? '#92400e' : '#475569' }}>Déjà visité / présenté au client</div>
+            {visite && <div style={{ fontSize: 11, color: '#a16207', marginTop: 1 }}>Le bien restera visible avec un badge "Visité"</div>}
+          </div>
         </div>
-        <input value={custom} onChange={e => { setCustom(e.target.value); setMotif('') }}
-          placeholder="Ou précisez un autre motif..."
-          style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', marginBottom: 20, boxSizing: 'border-box' }}
-        />
+
+        {visite && (
+          <input value={commentaireVisite} onChange={e => setCommentaireVisite(e.target.value)}
+            placeholder="Commentaire (ex : trop sombre, client pas convaincu…)"
+            style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #fde68a', background: '#fffbeb', fontSize: 13, outline: 'none', marginBottom: 16, boxSizing: 'border-box' }}
+          />
+        )}
+
+        {!visite && <>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Motif de refus (optionnel)</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            {MOTIFS_REFUS.map(m => (
+              <button key={m} onClick={() => setMotif(motif === m ? '' : m)}
+                style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', transition: 'all 0.15s',
+                  borderColor: motif === m ? '#ef4444' : '#e2e8f0',
+                  background: motif === m ? '#fef2f2' : '#f8fafc',
+                  color: motif === m ? '#dc2626' : '#64748b' }}
+              >{m}</button>
+            ))}
+          </div>
+          <input value={custom} onChange={e => { setCustom(e.target.value); setMotif('') }}
+            placeholder="Ou précisez un autre motif..."
+            style={{ width: '100%', padding: '9px 12px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', marginBottom: 20, boxSizing: 'border-box' }}
+          />
+        </>}
+
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Annuler</button>
-          <button onClick={() => onConfirm(motif || custom || null)}
-            style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: '#ef4444', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-            Refuser ce bien
+          <button onClick={() => onConfirm(visite ? null : (motif || custom || null), visite, commentaireVisite)}
+            style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: visite ? '#f59e0b' : '#ef4444', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            {visite ? 'Marquer comme visité' : 'Refuser ce bien'}
           </button>
         </div>
       </div>
@@ -410,6 +438,8 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   const [prospectData, setProspectData] = useState(null)
   const [bienModal, setBienModal] = useState(null)
   const [expanded, setExpanded]   = useState(false)
+  // Biens déjà présentés — initialisé depuis les matchings, mis à jour par refus+visite
+  const presentedIds = useMemo(() => new Set(group.matchings.filter(m => m.date_presentation).map(m => m.bien_id)), [group.matchings])
   const sel = selId ? sorted.find(m => m.id === selId) || best : null
   const [a, b] = avP(group.prospect_nom)
   const { dark } = useTheme()
@@ -531,8 +561,9 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
                 emailEnvoye={m.date_email_envoye}
-                onPropose={group.prospect_mail ? () => onPropose(m, group.prospect_mail, (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom) : null}
+                onPropose={(group.prospect_mail || group.prospect_email2) ? () => onPropose(m, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom) : null}
                 onRefuse={() => onRefuse(m)}
+                presented={presentedIds.has(m.bien_id)}
               />
             ))}
             {sorted.length > 3 && (
@@ -551,7 +582,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
         <div style={{ maxHeight: sel ? '1000px' : '0px', opacity: sel ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease' }}>
           {sel && (
             <BienDetail match={sel} mail={group.prospect_mail} nom={group.prospect_nom} sending={sendingEmail === sel.id}
-              onPropose={() => onPropose(sel, group.prospect_mail, (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom)}
+              onPropose={() => onPropose(sel, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom)}
               onRefuse={() => onRefuse(sel)}
             />
           )}
@@ -683,12 +714,19 @@ export default function MatchingsPageV2() {
     }
   }, [])
 
-  const confirmRefuse = async (motif) => {
+  const confirmRefuse = async (motif, visite, commentaireVisite) => {
     if (!refuseModal) return
     const { match } = refuseModal
     try {
-      await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: 'refused', motif_refus: motif || null }) })
-      setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: 'refused', motif_refus: motif } : m))
+      if (visite) {
+        // Marquer comme visité uniquement — le bien reste dans la liste
+        await apiFetch('/matchings/presenter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prospect_id: match.prospect_id, bien_id: match.bien_id, commentaire: commentaireVisite || null }) })
+        setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, date_presentation: new Date().toISOString(), commentaire_presentation: commentaireVisite || null } : m))
+      } else {
+        // Refus classique — le bien disparaît
+        await apiFetch(`/matchings/${match.id}/statut-prospect`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ statut: 'refused', motif_refus: motif || null }) })
+        setMatchings(prev => prev.map(m => m.id === match.id ? { ...m, statut_prospect: 'refused', motif_refus: motif } : m))
+      }
     } catch {}
     setRefuseModal(null)
   }
@@ -709,7 +747,7 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, matchings: [] }
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))

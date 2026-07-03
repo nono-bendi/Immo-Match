@@ -845,7 +845,7 @@ export default function AdministrationPage() {
 
         {/* Modèle */}
         <Field label="Modèle IA">
-          <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
             {models.map(m => {
               const MI = m.icon
               const active = settings.model === m.id
