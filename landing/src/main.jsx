@@ -1,13 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import posthog from 'posthog-js'
 import './index.css'
 import App from './App.jsx'
+import { maybeStartAnalytics } from './analytics'
 
-posthog.init('phc_yFKU2CNX4miygcMq3CXi3ebCdALEZX8qxZ6DPnbkCqgC', {
-  api_host: 'https://us.i.posthog.com',
-  person_profiles: 'identified_only',
-})
+// N'active le traçage qu'en cas de consentement préalable (CNIL). Le bandeau
+// cookies déclenche startAnalytics() au clic sur "Accepter".
+maybeStartAnalytics()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

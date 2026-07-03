@@ -86,7 +86,7 @@ def test_budget_non_renseigne():
         prospect_base(budget_max=None),
         bien_base()
     )
-    assert detail["budget"]["points"] == 15  # Score neutre
+    assert detail["budget"]["points"] == 8  # Score neutre bas (profil incomplet)
 
 
 # ── Tests type de bien ────────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ def test_type_non_renseigne():
         prospect_base(bien=""),
         bien_base(type="Appartement")
     )
-    assert detail["type"]["points"] == 15  # Score neutre
+    assert detail["type"]["points"] == 8  # Score neutre bas (profil incomplet)
 
 
 # ── Tests ville ───────────────────────────────────────────────────────────────

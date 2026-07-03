@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      # Installe toutes les dépendances de prod : casse la CI si requirements.txt
+      # diverge de ce dont le code a besoin (ex: cryptography manquant).
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Les variables sensibles sont fournies par tests/conftest.py (valeurs de test).
+      - name: Run tests
+        run: python -m pytest -q

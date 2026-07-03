@@ -113,6 +113,7 @@ def init_agencies_db():
     # ── Migration : colonnes ajoutées après la création initiale ──────────────
     for col, definition in [
         ("logo_fond_colore", "INTEGER DEFAULT 0"),
+        ("logo_bg_color", "TEXT"),  # référencé par get_user_with_agency — obligatoire sinon login KO sur base fraîche
         ("smtp_server", "TEXT DEFAULT 'smtp.gmail.com'"),
         ("smtp_port", "INTEGER DEFAULT 587"),
         ("plan_id", "TEXT DEFAULT 'agence'"),

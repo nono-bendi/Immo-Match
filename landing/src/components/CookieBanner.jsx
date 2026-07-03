@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { startAnalytics } from '../analytics'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
@@ -10,6 +11,8 @@ export default function CookieBanner() {
   const respond = (choice) => {
     localStorage.setItem('cookie_consent', choice)
     setVisible(false)
+    // Le traçage ne démarre qu'après acceptation explicite (CNIL)
+    if (choice === 'accepted') startAnalytics()
   }
 
   if (!visible) return null

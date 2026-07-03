@@ -309,4 +309,20 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # ── Index de performance ──────────────────────────────────────────────────
+    # Les JOINs matchings/prospects/biens et les filtres fréquents (prospect_id,
+    # score, statut, archive) faisaient des balayages complets sans ces index.
+    for idx_sql in [
+        "CREATE INDEX IF NOT EXISTS idx_matchings_prospect ON matchings(prospect_id)",
+        "CREATE INDEX IF NOT EXISTS idx_matchings_bien     ON matchings(bien_id)",
+        "CREATE INDEX IF NOT EXISTS idx_matchings_score    ON matchings(score)",
+        "CREATE INDEX IF NOT EXISTS idx_biens_statut       ON biens(statut)",
+        "CREATE INDEX IF NOT EXISTS idx_prospects_archive  ON prospects(archive)",
+    ]:
+        try:
+            conn.execute(idx_sql)
+        except Exception:
+            pass
+    conn.commit()
+
     conn.close()
