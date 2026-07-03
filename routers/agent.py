@@ -104,6 +104,8 @@ Tu connais EXACTEMENT les fonctionnalites ci-dessous — pas une de plus, pas un
 
 == PROSPECTS ==
 - Fiche prospect : nom, mail, telephone, domicile, type de bien recherche, villes souhaitees, quartiers, budget_max, criteres, etat souhaite, expo, stationnement, copropriete, exterieur, etage, destination, observation
+- Trois facons de creer un prospect : saisie manuelle, import Excel, ou SAISIE VOCALE (l'agent dicte au micro les criteres du prospect — ex: "Couple, budget 350 000, cherche un 3 pieces avec terrasse a Frejus ou Saint-Raphael" — et l'IA remplit automatiquement les champs de la fiche, a relire avant d'enregistrer)
+- Champ "destination" : residence principale, investissement locatif, marchand de biens... il oriente le matching
 - Archivage : un prospect peut etre archive (exclu des matchings) ou desarchive — il n'est pas supprime
 - Il n'existe PAS d'espace client ou portail web pour le prospect
 
@@ -112,11 +114,15 @@ Tu connais EXACTEMENT les fonctionnalites ci-dessous — pas une de plus, pas un
 - Prefiltrages avant analyse : budget (±tolerance configurable), type de bien, zone geographique (7 zones definies dans le Var/PACA)
 - Resultats : score, points forts, points d'attention, recommandation
 - Seuil configurable : les matchings en dessous du score minimum ne sont pas sauvegardes
+- Tri de la liste des matchings : par defaut "pondere" (score x completude du profil prospect — les prospects bien renseignes remontent), ou tri par score pur, ou par completude. Filtre possible par destination (Principal, Investissement, Marchands...)
+- Marquer "presente" : l'agent peut noter qu'un bien a ete presente a un prospect, avec un commentaire et une date. Cela evite de reproposer deux fois le meme bien et garde une trace de ce qui a deja ete montre (historique des presentations par prospect)
 - Calibration : les agents peuvent noter les matchings (pertinent/non-pertinent, score trop haut/ok/trop bas) pour ameliorer le systeme
 
 == EMAILS AUX PROSPECTS ==
 - Email envoye manuellement par l'agent pour un matching donne
 - Contenu : salutation, intro, photo du bien, points forts, details (type/ville/prix/surface/pieces), bouton "Voir ce bien", coordonnees agence, "repondre STOP pour se desinscrire"
+- Intro et conclusion PERSONNALISABLES : l'agent peut reecrire l'accroche et la phrase de fin avant l'envoi, sinon un texte par defaut est utilise
+- Emails MULTILINGUES : le contenu de l'email peut etre traduit en un clic (anglais, allemand, neerlandais, italien, espagnol, russe). Tres utile sur la Cote d'Azur pour les acheteurs etrangers — l'agent redige en francais, ImmoFlash traduit
 - Bouton "Voir ce bien" : pointe vers le lien externe (site de l'agence) si "lien_annonce" est renseigne dans la fiche du bien, sinon pointe vers la page publique ImmoFlash du bien
 - Pour se desinscrire : repondre STOP a l'email. Pas de lien cliquable, pas d'espace client. L'agent peut aussi archiver manuellement le prospect dans l'appli.
 - L'email utilise le logo, la couleur et le SMTP configures pour l'agence
@@ -146,13 +152,13 @@ Tu connais EXACTEMENT les fonctionnalites ci-dessous — pas une de plus, pas un
 - Reset base de donnees : supprime tous les prospects, biens et matchings (admin uniquement)
 - Suivi usage Claude : nombre d'appels et tokens consommes par mois
 
-== PLANS TARIFAIRES IMMOMATCH ==
+== PLANS TARIFAIRES IMMOFLASH ==
 
-Plan AGENCE — 49 €/mois
+Plan ESSENTIEL — 49 €/mois
   · 1 utilisateur · 50 biens actifs max · 20 matchings IA/mois · 20 emails/mois · 30 questions IA/mois
   · Sync toutes les 6h · Support email 48h · Rapport PDF : non · Export Excel : non · Multi-bureaux : non
 
-Plan CABINET — 89 €/mois
+Plan PRO — 89 €/mois
   · 3 agents max · 200 biens actifs max · Matchings IA illimités · 80 emails/mois · 200 questions IA/mois
   · Sync toutes les 6h · Support email 24h · Rapport PDF : inclus · Export Excel : non · Multi-bureaux : non
 
@@ -802,6 +808,10 @@ GUIDES = {
     "ajouter_bien": "1. Menu Biens → '+ Ajouter un bien'. 2. Remplir type, ville, prix, surface. 3. Ajouter les photos. 4. Enregistrer. Le bien est maintenant actif et analysable.",
     "importer_biens_excel": "1. Menu Biens → 'Importer'. 2. Télécharger le modèle Excel si besoin. 3. Remplir le fichier. 4. Glisser-déposer ou sélectionner le fichier. 5. Valider l'import.",
     "ajouter_prospect": "1. Menu Prospects → '+ Ajouter'. 2. Remplir nom, email, téléphone, type de bien, villes, budget. 3. Enregistrer. Le prospect est maintenant actif pour les matchings.",
+    "saisie_vocale_prospect": "Sur l'écran d'ajout d'un prospect, cliquez sur le micro et dictez les critères à voix haute (ex : 'couple, budget 350 000, 3 pièces avec terrasse à Fréjus'). ImmoFlash remplit automatiquement les champs de la fiche. Relisez, corrigez si besoin, puis enregistrez.",
+    "traduire_email": "Dans l'écran d'envoi d'un email, choisissez la langue (anglais, allemand, néerlandais, italien, espagnol, russe). ImmoFlash traduit l'intro, les points forts, l'objet et la conclusion. Vous rédigez en français, le prospect étranger reçoit dans sa langue.",
+    "personnaliser_email": "Avant d'envoyer un email de proposition, vous pouvez réécrire l'accroche (intro) et la phrase de conclusion directement dans l'aperçu. Si vous ne touchez à rien, un texte par défaut est utilisé.",
+    "marquer_presente": "Depuis un matching, cliquez sur 'Marquer présenté' pour noter qu'un bien a été montré à ce prospect, avec un commentaire éventuel. Ça garde une trace et évite de reproposer deux fois le même bien. L'historique est visible sur la fiche du prospect.",
     "lancer_matching": "1. Ouvrir la fiche d'un prospect. 2. Cliquer 'Analyser les matchings'. Ou depuis Matchings → 'Analyser tous' pour traiter tous les prospects actifs.",
     "envoyer_email": "1. Aller dans Matchings. 2. Cliquer sur un matching. 3. Cliquer 'Envoyer l'email'. L'email part depuis votre SMTP configuré.",
     "configurer_smtp": "1. Administration → Configuration. 2. Section SMTP : renseigner serveur, port, email, mot de passe. 3. Enregistrer. Testez avec un envoi réel.",
