@@ -6,12 +6,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Chiffrement symétrique des mots de passe SMTP ─────────────────────────────
-try:
-    from cryptography.fernet import Fernet as _Fernet
-    _fernet_key = os.getenv("FERNET_KEY", "").encode()
-    _fernet = _Fernet(_fernet_key) if len(_fernet_key) >= 32 else None
-except Exception:
-    _fernet = None
+# SÉCURITÉ : FERNET_KEY est obligatoire. Sans elle, les mots de passe SMTP des
+# agences seraient stockés en clair en base — refus de démarrer plutôt que de
+# dégrader silencieusement la sécurité.
+from cryptography.fernet import Fernet as _Fernet
+_fernet_key = os.getenv("FERNET_KEY", "").encode()
+if len(_fernet_key) < 32:
+    raise RuntimeError(
+        "FERNET_KEY manquant ou trop court — refus de démarrer. "
+        "Générez une clé avec: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
+    )
+_fernet = _Fernet(_fernet_key)
 
 def _encrypt_smtp_pw(value: str) -> str:
     """Chiffre un mot de passe SMTP. Retourne la valeur brute si pas de clé."""

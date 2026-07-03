@@ -233,7 +233,10 @@ class HistoryMessage(BaseModel):
 
 class AgentQuestion(BaseModel):
     question: str
-    agency_slug: str
+    # agency_slug est accepté pour compatibilité mais IGNORÉ côté serveur :
+    # l'agence interrogée est TOUJOURS celle du token (cf. chat()). Ne jamais
+    # se fier à cette valeur fournie par le client — sinon fuite inter-agences.
+    agency_slug: str | None = None
     history: list[HistoryMessage] = []
 
 
@@ -878,12 +881,16 @@ def run_tool(name, inputs, db_path):
 
 @router.post("/chat")
 async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_user)):
-    db_path = get_db_path(body.agency_slug)
+    # SÉCURITÉ : l'agence interrogée vient TOUJOURS du token, jamais du corps de
+    # la requête (body.agency_slug est ignoré). Sinon un utilisateur pourrait lire
+    # les données d'une autre agence en envoyant son slug.
+    agency_slug = current_user["agency_slug"]
+    db_path = get_db_path(agency_slug)
     if not os.path.exists(db_path):
         raise HTTPException(status_code=404, detail="Agence introuvable")
 
     plan = get_plan(current_user.get("agency_plan_id", "agence"))
-    usage = get_monthly_usage(current_user["agency_slug"])
+    usage = get_monthly_usage(agency_slug)
     check_quota(current_user.get("agency_plan_id", "agence"), "max_questions_ia_mois", usage["questions_ia_count"])
 
     plan_line = f"L'utilisateur connecté est sur le plan {plan['plan_name'].upper()} ({plan['price_eur_month']}€/mois).\n\n"
@@ -891,11 +898,11 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
 
     def generate():
         try:
-            yield from _generate(body, db_path, system_prompt)
+            yield from _generate(body, db_path, system_prompt, agency_slug)
         except Exception as e:
             yield f"Une erreur s'est produite : {str(e)}"
 
-    def _generate(body, db_path, system_prompt):
+    def _generate(body, db_path, system_prompt, agency_slug):
         # Construire le contexte de conversation depuis l'historique
         messages = []
         for msg in body.history[-10:]:  # max 10 messages = 5 tours
@@ -939,8 +946,8 @@ async def chat(body: AgentQuestion, current_user: dict = Depends(get_current_use
                 yield text
                 try:
                     from agencies_db import track_claude_usage
-                    track_claude_usage(body.agency_slug, total_input, total_output)
-                    increment_monthly_usage(body.agency_slug, "questions_ia_count")
+                    track_claude_usage(agency_slug, total_input, total_output)
+                    increment_monthly_usage(agency_slug, "questions_ia_count")
                 except Exception:
                     pass
                 break

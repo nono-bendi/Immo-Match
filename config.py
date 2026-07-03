@@ -4,7 +4,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import Optional
 import os
-import secrets
 import threading
 from dotenv import load_dotenv
 
@@ -29,8 +28,18 @@ SMTP_FALLBACK = {
 }
 
 # ── Configuration Auth ────────────────────────────────────────────────────────
+# SÉCURITÉ : JWT_SECRET_KEY doit être défini dans l'environnement. Un repli
+# aléatoire (secrets.token_hex) régénéré à chaque démarrage invaliderait toutes
+# les sessions à chaque redémarrage et serait incohérent en multi-worker.
+_JWT_SECRET = os.getenv("JWT_SECRET_KEY")
+if not _JWT_SECRET:
+    raise RuntimeError(
+        "JWT_SECRET_KEY manquant — refus de démarrer. "
+        "Définissez une clé stable dans l'environnement (ex: openssl rand -hex 32)."
+    )
+
 AUTH_CONFIG = {
-    "secret_key": os.getenv("JWT_SECRET_KEY") or secrets.token_hex(32),
+    "secret_key": _JWT_SECRET,
     "algorithm": "HS256",
     "access_token_expire_hours": 24
 }

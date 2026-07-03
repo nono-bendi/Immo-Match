@@ -3,6 +3,7 @@ Mini-panel superadmin — page HTML standalone, sans React, sans JWT.
 Accessible sur /superadmin (protégé par mot de passe via cookie HMAC).
 """
 import os
+import time
 import hmac
 import hashlib
 import sqlite3
@@ -18,9 +19,14 @@ from database import init_db
 
 router = APIRouter()
 
-_SECRET   = os.getenv("SUPERADMIN_SECRET", "immoflash-superadmin-2026")
+# SÉCURITÉ : aucune valeur par défaut. Si ces variables ne sont pas définies dans
+# l'environnement, le panneau superadmin est totalement inaccessible (fail-closed).
+# Ne JAMAIS remettre de valeur de repli codée en dur ici.
+_SECRET   = os.getenv("SUPERADMIN_SECRET")
 _COOKIE   = "sa_session"
-_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "NowaAdmin2026!")
+_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
+_CONFIGURED = bool(_SECRET and _PASSWORD)
+_SESSION_MAX_AGE = 86400 * 7  # 7 jours
 
 ALLOWED_LOGO_TYPES = {"image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"}
 
@@ -29,14 +35,23 @@ def _sign(value: str) -> str:
     return hmac.new(_SECRET.encode(), value.encode(), hashlib.sha256).hexdigest()
 
 def _is_auth(request: Request) -> bool:
+    if not _CONFIGURED:
+        return False
     token = request.cookies.get(_COOKIE, "")
     if ":" not in token:
         return False
-    val, sig = token.rsplit(":", 1)
-    return val == "ok" and hmac.compare_digest(sig, _sign("ok"))
+    expiry_str, sig = token.rsplit(":", 1)
+    # Signature liée à l'échéance : un cookie ne peut pas être rejoué éternellement
+    if not hmac.compare_digest(sig, _sign(expiry_str)):
+        return False
+    try:
+        return time.time() < float(expiry_str)
+    except ValueError:
+        return False
 
 def _cookie_value() -> str:
-    return f"ok:{_sign('ok')}"
+    expiry = str(int(time.time()) + _SESSION_MAX_AGE)
+    return f"{expiry}:{_sign(expiry)}"
 
 def _q(s):
     """Escape HTML entities for safe output."""
@@ -196,6 +211,9 @@ def sa_login_page(request: Request, msg: str = ""):
 
 @router.post("/superadmin/login")
 def sa_login(password: str = Form(...)):
+    # Fail-closed : sans SUPERADMIN_SECRET/PASSWORD définis, aucune connexion possible
+    if not _CONFIGURED:
+        return RedirectResponse("/superadmin?msg=Panneau+non+configure", 303)
     if not hmac.compare_digest(password, _PASSWORD):
         return RedirectResponse("/superadmin?msg=Mot+de+passe+incorrect", 303)
     resp = RedirectResponse("/superadmin/panel", 303)
