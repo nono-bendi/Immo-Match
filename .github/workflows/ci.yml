@@ -19,8 +19,11 @@ jobs:
 
       # Installe toutes les dépendances de prod : casse la CI si requirements.txt
       # diverge de ce dont le code a besoin (ex: cryptography manquant).
+      # pytest est installé à part : outil de test, pas une dépendance de prod.
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
 
       # Les variables sensibles sont fournies par tests/conftest.py (valeurs de test).
       - name: Run tests
