@@ -49,6 +49,21 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # Backfill : initialiser dernier_contact depuis le dernier email de matching envoyé
+    # (uniquement si NULL — ne remplace jamais un contact enregistré manuellement)
+    try:
+        conn.execute('''
+            UPDATE prospects SET dernier_contact = (
+                SELECT substr(MAX(m.date_email_envoye), 1, 10) FROM matchings m
+                WHERE m.prospect_id = prospects.id AND m.date_email_envoye IS NOT NULL
+            )
+            WHERE dernier_contact IS NULL
+              AND id IN (SELECT prospect_id FROM matchings WHERE date_email_envoye IS NOT NULL)
+        ''')
+        conn.commit()
+    except Exception:
+        pass
+
     # Migration : ajouter nom_agence si absent
     try:
         conn.execute("ALTER TABLE biens ADD COLUMN nom_agence TEXT DEFAULT 'SAINT FRANCOIS IMMOBILIER'")

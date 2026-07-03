@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Phone, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart } from 'lucide-react'
+import { X, Phone, PhoneCall, Mail, MapPin, Home, Euro, FileText, Calendar, Briefcase, Sun, Car, Building, TreePine, ArrowUp, FileBarChart, Check } from 'lucide-react'
 import { API_URL } from '../config'
 import { apiFetch } from '../api'
 import BienModal from './BienModal'
+import { contactInfo } from '../utils/contact'
 
 function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
   const [presentations, setPresentations] = useState([])
   const [selectedBien, setSelectedBien] = useState(null)
+  const [contactOverride, setContactOverride] = useState(null)
+
+  useEffect(() => {
+    setContactOverride(null)
+  }, [prospect?.id])
 
   useEffect(() => {
     document.body.classList.add('modal-open')
@@ -28,6 +34,17 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
   }
 
   if (!prospect) return null
+
+  const contact = contactInfo({ ...prospect, dernier_contact: contactOverride || prospect.dernier_contact })
+
+  const markContacted = async () => {
+    setContactOverride(new Date().toISOString().slice(0, 10))
+    try {
+      await apiFetch(`/prospects/${prospect.id}/contact`, { method: 'PATCH' })
+    } catch {
+      setContactOverride(null)
+    }
+  }
 
   const formatBudget = (budget) => {
     if (!budget) return 'Non défini'
@@ -62,6 +79,10 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                 <div className="flex items-center gap-3 mt-0.5 text-white/70 text-sm flex-wrap">
                   <span className="flex items-center gap-1"><Calendar size={12} />Inscrit le {formatDate(prospect.date)}</span>
                   {prospect.domicile && <span className="flex items-center gap-1"><MapPin size={12} />Habite à {prospect.domicile}</span>}
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: contact.color }} />
+                    {contact.label === 'Jamais' ? 'Jamais contacté' : `Dernier contact : ${contact.label.charAt(0).toLowerCase()}${contact.label.slice(1)}`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -84,6 +105,15 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                 <span className="text-sm font-medium">{prospect.mail}</span>
               </a>
             )}
+            <button
+              onClick={markContacted}
+              disabled={!!contactOverride}
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur rounded-xl hover:bg-white/20 transition-all disabled:opacity-70 disabled:cursor-default"
+              title="Mettre à jour la date de dernier contact"
+            >
+              {contactOverride ? <Check size={14} /> : <PhoneCall size={14} />}
+              <span className="text-sm font-medium">{contactOverride ? 'Contact enregistré' : "Contacté aujourd'hui"}</span>
+            </button>
           </div>
         </div>
 
