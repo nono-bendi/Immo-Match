@@ -16,6 +16,14 @@ from config import SMTP_BASE, SMTP_FALLBACK, EmailRequest, _email_rate, APP_BASE
 from routers.auth import get_current_user
 from agencies_db import get_monthly_usage, increment_monthly_usage
 from plans import check_quota
+from unsubscribe import unsub_url as _unsub_url
+
+
+def _build_unsub_url(data, agency) -> str:
+    """URL de désinscription en un clic pour le destinataire de cet email."""
+    slug = (agency.get("agency_slug") or getattr(data, "agency_slug", None) or "").strip()
+    email = (data.to_email or "").strip()
+    return _unsub_url(APP_BASE_URL, slug, email) if (slug and email) else ""
 
 # ── Traductions des chaînes statiques du template email ──────────────────────
 _TR = {
@@ -31,6 +39,7 @@ _TR = {
         'open_link': 'Ouvrir le lien dans votre navigateur',
         'see_you_soon': 'À très bientôt,',
         'footer': "Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.<br />Pour ne plus recevoir nos propositions, répondez STOP à cet email.",
+        'unsubscribe': "Se désinscrire en un clic",
         'agent_title_admin': 'Gérante',
         'agent_title': 'Conseiller immobilier',
     },
@@ -46,6 +55,7 @@ _TR = {
         'open_link': 'Open link in your browser',
         'see_you_soon': 'Best regards,',
         'footer': "You are receiving this email because you registered a property search with our agency.<br />To unsubscribe, reply STOP to this email.",
+        'unsubscribe': "Unsubscribe in one click",
         'agent_title_admin': 'Director',
         'agent_title': 'Real estate advisor',
     },
@@ -61,6 +71,7 @@ _TR = {
         'open_link': 'Link im Browser öffnen',
         'see_you_soon': 'Mit freundlichen Grüßen,',
         'footer': "Sie erhalten diese E-Mail, weil Sie eine Immobiliensuche bei unserer Agentur registriert haben.<br />Um keine weiteren Angebote zu erhalten, antworten Sie mit STOP.",
+        'unsubscribe': "Mit einem Klick abmelden",
         'agent_title_admin': 'Geschäftsführerin',
         'agent_title': 'Immobilienberater',
     },
@@ -76,6 +87,7 @@ _TR = {
         'open_link': 'Open link in uw browser',
         'see_you_soon': 'Met vriendelijke groeten,',
         'footer': "U ontvangt deze e-mail omdat u een zoekopdracht heeft geregistreerd bij ons kantoor.<br />Om geen aanbiedingen meer te ontvangen, antwoord STOP.",
+        'unsubscribe': "Uitschrijven met één klik",
         'agent_title_admin': 'Directeur',
         'agent_title': 'Vastgoedadviseur',
     },
@@ -91,6 +103,7 @@ _TR = {
         'open_link': 'Apri il link nel browser',
         'see_you_soon': 'Cordiali saluti,',
         'footer': "State ricevendo questa email perché avete registrato una ricerca immobiliare presso la nostra agenzia.<br />Per non ricevere più le nostre proposte, rispondete STOP.",
+        'unsubscribe': "Annulla iscrizione con un clic",
         'agent_title_admin': 'Direttrice',
         'agent_title': 'Consulente immobiliare',
     },
@@ -106,6 +119,7 @@ _TR = {
         'open_link': 'Abrir enlace en su navegador',
         'see_you_soon': 'Atentamente,',
         'footer': "Está recibiendo este email porque registró una búsqueda inmobiliaria en nuestra agencia.<br />Para dejar de recibir nuestras propuestas, responda STOP.",
+        'unsubscribe': "Darse de baja con un clic",
         'agent_title_admin': 'Directora',
         'agent_title': 'Asesor inmobiliario',
     },
@@ -121,6 +135,7 @@ _TR = {
         'open_link': 'Открыть ссылку в браузере',
         'see_you_soon': 'С уважением,',
         'footer': "Вы получили это письмо, так как зарегистрировали запрос на подбор недвижимости в нашем агентстве.<br />Чтобы отписаться, ответьте STOP.",
+        'unsubscribe': "Отписаться одним щелчком",
         'agent_title_admin': 'Директор',
         'agent_title': 'Консультант по недвижимости',
     },
@@ -279,6 +294,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     color_dark  = _darken(color, 0.22)
     tr = _TR.get(data.langue or 'fr', _TR['fr'])
     agent_title = tr['agent_title_admin'] if agency.get("role") == "admin" else tr['agent_title']
+    _unsub = _build_unsub_url(data, agency)
 
     raw_name = (data.to_name or "").strip()
     salutation = format_salutation(raw_name)
@@ -558,6 +574,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
               <p style="margin:0;font-size:11px;line-height:1.6;color:#9CA3AF;text-align:center;">
                 {tr['footer']}
               </p>
+              {f'<p style="margin:8px 0 0;font-size:11px;line-height:1.6;color:#9CA3AF;text-align:center;"><a href="{_unsub}" style="color:#9CA3AF;text-decoration:underline;">{tr["unsubscribe"]}</a></p>' if _unsub else ''}
             </td>
           </tr>
 
@@ -587,6 +604,9 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
     points_forts_clean = clean_ai_content(data.points_forts) if data.points_forts else ""
     points_attention_clean = clean_ai_content(data.points_attention) if data.points_attention else ""
     recommandation_clean = clean_ai_content(data.recommandation) if data.recommandation else ""
+
+    _unsub = _build_unsub_url(data, agency)
+    _unsub_line = f"Ou désinscription en un clic : {_unsub}" if _unsub else ""
 
     text = f"""Bonjour {salutation},
 
@@ -624,6 +644,7 @@ Tél. {agency.get('agency_telephone', '')}
 ──────────────────────────────────────────────────────
 Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.
 Pour ne plus recevoir nos propositions : répondez "STOP" à cet email.
+{_unsub_line}
 """
     return fix_mojibake(text)
 
@@ -735,6 +756,11 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
         msg["From"] = f"{smtp_cfg['from_name']} <{smtp_cfg['user']}>"
         msg["To"] = data.to_email
         msg["Reply-To"] = smtp_cfg["reply_to"]
+        # Désinscription en un clic (RFC 8058) : bouton natif Gmail/Outlook + meilleure délivrabilité
+        _unsub = _build_unsub_url(data, _user)
+        if _unsub:
+            msg["List-Unsubscribe"] = f"<{_unsub}>"
+            msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
 
         # Ajouter les versions texte et HTML
         text_content = generate_email_text(data, agent_nom=_user.get("nom"), agency=_user)

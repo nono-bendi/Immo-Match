@@ -3,8 +3,10 @@
 # Route sans authentification : /public/bien/{agency_slug}/{bien_id}
 # ════════════════════════════════════════════════════════════════════════════
 
+import os
 import smtplib
 import sqlite3
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from fastapi import APIRouter
@@ -13,10 +15,77 @@ from html import escape
 from pydantic import BaseModel
 from agencies_db import get_db_path, AGENCIES_DB_PATH
 from config import SMTP_FALLBACK, APP_BASE_URL
+from unsubscribe import parse_token
 
 router = APIRouter()
 
 CONTACT_DEST = "noabendiaf@gmail.com"
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# DÉSINSCRIPTION EN UN CLIC — archive automatiquement le prospect
+# Route sans authentification : /public/unsubscribe?token=...
+# ════════════════════════════════════════════════════════════════════════════
+
+def _archive_by_email(agency_slug: str, email: str) -> int:
+    """Archive les prospects d'une agence dont le mail correspond. Retourne le nombre archivé."""
+    db_path = get_db_path(agency_slug)
+    if not os.path.exists(db_path):
+        return 0
+    conn = sqlite3.connect(db_path)
+    try:
+        cur = conn.execute(
+            "UPDATE prospects SET archive = 1 "
+            "WHERE (lower(mail) = lower(?) OR lower(email2) = lower(?)) "
+            "AND (archive IS NULL OR archive = 0)",
+            (email, email),
+        )
+        n = cur.rowcount or 0
+        if n:
+            conn.execute(
+                "INSERT INTO notifications (type, title, message, link, created_at) VALUES (?, ?, ?, ?, ?)",
+                ("unsubscribe", "Désinscription",
+                 f"{email} s'est désinscrit — prospect archivé automatiquement", "/clients",
+                 datetime.now(timezone.utc).isoformat()),
+            )
+        conn.commit()
+        return n
+    finally:
+        conn.close()
+
+
+def _unsub_page(titre: str, message: str) -> str:
+    return f"""<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>{escape(titre)}</title></head>
+<body style="margin:0;background:#f0f4f8;font-family:system-ui,-apple-system,sans-serif;color:#1e293b">
+  <div style="max-width:460px;margin:12vh auto;background:#fff;border-radius:16px;padding:40px 32px;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.08)">
+    <div style="font-size:34px;font-weight:900;letter-spacing:-.04em;background:linear-gradient(135deg,#1E3A5F,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">ImmoFlash</div>
+    <h1 style="font-size:20px;margin:0 0 12px">{escape(titre)}</h1>
+    <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0">{escape(message)}</p>
+  </div>
+</body></html>"""
+
+
+@router.get("/public/unsubscribe", response_class=HTMLResponse)
+def unsubscribe_get(token: str = ""):
+    parsed = parse_token(token)
+    if not parsed:
+        return HTMLResponse(_unsub_page(
+            "Lien invalide", "Ce lien de désinscription n'est pas valide ou a expiré."), status_code=400)
+    agency_slug, email = parsed
+    _archive_by_email(agency_slug, email)
+    return HTMLResponse(_unsub_page(
+        "Désinscription confirmée",
+        "C'est fait : vous ne recevrez plus de propositions de cette agence. À bientôt."))
+
+
+@router.post("/public/unsubscribe")
+def unsubscribe_post(token: str = ""):
+    """Désinscription en un clic (RFC 8058) — déclenchée par le bouton natif Gmail/Outlook."""
+    parsed = parse_token(token)
+    if parsed:
+        _archive_by_email(*parsed)
+    return JSONResponse({"ok": True})
 
 
 class ContactForm(BaseModel):

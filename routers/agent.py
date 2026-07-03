@@ -124,7 +124,7 @@ Tu connais EXACTEMENT les fonctionnalites ci-dessous — pas une de plus, pas un
 - Intro et conclusion PERSONNALISABLES : l'agent peut reecrire l'accroche et la phrase de fin avant l'envoi, sinon un texte par defaut est utilise
 - Emails MULTILINGUES : le contenu de l'email peut etre traduit en un clic (anglais, allemand, neerlandais, italien, espagnol, russe). Tres utile sur la Cote d'Azur pour les acheteurs etrangers — l'agent redige en francais, ImmoFlash traduit
 - Bouton "Voir ce bien" : pointe vers le lien externe (site de l'agence) si "lien_annonce" est renseigne dans la fiche du bien, sinon pointe vers la page publique ImmoFlash du bien
-- Pour se desinscrire : repondre STOP a l'email. Pas de lien cliquable, pas d'espace client. L'agent peut aussi archiver manuellement le prospect dans l'appli.
+- Pour se desinscrire : chaque email contient un lien "Se desinscrire en un clic" (et le prospect peut aussi repondre STOP). Le lien archive AUTOMATIQUEMENT le prospect (plus aucune proposition) et cree une notification dans l'appli — l'agent n'a rien a faire. Le bouton natif de desinscription de Gmail/Outlook fonctionne aussi.
 - L'email utilise le logo, la couleur et le SMTP configures pour l'agence
 
 == PAGE PUBLIQUE D'UN BIEN ==
@@ -179,7 +179,6 @@ RÈGLES sur les plans :
 
 == CE QUI N'EXISTE PAS ==
 - Espace client / portail prospect connecte
-- Lien de desinscription cliquable dans les emails
 - Application mobile
 - Paiement en ligne
 - Signature electronique
