@@ -164,6 +164,9 @@ def mark_email_sent(matching_id: int, current_user: dict = Depends(get_current_u
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     now = datetime.now().isoformat()
     conn.execute('UPDATE matchings SET date_email_envoye = ? WHERE id = ?', (now, matching_id))
+    row = conn.execute('SELECT prospect_id FROM matchings WHERE id = ?', (matching_id,)).fetchone()
+    if row and row[0]:
+        conn.execute('UPDATE prospects SET dernier_contact = ? WHERE id = ?', (now[:10], row[0]))
     conn.commit()
     conn.close()
     return {"success": True, "date_email_envoye": now}

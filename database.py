@@ -42,6 +42,13 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # Migration : ajouter dernier_contact si absent (prospects)
+    try:
+        conn.execute("ALTER TABLE prospects ADD COLUMN dernier_contact TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     # Migration : ajouter nom_agence si absent
     try:
         conn.execute("ALTER TABLE biens ADD COLUMN nom_agence TEXT DEFAULT 'SAINT FRANCOIS IMMOBILIER'")

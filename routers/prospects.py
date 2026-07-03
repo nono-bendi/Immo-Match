@@ -21,6 +21,7 @@ VOICE_PARSE_PROMPT_TEMPLATE = """Tu es un assistant pour agents immobiliers. On 
 Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (laisse vide si non mentionné) :
 
 {{
+  "titre": "",
   "nom": "",
   "prenom": "",
   "telephone": "",
@@ -44,6 +45,7 @@ Extrais les informations et retourne UNIQUEMENT un JSON valide avec ces champs (
 }}
 
 Règles :
+- "titre" : la civilité parmi ["M.", "Mme", "M. et Mme", "Mme et Mme", "M. et M."] ou "" si non mentionné. Ex: "monsieur" → "M.", "madame" → "Mme", "monsieur et madame" → "M. et Mme".
 - "nom" : UNIQUEMENT le nom de famille (ex: "Fontaine"). Jamais le prénom dans ce champ.
 - "prenom" : le ou les prénoms (ex: "Jean-Pierre", ou "Jean-Pierre et Sophie" pour un couple)
 - "mail" : l'adresse email. Si la transcription vocale déforme l'email (ex: "jean tiret pierre" → "jean-pierre", "arobase" → "@", "point" → "."), corrige-la intelligemment.
@@ -203,8 +205,8 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min, dernier_contact)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         datetime.now().strftime("%Y-%m-%d"),
         prospect.get('nom'),
@@ -232,6 +234,7 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
         1 if prospect.get('plain_pied_total') else 0,
         prospect.get('sdb_min') or 0,
         prospect.get('wc_min') or 0,
+        datetime.now().strftime("%Y-%m-%d"),
     ))
 
     prospect_id = cursor.lastrowid
@@ -321,6 +324,17 @@ def desarchiver_prospect(prospect_id: int, current_user: dict = Depends(get_curr
     conn.commit()
     conn.close()
     return {"success": True}
+
+
+@router.patch("/prospects/{prospect_id}/contact")
+def marquer_contact(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    """Marque le prospect comme contacté aujourd'hui"""
+    conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
+    aujourd_hui = datetime.now().strftime("%Y-%m-%d")
+    conn.execute("UPDATE prospects SET dernier_contact = ? WHERE id = ?", (aujourd_hui, prospect_id))
+    conn.commit()
+    conn.close()
+    return {"success": True, "dernier_contact": aujourd_hui}
 
 
 @router.get("/prospects/{prospect_id}")

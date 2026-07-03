@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Eye, Phone, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown, Shuffle, Upload, Printer } from 'lucide-react'
+import { Eye, Phone, PhoneCall, Mail, Search, ChevronLeft, ChevronRight, Pencil, Trash2, X, Save, Sparkles, Users, Archive, ArchiveRestore, ChevronDown, Shuffle, Upload, Printer, ArrowUpDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import ProspectModal from '../components/ProspectModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
@@ -26,6 +26,7 @@ function SkeletonRow() {
       <td className="p-4 hidden sm:table-cell"><div className="h-4 w-24 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer" /></td>
       <td className="p-4 hidden sm:table-cell"><div className="h-4 w-16 rounded animate-shimmer" /></td>
+      <td className="p-4 hidden sm:table-cell"><div className="h-4 w-16 rounded animate-shimmer" /></td>
       <td className="p-4"><div className="h-4 w-20 rounded animate-shimmer ml-auto" /></td>
     </tr>
   )
@@ -39,6 +40,24 @@ const AV_PAL = [
 const avP = (n) => AV_PAL[(n || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % AV_PAL.length]
 
 const INP = "w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F] transition-all"
+
+// Dernier contact : nombre de jours écoulés (null si aucune date exploitable)
+const contactDays = (p) => {
+  const raw = p.dernier_contact || p.date
+  if (!raw) return null
+  const d = new Date(raw)
+  if (isNaN(d.getTime())) return null
+  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000))
+}
+
+// Pastille : vert < 15 j, orange 15-30 j, rouge > 30 j ou jamais contacté
+const contactInfo = (p) => {
+  const days = contactDays(p)
+  if (days === null) return { label: 'Jamais', color: '#ef4444' }
+  const label = days === 0 ? "Aujourd'hui" : days === 1 ? 'Hier' : days <= 60 ? `Il y a ${days} j` : `Il y a ${Math.floor(days / 30)} mois`
+  const color = days < 15 ? '#10b981' : days <= 30 ? '#f59e0b' : '#ef4444'
+  return { label, color }
+}
 
 function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
   const [tab, setTab] = useState('contact')
@@ -222,6 +241,7 @@ function ClientsPage() {
   const [filterBien, setFilterBien] = useState('')
   const [filterBudget, setFilterBudget] = useState('')
   const [filterBudgetMax, setFilterBudgetMax] = useState('')
+  const [sortByContact, setSortByContact] = useState(false)
 
   const openPortefeuille = () => {
     const t = localStorage.getItem('token')
@@ -327,6 +347,16 @@ function ClientsPage() {
     }
   }
 
+  const handleContact = async (prospect) => {
+    const aujourdHui = new Date().toISOString().slice(0, 10)
+    setProspects(prev => prev.map(p => p.id === prospect.id ? { ...p, dernier_contact: aujourdHui } : p))
+    try {
+      await apiFetch(`/prospects/${prospect.id}/contact`, { method: 'PATCH' })
+    } catch {
+      fetchProspects()
+    }
+  }
+
   const handleArchive = async (prospect) => {
     await apiFetch(`/prospects/${prospect.id}/archiver`, { method: 'PATCH' })
     fetchProspects()
@@ -395,7 +425,13 @@ function ClientsPage() {
     }
   }
 
-  const sorted = [...prospects].sort((a, b) => b.id - a.id)
+  const sorted = [...prospects].sort((a, b) => {
+    if (sortByContact) {
+      const da = contactDays(a), db = contactDays(b)
+      return (db === null ? 99999 : db) - (da === null ? 99999 : da)
+    }
+    return b.id - a.id
+  })
   const matchFilters = (p) => {
     if (search && !p.nom?.toLowerCase().includes(search.toLowerCase()) &&
         !p.villes?.toLowerCase().includes(search.toLowerCase()) &&
@@ -490,6 +526,26 @@ function ClientsPage() {
             </div>
           )
         })() : <span className="text-gray-300 text-sm">—</span>}
+      </td>
+      <td className="p-4 hidden sm:table-cell">
+        {(() => {
+          const info = contactInfo(prospect)
+          return (
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: archived ? '#d1d5db' : info.color }} />
+              <span className="text-sm text-gray-600 whitespace-nowrap">{info.label}</span>
+              {!archived && (
+                <button
+                  onClick={e => { e.stopPropagation(); handleContact(prospect) }}
+                  className="p-1.5 rounded-lg hover:bg-emerald-50 transition-all sm:opacity-0 sm:group-hover:opacity-100"
+                  title="Contacté aujourd'hui"
+                >
+                  <PhoneCall size={15} className="text-emerald-500" />
+                </button>
+              )}
+            </div>
+          )
+        })()}
       </td>
       <td className="p-4">
         <div className="prospect-actions flex items-center justify-end gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-150">
@@ -684,6 +740,7 @@ function ClientsPage() {
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Villes</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Budget</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Destination</th>
+                <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Contact</th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
@@ -710,12 +767,13 @@ function ClientsPage() {
         ) : (
           <table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
-              <col style={{ width: '22%' }} />
-              <col style={{ width: '14%' }} className="hidden sm:table-column" />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '12%' }} className="hidden sm:table-column" />
+              <col style={{ width: '12%' }} className="hidden sm:table-column" />
+              <col style={{ width: '10%' }} />
               <col style={{ width: '13%' }} className="hidden sm:table-column" />
-              <col style={{ width: '11%' }} />
-              <col style={{ width: '16%' }} className="hidden sm:table-column" />
-              <col style={{ width: '24%' }} />
+              <col style={{ width: '12%' }} className="hidden sm:table-column" />
+              <col style={{ width: '21%' }} />
             </colgroup>
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
@@ -724,6 +782,16 @@ function ClientsPage() {
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Villes</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Budget</th>
                 <th className="text-left p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide hidden sm:table-cell">Destination</th>
+                <th className="text-left p-4 hidden sm:table-cell">
+                  <button
+                    onClick={() => setSortByContact(s => !s)}
+                    className={`flex items-center gap-1 text-xs font-semibold uppercase tracking-wide transition-colors ${sortByContact ? 'text-[#1E3A5F]' : 'text-gray-400 hover:text-gray-600'}`}
+                    title="Trier : les prospects sans contact récent en premier"
+                  >
+                    Contact
+                    <ArrowUpDown size={12} />
+                  </button>
+                </th>
                 <th className="text-right p-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
