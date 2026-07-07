@@ -140,7 +140,7 @@ def _page(body: str, title: str = "SuperAdmin") -> str:
 
 def _layout(content: str, active: str = "agencies") -> str:
     nav = ""
-    for href, label, key in [("/superadmin/panel","Agences","agencies"), ("/superadmin/new","+ Nouvelle agence","new")]:
+    for href, label, key in [("/superadmin/panel","Agences","agencies"), ("/superadmin/new","+ Nouvelle agence","new"), ("/superadmin/prospection","Prospection","prospection")]:
         cls = " active" if active == key else ""
         nav += f'<a href="{href}" class="{cls.strip()}">{label}</a>'
     return _page(f"""
@@ -698,3 +698,284 @@ def sa_add_user(
     )
     conn.commit(); conn.close()
     return RedirectResponse(f"/superadmin/agency/{slug}?msg=Utilisateur+ajouté+✓&ok=1", 303)
+
+
+# ── Prospection d'agences (suivi commercial propriétaire) ─────────────────────
+
+_PROSPECTION_STATUTS = {
+    "a_visiter": ("À visiter",    "#475569", "#f1f5f9"),
+    "visite":    ("Visité",       "#1d4ed8", "#eff6ff"),
+    "relance":   ("À relancer",   "#b45309", "#fffbeb"),
+    "rdv":       ("RDV prévu",    "#6d28d9", "#f5f3ff"),
+    "devis":     ("Devis envoyé", "#0369a1", "#f0f9ff"),
+    "signe":     ("Signé",        "#065f46", "#ecfdf5"),
+    "refus":     ("Refus",        "#991b1b", "#fef2f2"),
+}
+# Ordre d'affichage : actions en attente d'abord, dossiers clos à la fin
+_PROSPECTION_ORDRE = {"rdv": 0, "relance": 1, "devis": 2, "a_visiter": 3, "visite": 4, "signe": 5, "refus": 6}
+
+
+def _pconn():
+    """Connexion agencies.db avec la table prospection garantie (créée au premier accès)."""
+    conn = sqlite3.connect(adb.AGENCIES_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS prospection (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT NOT NULL,
+            ville TEXT DEFAULT '',
+            contact TEXT DEFAULT '',
+            telephone TEXT DEFAULT '',
+            email TEXT DEFAULT '',
+            statut TEXT DEFAULT 'a_visiter',
+            date_visite TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            created_at TEXT DEFAULT ''
+        )
+    """)
+    return conn
+
+
+def _visite_info(date_str: str):
+    """Libellé + couleur du dernier passage — mêmes seuils que le suivi contact prospects."""
+    if not date_str:
+        return "Jamais", "#ef4444"
+    try:
+        d = datetime.fromisoformat(date_str).date()
+    except ValueError:
+        return "Jamais", "#ef4444"
+    days = max(0, (datetime.now().date() - d).days)
+    label = "Aujourd'hui" if days == 0 else "Hier" if days == 1 else f"Il y a {days} j" if days <= 60 else f"Il y a {days // 30} mois"
+    color = "#10b981" if days < 15 else "#f59e0b" if days <= 30 else "#ef4444"
+    return label, color
+
+
+def _statut_badge(statut: str) -> str:
+    lbl, fg, bg = _PROSPECTION_STATUTS.get(statut, _PROSPECTION_STATUTS["a_visiter"])
+    return f'<span class="bp" style="background:{bg};color:{fg}">{lbl}</span>'
+
+
+def _statut_select(current: str, extra: str = "") -> str:
+    opts = "".join(
+        f'<option value="{k}"{" selected" if k == current else ""}>{lbl}</option>'
+        for k, (lbl, _, _) in _PROSPECTION_STATUTS.items()
+    )
+    return f'<select name="statut" {extra}>{opts}</select>'
+
+
+@router.get("/superadmin/prospection", response_class=HTMLResponse)
+def sa_prospection(request: Request, msg: str = "", ok: str = "1"):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    conn = _pconn()
+    prospects = conn.execute("SELECT * FROM prospection").fetchall()
+    conn.close()
+    prospects = sorted(prospects, key=lambda p: (_PROSPECTION_ORDRE.get(p["statut"], 9), -p["id"]))
+
+    chips = ""
+    for k, (lbl, fg, bg) in _PROSPECTION_STATUTS.items():
+        n = sum(1 for p in prospects if p["statut"] == k)
+        if n:
+            chips += f'<span class="bp" style="background:{bg};color:{fg}">{lbl} · {n}</span>'
+
+    rows = ""
+    for p in prospects:
+        v_label, v_color = _visite_info(p["date_visite"])
+        notes = (p["notes"] or "").strip().replace("\n", " · ")
+        if len(notes) > 70:
+            notes = notes[:70] + "…"
+        ville = f'<div style="font-size:11px;color:#94a3b8">{_q(p["ville"])}</div>' if p["ville"] else ""
+        tel = f'<div class="mono">{_q(p["telephone"])}</div>' if p["telephone"] else ""
+        rows += f"""
+        <tr>
+          <td><strong>{_q(p['nom'])}</strong>{ville}</td>
+          <td>{_q(p['contact']) or '—'}{tel}</td>
+          <td>
+            <form method="post" action="/superadmin/prospection/{p['id']}/statut">
+              {_statut_select(p['statut'], 'onchange="this.form.submit()" style="width:auto;padding:6px 10px;font-size:12px"')}
+            </form>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+              <span class="color-dot" style="background:{v_color};width:10px;height:10px;margin:0"></span>
+              <span>{v_label}</span>
+              <form method="post" action="/superadmin/prospection/{p['id']}/vu" style="display:inline">
+                <button class="btn btn-ghost btn-sm" type="submit" title="Marquer un passage aujourd'hui">Vu ✓</button>
+              </form>
+            </div>
+          </td>
+          <td style="color:#64748b;max-width:260px">{_q(notes) or '—'}</td>
+          <td><a href="/superadmin/prospection/{p['id']}" class="edit-link">Ouvrir →</a></td>
+        </tr>"""
+
+    content = f"""
+    {_alert(msg, ok == "1")}
+    <div class="card">
+      <details>
+        <summary style="cursor:pointer;font-size:14px;font-weight:700;color:#1E3A5F">+ Ajouter une agence à prospecter</summary>
+        <form method="post" action="/superadmin/prospection/add" style="margin-top:18px">
+          <div class="grid">
+            {_field("Nom de l'agence", _inp("nom", placeholder="Century 21 Fréjus", extra="required"))}
+            {_field("Ville", _inp("ville", placeholder="Fréjus"))}
+            {_field("Contact", _inp("contact", placeholder="Gérant / négociateur"))}
+            {_field("Téléphone", _inp("telephone", placeholder="04 94 00 00 00"))}
+            {_field("Email", _inp("email", placeholder="contact@agence.fr", type="email"))}
+            {_field("Statut", _statut_select("a_visiter"))}
+            {_field("Date du passage", _inp("date_visite", type="date"), "Laisser vide si pas encore visité")}
+            <div class="field full"><label>Notes</label><textarea name="notes" rows="2" placeholder="Accueil, ressenti, à qui parler, objections…"></textarea></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">Ajouter</button>
+          </div>
+        </form>
+      </details>
+    </div>
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;flex-wrap:wrap">
+        <span>Suivi de prospection ({len(prospects)})</span>
+        <span style="display:flex;gap:6px;flex-wrap:wrap;font-weight:400">{chips}</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Agence</th><th>Contact</th><th>Statut</th><th>Dernier passage</th><th>Notes</th><th></th>
+          </tr></thead>
+          <tbody>{rows if rows else '<tr><td colspan="6" style="color:#94a3b8;text-align:center;padding:24px">Aucune agence pour le moment — ajoutez votre première visite ci-dessus</td></tr>'}</tbody>
+        </table>
+      </div>
+    </div>"""
+    return _layout(content, "prospection")
+
+
+@router.post("/superadmin/prospection/add")
+def sa_prospection_add(
+    request: Request,
+    nom: str         = Form(...),
+    ville: str       = Form(""),
+    contact: str     = Form(""),
+    telephone: str   = Form(""),
+    email: str       = Form(""),
+    statut: str      = Form("a_visiter"),
+    date_visite: str = Form(""),
+    notes: str       = Form(""),
+):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    if statut not in _PROSPECTION_STATUTS:
+        statut = "a_visiter"
+    conn = _pconn()
+    conn.execute(
+        "INSERT INTO prospection (nom, ville, contact, telephone, email, statut, date_visite, notes, created_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (nom.strip(), ville.strip(), contact.strip(), telephone.strip(), email.strip(),
+         statut, date_visite, notes.strip(), datetime.now().isoformat())
+    )
+    conn.commit(); conn.close()
+    return RedirectResponse("/superadmin/prospection?msg=Agence+ajoutée+✓&ok=1", 303)
+
+
+@router.get("/superadmin/prospection/{pid}", response_class=HTMLResponse)
+def sa_prospection_edit(request: Request, pid: int, msg: str = "", ok: str = "1"):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    conn = _pconn()
+    p = conn.execute("SELECT * FROM prospection WHERE id = ?", (pid,)).fetchone()
+    conn.close()
+    if not p:
+        return RedirectResponse("/superadmin/prospection?msg=Agence+introuvable&ok=0", 302)
+
+    content = f"""
+    {_alert(msg, ok == "1")}
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <a href="/superadmin/prospection" style="color:#94a3b8;font-size:13px">← Prospection</a>
+      <span style="color:#e2e8f0">/</span>
+      <span style="font-size:15px;font-weight:700;color:#1E3A5F">{_q(p['nom'])}</span>
+      {_statut_badge(p['statut'])}
+    </div>
+    <div class="card">
+      <div class="card-title">Fiche prospection</div>
+      <form method="post" action="/superadmin/prospection/{p['id']}/save">
+        <div class="grid">
+          <div class="section-label">Agence</div>
+          {_field("Nom de l'agence", _inp("nom", p['nom'], extra="required"))}
+          {_field("Ville", _inp("ville", p['ville'] or ''))}
+          <div class="section-label">Contact</div>
+          {_field("Contact", _inp("contact", p['contact'] or ''), "Gérant, négociateur…")}
+          {_field("Téléphone", _inp("telephone", p['telephone'] or ''))}
+          {_field("Email", _inp("email", p['email'] or '', type="email"))}
+          <div class="section-label">Suivi</div>
+          {_field("Statut", _statut_select(p['statut']))}
+          {_field("Dernier passage", _inp("date_visite", p['date_visite'] or '', type="date"))}
+          <div class="field full"><label>Notes</label><textarea name="notes" rows="6" placeholder="Accueil, ressenti, objections, prochaine étape…">{_q(p['notes'] or '')}</textarea></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+          <a href="/superadmin/prospection" class="btn btn-ghost">Retour</a>
+        </div>
+      </form>
+      <form method="post" action="/superadmin/prospection/{p['id']}/delete" onsubmit="return confirm('Supprimer cette agence du suivi ?')" style="margin-top:14px">
+        <button class="btn btn-sm" type="submit" style="background:#fef2f2;color:#991b1b">Supprimer</button>
+      </form>
+    </div>"""
+    return _layout(content, "prospection")
+
+
+@router.post("/superadmin/prospection/{pid}/save")
+def sa_prospection_save(
+    request: Request, pid: int,
+    nom: str         = Form(...),
+    ville: str       = Form(""),
+    contact: str     = Form(""),
+    telephone: str   = Form(""),
+    email: str       = Form(""),
+    statut: str      = Form("a_visiter"),
+    date_visite: str = Form(""),
+    notes: str       = Form(""),
+):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    if statut not in _PROSPECTION_STATUTS:
+        statut = "a_visiter"
+    conn = _pconn()
+    conn.execute(
+        "UPDATE prospection SET nom=?, ville=?, contact=?, telephone=?, email=?, statut=?, date_visite=?, notes=? WHERE id=?",
+        (nom.strip(), ville.strip(), contact.strip(), telephone.strip(), email.strip(),
+         statut, date_visite, notes.strip(), pid)
+    )
+    conn.commit(); conn.close()
+    return RedirectResponse(f"/superadmin/prospection/{pid}?msg=Fiche+enregistrée+✓&ok=1", 303)
+
+
+@router.post("/superadmin/prospection/{pid}/statut")
+def sa_prospection_statut(request: Request, pid: int, statut: str = Form(...)):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    if statut not in _PROSPECTION_STATUTS:
+        return RedirectResponse("/superadmin/prospection?msg=Statut+invalide&ok=0", 303)
+    conn = _pconn()
+    conn.execute("UPDATE prospection SET statut=? WHERE id=?", (statut, pid))
+    conn.commit(); conn.close()
+    return RedirectResponse("/superadmin/prospection", 303)
+
+
+@router.post("/superadmin/prospection/{pid}/vu")
+def sa_prospection_vu(request: Request, pid: int):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    conn = _pconn()
+    conn.execute(
+        "UPDATE prospection SET date_visite=?, statut=CASE WHEN statut='a_visiter' THEN 'visite' ELSE statut END WHERE id=?",
+        (datetime.now().date().isoformat(), pid)
+    )
+    conn.commit(); conn.close()
+    return RedirectResponse("/superadmin/prospection", 303)
+
+
+@router.post("/superadmin/prospection/{pid}/delete")
+def sa_prospection_delete(request: Request, pid: int):
+    if not _is_auth(request):
+        return RedirectResponse("/superadmin", 302)
+    conn = _pconn()
+    conn.execute("DELETE FROM prospection WHERE id=?", (pid,))
+    conn.commit(); conn.close()
+    return RedirectResponse("/superadmin/prospection?msg=Agence+supprimée&ok=1", 303)
