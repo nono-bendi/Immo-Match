@@ -703,16 +703,13 @@ def sa_add_user(
 # ── Prospection d'agences (suivi commercial propriétaire) ─────────────────────
 
 _PROSPECTION_STATUTS = {
-    "a_visiter": ("À visiter",    "#475569", "#f1f5f9"),
-    "visite":    ("Visité",       "#1d4ed8", "#eff6ff"),
-    "relance":   ("À relancer",   "#b45309", "#fffbeb"),
-    "rdv":       ("RDV prévu",    "#6d28d9", "#f5f3ff"),
-    "devis":     ("Devis envoyé", "#0369a1", "#f0f9ff"),
-    "signe":     ("Signé",        "#065f46", "#ecfdf5"),
-    "refus":     ("Refus",        "#991b1b", "#fef2f2"),
+    "visite":  ("Visité",       "#1d4ed8", "#eff6ff"),
+    "relance": ("À relancer",   "#b45309", "#fffbeb"),
+    "rdv":     ("RDV prévu",    "#6d28d9", "#f5f3ff"),
+    "devis":   ("Devis envoyé", "#0369a1", "#f0f9ff"),
+    "signe":   ("Signé",        "#065f46", "#ecfdf5"),
+    "refus":   ("Refus",        "#991b1b", "#fef2f2"),
 }
-# Ordre d'affichage : actions en attente d'abord, dossiers clos à la fin
-_PROSPECTION_ORDRE = {"rdv": 0, "relance": 1, "devis": 2, "a_visiter": 3, "visite": 4, "signe": 5, "refus": 6}
 
 
 def _pconn():
@@ -727,7 +724,7 @@ def _pconn():
             contact TEXT DEFAULT '',
             telephone TEXT DEFAULT '',
             email TEXT DEFAULT '',
-            statut TEXT DEFAULT 'a_visiter',
+            statut TEXT DEFAULT 'visite',
             date_visite TEXT DEFAULT '',
             notes TEXT DEFAULT '',
             created_at TEXT DEFAULT ''
@@ -751,7 +748,7 @@ def _visite_info(date_str: str):
 
 
 def _statut_badge(statut: str) -> str:
-    lbl, fg, bg = _PROSPECTION_STATUTS.get(statut, _PROSPECTION_STATUTS["a_visiter"])
+    lbl, fg, bg = _PROSPECTION_STATUTS.get(statut, _PROSPECTION_STATUTS["visite"])
     return f'<span class="bp" style="background:{bg};color:{fg}">{lbl}</span>'
 
 
@@ -770,7 +767,8 @@ def sa_prospection(request: Request, msg: str = "", ok: str = "1"):
     conn = _pconn()
     prospects = conn.execute("SELECT * FROM prospection").fetchall()
     conn.close()
-    prospects = sorted(prospects, key=lambda p: (_PROSPECTION_ORDRE.get(p["statut"], 9), -p["id"]))
+    # Journal des visites : le passage le plus récent en premier, sans date à la fin
+    prospects = sorted(prospects, key=lambda p: (p["date_visite"] or "", p["id"]), reverse=True)
 
     chips = ""
     for k, (lbl, fg, bg) in _PROSPECTION_STATUTS.items():
@@ -812,7 +810,7 @@ def sa_prospection(request: Request, msg: str = "", ok: str = "1"):
     {_alert(msg, ok == "1")}
     <div class="card">
       <details>
-        <summary style="cursor:pointer;font-size:14px;font-weight:700;color:#1E3A5F">+ Ajouter une agence à prospecter</summary>
+        <summary style="cursor:pointer;font-size:14px;font-weight:700;color:#1E3A5F">+ Ajouter une agence prospectée</summary>
         <form method="post" action="/superadmin/prospection/add" style="margin-top:18px">
           <div class="grid">
             {_field("Nom de l'agence", _inp("nom", placeholder="Century 21 Fréjus", extra="required"))}
@@ -820,8 +818,8 @@ def sa_prospection(request: Request, msg: str = "", ok: str = "1"):
             {_field("Contact", _inp("contact", placeholder="Gérant / négociateur"))}
             {_field("Téléphone", _inp("telephone", placeholder="04 94 00 00 00"))}
             {_field("Email", _inp("email", placeholder="contact@agence.fr", type="email"))}
-            {_field("Statut", _statut_select("a_visiter"))}
-            {_field("Date du passage", _inp("date_visite", type="date"), "Laisser vide si pas encore visité")}
+            {_field("Statut", _statut_select("visite"))}
+            {_field("Date du passage", _inp("date_visite", datetime.now().date().isoformat(), type="date"), "Préremplie à aujourd'hui")}
             <div class="field full"><label>Notes</label><textarea name="notes" rows="2" placeholder="Accueil, ressenti, à qui parler, objections…"></textarea></div>
           </div>
           <div class="btn-row">
@@ -840,7 +838,7 @@ def sa_prospection(request: Request, msg: str = "", ok: str = "1"):
           <thead><tr>
             <th>Agence</th><th>Contact</th><th>Statut</th><th>Dernier passage</th><th>Notes</th><th></th>
           </tr></thead>
-          <tbody>{rows if rows else '<tr><td colspan="6" style="color:#94a3b8;text-align:center;padding:24px">Aucune agence pour le moment — ajoutez votre première visite ci-dessus</td></tr>'}</tbody>
+          <tbody>{rows if rows else '<tr><td colspan="6" style="color:#94a3b8;text-align:center;padding:24px">Aucune visite pour le moment — ajoutez votre première agence prospectée ci-dessus</td></tr>'}</tbody>
         </table>
       </div>
     </div>"""
@@ -855,14 +853,14 @@ def sa_prospection_add(
     contact: str     = Form(""),
     telephone: str   = Form(""),
     email: str       = Form(""),
-    statut: str      = Form("a_visiter"),
+    statut: str      = Form("visite"),
     date_visite: str = Form(""),
     notes: str       = Form(""),
 ):
     if not _is_auth(request):
         return RedirectResponse("/superadmin", 302)
     if statut not in _PROSPECTION_STATUTS:
-        statut = "a_visiter"
+        statut = "visite"
     conn = _pconn()
     conn.execute(
         "INSERT INTO prospection (nom, ville, contact, telephone, email, statut, date_visite, notes, created_at) "
@@ -928,14 +926,14 @@ def sa_prospection_save(
     contact: str     = Form(""),
     telephone: str   = Form(""),
     email: str       = Form(""),
-    statut: str      = Form("a_visiter"),
+    statut: str      = Form("visite"),
     date_visite: str = Form(""),
     notes: str       = Form(""),
 ):
     if not _is_auth(request):
         return RedirectResponse("/superadmin", 302)
     if statut not in _PROSPECTION_STATUTS:
-        statut = "a_visiter"
+        statut = "visite"
     conn = _pconn()
     conn.execute(
         "UPDATE prospection SET nom=?, ville=?, contact=?, telephone=?, email=?, statut=?, date_visite=?, notes=? WHERE id=?",
@@ -964,7 +962,7 @@ def sa_prospection_vu(request: Request, pid: int):
         return RedirectResponse("/superadmin", 302)
     conn = _pconn()
     conn.execute(
-        "UPDATE prospection SET date_visite=?, statut=CASE WHEN statut='a_visiter' THEN 'visite' ELSE statut END WHERE id=?",
+        "UPDATE prospection SET date_visite=? WHERE id=?",
         (datetime.now().date().isoformat(), pid)
     )
     conn.commit(); conn.close()
