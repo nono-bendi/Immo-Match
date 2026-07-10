@@ -167,16 +167,8 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
         "maison de village": ["appartement", "local", "immeuble"],
     }
 
-    def types_incompatibles(type_prospect, type_bien):
-        """Retourne True si le type bien est clairement incompatible avec la recherche."""
-        if not type_prospect or not type_bien:
-            return False
-        tp = type_prospect.lower().strip()
-        tb = type_bien.lower().strip()
-        # "Tous biens" = pas de filtre
-        if "tous" in tp:
-            return False
-
+    def _type_incompatible_pour_un_type(tp, tb):
+        """Teste l'incompatibilité pour UN SEUL type de recherche du prospect (ex: "maison")."""
         # Bien parking/box : seuls les chercheurs explicites de parking sont compatibles
         if ("parking" in tb or "box" in tb) and not any(k in tp for k in ["parking", "box", "garage"]):
             return True
@@ -200,6 +192,28 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
                 return True
 
         return False
+
+    def types_incompatibles(type_prospect, type_bien):
+        """Retourne True si le type bien est clairement incompatible avec la recherche.
+
+        Le prospect peut rechercher plusieurs types à la fois (ex: "Appartement, Maison") —
+        le bien n'est exclu que s'il est incompatible avec CHACUN des types demandés,
+        sinon un match sur un seul type suffit à le garder candidat (même logique de
+        découpage multi-types que calculer_score_objectif dans scoring.py).
+        """
+        if not type_prospect or not type_bien:
+            return False
+        tp_full = type_prospect.lower().strip()
+        tb = type_bien.lower().strip()
+        # "Tous biens" = pas de filtre
+        if "tous" in tp_full:
+            return False
+
+        types_demandes = [t.strip() for t in tp_full.replace(";", ",").split(",") if t.strip()]
+        if not types_demandes:
+            return False
+
+        return all(_type_incompatible_pour_un_type(tp, tb) for tp in types_demandes)
 
     # Définir les zones géographiques (villes proches entre elles)
     zones_geographiques = [
