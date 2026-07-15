@@ -133,7 +133,7 @@ def calculer_score_objectif(prospect, bien):
     score += pts
 
     # --- PIÈCES MIN (parsée depuis criteres) ---
-    nb_pieces_bien = bien.get("nb_pieces") or 0
+    nb_pieces_bien = bien.get("pieces") or 0
     m_pieces = _re.search(r'pi[eè]ces?\s+min\s*:\s*(\d+)', criteres_txt)
     if m_pieces:
         pieces_min = int(m_pieces.group(1))

@@ -142,6 +142,33 @@ def test_type_code_pieces_ne_matche_pas_maison():
     assert detail["type"]["points"] == 0
 
 
+# ── Tests pièces ──────────────────────────────────────────────────────────────
+
+def test_pieces_suffisantes():
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 2"),
+        bien_base(pieces=3)
+    )
+    assert detail["pieces"]["points"] == 0
+
+
+def test_pieces_insuffisantes():
+    """Un studio (1 pièce) doit être pénalisé si le prospect exige 2 pièces min."""
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 2"),
+        bien_base(pieces=1)
+    )
+    assert detail["pieces"]["points"] == -8
+
+
+def test_pieces_non_exigees():
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres=""),
+        bien_base(pieces=1)
+    )
+    assert detail["pieces"]["points"] == 0
+
+
 # ── Tests ville ───────────────────────────────────────────────────────────────
 
 def test_ville_exacte():
