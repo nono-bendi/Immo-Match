@@ -6,7 +6,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from scoring import calculer_score_objectif
+from scoring import calculer_score_objectif, trier_biens_par_score_objectif
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -79,6 +79,36 @@ def test_budget_hors_budget():
         bien_base(prix=300000)
     )
     assert detail["budget"]["points"] == 0
+
+
+def test_budget_nettement_sous_budget_moins_bien_note_que_proche_budget():
+    """Un bien à 60% du budget ne doit plus scorer identique à un bien à 99%."""
+    score_bas, detail_bas = calculer_score_objectif(
+        prospect_base(budget_max=275000),
+        bien_base(prix=165000)  # ratio 0.60
+    )
+    score_proche, detail_proche = calculer_score_objectif(
+        prospect_base(budget_max=275000),
+        bien_base(prix=274300)  # ratio 0.997
+    )
+    assert detail_bas["budget"]["points"] < detail_proche["budget"]["points"]
+
+
+def test_budget_tres_en_dessous_score_plancher():
+    score, detail = calculer_score_objectif(
+        prospect_base(budget_max=275000),
+        bien_base(prix=94900)  # ratio 0.345, sous le plancher 50%
+    )
+    assert detail["budget"]["points"] == 15
+
+
+def test_budget_proche_du_max_reste_quasi_maximal():
+    """Un bien à 99% du budget doit rester tout en haut de l'échelle, comme avant ce fix."""
+    score, detail = calculer_score_objectif(
+        prospect_base(budget_max=275000),
+        bien_base(prix=274300)  # ratio 0.997
+    )
+    assert detail["budget"]["points"] >= 24
 
 
 def test_budget_non_renseigne():
@@ -210,3 +240,29 @@ def test_score_mauvais_match():
         bien_base(prix=400000, type="Appartement", ville="Fréjus")
     )
     assert score <= 20
+
+
+# ── Tests départage à score objectif égal ──────────────────────────────────────
+
+def test_tiebreak_prefere_le_bien_le_plus_proche_du_budget():
+    """
+    Deux biens identiques à part le prix, tous deux dans la même tranche de score
+    budget (>=90% du budget) : ils sont à égalité parfaite sur calculer_score_objectif.
+    trier_biens_par_score_objectif doit départager en faveur du plus proche du budget,
+    pas laisser l'ordre de la liste décider arbitrairement.
+    """
+    prospect = prospect_base(budget_max=275000)
+    bien_loin = bien_base(prix=261000)   # ratio 0.949
+    bien_proche = bien_base(prix=274300)  # ratio 0.997
+
+    # Vérifie d'abord qu'ils sont bien à égalité sans le départage
+    s1, _ = calculer_score_objectif(prospect, bien_loin)
+    s2, _ = calculer_score_objectif(prospect, bien_proche)
+    assert s1 == s2
+
+    top1 = trier_biens_par_score_objectif(prospect, [bien_loin, bien_proche], 1)
+    assert top1[0]["prix"] == 274300
+
+    # Résultat inchangé si les biens sont fournis dans l'ordre inverse
+    top1_inverse = trier_biens_par_score_objectif(prospect, [bien_proche, bien_loin], 1)
+    assert top1_inverse[0]["prix"] == 274300

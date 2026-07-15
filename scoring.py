@@ -35,8 +35,21 @@ def calculer_score_objectif(prospect, bien):
     else:
         ratio = prix / budget  # 1.0 = dans le budget exact
         if ratio <= 1.0:
-            pts = 25
-            note = f"Dans le budget ({prix:,.0f}€ / {budget:,.0f}€)"
+            # Sous le budget : proximité récompensée en continu, pas par palier large —
+            # sinon un bien à 60% du budget score identique à un bien à 99%, et les
+            # deux se retrouvent à égalité parfaite avec des dizaines d'autres biens
+            # nettement moins pertinents (vécu : biens à 274k noyés parmi des T3 à 165k).
+            # Plein score entre 90% et 100% du budget (zone "bien utilisé"), puis
+            # décroissance linéaire 25→15 jusqu'à 50%, plancher à 15 en dessous.
+            if ratio >= 0.90:
+                pts = 25
+                note = f"Dans le budget ({prix:,.0f}€ / {budget:,.0f}€)"
+            elif ratio >= 0.50:
+                pts = round(15 + 10 * (ratio - 0.50) / 0.40, 1)
+                note = f"Sous le budget ({prix:,.0f}€ / {budget:,.0f}€)"
+            else:
+                pts = 15
+                note = f"Très en dessous du budget ({prix:,.0f}€ / {budget:,.0f}€), standing à vérifier"
         elif ratio <= 1.10:
             pts = 18
             note = f"Dépasse de {(ratio-1)*100:.0f}% ({prix:,.0f}€ / {budget:,.0f}€)"
@@ -680,11 +693,21 @@ def trier_biens_par_score_objectif(prospect, biens, max_biens):
     objectif Python (gratuit, instantané), avant d'envoyer à Claude.
     Remplace le tri par proximité prix qui ignorait la qualité du matching.
     """
+    budget = prospect.get("budget_max") or 0
     scores = []
     for bien in biens:
         score_obj, _ = calculer_score_objectif(prospect, bien)
         scores.append((score_obj, bien))
-    scores.sort(key=lambda x: x[0], reverse=True)
+    # Départage à score égal : le bien le plus proche du budget (sans le dépasser)
+    # gagne — sinon l'ordre de la base tranche arbitrairement entre des dizaines
+    # de biens à égalité parfaite (vécu : un T3 à 165k gagnant le tirage face à
+    # un T3 à 274k pour un budget de 275k, uniquement par ordre d'insertion).
+    def _tiebreak(item):
+        _, bien = item
+        prix = bien.get("prix") or 0
+        proximite = -abs(budget - prix) if (budget and prix and prix <= budget) else -float("inf")
+        return proximite
+    scores.sort(key=lambda x: (x[0], _tiebreak(x)), reverse=True)
     return [bien for _, bien in scores[:max_biens]]
 
 
