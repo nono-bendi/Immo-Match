@@ -3,6 +3,7 @@ from logger import get_logger
 log = get_logger('scoring')
 from dotenv import load_dotenv
 import os
+import re
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -73,6 +74,12 @@ def calculer_score_objectif(prospect, bien):
             elif "maison" in tp and "maison" in type_bien:
                 pts = 20
                 note = f"Type compatible ({bien.get('type')})"
+                break
+            # Code pièces (T1..T5) : sous-entend un appartement (même logique que le
+            # prefiltre dans matchings.py, qui exclut déjà les maisons sur ce critère)
+            elif re.search(r'^t[1-5]$', tp) and "appartement" in type_bien:
+                pts = 20
+                note = f"Type compatible ({bien.get('type')} — {tp.upper()} sous-entend appartement)"
                 break
             # Appartement : tolérance ±1 pièce (T2 peut accepter T3 etc.)
             elif _types_proches(tp, type_bien):
@@ -373,6 +380,12 @@ RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
 - Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre, comme un agent qui parle naturellement.
 - INTERDIT (tournures robotiques ou administratives) : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect", "critère indispensable satisfait", "critère satisfait", "critère rempli", "exigence satisfaite", "correspond à votre critère".
 - CORRECT : décris le bénéfice concret du bien de façon naturelle. Ex : "Jardin privatif clos — idéal pour votre chien" plutôt que "Jardin clos — critère indispensable satisfait".
+
+RÉDACTION DES POINTS D'ATTENTION — RÈGLE OBLIGATOIRE :
+- Les points_attention sont lus par l'agent immobilier pour préparer la visite. Impact concret, pas de jargon technique.
+- INTERDIT (références aux données internes) : "données structurées", "champ vide", "import automatique", "incohérence entre", "contradiction", "description confirme", "non renseigné", "selon les données", "d'après les données".
+- INTERDIT (formulations vides) : "à vérifier lors de la visite" seul sans précision, "bien à valider", "informations incomplètes".
+- CORRECT : Ex. "Étage élevé sans ascenseur à confirmer" et non "4e étage sans ascenseur mentionné en données structurées — mais description confirme ascenseur présent".
 """
 
 

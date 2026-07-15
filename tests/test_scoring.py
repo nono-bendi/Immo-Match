@@ -115,6 +115,33 @@ def test_type_non_renseigne():
     assert detail["type"]["points"] == 8  # Score neutre bas (profil incomplet)
 
 
+def test_type_code_pieces_implique_appartement():
+    """'T3' seul doit être reconnu comme une recherche d'appartement."""
+    score, detail = calculer_score_objectif(
+        prospect_base(bien="T3"),
+        bien_base(type="Appartement")
+    )
+    assert detail["type"]["points"] == 20
+
+
+def test_type_code_pieces_multi_implique_appartement():
+    """'T3, T2' (multi-types) doit aussi matcher un appartement."""
+    score, detail = calculer_score_objectif(
+        prospect_base(bien="T3, T2"),
+        bien_base(type="Appartement")
+    )
+    assert detail["type"]["points"] == 20
+
+
+def test_type_code_pieces_ne_matche_pas_maison():
+    """'T3' ne doit pas donner un bon score de type face à une maison."""
+    score, detail = calculer_score_objectif(
+        prospect_base(bien="T3"),
+        bien_base(type="Maison/villa")
+    )
+    assert detail["type"]["points"] == 0
+
+
 # ── Tests ville ───────────────────────────────────────────────────────────────
 
 def test_ville_exacte():
