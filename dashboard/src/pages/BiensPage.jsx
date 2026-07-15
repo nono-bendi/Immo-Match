@@ -174,7 +174,8 @@ function BiensPage() {
       if (!showVendus && b.statut === 'vendu') return false
       const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
         b.ville?.toLowerCase().includes(search.toLowerCase()) ||
-        b.type?.toLowerCase().includes(search.toLowerCase())
+        b.type?.toLowerCase().includes(search.toLowerCase()) ||
+        b.prospects_noms?.toLowerCase().includes(search.toLowerCase())
       const agence = b.nom_agence || nomFiltre
       const matchAgence = filterAgence === 'tous' ||
         (filterAgence === 'moi' && agence.toUpperCase().includes(nomFiltre.toUpperCase())) ||

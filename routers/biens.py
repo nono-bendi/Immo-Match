@@ -238,7 +238,16 @@ def save_custom_search_config(data: dict, current_user: dict = Depends(get_curre
 def get_biens(current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
     conn.row_factory = sqlite3.Row
-    cursor = conn.execute("SELECT * FROM biens WHERE statut IS NULL OR statut != 'en_analyse' ORDER BY date_ajout DESC")
+    cursor = conn.execute("""
+        SELECT b.*,
+               (SELECT GROUP_CONCAT(DISTINCT p.nom)
+                FROM matchings m JOIN prospects p ON p.id = m.prospect_id
+                WHERE m.bien_id = b.id AND (p.archive = 0 OR p.archive IS NULL)
+               ) as prospects_noms
+        FROM biens b
+        WHERE b.statut IS NULL OR b.statut != 'en_analyse'
+        ORDER BY b.date_ajout DESC
+    """)
     biens = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return biens
