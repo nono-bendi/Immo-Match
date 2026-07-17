@@ -5,7 +5,7 @@ import {
   Building2, MapPin, Maximize, Home, X, Euro,
   Compass, Car, TreePine, Layers, ChevronLeft, ChevronRight,
   Sparkles, Loader2, CheckCircle2, AlertCircle, ArrowRight,
-  Link, Save, ExternalLink
+  Link, Save, ExternalLink, UserPlus, Search
 } from 'lucide-react'
 import { apiFetch } from '../api'
 import { API_URL } from '../config'
@@ -22,7 +22,38 @@ function BienModal({ bien, onClose }) {
   const [prix, setPrix] = useState(bien?.prix ? String(Math.round(bien.prix)) : '')
   const [prixSaving, setPrixSaving] = useState(false)
   const [prixSaved, setPrixSaved] = useState(false)
+  const [showManualAdd, setShowManualAdd] = useState(false)
+  const [prospects, setProspects] = useState([])
+  const [prospectSearch, setProspectSearch] = useState('')
+  const [addingId, setAddingId] = useState(null)
+  const [addedIds, setAddedIds] = useState([])
+  const [addError, setAddError] = useState('')
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!showManualAdd || prospects.length) return
+    apiFetch('/prospects').then(r => r.json()).then(data => {
+      setProspects((data || []).filter(p => !p.archive))
+    }).catch(() => {})
+  }, [showManualAdd])
+
+  const ajouterManuellement = async (prospectId) => {
+    setAddingId(prospectId)
+    setAddError('')
+    try {
+      const res = await apiFetch('/matchings/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prospect_id: prospectId, bien_id: bien.id })
+      })
+      const data = await res.json()
+      if (data.error) setAddError(data.error)
+      else setAddedIds(prev => [...prev, prospectId])
+    } catch {
+      setAddError('Erreur réseau')
+    }
+    setAddingId(null)
+  }
 
   const savePrix = async () => {
     const val = parseFloat(prix.replace(/\s/g, '').replace(',', '.'))
@@ -369,6 +400,59 @@ function BienModal({ bien, onClose }) {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/></svg>
               Voir les prospects pour ce bien
             </button>
+          </div>
+
+          {/* Adresser manuellement à un prospect */}
+          <div className="border-t border-gray-100">
+            <button
+              onClick={() => setShowManualAdd(v => !v)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all mb-2"
+              style={{ background: '#fdf4ff', color: '#a21caf', border: '1px solid #f0abfc' }}
+            >
+              <UserPlus size={15} />
+              Adresser ce bien à un prospect précis
+            </button>
+            {showManualAdd && (
+              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2">
+                <p className="text-xs text-gray-400">
+                  Pour un prospect qui n'a pas matché automatiquement mais que ce bien peut intéresser.
+                </p>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={prospectSearch}
+                    onChange={e => setProspectSearch(e.target.value)}
+                    placeholder="Nom du prospect…"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+                  />
+                </div>
+                {addError && <p className="text-xs text-red-600">{addError}</p>}
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {prospects.length === 0 && <p className="text-xs text-gray-400 py-2 text-center">Chargement…</p>}
+                  {prospects
+                    .filter(p => !prospectSearch || p.nom?.toLowerCase().includes(prospectSearch.toLowerCase()))
+                    .slice(0, 30)
+                    .map(p => {
+                      const added = addedIds.includes(p.id)
+                      return (
+                        <div key={p.id} className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-white rounded-lg border border-gray-100">
+                          <span className="text-sm text-gray-700 truncate">{p.nom}</span>
+                          <button
+                            onClick={() => ajouterManuellement(p.id)}
+                            disabled={addingId === p.id || added}
+                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg disabled:opacity-60 transition-all"
+                            style={{ background: added ? '#f0fdf4' : '#1E3A5F', color: added ? '#15803d' : '#fff' }}
+                          >
+                            {addingId === p.id ? <Loader2 size={12} className="animate-spin" /> : added ? <CheckCircle2 size={12} /> : <UserPlus size={12} />}
+                            {added ? 'Ajouté' : 'Ajouter'}
+                          </button>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Analyse par bien */}

@@ -6,12 +6,13 @@ import json
 import re
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 
 from config import _analyse_all_lock, COOLDOWN_SECONDS
 from agencies_db import get_db_path, get_monthly_usage, increment_monthly_usage
 from plans import check_quota
 from routers.auth import get_current_user, require_not_demo
-from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif
+from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif, calculer_score_objectif
 from analytics import track
 
 router = APIRouter()
@@ -513,21 +514,24 @@ def get_matchings(
         where_extras = "AND m.bien_id = ?"
         params.append(bien_id)
 
+    _ensure_presentations_table(conn)
     cursor = conn.execute(f'''
         SELECT m.*, p.nom as prospect_nom, p.titre as prospect_titre, p.prenom as prospect_prenom, p.budget_max as prospect_budget,
-               p.mail as prospect_mail, p.telephone as prospect_tel,
+               p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
                p.bien as prospect_type, p.villes as prospect_villes,
                p.destination as prospect_destination, p.criteres as prospect_criteres,
                p.stationnement as prospect_stationnement, p.exterieur as prospect_exterieur,
                b.type as bien_type, b.ville as bien_ville, b.quartier as bien_quartier,
                b.reference as bien_reference, b.prix as bien_prix,
                b.surface as bien_surface, b.pieces as bien_pieces, b.photos as bien_photos,
-               b.lien_annonce as lien_annonce
+               b.lien_annonce as lien_annonce,
+               pr.date_presentation as date_presentation, pr.commentaire as commentaire_presentation
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
+        LEFT JOIN presentations pr ON pr.prospect_id = m.prospect_id AND pr.bien_id = m.bien_id
         WHERE (p.archive = 0 OR p.archive IS NULL)
-          AND m.score >= ?
+          AND (m.score >= ? OR m.statut_prospect = 'manuel')
           {where_extras}
         ORDER BY m.prospect_id, m.score DESC
     ''', params)
@@ -559,10 +563,14 @@ def get_matchings(
         m['score_pondere'] = round(m['score'] * (0.60 + 0.40 * completude))
 
     # Limiter à max_matchings par prospect — ignoré quand on filtre par bien_id
+    # ou pour les biens ajoutés manuellement (toujours affichés, hors quota)
     if bien_id is None:
         seen = {}
         result = []
         for m in all_matchings:
+            if m.get('statut_prospect') == 'manuel':
+                result.append(m)
+                continue
             pid = m['prospect_id']
             if seen.get(pid, 0) < max_matchings:
                 result.append(m)
@@ -579,6 +587,56 @@ def get_matchings(
         result.sort(key=lambda m: m['score_pondere'], reverse=True)
 
     return result
+
+
+class ManualMatchingCreate(BaseModel):
+    prospect_id: int
+    bien_id: int
+
+
+@router.post("/matchings/manual")
+def create_manual_matching(body: ManualMatchingCreate, current_user: dict = Depends(get_current_user)):
+    """
+    Associe un bien à un prospect à la main, même s'il n'a pas matché
+    automatiquement (ex : critère secondaire non coché par l'IA mais
+    l'agent sait que ça peut intéresser le client). Toujours affiché,
+    hors quota max_matchings_par_prospect, et jamais supprimé par une
+    réanalyse ultérieure du prospect.
+    """
+    db_path = get_db_path(current_user["agency_slug"])
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    prospect = conn.execute("SELECT * FROM prospects WHERE id = ?", (body.prospect_id,)).fetchone()
+    bien = conn.execute("SELECT * FROM biens WHERE id = ?", (body.bien_id,)).fetchone()
+    if not prospect or not bien:
+        conn.close()
+        return {"error": "Prospect ou bien introuvable"}
+
+    existing = conn.execute(
+        "SELECT id FROM matchings WHERE prospect_id = ? AND bien_id = ?",
+        (body.prospect_id, body.bien_id)
+    ).fetchone()
+    if existing:
+        conn.close()
+        return {"error": "Ce bien est déjà associé à ce prospect", "matching_id": existing["id"]}
+
+    score_obj, _ = calculer_score_objectif(dict(prospect), dict(bien))
+    now_iso = datetime.now().isoformat()
+    cursor = conn.execute("""
+        INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, statut_prospect, date_analyse, date_creation)
+        VALUES (?, ?, ?, ?, ?, ?, 'manuel', ?, ?)
+    """, (
+        body.prospect_id, body.bien_id, round(score_obj / 60 * 100),
+        "- Ajouté manuellement par l'agent",
+        "",
+        "Bien proposé manuellement par l'agent, hors sélection automatique.",
+        now_iso, now_iso
+    ))
+    conn.commit()
+    matching_id = cursor.lastrowid
+    conn.close()
+    return {"success": True, "matching_id": matching_id}
 
 
 @router.get("/matchings/by-bien/{bien_id}")
@@ -608,7 +666,7 @@ def get_matchings_by_date(date_analyse: str, current_user: dict = Depends(get_cu
 
     matchings = conn.execute('''
         SELECT m.*,
-               p.nom as prospect_nom, p.budget_max as prospect_budget, p.mail as prospect_mail, p.telephone as prospect_tel,
+               p.nom as prospect_nom, p.budget_max as prospect_budget, p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
                b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix, b.surface as bien_surface, b.pieces as bien_pieces, b.id as bien_id,
                b.lien_annonce as lien_annonce
         FROM matchings m
@@ -1004,8 +1062,72 @@ def creer_snapshot(body: dict, _user=Depends(require_not_demo), current_user: di
 class StatutProspectBody(dict):
     pass
 
-from pydantic import BaseModel
 from typing import Optional
+
+def _ensure_presentations_table(conn):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS presentations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            prospect_id INTEGER NOT NULL,
+            bien_id INTEGER NOT NULL,
+            date_presentation TEXT DEFAULT (datetime('now')),
+            commentaire TEXT,
+            UNIQUE(prospect_id, bien_id)
+        )
+    """)
+    conn.commit()
+
+
+class PresentationBody(BaseModel):
+    prospect_id: int
+    bien_id: int
+    commentaire: Optional[str] = None
+
+@router.post("/matchings/presenter")
+def marquer_presente(body: PresentationBody, current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    conn = sqlite3.connect(db_path)
+    _ensure_presentations_table(conn)
+    conn.execute(
+        "INSERT INTO presentations (prospect_id, bien_id, commentaire) VALUES (?, ?, ?) "
+        "ON CONFLICT(prospect_id, bien_id) DO UPDATE SET commentaire=excluded.commentaire, date_presentation=datetime('now')",
+        (body.prospect_id, body.bien_id, body.commentaire or None)
+    )
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
+
+@router.delete("/matchings/presenter/{prospect_id}/{bien_id}")
+def demarquer_presente(prospect_id: int, bien_id: int, current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    conn = sqlite3.connect(db_path)
+    _ensure_presentations_table(conn)
+    conn.execute("DELETE FROM presentations WHERE prospect_id=? AND bien_id=?", (prospect_id, bien_id))
+    conn.commit()
+    conn.close()
+    return {"success": True}
+
+
+@router.get("/prospects/{prospect_id}/presentations")
+def get_presentations_prospect(prospect_id: int, current_user: dict = Depends(get_current_user)):
+    db_path = get_db_path(current_user["agency_slug"])
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    _ensure_presentations_table(conn)
+    rows = conn.execute("""
+        SELECT pr.date_presentation, pr.commentaire,
+               b.id as bien_id, b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix,
+               b.surface as bien_surface, b.pieces as bien_pieces,
+               b.reference as bien_reference, b.photos as bien_photos
+        FROM presentations pr
+        JOIN biens b ON b.id = pr.bien_id
+        WHERE pr.prospect_id = ?
+        ORDER BY pr.date_presentation DESC
+    """, (prospect_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
 
 class StatutProspectUpdate(BaseModel):
     statut: Optional[str] = None
@@ -1172,7 +1294,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
             # Supprimer TOUS les anciens matchings non-refusés pour ce prospect
             # (et non seulement ceux du lot en cours) pour éviter des résultats périmés
             conn.execute(
-                "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect != 'refused')",
+                "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect NOT IN ('refused', 'manuel'))",
                 (prospect_id,)
             )
             for r in resultats:
@@ -1211,7 +1333,7 @@ def run_matching(prospect_id: int, _user=Depends(require_not_demo), current_user
                 "match",
                 "Excellent match trouvé !",
                 f"Score {best_score} pour {prospect.get('nom')}",
-                "/matchings",
+                f"/matchings?prospect={prospect_id}",
                 datetime.now(timezone.utc).isoformat()
             ))
             conn.commit()
@@ -1332,7 +1454,7 @@ def run_all_matchings(_user=Depends(require_not_demo), current_user: dict = Depe
                 conn.execute("BEGIN")
                 # Supprimer TOUS les anciens matchings non-refusés pour éviter les résultats périmés
                 conn.execute(
-                    "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect != 'refused')",
+                    "DELETE FROM matchings WHERE prospect_id = ? AND (statut_prospect IS NULL OR statut_prospect NOT IN ('refused', 'manuel'))",
                     (prospect["id"],)
                 )
                 max_matchings = int(settings.get('max_matchings_par_prospect', 5))
