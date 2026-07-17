@@ -802,7 +802,6 @@ export default function MatchingsPageV2() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', borderRadius: 6, padding: '3px 8px' }}>NOUVEAU</span>
           </div>
           <p className="text-sm text-gray-400 mt-0.5">
             {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
