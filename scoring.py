@@ -606,6 +606,62 @@ Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommand
     return _parse_claude_json(message.content[0].text)
 
 
+def generer_argumentaire_manuel(prospect, bien, model='claude-sonnet-4-6', agency_slug=None):
+    """
+    Bien ajouté manuellement à la fiche d'un prospect par l'agent (hors sélection
+    automatique — ex : un critère secondaire l'a écarté du matching, mais l'agent
+    sait que ça peut plaire à ce client précis). Pas de score ici : juste un
+    argumentaire marketing pour préparer l'email/l'appel au client.
+    """
+    dynamic_prompt = f"""Tu es un agent immobilier expert sur la Côte d'Azur (Fréjus, Saint-Raphaël).
+
+Un agent de l'agence a choisi de présenter ce bien à ce prospect précis, en dehors de la
+sélection automatique. Ta mission n'est PAS de noter le bien — c'est de rédiger un
+argumentaire de vente : pourquoi ce bien peut intéresser CE client, en te basant sur
+son profil et la description réelle du bien.
+
+=== PROSPECT #{prospect.get('id', 'N/A')} ===
+{construire_contexte_prospect(prospect)}
+
+=== BIEN #{bien.get('id')} ===
+{construire_contexte_bien(bien)}
+
+Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
+Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = 2 phrases max (max 45 mots).
+{{
+  "points_forts": ["max 20 mots", "max 20 mots", "max 20 mots"],
+  "points_attention": ["max 20 mots"],
+  "recommandation": "1-2 phrases : l'angle à privilégier pour convaincre ce client précis, max 45 mots"
+}}"""
+
+    message = client.messages.create(
+        model=model,
+        max_tokens=500,
+        system=[{
+            "type": "text",
+            "text": _STATIC_SYSTEM,
+            "cache_control": {"type": "ephemeral"}
+        }],
+        messages=[{
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": _STATIC_RULES,
+                    "cache_control": {"type": "ephemeral"}
+                },
+                {
+                    "type": "text",
+                    "text": dynamic_prompt
+                }
+            ]
+        }]
+    )
+
+    _track_usage(agency_slug, message.usage)
+    return _parse_claude_json(message.content[0].text)
+
+
 def scorer_biens_batch_claude(prospect, biens_avec_objectif, model='claude-sonnet-4-6', agency_slug=None):
     """
     Score N biens en UN SEUL appel Claude (batch scoring).

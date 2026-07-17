@@ -303,7 +303,7 @@ function BienModal({ bien, onClose }) {
                 value={prix}
                 onChange={e => { setPrix(e.target.value); setPrixSaved(false) }}
                 placeholder="Ex : 94900"
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+                className="flex-1 px-3.5 py-2.5 text-sm border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/15 focus:border-[#1E3A5F]/40 bg-white transition-all"
               />
               <button
                 onClick={savePrix}
@@ -328,7 +328,7 @@ function BienModal({ bien, onClose }) {
                 value={lien}
                 onChange={e => { setLien(e.target.value); setLienSaved(false) }}
                 placeholder="https://www.site-agence.fr/annonce/..."
-                className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+                className="flex-1 px-3.5 py-2.5 text-sm border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/15 focus:border-[#1E3A5F]/40 bg-white transition-all"
               />
               <button
                 onClick={saveLien}
@@ -413,22 +413,23 @@ function BienModal({ bien, onClose }) {
               Adresser ce bien à un prospect précis
             </button>
             {showManualAdd && (
-              <div className="p-3 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2">
+              <div className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-100 space-y-2.5">
                 <p className="text-xs text-gray-400">
-                  Pour un prospect qui n'a pas matché automatiquement mais que ce bien peut intéresser.
+                  Pour un prospect qui n'a pas matché automatiquement mais que ce bien peut intéresser —
+                  génère un argumentaire marketing pour préparer l'email, sans passer par le score IA.
                 </p>
                 <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     value={prospectSearch}
                     onChange={e => setProspectSearch(e.target.value)}
                     placeholder="Nom du prospect…"
-                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-[#1E3A5F] bg-white"
+                    className="w-full pl-9 pr-3.5 py-2.5 text-sm border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/15 focus:border-[#1E3A5F]/40 bg-white transition-all"
                   />
                 </div>
                 {addError && <p className="text-xs text-red-600">{addError}</p>}
-                <div className="max-h-48 overflow-y-auto space-y-1">
+                <div className="max-h-48 overflow-y-auto space-y-1.5">
                   {prospects.length === 0 && <p className="text-xs text-gray-400 py-2 text-center">Chargement…</p>}
                   {prospects
                     .filter(p => !prospectSearch || p.nom?.toLowerCase().includes(prospectSearch.toLowerCase()))
@@ -436,13 +437,13 @@ function BienModal({ bien, onClose }) {
                     .map(p => {
                       const added = addedIds.includes(p.id)
                       return (
-                        <div key={p.id} className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-white rounded-lg border border-gray-100">
+                        <div key={p.id} className="flex items-center justify-between gap-2 px-3 py-2 bg-white rounded-xl border border-gray-100">
                           <span className="text-sm text-gray-700 truncate">{p.nom}</span>
                           <button
                             onClick={() => ajouterManuellement(p.id)}
                             disabled={addingId === p.id || added}
-                            className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg disabled:opacity-60 transition-all"
-                            style={{ background: added ? '#f0fdf4' : '#1E3A5F', color: added ? '#15803d' : '#fff' }}
+                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg disabled:opacity-70 text-white transition-all"
+                            style={added ? { background: '#f0fdf4', color: '#15803d' } : { background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                           >
                             {addingId === p.id ? <Loader2 size={12} className="animate-spin" /> : added ? <CheckCircle2 size={12} /> : <UserPlus size={12} />}
                             {added ? 'Ajouté' : 'Ajouter'}
@@ -451,6 +452,15 @@ function BienModal({ bien, onClose }) {
                       )
                     })}
                 </div>
+                {addedIds.length > 0 && (
+                  <button
+                    onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}`) }}
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all"
+                    style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}
+                  >
+                    Voir et envoyer l'email <ArrowRight size={12} />
+                  </button>
+                )}
               </div>
             )}
           </div>

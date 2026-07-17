@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -143,7 +143,7 @@ function AuroraBackground() {
 }
 
 // ─── ScoreRing SVG — animation DOM directe, zéro re-render React ───────────────
-function ScoreRing({ score, size = 140 }) {
+function ScoreRing({ score, size = 140, manual = false }) {
   const c   = sC(score)
   const r   = (size - 14) / 2
   const cx  = size / 2
@@ -152,6 +152,7 @@ function ScoreRing({ score, size = 140 }) {
   const arcRef  = useRef(null)
 
   useEffect(() => {
+    if (manual) return
     const duration = 900
     const start    = performance.now()
     let raf
@@ -165,7 +166,18 @@ function ScoreRing({ score, size = 140 }) {
     }
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [score, circ])
+  }, [score, circ, manual])
+
+  if (manual) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div style={{ width: size, height: size, borderRadius: '50%', background: '#fdf4ff', border: '2px dashed #e9b8f5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <UserPlus size={Math.round(size * 0.24)} style={{ color: '#a21caf' }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#a21caf', textAlign: 'center', lineHeight: 1.3, padding: '0 10px' }}>Ajouté<br />manuellement</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
@@ -192,8 +204,8 @@ function ScoreRing({ score, size = 140 }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse, presented }) {
-  const c = sC(score); const photo = fPhoto(photos)
+function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
+  const c = manual ? { c1: '#a21caf', c2: '#c026d3' } : sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
   const _bd  = dark ? 'rgba(255,255,255,0.07)' : '#edf1f7'
@@ -205,7 +217,9 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
       <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, transform: selected ? 'translateY(-1px)' : 'translateY(0)', transition: 'transform 0.18s ease' }}>
         <div style={{ width: 44, height: 44, borderRadius: 9, flexShrink: 0, position: 'relative', overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c.c1}25,${c.c2}10),repeating-linear-gradient(45deg,${dark?'#1a2d42':'#e2e8f0'} 0 4px,${dark?'#0f1e30':'#edf1f7'} 4px 8px)` }}>
           {photo && <img src={photo} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
-          <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>
+          {manual
+            ? <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', padding: 3, borderRadius: 9999, display: 'flex', boxShadow: `0 2px 4px ${c.c1}50` }}><UserPlus size={10} /></div>
+            : <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ville}</div>
@@ -213,6 +227,7 @@ function GemBadge({ score, ville, prix, surface, pieces, photos, selected, onCli
             <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
             {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
             {pieces  && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{pieces}p</span></>}
+            {manual && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#a21caf', background: '#fdf4ff', border: '1px solid #f0abfc', borderRadius: 9999, padding: '1px 6px' }}>Manuel</span></>}
             {emailEnvoye && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 6px' }}>Proposé</span></>}
             {presented && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 9999, padding: '1px 6px' }}>Visité</span></>}
           </div>
@@ -550,13 +565,14 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
           {/* ── CENTRE — ScoreRing ── */}
           <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '10px 10px', background: _mid, position: 'relative' }}>
             <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
-            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} size={window.innerWidth >= 1400 ? 140 : window.innerWidth >= 1200 ? 124 : 104} />}</div>
+            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} manual={(sel ?? best).statut_prospect === 'manuel'} size={window.innerWidth >= 1400 ? 140 : window.innerWidth >= 1200 ? 124 : 104} />}</div>
           </div>
 
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
             {(expanded ? sorted : sorted.slice(0, 3)).map(m => (
               <GemBadge key={m.id} score={m.score} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
+                manual={m.statut_prospect === 'manuel'}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}

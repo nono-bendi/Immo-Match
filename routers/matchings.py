@@ -12,7 +12,7 @@ from config import _analyse_all_lock, COOLDOWN_SECONDS
 from agencies_db import get_db_path, get_monthly_usage, increment_monthly_usage
 from plans import check_quota
 from routers.auth import get_current_user, require_not_demo
-from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif, calculer_score_objectif
+from scoring import scorer_biens as scorer_biens_hybride, formater_pour_affichage, trier_biens_par_score_objectif, calculer_score_objectif, generer_argumentaire_manuel
 from analytics import track
 
 router = APIRouter()
@@ -621,16 +621,31 @@ def create_manual_matching(body: ManualMatchingCreate, current_user: dict = Depe
         conn.close()
         return {"error": "Ce bien est déjà associé à ce prospect", "matching_id": existing["id"]}
 
+    settings = get_settings_values(db_path)
     score_obj, _ = calculer_score_objectif(dict(prospect), dict(bien))
+
+    try:
+        argumentaire = generer_argumentaire_manuel(
+            dict(prospect), dict(bien),
+            model=settings.get('model', 'claude-sonnet-4-6'),
+            agency_slug=current_user["agency_slug"]
+        )
+        points_forts = "\n".join(f"- {p}" for p in argumentaire.get("points_forts", []))
+        points_attention = "\n".join(f"- {p}" for p in argumentaire.get("points_attention", []))
+        recommandation = argumentaire.get("recommandation", "")
+    except Exception as e:
+        log.error(f"Erreur génération argumentaire manuel prospect #{body.prospect_id} / bien #{body.bien_id}: {e}")
+        points_forts = ""
+        points_attention = ""
+        recommandation = "Bien proposé manuellement par l'agent — argumentaire non généré (réessayer plus tard)."
+
     now_iso = datetime.now().isoformat()
     cursor = conn.execute("""
         INSERT INTO matchings (prospect_id, bien_id, score, points_forts, points_attention, recommandation, statut_prospect, date_analyse, date_creation)
         VALUES (?, ?, ?, ?, ?, ?, 'manuel', ?, ?)
     """, (
         body.prospect_id, body.bien_id, round(score_obj / 60 * 100),
-        "- Ajouté manuellement par l'agent",
-        "",
-        "Bien proposé manuellement par l'agent, hors sélection automatique.",
+        points_forts, points_attention, recommandation,
         now_iso, now_iso
     ))
     conn.commit()
