@@ -91,8 +91,8 @@ def parse_hektor_cols(cols):
     prix_hn         = to_float(302)
     honoraires_pct  = to_float(14)
 
-    # --- Photos (col 85-93 + 164-173) ---
-    photo_indices = list(range(85, 94)) + list(range(164, 174))
+    # --- Photos (col 84-93 + 163-173) ---
+    photo_indices = list(range(84, 94)) + list(range(163, 174))
     photos = []
     for i in photo_indices:
         v = g(i)
