@@ -45,7 +45,7 @@ def calculer_score_objectif(prospect, bien):
                 pts = 25
                 note = f"Dans le budget ({prix:,.0f}€ / {budget:,.0f}€)"
             elif ratio >= 0.50:
-                pts = round(15 + 10 * (ratio - 0.50) / 0.40, 1)
+                pts = round(15 + 10 * (ratio - 0.50) / 0.40)
                 note = f"Sous le budget ({prix:,.0f}€ / {budget:,.0f}€)"
             else:
                 pts = 15
