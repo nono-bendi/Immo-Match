@@ -8,7 +8,7 @@ from jose import jwt
 
 from agencies_db import get_db_path
 from routers.auth import get_current_user
-from config import AUTH_CONFIG
+from config import AUTH_CONFIG, APP_BASE_URL
 
 
 def get_user_from_token_param(token: str = Query(...)):
@@ -573,7 +573,8 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         md = dict(m)
         sc = md['score']
         photo = (md.get('photos') or '').split('|')[0].strip()
-        photo_html = f'<img src="{photo}" class="bien-photo" alt="" />' if photo else ''
+        bien_url = f'{APP_BASE_URL}/public/bien/{current_user["agency_slug"]}/{md["bien_id"]}'
+        photo_html = f'<a href="{bien_url}" target="_blank" rel="noopener"><img src="{photo}" class="bien-photo" alt="Voir la fiche du bien" /></a>' if photo else ''
         pts_forts = (md.get('points_forts') or '').strip()
         pts_att = (md.get('points_attention') or '').strip()
         recomm = (md.get('recommandation') or '').strip()
@@ -588,7 +589,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
           <div class="matching-header" style="border-left:4px solid {score_color(sc)}">
             {photo_html}
             <div class="matching-info">
-              <div class="matching-title">{md["bien_type"]} à {md["ville"]}</div>
+              <a href="{bien_url}" target="_blank" rel="noopener" class="matching-title-link"><div class="matching-title">{md["bien_type"]} à {md["ville"]}</div></a>
               <div class="matching-sub">{fmt_prix(md["prix"])} · {int(md["surface"] or 0)} m² · {md["pieces"] or "—"} pièces</div>
               {ref_html}
             </div>
@@ -646,8 +647,11 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     .matchings-section {{ padding:32px 40px 40px; }}
     .matching-card {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:14px; margin-bottom:16px; overflow:hidden; }}
     .matching-header {{ display:flex; align-items:center; gap:16px; padding:18px 20px; background:white; }}
-    .bien-photo {{ width:72px; height:54px; object-fit:cover; border-radius:8px; flex-shrink:0; }}
+    .bien-photo {{ width:140px; height:105px; object-fit:cover; border-radius:8px; flex-shrink:0; transition:opacity .15s; }}
+    .bien-photo:hover {{ opacity:.85; }}
     .matching-info {{ flex:1; min-width:0; }}
+    .matching-title-link {{ text-decoration:none; }}
+    .matching-title-link:hover .matching-title {{ text-decoration:underline; }}
     .matching-title {{ font-size:15px; font-weight:700; color:#1E3A5F; }}
     .matching-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
     .matching-ref {{ font-size:11px; color:#94a3b8; margin-top:2px; }}
