@@ -2,6 +2,7 @@ import os
 import sqlite3
 from datetime import datetime, timedelta
 from typing import Optional
+from urllib.parse import quote
 from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import HTMLResponse
 from jose import jwt
@@ -524,7 +525,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     matchings = conn.execute('''
         SELECT m.*, b.type as bien_type, b.ville, b.prix, b.surface, b.pieces,
                b.chambres, b.etat, b.exposition, b.stationnement, b.exterieur,
-               b.etage, b.description, b.reference, b.photos
+               b.etage, b.description, b.reference, b.photos, b.vendeur
         FROM matchings m
         JOIN biens b ON m.bien_id = b.id
         WHERE m.prospect_id = ?
@@ -573,12 +574,17 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         md = dict(m)
         sc = md['score']
         photo = (md.get('photos') or '').split('|')[0].strip()
-        bien_url = f'{APP_BASE_URL}/public/bien/{current_user["agency_slug"]}/{md["bien_id"]}'
-        photo_html = f'<a href="{bien_url}" target="_blank" rel="noopener"><img src="{photo}" class="bien-photo" alt="Voir la fiche du bien" /></a>' if photo else ''
+        # Fiche interne (BienModal, avec agence d'origine) — pas la page publique cote acheteur.
+        # BiensPage ne sait matcher que par reference (?ref=) : pas de lien si le bien n'en a pas.
+        bien_url = f'{APP_BASE_URL}/dashboard/biens?ref={quote(md["reference"])}' if md.get("reference") else ''
+        photo_html = (f'<a href="{bien_url}" target="_blank" rel="noopener"><img src="{photo}" class="bien-photo" alt="Voir la fiche du bien" /></a>' if bien_url
+                      else f'<img src="{photo}" class="bien-photo" alt="" />') if photo else ''
         pts_forts = (md.get('points_forts') or '').strip()
         pts_att = (md.get('points_attention') or '').strip()
         recomm = (md.get('recommandation') or '').strip()
         ref_html = f'<div class="matching-ref">Réf. {md["reference"]}</div>' if md.get("reference") else ''
+        vendeur = (md.get('vendeur') or '').strip()
+        vendeur_html = f'<div class="matching-agence">{vendeur}</div>' if vendeur else ''
         forts_html = f'<div class="analysis-block forts"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M20 6L9 17l-5-5" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Points forts</div><div class="ab-text">{pts_forts}</div></div>' if pts_forts else ''
         att_label = "Points d'attention"
         att_html = f'<div class="analysis-block att"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{att_label}</div><div class="ab-text">{pts_att}</div></div>' if pts_att else ''
@@ -589,9 +595,10 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
           <div class="matching-header" style="border-left:4px solid {score_color(sc)}">
             {photo_html}
             <div class="matching-info">
-              <a href="{bien_url}" target="_blank" rel="noopener" class="matching-title-link"><div class="matching-title">{md["bien_type"]} à {md["ville"]}</div></a>
+              {f'<a href="{bien_url}" target="_blank" rel="noopener" class="matching-title-link"><div class="matching-title">{md["bien_type"]} à {md["ville"]}</div></a>' if bien_url else f'<div class="matching-title">{md["bien_type"]} à {md["ville"]}</div>'}
               <div class="matching-sub">{fmt_prix(md["prix"])} · {int(md["surface"] or 0)} m² · {md["pieces"] or "—"} pièces</div>
               {ref_html}
+              {vendeur_html}
             </div>
             <div class="score-block" style="background:{score_color(sc)}">
               <div class="score-num">{sc}</div>
@@ -655,6 +662,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     .matching-title {{ font-size:15px; font-weight:700; color:#1E3A5F; }}
     .matching-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
     .matching-ref {{ font-size:11px; color:#94a3b8; margin-top:2px; }}
+    .matching-agence {{ display:inline-block; font-size:10px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:999px; padding:2px 9px; margin-top:5px; }}
     .score-block {{ padding:10px 16px; border-radius:10px; text-align:center; color:white; flex-shrink:0; }}
     .score-num {{ font-size:24px; font-weight:800; line-height:1; }}
     .score-lbl {{ font-size:10px; font-weight:600; opacity:.85; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }}
