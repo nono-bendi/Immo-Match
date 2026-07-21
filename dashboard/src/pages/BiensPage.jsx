@@ -177,7 +177,10 @@ function BiensPage() {
         b.type?.toLowerCase().includes(search.toLowerCase()) ||
         b.prospects_noms?.toLowerCase().includes(search.toLowerCase())
       const agence = b.nom_agence || nomFiltre
-      const matchAgence = filterAgence === 'tous' ||
+      // Une recherche active prime sur le filtre d'agence — chercher un bien
+      // precis (client, mandat) ne doit pas etre cache par "Saint Francois"
+      // alors que 88% du catalogue vient d'agences partenaires.
+      const matchAgence = search.trim() || filterAgence === 'tous' ||
         (filterAgence === 'moi' && agence.toUpperCase().includes(nomFiltre.toUpperCase())) ||
         (filterAgence === 'partenaires' && !agence.toUpperCase().includes(nomFiltre.toUpperCase()))
       return matchSearch && matchAgence
