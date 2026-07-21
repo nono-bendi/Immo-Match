@@ -42,24 +42,9 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
-    # Migration : ajouter dernier_contact si absent (prospects)
+    # Migration : ajouter budget_min si absent
     try:
-        conn.execute("ALTER TABLE prospects ADD COLUMN dernier_contact TEXT")
-        conn.commit()
-    except Exception:
-        pass
-
-    # Backfill : initialiser dernier_contact depuis le dernier email de matching envoyé
-    # (uniquement si NULL — ne remplace jamais un contact enregistré manuellement)
-    try:
-        conn.execute('''
-            UPDATE prospects SET dernier_contact = (
-                SELECT substr(MAX(m.date_email_envoye), 1, 10) FROM matchings m
-                WHERE m.prospect_id = prospects.id AND m.date_email_envoye IS NOT NULL
-            )
-            WHERE dernier_contact IS NULL
-              AND id IN (SELECT prospect_id FROM matchings WHERE date_email_envoye IS NOT NULL)
-        ''')
+        conn.execute("ALTER TABLE prospects ADD COLUMN budget_min REAL")
         conn.commit()
     except Exception:
         pass
@@ -330,21 +315,5 @@ def init_db(db_path: str = "immomatch.db"):
         conn.commit()
     except Exception:
         pass
-
-    # ── Index de performance ──────────────────────────────────────────────────
-    # Les JOINs matchings/prospects/biens et les filtres fréquents (prospect_id,
-    # score, statut, archive) faisaient des balayages complets sans ces index.
-    for idx_sql in [
-        "CREATE INDEX IF NOT EXISTS idx_matchings_prospect ON matchings(prospect_id)",
-        "CREATE INDEX IF NOT EXISTS idx_matchings_bien     ON matchings(bien_id)",
-        "CREATE INDEX IF NOT EXISTS idx_matchings_score    ON matchings(score)",
-        "CREATE INDEX IF NOT EXISTS idx_biens_statut       ON biens(statut)",
-        "CREATE INDEX IF NOT EXISTS idx_prospects_archive  ON prospects(archive)",
-    ]:
-        try:
-            conn.execute(idx_sql)
-        except Exception:
-            pass
-    conn.commit()
 
     conn.close()

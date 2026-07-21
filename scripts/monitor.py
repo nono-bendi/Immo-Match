@@ -6,6 +6,10 @@ Vérifie : l'API répond, le service tourne, le disque n'est pas plein, et aucun
 agence n'a d'erreur de synchronisation Hektor récente. Envoie un email seulement
 quand l'état change (pas de spam) ou si un problème persiste depuis > 6h.
 
+L'alerte est envoyée sous la forme du rapport 360 (scripts/rapport_quotidien.py
+--alerte) : même mise en page que le rapport quotidien, bandeau rouge, sans
+backup joint. Si cet envoi échoue, un email texte simple part en secours.
+
 À lancer en cron toutes les 15 min sur le VPS :
     */15 * * * * /app/venv/bin/python /app/scripts/monitor.py >> /var/log/immo-monitor.log 2>&1
 """
@@ -18,6 +22,7 @@ import time
 import shutil
 import smtplib
 import sqlite3
+import subprocess
 import urllib.request
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
@@ -82,6 +87,20 @@ def check_sync_errors():
 
 
 def send_alert(problems):
+    """Envoie le rapport 360 en mode alerte ; email texte simple en secours."""
+    try:
+        subprocess.run(
+            [os.path.join(APP_DIR, "venv", "bin", "python"),
+             os.path.join(APP_DIR, "scripts", "rapport_quotidien.py"), "--alerte"],
+            cwd=APP_DIR, check=True, timeout=300,
+        )
+        return
+    except Exception as e:
+        print(f"[{datetime.now():%H:%M}] Rapport alerte KO ({e}), envoi texte de secours", file=sys.stderr)
+    _send_alert_texte(problems)
+
+
+def _send_alert_texte(problems):
     body = (
         "ALERTE ImmoFlash — un ou plusieurs problèmes détectés le "
         f"{datetime.now().strftime('%d/%m/%Y à %H:%M')} :\n\n"
@@ -137,10 +156,12 @@ def main():
     changed = set(problems) != set(state.get("problems", []))
     stale = now - state.get("last_alert", 0) > RESEND_AFTER
     if changed or stale:
+        # Sauvegarder l'état AVANT l'envoi pour que le rapport alerte
+        # affiche les problèmes en cours dans sa ligne "Moniteur temps réel"
+        save_state({"problems": problems, "last_alert": now})
         try:
             send_alert(problems)
             print(f"[{datetime.now():%H:%M}] Alerte envoyée : {problems}")
-            save_state({"problems": problems, "last_alert": now})
         except Exception as e:
             print(f"[{datetime.now():%H:%M}] Echec envoi alerte : {e}", file=sys.stderr)
             save_state({"problems": problems, "last_alert": state.get("last_alert", 0)})
