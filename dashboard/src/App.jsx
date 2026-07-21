@@ -26,6 +26,7 @@ const MatchingsPageV2  = lazyLoad(() => import('./pages/MatchingsPageV2'))
 const HistoriquePage   = lazyLoad(() => import('./pages/HistoriquePage'))
 const SettingsPage     = lazyLoad(() => import('./pages/SettingsPage'))
 const AdministrationPage = lazyLoad(() => import('./pages/AdministrationPage'))
+const ProspectionPage  = lazyLoad(() => import('./pages/ProspectionPage'))
 const NewProspectPage  = lazyLoad(() => import('./pages/NewProspectPage'))
 const LandingPage      = lazyLoad(() => import('./pages/LandingPage'))
 
@@ -118,6 +119,7 @@ function AppRoutes() {
                       <Route path="/historique" element={<HistoriquePage />} />
                       <Route path="/parametres" element={<SettingsPage />} />
                       <Route path="/administration" element={<AdministrationPage />} />
+                      <Route path="/prospection" element={<ProspectionPage />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Suspense>
