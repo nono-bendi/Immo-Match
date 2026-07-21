@@ -12,6 +12,18 @@ load_dotenv()
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 
+def _a_espace_nuit_separe(description):
+    """
+    Un bien compté '1 pièce' en base peut quand même offrir un espace nuit
+    séparé du séjour (alcôve, mezzanine, coin nuit…) — la colonne 'pieces'
+    ne fait pas cette distinction, seule la description la mentionne.
+    """
+    if not description:
+        return False
+    desc = description.lower()
+    return any(k in desc for k in ["alcôve", "alcove", "mezzanine", "coin nuit", "coin-nuit", "coin couchage"])
+
+
 # ============================================================
 # PARTIE 1 — SCORE OBJECTIF (code Python, pas de Claude)
 # ============================================================
@@ -153,6 +165,13 @@ def calculer_score_objectif(prospect, bien):
         if nb_pieces_bien >= pieces_min:
             pts = 0
             note = f"Pièces OK ({nb_pieces_bien} ≥ {pieces_min})"
+        elif pieces_min - nb_pieces_bien == 1 and _a_espace_nuit_separe(bien.get("description")):
+            # Le compteur "pièces" ne capture pas un espace nuit séparé (alcôve,
+            # mezzanine, coin nuit…) — un studio décrit ainsi n'est pas un vrai
+            # studio ouvert, même s'il est compté comme 1 pièce en base. On ne
+            # retire qu'une pénalité réduite au lieu du -8 plein.
+            pts = -3
+            note = f"Espace nuit séparé décrit (alcôve/mezzanine/coin nuit) malgré {nb_pieces_bien} pièce(s) en base"
         else:
             pts = -8
             note = f"Pas assez de pièces ({nb_pieces_bien} < {pieces_min})"

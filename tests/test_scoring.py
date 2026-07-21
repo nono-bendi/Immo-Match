@@ -199,6 +199,41 @@ def test_pieces_non_exigees():
     assert detail["pieces"]["points"] == 0
 
 
+def test_pieces_alcove_penalite_reduite():
+    """Un studio '1 pièce' avec alcôve/mezzanine décrite ne doit pas subir la pénalité pleine."""
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 2"),
+        bien_base(pieces=1, description="Studio avec chambre en alcôve, cuisine équipée.")
+    )
+    assert detail["pieces"]["points"] == -3
+
+
+def test_pieces_mezzanine_penalite_reduite():
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 2"),
+        bien_base(pieces=1, description="Studio avec mezzanine aménagée en chambre.")
+    )
+    assert detail["pieces"]["points"] == -3
+
+
+def test_pieces_studio_ouvert_penalite_pleine():
+    """Sans alcôve/mezzanine décrite, un studio ouvert garde la pénalité pleine."""
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 2"),
+        bien_base(pieces=1, description="Studio ouvert, lumineux, sans séparation.")
+    )
+    assert detail["pieces"]["points"] == -8
+
+
+def test_pieces_alcove_ne_compense_pas_un_ecart_de_deux():
+    """L'exception ne s'applique qu'à un écart d'une seule pièce, pas plus."""
+    score, detail = calculer_score_objectif(
+        prospect_base(criteres="Pièces min: 3"),
+        bien_base(pieces=1, description="Studio avec alcôve.")
+    )
+    assert detail["pieces"]["points"] == -8
+
+
 # ── Tests ville ───────────────────────────────────────────────────────────────
 
 def test_ville_exacte():
