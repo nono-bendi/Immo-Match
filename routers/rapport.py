@@ -585,6 +585,15 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         ref_html = f'<div class="matching-ref">Réf. {md["reference"]}</div>' if md.get("reference") else ''
         vendeur = (md.get('vendeur') or '').strip()
         vendeur_html = f'<div class="matching-agence">{vendeur}</div>' if vendeur else ''
+        date_envoi = md.get('date_email_envoye')
+        if date_envoi:
+            try:
+                date_envoi_str = datetime.fromisoformat(date_envoi).strftime('%d/%m/%Y')
+            except ValueError:
+                date_envoi_str = date_envoi[:10]
+            propose_html = f'<div class="matching-propose">✓ Déjà proposé le {date_envoi_str}</div>'
+        else:
+            propose_html = ''
         forts_html = f'<div class="analysis-block forts"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M20 6L9 17l-5-5" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Points forts</div><div class="ab-text">{pts_forts}</div></div>' if pts_forts else ''
         att_label = "Points d'attention"
         att_html = f'<div class="analysis-block att"><div class="ab-title"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{att_label}</div><div class="ab-text">{pts_att}</div></div>' if pts_att else ''
@@ -599,6 +608,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
               <div class="matching-sub">{fmt_prix(md["prix"])} · {int(md["surface"] or 0)} m² · {md["pieces"] or "—"} pièces</div>
               {ref_html}
               {vendeur_html}
+              {propose_html}
             </div>
             <div class="score-block" style="background:{score_color(sc)}">
               <div class="score-num">{sc}</div>
@@ -663,6 +673,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     .matching-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
     .matching-ref {{ font-size:11px; color:#94a3b8; margin-top:2px; }}
     .matching-agence {{ display:inline-block; font-size:10px; font-weight:700; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:999px; padding:2px 9px; margin-top:5px; }}
+    .matching-propose {{ display:inline-block; font-size:10px; font-weight:700; color:#065f46; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:999px; padding:2px 9px; margin-top:5px; margin-left:5px; }}
     .score-block {{ padding:10px 16px; border-radius:10px; text-align:center; color:white; flex-shrink:0; }}
     .score-num {{ font-size:24px; font-weight:800; line-height:1; }}
     .score-lbl {{ font-size:10px; font-weight:600; opacity:.85; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }}
