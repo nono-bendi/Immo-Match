@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings, Languages } from 'lucide-react'
+import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings, Languages, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
 
@@ -87,6 +87,20 @@ function EmailModal({
 
   const handleContentChange = (field, value) => {
     setEmailContent((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleDownloadPreview = () => {
+    if (!previewHtml) return
+    const slug = (data?.prospectNom || 'email').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const blob = new Blob([previewHtml], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `apercu-email-${slug || 'immoflash'}.html`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -200,13 +214,23 @@ function EmailModal({
                           </div>
                           <span className="text-xs text-gray-500 ml-2">Aperçu de l'email</span>
                         </div>
-                        <button
-                          onClick={() => setActiveTab('edit')}
-                          className="text-xs text-[#1E3A5F] hover:text-[#2D5A8A] font-medium flex items-center gap-1"
-                        >
-                          <Edit3 size={12} />
-                          Personnaliser
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={handleDownloadPreview}
+                            className="text-xs text-[#1E3A5F] hover:text-[#2D5A8A] font-medium flex items-center gap-1"
+                            title="Télécharger cet aperçu en fichier HTML"
+                          >
+                            <Download size={12} />
+                            Télécharger
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('edit')}
+                            className="text-xs text-[#1E3A5F] hover:text-[#2D5A8A] font-medium flex items-center gap-1"
+                          >
+                            <Edit3 size={12} />
+                            Personnaliser
+                          </button>
+                        </div>
                       </div>
                       <iframe
                         srcDoc={previewHtml}
