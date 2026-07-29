@@ -469,10 +469,12 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   const _btn  = dark ? 'rgba(255,255,255,0.06)' : '#fbfcfe'
   const _btnBd = dark ? 'rgba(255,255,255,0.08)' : '#e8eef5'
 
-  const zones    = [...new Set(sorted.map(m => m.bien_ville).filter(Boolean))].slice(0, 2).join(', ') || '—'
+  // Critères RÉELS du prospect (pas ceux du bien qui a le mieux matché — un bien
+  // qui matche bien peut être d'un type/secteur différent de ce qui est recherché)
+  const zones    = group.prospect_villes || '—'
   const lastNew  = sorted.find(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)
   const heureNew = lastNew?.date_creation ? lastNew.date_creation.slice(11, 16) : null
-  const mainType = sorted[0]?.bien_type || '—'
+  const mainType = group.prospect_type || '—'
 
   const analyseLabel = fmtAnalyse(sorted[0]?.date_analyse)
 
