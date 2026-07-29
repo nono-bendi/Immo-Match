@@ -172,10 +172,12 @@ function BiensPage() {
   const filteredBiens = biens
     .filter(b => {
       if (!showVendus && b.statut === 'vendu') return false
+      const searchDigits = search.replace(/\D/g, '')
       const matchSearch = b.reference?.toLowerCase().includes(search.toLowerCase()) ||
         b.ville?.toLowerCase().includes(search.toLowerCase()) ||
         b.type?.toLowerCase().includes(search.toLowerCase()) ||
-        b.prospects_noms?.toLowerCase().includes(search.toLowerCase())
+        b.prospects_noms?.toLowerCase().includes(search.toLowerCase()) ||
+        (searchDigits.length >= 3 && b.prix != null && String(Math.round(b.prix)).includes(searchDigits))
       const agence = b.nom_agence || nomFiltre
       // Une recherche active prime sur le filtre d'agence — chercher un bien
       // precis (client, mandat) ne doit pas etre cache par "Saint Francois"
