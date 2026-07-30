@@ -10,6 +10,8 @@ import GuideDemarrage from './pages/GuideDemarrage'
 import Documentation from './pages/Documentation'
 import Showcase from './pages/Showcase'
 import Onboarding from './pages/Onboarding'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 
 export default function AppRoutes() {
   return (
@@ -20,6 +22,8 @@ export default function AppRoutes() {
         <Route path="/demarrer"           element={<Onboarding />} />
         <Route path="/showcase"           element={<Showcase />} />
         <Route path="/faq"                element={<FAQ />} />
+        <Route path="/blog"               element={<Blog />} />
+        <Route path="/blog/:slug"         element={<BlogPost />} />
         <Route path="/mentions-legales"   element={<MentionsLegales />} />
         <Route path="/cgu"                element={<CGU />} />
         <Route path="/confidentialite"    element={<Confidentialite />} />

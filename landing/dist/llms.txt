@@ -16,9 +16,21 @@ Faits clés :
 
 - [Accueil](https://immoflash.app/) : présentation du produit, fonctionnement en 4 étapes, tarifs détaillés
 - [FAQ](https://immoflash.app/faq/) : questions fréquentes — fonctionnement du score, tarifs, compatibilité Hektor/Primmo, RGPD, sécurité des données
+- [Blog](https://immoflash.app/blog/) : articles de fond pour les agences immobilières (prospection, réglementation, IA)
 - [Guide de démarrage](https://immoflash.app/guide-de-demarrage/) : mise en route pas à pas (compte, import des biens, premier matching)
 - [Documentation](https://immoflash.app/documentation/) : documentation fonctionnelle complète
 - [Essai gratuit](https://immoflash.app/demarrer/) : création de compte, essai 10 jours sans carte bancaire
+
+## Blog
+
+- [Pige immobilière : le guide complet pour trouver des mandats en 2026](https://immoflash.app/blog/pige-immobiliere-guide-complet/)
+- [Combien de prospects dorment dans votre fichier ?](https://immoflash.app/blog/prospects-dormants-fichier-agence/)
+- [Rapprochement acquéreurs-biens : pourquoi votre CRM laisse filer des ventes](https://immoflash.app/blog/rapprochement-acquereurs-biens-crm/)
+- [IA pour agent immobilier : 7 usages concrets](https://immoflash.app/blog/ia-agent-immobilier-usages-concrets/)
+- [DPE et loi Climat : quels biens deviennent difficiles à vendre](https://immoflash.app/blog/dpe-loi-climat-biens-difficiles-vendre/)
+- [Taux de crédit immobilier : impact sur l'argumentaire commercial](https://immoflash.app/blog/taux-credit-immobilier-argumentaire-agence/)
+- [Comment relancer un prospect acheteur sans le braquer](https://immoflash.app/blog/relancer-prospect-immobilier-sans-braquer/)
+- [RGPD en agence immobilière : ce qu'il faut vraiment respecter](https://immoflash.app/blog/rgpd-agence-immobiliere-guide/)
 
 ## Légal
 

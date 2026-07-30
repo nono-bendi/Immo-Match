@@ -13,6 +13,60 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://immoflash.app/blog/</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/pige-immobiliere-guide-complet/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/prospects-dormants-fichier-agence/</loc>
+    <lastmod>2026-07-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/rapprochement-acquereurs-biens-crm/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/ia-agent-immobilier-usages-concrets/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/dpe-loi-climat-biens-difficiles-vendre/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/taux-credit-immobilier-argumentaire-agence/</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/relancer-prospect-immobilier-sans-braquer/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://immoflash.app/blog/rgpd-agence-immobiliere-guide/</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://immoflash.app/faq/</loc>
     <lastmod>2026-07-02</lastmod>
     <changefreq>monthly</changefreq>

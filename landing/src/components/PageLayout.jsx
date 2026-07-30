@@ -7,7 +7,7 @@ function ScrollTop() {
   return null
 }
 
-export default function PageLayout({ title, category, children }) {
+export default function PageLayout({ title, category, meta, children }) {
   useEffect(() => {
     document.title = `${title} — ImmoFlash`
   }, [title])
@@ -54,6 +54,11 @@ export default function PageLayout({ title, category, children }) {
           <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.6px', margin: 0 }}>
             {title}
           </h1>
+          {meta && (
+            <p style={{ color: '#94a3b8', fontSize: 13, fontWeight: 500, margin: '10px 0 0' }}>
+              {meta}
+            </p>
+          )}
         </div>
       </div>
 
@@ -72,6 +77,7 @@ export default function PageLayout({ title, category, children }) {
           </Link>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
             {[
+              { label: 'Blog', to: '/blog' },
               { label: 'Mentions légales', to: '/mentions-legales' },
               { label: 'CGU', to: '/cgu' },
               { label: 'Confidentialité', to: '/confidentialite' },

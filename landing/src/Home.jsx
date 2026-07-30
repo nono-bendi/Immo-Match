@@ -448,6 +448,7 @@ export default function Home() {
     {
       title: 'Ressources',
       links: [
+        { label: 'Blog', href: '/blog', internal: true },
         { label: 'Documentation', href: '/documentation', internal: true },
         { label: 'Guide de démarrage', href: '/guide-de-demarrage', internal: true },
         { label: 'FAQ', href: '/faq', internal: true },

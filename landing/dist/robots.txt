@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /blog
 Disallow: /showcase
 
 Sitemap: https://immoflash.app/sitemap.xml

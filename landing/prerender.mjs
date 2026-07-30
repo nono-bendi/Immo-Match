@@ -7,7 +7,7 @@ const toAbsolute = (p) => path.resolve(__dirname, p)
 
 const SITE = 'https://immoflash.app'
 
-const { render, faqs } = await import('./dist/server/entry-server.mjs')
+const { render, faqs, blogPosts } = await import('./dist/server/entry-server.mjs')
 
 /* ── JSON-LD ──────────────────────────────────────────────────────────────────
    Un bloc par page, injecté à la place de <!--jsonld--> dans le template.
@@ -90,6 +90,21 @@ const faqPage = {
   ),
 }
 
+/* JSON-LD BlogPosting — un bloc par article, généré depuis blogData.js
+   (source unique, voir landing/src/blogData.js). */
+const blogPosting = (post) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description: post.metaDescription,
+  datePublished: post.date,
+  dateModified: post.date,
+  author: { '@type': 'Organization', name: 'ImmoFlash', url: `${SITE}/` },
+  publisher: { '@type': 'Organization', name: 'ImmoFlash', url: `${SITE}/` },
+  mainEntityOfPage: `${SITE}/blog/${post.slug}/`,
+  inLanguage: 'fr',
+})
+
 /* ── Métadonnées par route (title / description / canonical / OG / JSON-LD) ── */
 const routes = [
   {
@@ -109,6 +124,17 @@ const routes = [
     desc: "Fonctionnement du matching IA, tarifs (49 à 179 € HT/mois), conformité RGPD, compatibilité Hektor et Primmo : toutes les réponses sur ImmoFlash.",
     jsonld: [faqPage],
   },
+  {
+    url: '/blog',
+    title: "Blog — Prospection, IA, réglementation immobilière — ImmoFlash",
+    desc: "Articles de fond pour les agences immobilières : pige, rapprochement acquéreurs-biens, IA, DPE, RGPD, taux de crédit. Contenu factuel, sans remplissage.",
+  },
+  ...blogPosts.map((post) => ({
+    url: `/blog/${post.slug}`,
+    title: `${post.title} — ImmoFlash`,
+    desc: post.metaDescription,
+    jsonld: [blogPosting(post)],
+  })),
   {
     url: '/guide-de-demarrage',
     title: "Guide de démarrage — ImmoFlash",
