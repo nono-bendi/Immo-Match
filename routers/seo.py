@@ -85,6 +85,7 @@ def robots():
 Allow: /$
 Allow: /demarrer
 Allow: /showcase
+Allow: /video
 Allow: /blog
 Allow: /faq
 Allow: /guide-de-demarrage

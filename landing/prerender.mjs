@@ -173,6 +173,13 @@ const routes = [
     desc: "Bibliothèque de composants visuels ImmoFlash.",
     noindex: true,
   },
+  {
+    // Page vidéo plein écran, utilisée par le lien du mail de prospection.
+    url: '/video',
+    title: "Vidéo de présentation — ImmoFlash",
+    desc: "Découvrez ImmoFlash en vidéo : matching IA entre prospects et biens immobiliers.",
+    noindex: true,
+  },
 ]
 
 const template = fs.readFileSync(toAbsolute('dist/index.html'), 'utf-8')
