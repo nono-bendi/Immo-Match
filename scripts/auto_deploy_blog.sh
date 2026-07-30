@@ -24,13 +24,13 @@ if [ "$LOCAL" = "$REMOTE" ]; then
     exit 0
 fi
 
-# Working tree sale => quelqu'un a modifie des fichiers directement sur le
-# VPS (deploiement manuel, hotfix). On ne touche a rien, on log et on sort.
-if [ -n "$(git status --porcelain)" ]; then
-    log "ABANDON: working tree modifie localement, pull non tente. Fichiers concernes:"
-    git status --porcelain >> "$LOG"
-    exit 1
-fi
+# NB : on ne verifie pas "git status --porcelain" en amont. Le VPS a en
+# permanence au moins un fichier modifie localement sans rapport avec le
+# deploiement (donnees ecrites par l'appli elle-meme) : bloquer sur toute
+# saleté de la working tree ferait echouer ce script en continu. `git pull
+# --ff-only` gere deja ca correctement tout seul : il ne refuse que si un
+# fichier a la fois modifie localement ET touche par les commits entrants
+# provoquerait une perte d'ecriture -- exactement le cas qu'on veut bloquer.
 
 # Redemarrage du backend seulement si des fichiers backend sont dans les
 # commits a tirer (le blog seul, via landing/dist, ne le necessite jamais
