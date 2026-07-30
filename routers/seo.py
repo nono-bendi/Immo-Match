@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse, Response
-from datetime import date
+from datetime import date, datetime
+from pathlib import Path
 from config import APP_BASE_URL
 
 router = APIRouter()
@@ -8,19 +9,33 @@ router = APIRouter()
 BASE = APP_BASE_URL.rstrip("/")
 TODAY = date.today().isoformat()
 
-# ── Articles de blog ────────────────────────────────────────────────────────
-# Source de vérité du contenu : landing/src/blogData.js (slugs à garder synchro
-# ici pour le sitemap — les deux fichiers ne partagent pas de runtime commun).
-_BLOG_SLUGS = [
-    "pige-immobiliere-guide-complet",
-    "prospects-dormants-fichier-agence",
-    "rapprochement-acquereurs-biens-crm",
-    "ia-agent-immobilier-usages-concrets",
-    "dpe-loi-climat-biens-difficiles-vendre",
-    "taux-credit-immobilier-argumentaire-agence",
-    "relancer-prospect-immobilier-sans-braquer",
-    "rgpd-agence-immobiliere-guide",
-]
+# landing/dist/blog/ — un sous-dossier par article prérendu. Repéré depuis ce
+# fichier (pas depuis le cwd du process) pour rester correct quel que soit
+# l'endroit d'où uvicorn est lancé.
+_BLOG_DIST = Path(__file__).resolve().parent.parent / "landing" / "dist" / "blog"
+
+
+def _blog_slugs():
+    """Slugs des articles publiés — dérivés du build, jamais codés en dur.
+    Permet à l'automatisation (routine cloud) d'ajouter un article sans jamais
+    toucher au backend Python ni nécessiter de redémarrage du service."""
+    if not _BLOG_DIST.is_dir():
+        return []
+    return sorted(
+        p.name for p in _BLOG_DIST.iterdir()
+        if p.is_dir() and (p / "index.html").is_file()
+    )
+
+
+def _lastmod(slug=None):
+    """Date de dernière modification réelle du fichier prérendu (mtime),
+    plutôt qu'une date figée au dernier redémarrage du service."""
+    path = (_BLOG_DIST / slug / "index.html") if slug else (_BLOG_DIST / "index.html")
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime).date().isoformat()
+    except OSError:
+        return TODAY
+
 
 # ── Pages publiques du landing ────────────────────────────────────────────────
 # Slash final obligatoire : les pages prérendues sont des dossiers (nginx 301
@@ -28,8 +43,6 @@ _BLOG_SLUGS = [
 _PAGES = [
     ("/",                    "1.0", "weekly"),
     ("/demarrer/",           "0.9", "monthly"),
-    ("/blog/",               "0.7", "weekly"),
-    *[(f"/blog/{slug}/", "0.6", "monthly") for slug in _BLOG_SLUGS],
     ("/faq/",                "0.7", "monthly"),
     ("/guide-de-demarrage/", "0.7", "monthly"),
     ("/documentation/",      "0.6", "monthly"),
@@ -42,14 +55,20 @@ _PAGES = [
 
 @router.get("/sitemap.xml", include_in_schema=False)
 def sitemap():
+    entries = [(path, priority, freq, TODAY) for path, priority, freq in _PAGES]
+    entries.append(("/blog/", "0.7", "weekly", _lastmod()))
+    entries += [
+        (f"/blog/{slug}/", "0.6", "monthly", _lastmod(slug))
+        for slug in _blog_slugs()
+    ]
     urls = "\n".join(
         f"""  <url>
     <loc>{BASE}{path}</loc>
-    <lastmod>{TODAY}</lastmod>
+    <lastmod>{lastmod}</lastmod>
     <changefreq>{freq}</changefreq>
     <priority>{priority}</priority>
   </url>"""
-        for path, priority, freq in _PAGES
+        for path, priority, freq, lastmod in entries
     )
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
