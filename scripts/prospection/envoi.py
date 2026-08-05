@@ -51,8 +51,8 @@ def _corps_html(agence: dict) -> str:
     ref = agence.get("id")
     if ref is not None:
         html = html.replace(
-            'href="https://immoflash.app/video"',
-            f'href="https://immoflash.app/video?a={ref}"',
+            'href="https://immoflash.app/video/"',
+            f'href="https://immoflash.app/video/?a={ref}"',
         )
     return html
 
