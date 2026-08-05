@@ -45,7 +45,16 @@ def _sujet(agence: dict) -> str:
 
 def _corps_html(agence: dict) -> str:
     with open(_TEMPLATE_PATH, encoding="utf-8") as f:
-        return f.read()
+        html = f.read()
+    # Identifiant par agence sur le lien video, pour distinguer un vrai
+    # visionnage (tracking cote page /video) d'un scan de securite email.
+    ref = agence.get("id")
+    if ref is not None:
+        html = html.replace(
+            'href="https://immoflash.app/video"',
+            f'href="https://immoflash.app/video?a={ref}"',
+        )
+    return html
 
 
 def _contenu_valide() -> bool:

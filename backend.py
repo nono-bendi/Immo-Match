@@ -5,7 +5,7 @@ from database import init_db
 from agencies_db import init_agencies_db, all_agencies, get_db_path
 from demo_data import init_demo_db
 from routers import auth, biens, prospects, matchings, emails, sync, rapport, settings, notifications, calibration
-from routers import admin, public, agent, demo, scraper, seo, superadmin, prospection
+from routers import admin, public, agent, demo, scraper, seo, superadmin, prospection, video_tracking
 
 # ── Initialisation de la DB centrale des agences ──────────────────────────────
 init_agencies_db()
@@ -36,6 +36,7 @@ app.include_router(scraper.router)
 app.include_router(seo.router)
 app.include_router(superadmin.router)
 app.include_router(prospection.router)
+app.include_router(video_tracking.router)
 
 # ── Fichiers statiques (logos agences) ────────────────────────────────────────
 os.makedirs("static/logos", exist_ok=True)
