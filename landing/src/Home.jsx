@@ -1064,6 +1064,12 @@ export default function Home() {
                   {item.label}
                 </Link>
               ))}
+              <a href="https://outils-immo.fr" target="_blank" rel="noopener noreferrer"
+                style={{ color: '#334155', fontSize: 13, textDecoration: 'none', transition: 'color 150ms' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#64748b')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#334155')}>
+                Référencé sur outils.immo
+              </a>
             </div>
           </div>
         </div>
