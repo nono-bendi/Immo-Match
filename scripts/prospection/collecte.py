@@ -101,6 +101,12 @@ def extraire_email(url: str) -> str | None:
     return None
 
 
+# Statuts "terminaux" : une fois atteints, une re-collecte ne doit jamais les
+# ecraser (sans quoi un desabonnement ou un bounce serait annule et l'agence
+# recontactee par erreur).
+_STATUTS_PROTEGES = ("envoye", "desinscrit", "erreur")
+
+
 def upsert_agence(conn, place: dict, email: str | None):
     place_id = place.get("id")
     nom = (place.get("displayName") or {}).get("text", "")
@@ -108,15 +114,29 @@ def upsert_agence(conn, place: dict, email: str | None):
     site = place.get("websiteUri", "")
     tel = place.get("nationalPhoneNumber", "")
 
+    existing = conn.execute("SELECT id, statut FROM agences WHERE place_id = ?", (place_id,)).fetchone()
+    if existing and existing["statut"] in _STATUTS_PROTEGES:
+        # Deja contactee (ou desinscrite/en erreur) : on ne touche a rien.
+        return existing["statut"]
+
     if not site:
         statut = "sans_site"
     elif not email:
         statut = "sans_email"
     else:
         statut = "a_envoyer"
+        # Meme boite mail deja utilisee par une autre fiche (franchise avec
+        # boite centrale type rgpd@, donneespersonnelles@...) : si cette boite
+        # a deja un statut terminal ailleurs, on l'applique ici aussi plutot
+        # que de renvoyer un email a la meme adresse sous un autre nom.
+        autre = conn.execute(
+            "SELECT statut FROM agences WHERE email = ? AND statut IN ('envoye','desinscrit','erreur') LIMIT 1",
+            (email,)
+        ).fetchone()
+        if autre:
+            statut = autre["statut"]
 
     now = time.strftime("%Y-%m-%dT%H:%M:%S")
-    existing = conn.execute("SELECT id FROM agences WHERE place_id = ?", (place_id,)).fetchone()
     if existing:
         conn.execute(
             "UPDATE agences SET nom=?, adresse=?, site_web=?, email=?, telephone=?, statut=?, date_collecte=? WHERE place_id=?",
