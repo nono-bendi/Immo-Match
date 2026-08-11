@@ -59,7 +59,7 @@ export default function Video() {
           ref={videoRef}
           src="/assets/hero.mp4"
           poster="/assets/hero-poster.jpg"
-          controls autoPlay playsInline
+          controls autoPlay muted playsInline
           style={{ width: '100%', display: 'block', borderRadius: 16, boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}
         />
       </div>
