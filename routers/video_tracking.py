@@ -26,9 +26,13 @@ def _conn():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             agency_ref TEXT,
             event TEXT NOT NULL,
+            user_agent TEXT,
             created_at TEXT NOT NULL
         )
     ''')
+    cols = [r[1] for r in conn.execute("PRAGMA table_info(video_events)").fetchall()]
+    if "user_agent" not in cols:
+        conn.execute("ALTER TABLE video_events ADD COLUMN user_agent TEXT")
     return conn
 
 
@@ -42,10 +46,11 @@ async def track_event(request: Request):
     if event not in _EVENTS_VALIDES:
         return {"ok": False}
     agency_ref = str(data.get("a") or "")[:100]
+    user_agent = request.headers.get("user-agent", "")[:300]
     conn = _conn()
     conn.execute(
-        "INSERT INTO video_events (agency_ref, event, created_at) VALUES (?, ?, ?)",
-        (agency_ref, event, datetime.now(timezone.utc).isoformat()),
+        "INSERT INTO video_events (agency_ref, event, user_agent, created_at) VALUES (?, ?, ?, ?)",
+        (agency_ref, event, user_agent, datetime.now(timezone.utc).isoformat()),
     )
     conn.commit()
     conn.close()
