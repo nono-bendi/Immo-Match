@@ -636,8 +636,8 @@ def generer_argumentaire_manuel(prospect, bien, model='claude-sonnet-4-6', agenc
 
 Un agent de l'agence a choisi de présenter ce bien à ce prospect précis, en dehors de la
 sélection automatique. Ta mission n'est PAS de noter le bien — c'est de rédiger un
-argumentaire de vente : pourquoi ce bien peut intéresser CE client, en te basant sur
-son profil et la description réelle du bien.
+argumentaire de vente : pourquoi ce bien peut vous intéresser, en te basant sur
+le profil du client et la description réelle du bien.
 
 === PROSPECT #{prospect.get('id', 'N/A')} ===
 {construire_contexte_prospect(prospect)}
@@ -645,12 +645,18 @@ son profil et la description réelle du bien.
 === BIEN #{bien.get('id')} ===
 {construire_contexte_bien(bien)}
 
+RÈGLE OBLIGATOIRE — DESTINATAIRE DU TEXTE :
+Ce texte est envoyé TEL QUEL au client par l'agent (email/appel). Rédige "points_forts",
+"points_attention" ET "recommandation" à la 2e personne (vous/vos), jamais à la 3e personne.
+INTERDIT : "ce client", "ce prospect", "ce couple", "cet acheteur" ou toute tournure qui
+parle du client au lieu de lui parler.
+
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
 Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = 2 phrases max (max 45 mots).
 {{
   "points_forts": ["max 20 mots", "max 20 mots", "max 20 mots"],
   "points_attention": ["max 20 mots"],
-  "recommandation": "1-2 phrases : l'angle à privilégier pour convaincre ce client précis, max 45 mots"
+  "recommandation": "1-2 phrases à la 2e personne : l'angle à privilégier pour vous convaincre, max 45 mots"
 }}"""
 
     message = client.messages.create(
