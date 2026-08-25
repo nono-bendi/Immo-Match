@@ -29,6 +29,45 @@ def _mentionne_sans_negation(texte, mot):
     return not any(neg in texte_low for neg in negations)
 
 
+_DECLENCHEURS_ORIENTATION = r"(orient\w*|exposit\w*|expos[ée]e?s?|\bexpo\b|façade\w*|\bplein\b)"
+
+_COMPOSES_ORIENTATION = {
+    "sud-est": ("orientation_sud", "orientation_est"),
+    "sud/est": ("orientation_sud", "orientation_est"),
+    "sud-ouest": ("orientation_sud", "orientation_ouest"),
+    "sud/ouest": ("orientation_sud", "orientation_ouest"),
+    "nord-est": ("orientation_nord", "orientation_est"),
+    "nord/est": ("orientation_nord", "orientation_est"),
+    "nord-ouest": ("orientation_nord", "orientation_ouest"),
+    "nord/ouest": ("orientation_nord", "orientation_ouest"),
+}
+
+
+def _orientations_dans_texte(texte):
+    """Repère une orientation explicitement citée dans le texte libre de l'annonce
+    (ex: "exposition sud-est", "terrasse plein sud"). Volontairement prudent :
+    "est" isolé n'est jamais retenu seul (confusion possible avec le verbe
+    "être" — "l'exposition est idéale"), seulement dans une forme composée
+    ("sud-est", "nord/est")."""
+    texte_low = (texte or "").lower()
+    trouves = set()
+
+    for compose, champs in _COMPOSES_ORIENTATION.items():
+        if compose in texte_low:
+            trouves.update(champs)
+
+    for m in re.finditer(_DECLENCHEURS_ORIENTATION, texte_low):
+        fenetre = texte_low[m.end():m.end() + 15]
+        if re.search(r"\bnord\b", fenetre):
+            trouves.add("orientation_nord")
+        if re.search(r"\bsud\b", fenetre):
+            trouves.add("orientation_sud")
+        if re.search(r"\bouest\b", fenetre):
+            trouves.add("orientation_ouest")
+
+    return trouves
+
+
 def parse_hektor_cols(cols):
     """Extrait toutes les données d'une ligne du CSV Hektor (335 colonnes, sep !#)"""
 
@@ -88,6 +127,14 @@ def parse_hektor_cols(cols):
     orientation_est = to_bool(36)
     orientation_ouest = to_bool(37)
     orientation_nord = to_bool(38)
+    if not (orientation_sud and orientation_est and orientation_ouest and orientation_nord):
+        # Idem ascenseur : si Hektor n'a pas coché l'orientation mais que le
+        # texte de l'annonce la mentionne explicitement, on la retient.
+        detectees = _orientations_dans_texte(f"{titre} {description}")
+        orientation_sud = orientation_sud or int("orientation_sud" in detectees)
+        orientation_est = orientation_est or int("orientation_est" in detectees)
+        orientation_ouest = orientation_ouest or int("orientation_ouest" in detectees)
+        orientation_nord = orientation_nord or int("orientation_nord" in detectees)
     nb_balcons = to_int(39)
     terrasse = to_bool(40)
     cave = to_bool(41)
