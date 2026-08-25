@@ -331,6 +331,14 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # Migration : champs_verrouilles (liste JSON des champs corrigés à la main par
+    # un agent — la synchro Hektor ne doit plus jamais les écraser)
+    try:
+        conn.execute("ALTER TABLE biens ADD COLUMN champs_verrouilles TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     # ── Index de performance ──────────────────────────────────────────────────
     # Les JOINs matchings/prospects/biens et les filtres fréquents (prospect_id,
     # score, statut, archive) faisaient des balayages complets sans ces index.

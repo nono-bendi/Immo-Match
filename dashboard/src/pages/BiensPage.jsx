@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw } from 'lucide-react'
+import { Building2, Search, Upload, MapPin, Maximize, Home, Eye, Pencil, Trash2, X, AlertCircle, Save, Loader2, ChevronUp, ChevronDown, ChevronsUpDown, RotateCcw, ArrowUpDown, Compass, Lock } from 'lucide-react'
 
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
@@ -222,8 +222,22 @@ function BiensPage() {
       stationnement: bien.stationnement || "",
       exterieur: bien.exterieur || "",
       lien_annonce: bien.lien_annonce || "",
+      ascenseur: bien.ascenseur === 1,
+      orientation_sud: bien.orientation_sud === 1,
+      orientation_est: bien.orientation_est === 1,
+      orientation_ouest: bien.orientation_ouest === 1,
+      orientation_nord: bien.orientation_nord === 1,
     })
     setEditError("")
+  }
+
+  const champVerrouille = (champ) => {
+    if (!editBien?.champs_verrouilles) return false
+    try {
+      return JSON.parse(editBien.champs_verrouilles).includes(champ)
+    } catch {
+      return false
+    }
   }
 
   const saveEdit = async () => {
@@ -652,6 +666,35 @@ function BiensPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Stationnement</label><input type="text" value={editForm.stationnement} onChange={e => setEditForm(prev => ({ ...prev, stationnement: e.target.value }))} placeholder="Garage, Parking..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">Exterieur</label><input type="text" value={editForm.exterieur} onChange={e => setEditForm(prev => ({ ...prev, exterieur: e.target.value }))} placeholder="Jardin, Terrasse..." className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm" /></div>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1"><ArrowUpDown size={14} className="text-gray-400" />Ascenseur</label>
+                <button
+                  type="button"
+                  onClick={() => setEditForm(prev => ({ ...prev, ascenseur: !prev.ascenseur }))}
+                  className={"px-3 py-1.5 rounded-lg text-xs font-medium border transition-all inline-flex items-center gap-1.5 " + (editForm.ascenseur ? "bg-amber-500 text-white border-amber-500" : "bg-white text-gray-600 border-gray-200 hover:border-amber-300")}
+                >
+                  {editForm.ascenseur ? "Oui" : "Non"}
+                  {champVerrouille('ascenseur') && <Lock size={11} className={editForm.ascenseur ? "text-white/80" : "text-gray-400"} />}
+                </button>
+                <p className="text-xs text-gray-400 mt-1">Deduit automatiquement de la description si mentionne. A corriger seulement si absent partout.</p>
+              </div>
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1"><Compass size={14} className="text-gray-400" />Orientation</label>
+                <div className="flex flex-wrap gap-2">
+                  {[['orientation_sud', 'Sud'], ['orientation_est', 'Est'], ['orientation_ouest', 'Ouest'], ['orientation_nord', 'Nord']].map(([champ, label]) => (
+                    <button
+                      key={champ}
+                      type="button"
+                      onClick={() => setEditForm(prev => ({ ...prev, [champ]: !prev[champ] }))}
+                      className={"px-3 py-1.5 rounded-lg text-xs font-medium border transition-all inline-flex items-center gap-1.5 " + (editForm[champ] ? "bg-amber-500 text-white border-amber-500" : "bg-white text-gray-600 border-gray-200 hover:border-amber-300")}
+                    >
+                      {label}
+                      {champVerrouille(champ) && <Lock size={11} className={editForm[champ] ? "text-white/80" : "text-gray-400"} />}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Une correction ici n'est plus jamais ecrasee par la synchro Hektor (cadenas = verrouille).</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Lien de l'annonce</label>

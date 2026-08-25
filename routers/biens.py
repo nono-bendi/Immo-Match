@@ -17,6 +17,18 @@ router = APIRouter()
 # FONCTION PARTAGÉE : parse_hektor_cols
 # ============================================================
 
+def _mentionne_sans_negation(texte, mot):
+    """True si `mot` apparaît dans `texte` sans négation directe juste avant."""
+    texte_low = (texte or "").lower()
+    if mot not in texte_low:
+        return False
+    negations = [
+        f"sans {mot}", f"pas d'{mot}", f"pas de {mot}", f"aucun {mot}",
+        f"ni {mot}", f"absence d'{mot}", f"absence de {mot}",
+    ]
+    return not any(neg in texte_low for neg in negations)
+
+
 def parse_hektor_cols(cols):
     """Extrait toutes les données d'une ligne du CSV Hektor (335 colonnes, sep !#)"""
 
@@ -67,6 +79,11 @@ def parse_hektor_cols(cols):
     etage_bien = to_int(23)
     nb_etages_immeuble = to_int(24)
     ascenseur = to_bool(25)
+    if not ascenseur and _mentionne_sans_negation(f"{titre} {description}", "ascenseur"):
+        # Case Hektor non cochée mais l'équipement est écrit noir sur blanc dans
+        # l'annonce : on le compte comme présent pour ne pas dépendre d'une
+        # correction manuelle de l'agent ni d'une IA qui doit deviner.
+        ascenseur = 1
     orientation_sud = to_bool(35)
     orientation_est = to_bool(36)
     orientation_ouest = to_bool(37)
@@ -480,20 +497,45 @@ def add_bien(bien: dict, current_user: dict = Depends(get_current_user)):
     return {"message": "Bien ajouté avec succès"}
 
 
+CHAMPS_VERROUILLABLES = [
+    "ascenseur", "orientation_sud", "orientation_est", "orientation_ouest", "orientation_nord",
+]
+
+
 @router.put("/biens/{bien_id}")
 def update_bien(bien_id: int, bien: dict, current_user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(get_db_path(current_user["agency_slug"]))
 
-    existing = conn.execute("SELECT id FROM biens WHERE id = ?", (bien_id,)).fetchone()
+    existing = conn.execute(
+        f"SELECT {', '.join(CHAMPS_VERROUILLABLES)}, champs_verrouilles FROM biens WHERE id = ?",
+        (bien_id,)
+    ).fetchone()
     if not existing:
         conn.close()
         raise HTTPException(status_code=404, detail="Bien non trouvé")
+
+    anciennes_valeurs = dict(zip(CHAMPS_VERROUILLABLES, existing[:-1]))
+    verrous = set(json.loads(existing[-1]) if existing[-1] else [])
+
+    # Un champ n'est verrouillé que si l'agent l'a explicitement changé par rapport
+    # à sa valeur actuelle — pas juste parce que le formulaire l'a renvoyé tel quel.
+    nouvelles_valeurs = {}
+    for champ in CHAMPS_VERROUILLABLES:
+        if champ in bien and bien.get(champ) is not None:
+            valeur = 1 if bien.get(champ) else 0
+            if valeur != (anciennes_valeurs.get(champ) or 0):
+                verrous.add(champ)
+            nouvelles_valeurs[champ] = valeur
+        else:
+            nouvelles_valeurs[champ] = anciennes_valeurs.get(champ)
 
     conn.execute('''
         UPDATE biens SET
             reference = ?, type = ?, ville = ?, quartier = ?, prix = ?, surface = ?,
             pieces = ?, chambres = ?, etat = ?, exposition = ?, stationnement = ?,
-            copropriete = ?, exterieur = ?, etage = ?, description = ?, defauts = ?
+            copropriete = ?, exterieur = ?, etage = ?, description = ?, defauts = ?,
+            ascenseur = ?, orientation_sud = ?, orientation_est = ?, orientation_ouest = ?,
+            orientation_nord = ?, champs_verrouilles = ?
         WHERE id = ?
     ''', (
         bien.get('reference'),
@@ -512,6 +554,12 @@ def update_bien(bien_id: int, bien: dict, current_user: dict = Depends(get_curre
         bien.get('etage'),
         bien.get('description'),
         bien.get('defauts'),
+        nouvelles_valeurs['ascenseur'],
+        nouvelles_valeurs['orientation_sud'],
+        nouvelles_valeurs['orientation_est'],
+        nouvelles_valeurs['orientation_ouest'],
+        nouvelles_valeurs['orientation_nord'],
+        json.dumps(sorted(verrous)) if verrous else None,
         bien_id
     ))
 

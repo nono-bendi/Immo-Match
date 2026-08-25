@@ -1,4 +1,5 @@
 import sqlite3
+import json
 from logger import get_logger
 log = get_logger('sync')
 import os
@@ -13,7 +14,8 @@ from fastapi import APIRouter, Depends
 from agencies_db import get_db_path, all_agencies
 from routers.auth import get_current_user
 from routers.matchings import get_settings_values, _core_analyser_bien
-from routers.biens import parse_hektor_cols
+from routers.biens import parse_hektor_cols, CHAMPS_VERROUILLABLES
+from qa_digest import envoyer_digest
 
 router = APIRouter()
 
@@ -116,12 +118,20 @@ def sync_hektor_ftp(db_path: str = None):
             csv_references.add(ref_norm)
 
             existing = cursor.execute(
-                "SELECT id FROM biens WHERE reference = ? OR reference = ?",
+                f"SELECT id, {', '.join(CHAMPS_VERROUILLABLES)}, champs_verrouilles "
+                f"FROM biens WHERE reference = ? OR reference = ?",
                 (d["reference"], ref_norm)
             ).fetchone()
 
             if existing:
                 bien_id = existing[0]
+                valeurs_actuelles = dict(zip(CHAMPS_VERROUILLABLES, existing[1:-1]))
+                verrous = set(json.loads(existing[-1]) if existing[-1] else [])
+                for champ in verrous:
+                    # L'agent a corrigé ce champ à la main : la synchro Hektor ne
+                    # doit plus l'écraser, quoi que dise le nouvel export.
+                    d[champ] = valeurs_actuelles[champ]
+
                 cursor.execute('''
                     UPDATE biens SET
                         type=?, ville=?, quartier=?, prix=?, surface=?, pieces=?, chambres=?,
@@ -159,8 +169,8 @@ def sync_hektor_ftp(db_path: str = None):
                         dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
                         latitude, longitude, video_url,
                         nb_salles_bain, nb_salles_eau, nb_wc, surface_cave, prix_hn, honoraires_pct,
-                        date_ajout, nom_agence, source, date_creation
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        date_ajout, nom_agence, source, date_creation, statut
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
                     d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
@@ -171,7 +181,7 @@ def sync_hektor_ftp(db_path: str = None):
                     d["dpe_lettre"], d["dpe_kwh"], d["ges_lettre"], d["ges_co2"],
                     d["latitude"], d["longitude"], d["video_url"],
                     d["nb_salles_bain"], d["nb_salles_eau"], d["nb_wc"], d["surface_cave"], d["prix_hn"], d["honoraires_pct"],
-                    datetime.now().isoformat(), d["nom_agence"], "ftp", datetime.now().isoformat()
+                    datetime.now().isoformat(), d["nom_agence"], "ftp", datetime.now().isoformat(), "en_analyse"
                 ))
                 nouveau_id = cursor.lastrowid
                 nouveaux_bien_ids.append(nouveau_id)
@@ -298,6 +308,20 @@ def sync_all_agencies():
             log.error(f"Erreur sync agence {agency['slug']}: {e}")
 
 
+def run_qa_digest_all():
+    """Envoie le digest QA pour toutes les agences (job quotidien 8h)."""
+    agencies = all_agencies()
+    for agency in agencies:
+        try:
+            envoyer_digest(
+                db_path=get_db_path(agency["slug"]),
+                agence_slug=agency["slug"],
+                depuis_heures=24,
+            )
+        except Exception as e:
+            log.error(f"QA digest erreur agence {agency['slug']}: {e}")
+
+
 def start_scheduler():
     global scheduler_started
     if not scheduler_started:
@@ -306,9 +330,13 @@ def start_scheduler():
 
         # Ajouter la tâche de sync pour toutes les agences
         scheduler.add_job(sync_all_agencies, 'interval', hours=interval, id='hektor_sync', replace_existing=True, next_run_time=datetime.now())
+
+        # Digest QA quotidien à 8h00
+        scheduler.add_job(run_qa_digest_all, 'cron', hour=8, minute=0, id='qa_digest', replace_existing=True)
+
         scheduler.start()
         scheduler_started = True
-        log.info(f"Scheduler démarré (sync toutes les {interval}h)")
+        log.info(f"Scheduler démarré (sync toutes les {interval}h, QA digest à 8h00)")
 
 
 # ============================================================
