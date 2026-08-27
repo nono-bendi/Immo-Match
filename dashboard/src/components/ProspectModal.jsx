@@ -75,7 +75,12 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                 {prospect.nom ? prospect.nom.charAt(0).toUpperCase() : '?'}
               </div>
               <div>
-                <h2 className="text-xl font-bold">{prospect.nom || 'Sans nom'}</h2>
+                <h2 className="text-xl font-bold">
+                  {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
+                  {prospect.prenom2 && (
+                    <span className="font-medium text-white/75"> &amp; {[prospect.prenom2, prospect.nom2 || prospect.nom].filter(Boolean).join(' ')}</span>
+                  )}
+                </h2>
                 <div className="flex items-center gap-3 mt-0.5 text-white/70 text-sm flex-wrap">
                   <span className="flex items-center gap-1"><Calendar size={12} />Inscrit le {formatDate(prospect.date)}</span>
                   {prospect.domicile && <span className="flex items-center gap-1"><MapPin size={12} />Habite à {prospect.domicile}</span>}

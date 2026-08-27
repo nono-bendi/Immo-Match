@@ -522,6 +522,9 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {[group.prospect_titre, group.prospect_prenom, group.prospect_nom].filter(Boolean).join(' ')}
+                  {group.prospect_prenom2 && (
+                    <span style={{ fontWeight: 500, color: _sub }}> &amp; {[group.prospect_prenom2, group.prospect_nom2 || group.prospect_nom].filter(Boolean).join(' ')}</span>
+                  )}
                 </div>
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
@@ -579,7 +582,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
                 onOpenBien={() => openBienModal(m.bien_id)}
                 emailEnvoye={m.date_email_envoye}
-                onPropose={(group.prospect_mail || group.prospect_email2) ? () => onPropose(m, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom) : null}
+                onPropose={(group.prospect_mail || group.prospect_email2) ? () => onPropose(m, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom, group.prospect_prenom, group.prospect_prenom2, group.prospect_nom2) : null}
                 onRefuse={() => onRefuse(m)}
                 presented={presentedIds.has(m.bien_id)}
               />
@@ -600,7 +603,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
         <div style={{ maxHeight: sel ? '1000px' : '0px', opacity: sel ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease' }}>
           {sel && (
             <BienDetail match={sel} mail={group.prospect_mail} nom={group.prospect_nom} sending={sendingEmail === sel.id}
-              onPropose={() => onPropose(sel, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom)}
+              onPropose={() => onPropose(sel, [group.prospect_mail, group.prospect_email2].filter(Boolean).join(', '), (group.prospect_titre ? group.prospect_titre + ' ' : '') + group.prospect_nom, group.prospect_prenom, group.prospect_prenom2, group.prospect_nom2)}
               onRefuse={() => onRefuse(sel)}
             />
           )}
@@ -681,23 +684,23 @@ export default function MatchingsPageV2() {
     setOverlayCompleted(true); setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
   }, [fetchData])
 
-  const openEmail = useCallback((match, mail, nom) => {
+  const openEmail = useCallback((match, mail, nom, prenom, prenom2, nom2) => {
     if (!mail) { setEmailModal({ isOpen: true, type: 'error', data: { error: "Pas d'email enregistré." }, isLoading: false }); return }
     const draft = sessionStorage.getItem(`emailDraft_${match.id}`)
     const init = draft ? JSON.parse(draft) : buildDefault(match)
     const firstPhoto = fPhoto(match.bien_photos)
     setSelectedPhoto(firstPhoto)
-    setEmailContent(init); setPendingEmail({ match, prospectMail: mail, prospectNom: nom })
-    loadPreview(match, mail, nom, init, firstPhoto)
+    setEmailContent(init); setPendingEmail({ match, prospectMail: mail, prospectNom: nom, prospectPrenom: prenom, prospectPrenom2: prenom2, prospectNom2: nom2 })
+    loadPreview(match, mail, nom, init, firstPhoto, prenom, prenom2, nom2)
     setEmailModal({ isOpen: true, type: 'confirm', data: { prospectNom: nom, prospectMail: mail, bienType: match.bien_type, bienVille: match.bien_ville, bienPrix: mon(match.bien_prix) }, isLoading: false })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agency])
 
-  const loadPreview = async (match, mail, nom, content, photoUrl) => {
+  const loadPreview = async (match, mail, nom, content, photoUrl, prenom, prenom2, nom2) => {
     setPreviewLoading(true); setPreviewHtml(null)
     const photo = photoUrl !== undefined ? photoUrl : selectedPhoto
     try {
-      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, subject: content.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: photo, custom_intro: content.intro, custom_conclusion: content.conclusion, langue: langue || null }) })
+      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, to_prenom: prenom || null, to_prenom2: prenom2 || null, to_nom2: nom2 || null, subject: content.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: photo, custom_intro: content.intro, custom_conclusion: content.conclusion, langue: langue || null }) })
       const res = await r.json(); setPreviewHtml(res.success ? res.html : `<div style="padding:20px;color:red">${res.error}</div>`)
     } catch (err) { setPreviewHtml(`<div style="padding:20px;color:red">Erreur: ${err.message}</div>`) }
     setPreviewLoading(false)
@@ -705,10 +708,10 @@ export default function MatchingsPageV2() {
 
   const confirmSend = async () => {
     if (!pendingEmail) return
-    const { match, prospectMail, prospectNom } = pendingEmail
+    const { match, prospectMail, prospectNom, prospectPrenom, prospectPrenom2, prospectNom2 } = pendingEmail
     setEmailModal(p => ({ ...p, isLoading: true })); setSendingEmail(match.id)
     try {
-      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion, langue: langue || null }) }).then(r => r.json())
+      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, to_prenom: prospectPrenom || null, to_prenom2: prospectPrenom2 || null, to_nom2: prospectNom2 || null, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion, langue: langue || null }) }).then(r => r.json())
       if (res.success) {
         sessionStorage.removeItem(`emailDraft_${match.id}`)
         await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
@@ -765,7 +768,7 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))

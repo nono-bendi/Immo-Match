@@ -260,8 +260,34 @@ def normalize_points(text):
     return points
 
 
-def format_salutation(full_name):
-    """Formate la salutation en détectant la civilité dans le nom."""
+def _extraire_nom_famille(full_name):
+    """Isole le nom de famille d'une chaîne "Monsieur Dupont" / "Dupont"."""
+    s = (full_name or "").strip()
+    if not s:
+        return ""
+    s_low = s.lower()
+    for prefix in ["monsieur ", "m. ", "mr. ", "mr ", "madame ", "mme. ", "mme "]:
+        if s_low.startswith(prefix):
+            s = s[len(prefix):].strip()
+            break
+    parts = s.split()
+    if not parts:
+        return ""
+    return parts[-1].upper() if len(parts) > 1 else parts[0].title()
+
+
+def format_salutation(full_name, prenom=None, prenom2=None, nom2=None):
+    """Formate la salutation. Si un 2e prénom est fourni (couple), affiche les
+    deux prénoms + le(s) nom(s) de famille au lieu de la civilité seule."""
+    prenom2 = (prenom2 or "").strip()
+    if prenom2:
+        prenom1 = (prenom or "").strip()
+        nom1 = _extraire_nom_famille(full_name)
+        nom2 = (nom2 or "").strip()
+        if nom2 and nom1 and nom2.lower() != nom1.lower():
+            return f"{prenom1} {nom1} et {prenom2} {nom2}".strip()
+        return f"{prenom1} et {prenom2} {nom1}".strip()
+
     if not full_name or not full_name.strip():
         return "Madame, Monsieur"
 
@@ -297,7 +323,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     _unsub = _build_unsub_url(data, agency)
 
     raw_name = (data.to_name or "").strip()
-    salutation = format_salutation(raw_name)
+    salutation = format_salutation(raw_name, data.to_prenom, data.to_prenom2, data.to_nom2)
     bien_type = safe_html_text(data.bien_type, "Bien immobilier")
     bien_ville = safe_html_text(data.bien_ville, "Non précisé")
     bien_prix = safe_html_text(data.bien_prix, "Non précisé")
@@ -594,7 +620,7 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
     agency = agency or {}
     agent_title = "Gérante" if agency.get("role") == "admin" else "Conseiller immobilier"
 
-    salutation = format_salutation(data.to_name)
+    salutation = format_salutation(data.to_name, data.to_prenom, data.to_prenom2, data.to_nom2)
     default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
     intro_text = fix_mojibake((data.custom_intro or "").strip()) or default_intro
     default_conclusion = "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite ou obtenir plus d'informations."

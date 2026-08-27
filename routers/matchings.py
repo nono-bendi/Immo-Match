@@ -517,6 +517,7 @@ def get_matchings(
     _ensure_presentations_table(conn)
     cursor = conn.execute(f'''
         SELECT m.*, p.nom as prospect_nom, p.titre as prospect_titre, p.prenom as prospect_prenom, p.budget_max as prospect_budget,
+               p.prenom2 as prospect_prenom2, p.nom2 as prospect_nom2,
                p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
                p.bien as prospect_type, p.villes as prospect_villes,
                p.destination as prospect_destination, p.criteres as prospect_criteres,

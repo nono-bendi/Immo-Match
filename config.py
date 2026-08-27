@@ -58,6 +58,9 @@ _email_rate: dict = {}                 # { user_id: [timestamp, ...] } — rate 
 class EmailRequest(BaseModel):
     to_email: str
     to_name: Optional[str] = None
+    to_prenom: Optional[str] = None
+    to_prenom2: Optional[str] = None
+    to_nom2: Optional[str] = None
     subject: str
     bien_type: str
     bien_ville: str
