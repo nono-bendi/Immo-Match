@@ -9,6 +9,7 @@ from html import escape
 
 from logger import get_logger
 log = get_logger('qa_digest')
+from scoring import RECO_NEGATIVE as _RECO_NEGATIVE
 
 ADMIN_EMAIL = "contact@immoflash.app"
 SMTP_SERVER  = os.getenv("DEMO_SMTP_SERVER", "smtp.mail.ovh.net")
@@ -20,12 +21,6 @@ SMTP_PASSWORD = os.getenv("DEMO_SMTP_PASSWORD", "")
 # ============================================================
 # RÈGLES QA
 # ============================================================
-
-_RECO_NEGATIVE = [
-    "ne correspond pas", "ne répond pas", "pas ce qu", "incompatible",
-    "inadéquat", "inadapté", "à écarter", "non recommandé", "contredit",
-    "ne permet pas", "hors budget", "hors secteur", "hors zone",
-]
 
 _POINTS_GENERIQUES = [
     "bel emplacement", "bon emplacement", "belle exposition",

@@ -12,6 +12,30 @@ load_dotenv()
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 
+# Mots-clés signalant une inadéquation majeure dans une recommandation — utilisés
+# à la fois pour plafonner le score qualitatif (ci-dessous) et par qa_digest.py
+# pour détecter les contradictions score/reco a posteriori.
+RECO_NEGATIVE = [
+    "ne correspond pas", "ne répond pas", "pas ce qu", "incompatible",
+    "inadéquat", "inadapté", "à écarter", "non recommandé", "contredit",
+    "ne permet pas", "hors budget", "hors secteur", "hors zone",
+]
+
+
+def _plafonner_si_contradiction(qualitatif):
+    """Applique en code la RÈGLE ANTI-CONTRADICTION SCORE déjà écrite dans le
+    prompt (score qualitatif ≤ 18/40 si la recommandation signale une
+    inadéquation majeure) — l'IA ne la respecte pas de façon fiable (ex: score
+    86 avec une reco disant "à ne proposer qu'en dernier recours"), donc on
+    l'impose au lieu de compter sur elle.
+    """
+    reco = (qualitatif.get("recommandation") or "").lower()
+    score = qualitatif.get("score_qualitatif")
+    if isinstance(score, (int, float)) and score > 18 and any(k in reco for k in RECO_NEGATIVE):
+        qualitatif["score_qualitatif"] = 18
+    return qualitatif
+
+
 def _a_espace_nuit_separe(description):
     """
     Un bien compté '1 pièce' en base peut quand même offrir un espace nuit
@@ -853,7 +877,7 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-6', agency_sl
 
     if batch_results is not None:
         for i, (bien, score_obj, detail_obj) in enumerate(biens_avec_objectif):
-            q = batch_results[i]
+            q = _plafonner_si_contradiction(batch_results[i])
             resultats.append({
                 "bien_id": bien.get("id"),
                 "bien_ref": bien.get("reference"),
@@ -873,9 +897,9 @@ def scorer_biens(prospect, biens_candidats, model='claude-sonnet-4-6', agency_sl
         def _analyser_bien(args):
             bien, score_obj, detail_obj = args
             try:
-                qualitatif = scorer_bien_claude(
+                qualitatif = _plafonner_si_contradiction(scorer_bien_claude(
                     prospect, bien, score_obj, detail_obj, model=model, agency_slug=agency_slug
-                )
+                ))
             except Exception as e:
                 log.error(f"Erreur Claude pour bien #{bien.get('id')}: {e}")
                 qualitatif = {
