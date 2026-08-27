@@ -181,6 +181,24 @@ def calculer_score_objectif(prospect, bien):
     detail["pieces"] = {"points": pts, "note": note}
     score += pts
 
+    # --- EXTÉRIEUR (gate uniquement si explicitement exigé par le prospect) ---
+    # Le champ "exterieur" du prospect mélange plusieurs groupes de cases à cocher
+    # (Extérieur / Environnement / Prestations) — seules Balcon/Terrasse/Rez-de-jardin
+    # représentent une exigence physique d'extérieur.
+    OPTIONS_EXTERIEUR = {"balcon", "terrasse", "rez-de-jardin"}
+    options_prospect = [o.strip().lower() for o in (prospect.get("exterieur") or "").split(",") if o.strip()]
+    exige = [o for o in options_prospect if o in OPTIONS_EXTERIEUR]
+
+    if exige and "pas obligatoire" not in options_prospect:
+        if _exterieurs_du_bien(bien):
+            pts = 0
+            note = "Extérieur présent"
+        else:
+            pts = -15
+            note = f"Extérieur exigé ({', '.join(exige)}) mais absent du bien (structuré et description)"
+        detail["exterieur"] = {"points": pts, "note": note}
+        score += pts
+
     return score, detail
 
 
@@ -206,18 +224,9 @@ def _villes_compatibles(ville_prospect, ville_bien):
 # PARTIE 2 — SCORE QUALITATIF (Claude)
 # ============================================================
 
-def construire_contexte_bien(bien):
-    """Formate les infos d'un bien pour le prompt Claude."""
-
-    # Étage
-    etage_str = "Non renseigné"
-    if bien.get("etage_bien") is not None:
-        etage_str = f"Étage {bien['etage_bien']}"
-        if bien.get("nb_etages_immeuble"):
-            etage_str += f"/{bien['nb_etages_immeuble']}"
-        etage_str += " (avec ascenseur)" if bien.get("ascenseur") == 1 else " (sans ascenseur)"
-
-    # Extérieurs
+def _exterieurs_du_bien(bien):
+    """Liste les extérieurs confirmés d'un bien (structuré, sinon déduit de la
+    description). Utilisé pour l'affichage IA et pour la pénalité objective."""
     exterieurs = []
     if bien.get("terrasse") == 1: exterieurs.append("terrasse")
     if bien.get("nb_balcons") and bien["nb_balcons"] > 0:
@@ -236,6 +245,22 @@ def construire_contexte_bien(bien):
             if kw in desc_low and label not in exterieurs:
                 exterieurs.append(label)
 
+    return exterieurs
+
+
+def construire_contexte_bien(bien):
+    """Formate les infos d'un bien pour le prompt Claude."""
+
+    # Étage
+    etage_str = "Non renseigné"
+    if bien.get("etage_bien") is not None:
+        etage_str = f"Étage {bien['etage_bien']}"
+        if bien.get("nb_etages_immeuble"):
+            etage_str += f"/{bien['nb_etages_immeuble']}"
+        etage_str += " (avec ascenseur)" if bien.get("ascenseur") == 1 else " (sans ascenseur)"
+
+    # Extérieurs
+    exterieurs = _exterieurs_du_bien(bien)
     exterieur_str = ", ".join(exterieurs) if exterieurs else "Aucun"
 
     # Stationnement
