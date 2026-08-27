@@ -434,10 +434,10 @@ ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 - ÉCHELLE COMPLÈTE : tu dois utiliser 0-5 quand le bien est clairement inadapté. Ne jamais éviter les scores extrêmes par prudence — les agents ont besoin de signaux forts pour prioriser.
 
 RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
-- Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre, comme un agent qui parle naturellement.
+- Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ("vous"/"votre"), jamais à la 3e personne, comme un agent qui parle DIRECTEMENT à la personne en face de lui.
 - INTERDIT (tournures robotiques ou administratives) : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect", "critère indispensable satisfait", "critère satisfait", "critère rempli", "exigence satisfaite", "correspond à votre critère".
-- INTERDIT (désigner le client par une catégorie au lieu de lui parler) : "idéal pour un couple", "parfait pour une famille", "adapté à un célibataire" — même sans dire "ce couple", nommer la composition du foyer au lieu de s'adresser à "vous" reste à la 3e personne.
-- CORRECT : décris le bénéfice concret du bien de façon naturelle, toujours adressé à "vous". Ex : "Jardin privatif clos — idéal pour votre chien" plutôt que "Jardin clos — critère indispensable satisfait". Ex : "Double salle d'eau/bains — confortable au quotidien à deux" plutôt que "fonctionnalité maximale pour un couple".
+- INTERDIT (principe général, pas une liste fermée) : tout mot qui catégorise le client au lieu de lui parler — composition du foyer (couple, famille, célibataire, colocataires), âge ou statut (retraités, senior, jeunes actifs). Peu importe la formulation exacte ("pour un couple", "en famille", "pour des retraités", "si le couple a deux voitures"...) : dès que la phrase parle DE la personne au lieu de s'adresser À elle, c'est interdit — remplace toujours par "vous"/"votre".
+- CORRECT : décris le bénéfice concret du bien en s'adressant à "vous". Ex : "Jardin privatif clos — idéal pour votre chien" (pas "critère indispensable satisfait"). Ex : "Parfait pour votre quotidien" (pas "parfait pour le quotidien en famille"). Ex : "Tout le confort au quotidien" (pas "tout le confort pour des retraités"). Ex : "Idéal si vous avez deux véhicules" (pas "idéal si le couple a deux véhicules").
 
 RÉDACTION DES POINTS D'ATTENTION — RÈGLE OBLIGATOIRE :
 - Les points_attention sont lus par l'agent immobilier pour préparer la visite. Impact concret, pas de jargon technique.
@@ -674,8 +674,10 @@ le profil du client et la description réelle du bien.
 RÈGLE OBLIGATOIRE — DESTINATAIRE DU TEXTE :
 Ce texte est envoyé TEL QUEL au client par l'agent (email/appel). Rédige "points_forts",
 "points_attention" ET "recommandation" à la 2e personne (vous/vos), jamais à la 3e personne.
-INTERDIT : "ce client", "ce prospect", "ce couple", "cet acheteur" ou toute tournure qui
-parle du client au lieu de lui parler.
+INTERDIT : "ce client", "ce prospect", "ce couple", "cet acheteur", ou tout mot qui catégorise
+le foyer (couple, famille, retraités, célibataire...) au lieu de s'adresser à "vous" — quelle
+que soit la formulation exacte, dès que la phrase parle DE la personne au lieu de lui parler,
+c'est interdit.
 
 Réponds UNIQUEMENT en JSON valide, sans texte avant ou après.
 Contraintes de longueur STRICTES : chaque item de liste = max 20 mots, recommandation = 2 phrases max (max 45 mots).
