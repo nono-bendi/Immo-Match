@@ -205,8 +205,8 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min, dernier_contact)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, prenom2, nom2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min, dernier_contact)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         datetime.now().strftime("%Y-%m-%d"),
         prospect.get('nom'),
@@ -216,6 +216,8 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
         prospect.get('email2'),
         prospect.get('telephone'),
         prospect.get('telephone2'),
+        prospect.get('prenom2'),
+        prospect.get('nom2'),
         prospect.get('domicile'),
         prospect.get('bien'),
         prospect.get('villes'),
@@ -260,6 +262,7 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
     conn.execute('''
         UPDATE prospects SET
             nom = ?, prenom = ?, titre = ?, mail = ?, email2 = ?, telephone = ?, telephone2 = ?,
+            prenom2 = ?, nom2 = ?,
             domicile = ?, bien = ?, villes = ?, quartiers = ?, budget_max = ?, criteres = ?,
             etat = ?, expo = ?, stationnement = ?, copro = ?, exterieur = ?, etage = ?,
             destination = ?, observation = ?, chambre_plain_pied = ?, plain_pied_total = ?, sdb_min = ?, wc_min = ?
@@ -272,6 +275,8 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
         prospect.get('email2'),
         prospect.get('telephone'),
         prospect.get('telephone2'),
+        prospect.get('prenom2'),
+        prospect.get('nom2'),
         prospect.get('domicile'),
         prospect.get('bien'),
         prospect.get('villes'),
