@@ -398,6 +398,9 @@ function ClientsPage() {
   const sorted = [...prospects].sort((a, b) => b.id - a.id)
   const matchFilters = (p) => {
     if (search && !p.nom?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.prenom?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.nom2?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.prenom2?.toLowerCase().includes(search.toLowerCase()) &&
         !p.villes?.toLowerCase().includes(search.toLowerCase()) &&
         !p.bien?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterBien && !p.bien?.includes(filterBien) && !p.bien?.includes('Tous biens')) return false
@@ -433,7 +436,7 @@ function ClientsPage() {
             <p className="font-semibold text-[#1E3A5F] flex items-center gap-2">
               {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
               {(prospect.prenom2 || prospect.nom2) && (
-                <span className="text-xs font-normal text-gray-400">&amp; {[prospect.prenom2, prospect.nom2].filter(Boolean).join(' ')}</span>
+                <span className="text-sm font-medium text-gray-500">&amp; {[prospect.prenom2, prospect.nom2].filter(Boolean).join(' ')}</span>
               )}
               {!!prospect.demo && (
                 <span className="text-[10px] font-medium text-gray-400 border border-dashed border-gray-300 rounded px-1.5 py-0.5 leading-tight">
