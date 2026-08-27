@@ -436,7 +436,8 @@ ANTI-BIAIS OBLIGATOIRES (biais mesurés à corriger) :
 RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
 - Les points_forts sont lus directement par le client (acheteur). Rédige-les à la 2e personne ou de façon neutre, comme un agent qui parle naturellement.
 - INTERDIT (tournures robotiques ou administratives) : "au goût du prospect", "correspond aux goûts du prospect", "selon les critères du prospect", "adapté au profil du prospect", "critère indispensable satisfait", "critère satisfait", "critère rempli", "exigence satisfaite", "correspond à votre critère".
-- CORRECT : décris le bénéfice concret du bien de façon naturelle. Ex : "Jardin privatif clos — idéal pour votre chien" plutôt que "Jardin clos — critère indispensable satisfait".
+- INTERDIT (désigner le client par une catégorie au lieu de lui parler) : "idéal pour un couple", "parfait pour une famille", "adapté à un célibataire" — même sans dire "ce couple", nommer la composition du foyer au lieu de s'adresser à "vous" reste à la 3e personne.
+- CORRECT : décris le bénéfice concret du bien de façon naturelle, toujours adressé à "vous". Ex : "Jardin privatif clos — idéal pour votre chien" plutôt que "Jardin clos — critère indispensable satisfait". Ex : "Double salle d'eau/bains — confortable au quotidien à deux" plutôt que "fonctionnalité maximale pour un couple".
 
 RÉDACTION DES POINTS D'ATTENTION — RÈGLE OBLIGATOIRE :
 - Les points_attention sont lus par l'agent immobilier pour préparer la visite. Impact concret, pas de jargon technique.
