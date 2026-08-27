@@ -750,6 +750,7 @@ RÈGLE CRITIQUE — SCORING ABSOLU ET INDÉPENDANT :
 - Score chaque bien de façon ABSOLUE par rapport au profil prospect — PAS en comparaison relative avec les autres biens.
 - Deux biens peuvent avoir exactement le même score. Un score élevé sur le bien #1 n'empêche pas un score élevé sur le bien #2.
 - Évalue chaque bien comme si tu ne voyais que lui. N'ajuste pas les scores en fonction des autres biens du lot.
+- Ne mentionne JAMAIS un autre bien du lot par son numéro interne ("#553", "bien #12") dans points_forts, points_attention ou recommandation — ce numéro n'existe nulle part ailleurs dans l'application, il est incompréhensible pour l'agent qui lit le texte. Chaque recommandation doit se suffire à elle-même, sans référence à un autre bien du lot.
 
 === PROSPECT #{prospect.get('id', 'N/A')} ===
 {prospect_ctx}
