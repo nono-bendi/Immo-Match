@@ -93,7 +93,7 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
               {prospect.titre === 'Sté' && (
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Nom de la société</label>
-                  <input type="text" value={prospect.societe || ''} onChange={e => onChange('societe', e.target.value)} placeholder="France Investissement" className={INP} />
+                  <input type="text" value={prospect.societe || ''} onChange={e => onChange('societe', e.target.value)} placeholder="Nom de l'entreprise" className={INP} />
                 </div>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

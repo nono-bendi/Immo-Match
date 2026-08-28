@@ -608,7 +608,7 @@ function NewProspectPage() {
                     type="text"
                     value={formData.societe}
                     onChange={(e) => handleChange('societe', e.target.value)}
-                    placeholder="France Investissement"
+                    placeholder="Nom de l'entreprise"
                     className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                   />
                 </div>

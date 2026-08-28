@@ -516,12 +516,19 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
               <div style={{ position: 'relative', flexShrink: 0 }}>
                 <div style={{ position: 'absolute', inset: -4, background: `linear-gradient(135deg,${a},${b})`, borderRadius: 18, filter: 'blur(10px)', opacity: 0.45 }} />
                 <div style={{ position: 'relative', width: 54, height: 54, borderRadius: 16, background: `linear-gradient(135deg,${a},${b})`, display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em' }}>
-                  {ini(group.prospect_nom)}
+                  {ini(group.prospect_societe || group.prospect_nom)}
                 </div>
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {[group.prospect_titre, group.prospect_prenom, group.prospect_nom].filter(Boolean).join(' ')}
+                  {group.prospect_societe ? (
+                    <>
+                      {group.prospect_societe}
+                      <span style={{ fontWeight: 500, color: _sub }}> — {[group.prospect_prenom, group.prospect_nom].filter(Boolean).join(' ')}</span>
+                    </>
+                  ) : (
+                    [group.prospect_titre, group.prospect_prenom, group.prospect_nom].filter(Boolean).join(' ')
+                  )}
                   {group.prospect_prenom2 && (
                     <span style={{ fontWeight: 500, color: _sub }}> &amp; {[group.prospect_prenom2, group.prospect_nom2 || group.prospect_nom].filter(Boolean).join(' ')}</span>
                   )}
@@ -758,6 +765,7 @@ export default function MatchingsPageV2() {
     const filtered = matchings.filter(m => {
       if (s && !(
         m.prospect_nom?.toLowerCase().includes(s) ||
+        m.prospect_societe?.toLowerCase().includes(s) ||
         m.bien_reference?.toLowerCase().includes(s)
       )) return false
       if (filterScore === 'match'     && m.score < 40) return false
@@ -768,7 +776,7 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
+      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
       acc[m.prospect_id].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))
