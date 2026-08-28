@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
+import BienModal from './BienModal'
 
 const DEFAUT_TAGS = [
   'Vis-à-vis', 'Pas de parking', 'Sans ascenseur', 'Bruit de rue',
@@ -26,6 +27,7 @@ function NewBienModal({ bienId, onClose }) {
   const [loadingMatchings, setLoadingMatchings] = useState(true)
   const [saving, setSaving] = useState(false)
   const [analyseState, setAnalyseState] = useState('idle')
+  const [showFullModal, setShowFullModal] = useState(false)
   const navigate = useNavigate()
 
   const formatPrix = v =>
@@ -98,7 +100,7 @@ function NewBienModal({ bienId, onClose }) {
               </button>
               {!loadingBien && bien && (
                 <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
-                  <h2 className="text-lg font-bold text-white">{bien.type} à {bien.ville}</h2>
+                  <h2 className="text-lg font-bold text-white cursor-pointer hover:underline" onClick={() => setShowFullModal(true)}>{bien.type} à {bien.ville}</h2>
                   {bien.quartier && (
                     <p className="flex items-center gap-1 text-white/80 text-xs mt-0.5">
                       <MapPin size={11} />{bien.quartier}
@@ -123,7 +125,7 @@ function NewBienModal({ bienId, onClose }) {
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 rounded-full text-xs font-bold text-white mb-2">
                   <span className="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse" /> Nouveau bien
                 </span>
-                <h2 className="text-lg font-bold text-white">{loadingBien ? '...' : `${bien?.type} à ${bien?.ville}`}</h2>
+                <h2 className="text-lg font-bold text-white cursor-pointer hover:underline" onClick={() => bien && setShowFullModal(true)}>{loadingBien ? '...' : `${bien?.type} à ${bien?.ville}`}</h2>
                 {bien?.quartier && (
                   <p className="flex items-center gap-1 text-white/80 text-xs mt-0.5">
                     <MapPin size={11} />{bien.quartier}
@@ -250,6 +252,7 @@ function NewBienModal({ bienId, onClose }) {
           </button>
         </div>
       </div>
+      {showFullModal && bien && <BienModal bien={bien} onClose={() => setShowFullModal(false)} />}
     </div>
   )
 }
