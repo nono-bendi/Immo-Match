@@ -38,7 +38,8 @@ _TR = {
         'see_property': 'Voir ce bien',
         'open_link': 'Ouvrir le lien dans votre navigateur',
         'see_you_soon': 'À très bientôt,',
-        'other_properties': "Découvrir d'autres biens qui pourraient vous plaire",
+        'not_this_one': "Ce bien ne correspond pas tout à fait à ce que vous cherchez ?",
+        'other_properties': "Découvrir d'autres biens sur notre site",
         'footer': "Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.<br />Pour ne plus recevoir nos propositions, répondez STOP à cet email.",
         'unsubscribe': "Se désinscrire en un clic",
         'agent_title_admin': 'Gérante',
@@ -55,7 +56,8 @@ _TR = {
         'see_property': 'View this property',
         'open_link': 'Open link in your browser',
         'see_you_soon': 'Best regards,',
-        'other_properties': "Discover other properties that might interest you",
+        'not_this_one': "Not quite what you're looking for?",
+        'other_properties': "Discover other properties on our website",
         'footer': "You are receiving this email because you registered a property search with our agency.<br />To unsubscribe, reply STOP to this email.",
         'unsubscribe': "Unsubscribe in one click",
         'agent_title_admin': 'Director',
@@ -72,7 +74,8 @@ _TR = {
         'see_property': 'Immobilie ansehen',
         'open_link': 'Link im Browser öffnen',
         'see_you_soon': 'Mit freundlichen Grüßen,',
-        'other_properties': "Entdecken Sie weitere Immobilien, die Ihnen gefallen könnten",
+        'not_this_one': "Nicht ganz das, wonach Sie suchen?",
+        'other_properties': "Weitere Immobilien auf unserer Website entdecken",
         'footer': "Sie erhalten diese E-Mail, weil Sie eine Immobiliensuche bei unserer Agentur registriert haben.<br />Um keine weiteren Angebote zu erhalten, antworten Sie mit STOP.",
         'unsubscribe': "Mit einem Klick abmelden",
         'agent_title_admin': 'Geschäftsführerin',
@@ -89,7 +92,8 @@ _TR = {
         'see_property': 'Bekijk dit pand',
         'open_link': 'Open link in uw browser',
         'see_you_soon': 'Met vriendelijke groeten,',
-        'other_properties': "Ontdek andere panden die u misschien bevallen",
+        'not_this_one': "Niet helemaal wat u zoekt?",
+        'other_properties': "Ontdek andere panden op onze website",
         'footer': "U ontvangt deze e-mail omdat u een zoekopdracht heeft geregistreerd bij ons kantoor.<br />Om geen aanbiedingen meer te ontvangen, antwoord STOP.",
         'unsubscribe': "Uitschrijven met één klik",
         'agent_title_admin': 'Directeur',
@@ -106,7 +110,8 @@ _TR = {
         'see_property': 'Vedi questo immobile',
         'open_link': 'Apri il link nel browser',
         'see_you_soon': 'Cordiali saluti,',
-        'other_properties': "Scopri altri immobili che potrebbero piacerti",
+        'not_this_one': "Non è esattamente quello che cercate?",
+        'other_properties': "Scopri altri immobili sul nostro sito",
         'footer': "State ricevendo questa email perché avete registrato una ricerca immobiliare presso la nostra agenzia.<br />Per non ricevere più le nostre proposte, rispondete STOP.",
         'unsubscribe': "Annulla iscrizione con un clic",
         'agent_title_admin': 'Direttrice',
@@ -123,7 +128,8 @@ _TR = {
         'see_property': 'Ver esta propiedad',
         'open_link': 'Abrir enlace en su navegador',
         'see_you_soon': 'Atentamente,',
-        'other_properties': "Descubra otras propiedades que podrían interesarle",
+        'not_this_one': "¿No es exactamente lo que busca?",
+        'other_properties': "Descubra otras propiedades en nuestro sitio",
         'footer': "Está recibiendo este email porque registró una búsqueda inmobiliaria en nuestra agencia.<br />Para dejar de recibir nuestras propuestas, responda STOP.",
         'unsubscribe': "Darse de baja con un clic",
         'agent_title_admin': 'Directora',
@@ -140,7 +146,8 @@ _TR = {
         'see_property': 'Посмотреть объект',
         'open_link': 'Открыть ссылку в браузере',
         'see_you_soon': 'С уважением,',
-        'other_properties': "Посмотреть другие объекты, которые могут вам понравиться",
+        'not_this_one': "Не совсем то, что вы ищете?",
+        'other_properties': "Посмотреть другие объекты на нашем сайте",
         'footer': "Вы получили это письмо, так как зарегистрировали запрос на подбор недвижимости в нашем агентстве.<br />Чтобы отписаться, ответьте STOP.",
         'unsubscribe': "Отписаться одним щелчком",
         'agent_title_admin': 'Директор',
@@ -356,11 +363,23 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     site_web = (agency.get("agency_site_web") or "").strip()
     has_site_web = is_valid_http_url(site_web)
     other_properties_block = f"""
-              <p style="margin:0 0 16px 0;font-size:14px;line-height:1.6;">
-                <a href="{escape(site_web)}" target="_blank" rel="noopener noreferrer" style="color:{color};text-decoration:none;font-weight:600;">
-                  {tr['other_properties']} &rarr;
-                </a>
-              </p>
+        <tr>
+          <td align="center" style="padding:0 20px 32px 20px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F9FAFB;border-radius:12px;">
+              <tr>
+                <td align="center" style="padding:22px 20px;">
+                  <p style="margin:0 0 14px 0;font-size:13px;color:#6B7280;">
+                    {tr['not_this_one']}
+                  </p>
+                  <a href="{escape(site_web)}" target="_blank" rel="noopener noreferrer"
+                     style="display:inline-block;padding:13px 30px;color:{color};text-decoration:none;font-size:14px;font-weight:700;border:2px solid {color};border-radius:10px;">
+                    {tr['other_properties']} &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
     """ if has_site_web else ""
 
     default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
@@ -580,13 +599,14 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 
           {cta_block}
 
+          {other_properties_block}
+
           <!-- Closing -->
           <tr>
             <td style="padding:0 20px 28px 20px;">
               <p style="margin:0 0 16px 0;font-size:15px;line-height:1.6;color:#374151;">
                 {safe_html_text(conclusion_text)}
               </p>
-              {other_properties_block}
               <p style="margin:0;font-size:15px;line-height:1.6;color:#374151;">
                 {tr['see_you_soon']}
               </p>
@@ -653,7 +673,10 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
     _unsub_line = f"Ou désinscription en un clic : {_unsub}" if _unsub else ""
 
     site_web = (agency.get("agency_site_web") or "").strip()
-    other_properties_line = f"Découvrir d'autres biens qui pourraient vous plaire : {site_web}" if is_valid_http_url(site_web) else ""
+    other_properties_line = (
+        "Ce bien ne correspond pas tout à fait à ce que vous cherchez ?\n"
+        f"Découvrez d'autres biens sur notre site : {site_web}"
+    ) if is_valid_http_url(site_web) else ""
 
     text = f"""Bonjour {salutation},
 
@@ -678,7 +701,7 @@ Surface : {data.bien_surface or 'Non précisée'}
 
 {conclusion_text}
 
-{other_properties_line}
+{f"------------------------------------------------------{chr(10)}{other_properties_line}{chr(10)}------------------------------------------------------" if other_properties_line else ""}
 
 À très bientôt,
 
