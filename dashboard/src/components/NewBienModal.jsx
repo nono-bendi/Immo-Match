@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   X, Building2, Euro, Maximize, Home,
-  AlertCircle, Sparkles, Loader2, CheckCircle2, ChevronRight, Save
+  AlertCircle, Sparkles, Loader2, CheckCircle2, ChevronRight, Save, MapPin
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
@@ -99,6 +99,11 @@ function NewBienModal({ bienId, onClose }) {
               {!loadingBien && bien && (
                 <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
                   <h2 className="text-lg font-bold text-white">{bien.type} à {bien.ville}</h2>
+                  {bien.quartier && (
+                    <p className="flex items-center gap-1 text-white/80 text-xs mt-0.5">
+                      <MapPin size={11} />{bien.quartier}
+                    </p>
+                  )}
                   <div className="flex items-center gap-3 mt-1 text-white/80 text-xs">
                     {bien.prix && <span className="flex items-center gap-1"><Euro size={12} />{formatPrix(bien.prix)}</span>}
                     {bien.surface && <span className="flex items-center gap-1"><Maximize size={12} />{bien.surface} m²</span>}
@@ -119,6 +124,11 @@ function NewBienModal({ bienId, onClose }) {
                   <span className="w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse" /> Nouveau bien
                 </span>
                 <h2 className="text-lg font-bold text-white">{loadingBien ? '...' : `${bien?.type} à ${bien?.ville}`}</h2>
+                {bien?.quartier && (
+                  <p className="flex items-center gap-1 text-white/80 text-xs mt-0.5">
+                    <MapPin size={11} />{bien.quartier}
+                  </p>
+                )}
                 {bien?.nom_agence && (
                   <p className="flex items-center gap-1 text-white/70 text-xs mt-0.5">
                     <Building2 size={11} />{bien.nom_agence}
