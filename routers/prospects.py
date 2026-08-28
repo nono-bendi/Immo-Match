@@ -205,13 +205,14 @@ def add_prospect(prospect: dict, current_user: dict = Depends(get_current_user))
     cursor = conn.cursor()
 
     cursor.execute('''
-        INSERT INTO prospects (date, nom, prenom, titre, mail, email2, telephone, telephone2, prenom2, nom2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min, dernier_contact)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prospects (date, nom, prenom, titre, societe, mail, email2, telephone, telephone2, prenom2, nom2, domicile, bien, villes, quartiers, budget_max, criteres, etat, expo, stationnement, copro, exterieur, etage, destination, observation, chambre_plain_pied, plain_pied_total, sdb_min, wc_min, dernier_contact)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         datetime.now().strftime("%Y-%m-%d"),
         prospect.get('nom'),
         prospect.get('prenom'),
         prospect.get('titre'),
+        prospect.get('societe'),
         prospect.get('mail'),
         prospect.get('email2'),
         prospect.get('telephone'),
@@ -261,7 +262,7 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
 
     conn.execute('''
         UPDATE prospects SET
-            nom = ?, prenom = ?, titre = ?, mail = ?, email2 = ?, telephone = ?, telephone2 = ?,
+            nom = ?, prenom = ?, titre = ?, societe = ?, mail = ?, email2 = ?, telephone = ?, telephone2 = ?,
             prenom2 = ?, nom2 = ?,
             domicile = ?, bien = ?, villes = ?, quartiers = ?, budget_max = ?, criteres = ?,
             etat = ?, expo = ?, stationnement = ?, copro = ?, exterieur = ?, etage = ?,
@@ -271,6 +272,7 @@ def update_prospect(prospect_id: int, prospect: dict, current_user: dict = Depen
         prospect.get('nom'),
         prospect.get('prenom'),
         prospect.get('titre'),
+        prospect.get('societe'),
         prospect.get('mail'),
         prospect.get('email2'),
         prospect.get('telephone'),

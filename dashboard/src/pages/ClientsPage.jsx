@@ -78,18 +78,24 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
                   <label className="block text-xs font-medium text-gray-500 mb-1">Titre</label>
                   <select value={prospect.titre || ''} onChange={e => onChange('titre', e.target.value)} className={INP}>
                     <option value="">—</option>
-                    <option>M.</option><option>Mme</option><option>M. et Mme</option><option>Mme et Mme</option><option>M. et M.</option>
+                    <option>M.</option><option>Mme</option><option>M. et Mme</option><option>Mme et Mme</option><option>M. et M.</option><option value="Sté">Sté</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Nom</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">{prospect.titre === 'Sté' ? 'Nom du contact' : 'Nom'}</label>
                   <input type="text" value={prospect.nom || ''} onChange={e => onChange('nom', e.target.value)} className={INP} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Prénom</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">{prospect.titre === 'Sté' ? 'Prénom du contact' : 'Prénom'}</label>
                   <input type="text" value={prospect.prenom || ''} onChange={e => onChange('prenom', e.target.value)} className={INP} />
                 </div>
               </div>
+              {prospect.titre === 'Sté' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Nom de la société</label>
+                  <input type="text" value={prospect.societe || ''} onChange={e => onChange('societe', e.target.value)} placeholder="France Investissement" className={INP} />
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-500 mb-1">Téléphone</label>
@@ -401,6 +407,7 @@ function ClientsPage() {
         !p.prenom?.toLowerCase().includes(search.toLowerCase()) &&
         !p.nom2?.toLowerCase().includes(search.toLowerCase()) &&
         !p.prenom2?.toLowerCase().includes(search.toLowerCase()) &&
+        !p.societe?.toLowerCase().includes(search.toLowerCase()) &&
         !p.villes?.toLowerCase().includes(search.toLowerCase()) &&
         !p.bien?.toLowerCase().includes(search.toLowerCase())) return false
     if (filterBien && !p.bien?.includes(filterBien) && !p.bien?.includes('Tous biens')) return false
@@ -434,7 +441,14 @@ function ClientsPage() {
           </div>
           <div>
             <p className="font-semibold text-[#1E3A5F] flex items-center gap-2">
-              {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
+              {prospect.societe ? (
+                <>
+                  {prospect.societe}
+                  <span className="text-sm font-medium text-gray-500">— {[prospect.prenom, prospect.nom].filter(Boolean).join(' ')}</span>
+                </>
+              ) : (
+                [prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'
+              )}
               {(prospect.prenom2 || prospect.nom2) && (
                 <span className="text-sm font-medium text-gray-500">&amp; {[prospect.prenom2, prospect.nom2].filter(Boolean).join(' ')}</span>
               )}

@@ -124,7 +124,7 @@ function NewProspectPage() {
   const [showOverlay, setShowOverlay] = useState(false)
   
   const defaultFormData = {
-    titre: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', nom2: '', prenom2: '', domicile: '', showContact2: false,
+    titre: '', societe: '', nom: '', prenom: '', mail: '', email2: '', telephone: '', telephone2: '', nom2: '', prenom2: '', domicile: '', showContact2: false,
     bien: [], villes: [], quartiers: [], quartiersExclus: '',
     budget_max: '', surface_min: '', pieces_min: '',
     etat: [], expo: [], stationnement: [], exterieur: '',
@@ -598,26 +598,39 @@ function NewProspectPage() {
                   <option value="M. et Mme">M. et Mme</option>
                   <option value="Mme et Mme">Mme et Mme</option>
                   <option value="M. et M.">M. et M.</option>
+                  <option value="Sté">Sté</option>
                 </select>
               </div>
+              {formData.titre === 'Sté' && (
+                <div className="col-span-1 sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nom de la société</label>
+                  <input
+                    type="text"
+                    value={formData.societe}
+                    onChange={(e) => handleChange('societe', e.target.value)}
+                    placeholder="France Investissement"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
+                  />
+                </div>
+              )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{formData.titre === 'Sté' ? 'Nom du contact *' : 'Nom *'}</label>
                 <input
                   type="text"
                   required
                   value={formData.nom}
                   onChange={(e) => handleChange('nom', e.target.value)}
-                  placeholder="DUPONT"
+                  placeholder={formData.titre === 'Sté' ? 'PERNET' : 'DUPONT'}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{formData.titre === 'Sté' ? 'Prénom du contact' : 'Prénom'}</label>
                 <input
                   type="text"
                   value={formData.prenom}
                   onChange={(e) => handleChange('prenom', e.target.value)}
-                  placeholder="Jean"
+                  placeholder={formData.titre === 'Sté' ? 'Laurence' : 'Jean'}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/20 focus:border-[#1E3A5F]"
                 />
               </div>

@@ -331,6 +331,14 @@ def init_db(db_path: str = "immomatch.db"):
     except Exception:
         pass
 
+    # Migration : societe (prospect professionnel, ex: marchand de biens - la
+    # fiche garde alors le nom du contact dans nom/prenom, et societe pour l'entreprise)
+    try:
+        conn.execute("ALTER TABLE prospects ADD COLUMN societe TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     # Migration : champs_verrouilles (liste JSON des champs corrigés à la main par
     # un agent — la synchro Hektor ne doit plus jamais les écraser)
     try:

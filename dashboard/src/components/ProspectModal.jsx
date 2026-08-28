@@ -76,7 +76,14 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
               </div>
               <div>
                 <h2 className="text-xl font-bold">
-                  {[prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'}
+                  {prospect.societe ? (
+                    <>
+                      {prospect.societe}
+                      <span className="font-medium text-white/75"> — {[prospect.prenom, prospect.nom].filter(Boolean).join(' ')}</span>
+                    </>
+                  ) : (
+                    [prospect.titre, prospect.prenom, prospect.nom].filter(Boolean).join(' ') || 'Sans nom'
+                  )}
                   {prospect.prenom2 && (
                     <span className="font-medium text-white/75"> &amp; {[prospect.prenom2, prospect.nom2 || prospect.nom].filter(Boolean).join(' ')}</span>
                   )}
