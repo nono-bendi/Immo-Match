@@ -117,12 +117,20 @@ def init_agencies_db():
         ("smtp_server", "TEXT DEFAULT 'smtp.gmail.com'"),
         ("smtp_port", "INTEGER DEFAULT 587"),
         ("plan_id", "TEXT DEFAULT 'agence'"),
+        ("site_web", "TEXT"),
     ]:
         try:
             conn.execute(f"ALTER TABLE agencies ADD COLUMN {col} {definition}")
             conn.commit()
         except Exception:
             pass  # colonne déjà présente
+
+    # Backfill site_web pour Saint François (déployé après leur création initiale)
+    conn.execute(
+        "UPDATE agencies SET site_web = 'https://www.saintfrancoisimmobilier.fr' "
+        "WHERE slug = 'saint_francois' AND (site_web IS NULL OR site_web = '')"
+    )
+    conn.commit()
 
     # ── Migration : colonnes trial sur users ──────────────────────────────────
     for col, definition in [
@@ -229,7 +237,8 @@ def get_user_with_agency(email: str) -> dict | None:
             a.logo_bg_color      AS agency_logo_bg_color,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
-            a.plan_id       AS agency_plan_id
+            a.plan_id       AS agency_plan_id,
+            a.site_web      AS agency_site_web
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.email = ?
@@ -263,7 +272,8 @@ def get_user_by_id(user_id: int) -> dict | None:
             a.logo_bg_color      AS agency_logo_bg_color,
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
-            a.plan_id       AS agency_plan_id
+            a.plan_id       AS agency_plan_id,
+            a.site_web      AS agency_site_web
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.id = ?

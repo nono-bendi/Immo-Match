@@ -95,7 +95,7 @@ export default function AdministrationPage() {
 
   // ── Agency form (admin only) ──────────────────────────────────────────────
   const [agencyForm, setAgencyForm] = useState({
-    nom: '', nom_court: '', nom_filtre: '', adresse: '', telephone: '', email: '',
+    nom: '', nom_court: '', nom_filtre: '', adresse: '', telephone: '', email: '', site_web: '',
     logo_url: '', couleur_primaire: '#1E3A5F', logo_fond_colore: 0, logo_bg_color: '#ffffff',
     smtp_user: '', smtp_password: '', smtp_from_name: '', smtp_reply_to: '',
     smtp_server: 'smtp.gmail.com', smtp_port: 587
@@ -179,7 +179,7 @@ export default function AdministrationPage() {
       apiFetch('/admin/agency').then(r => r.json()).then(d => {
         setAgencyForm({
           nom: d.nom || '', nom_court: d.nom_court || '', nom_filtre: d.nom_filtre || '',
-          adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '',
+          adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '', site_web: d.site_web || '',
           logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0, logo_bg_color: d.logo_bg_color || '#ffffff',
           smtp_user: d.smtp_user || '', smtp_password: d.smtp_password || '',
           smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || '',
@@ -608,6 +608,9 @@ export default function AdministrationPage() {
               </Field>
               <Field label="Email de contact">
                 <Input type="email" value={agencyForm.email} onChange={e => chgA('email', e.target.value)} placeholder="contact@agence.fr" />
+              </Field>
+              <Field label="Site web">
+                <Input type="url" value={agencyForm.site_web} onChange={e => chgA('site_web', e.target.value)} placeholder="https://www.mon-agence.fr" />
               </Field>
               <div className="col-span-2">
                 <Field label="Adresse">
