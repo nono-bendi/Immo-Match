@@ -13,9 +13,7 @@ import bcrypt
 
 from config import AUTH_CONFIG, security, security_optional, UserRegister, UserLogin, UserResponse, TokenResponse
 import agencies_db as adb
-from logger import get_logger
 
-log = get_logger('auth')
 router = APIRouter()
 
 # ── Rate limiting login ───────────────────────────────────────────────────────
@@ -213,20 +211,17 @@ def login(request: Request, user_data: UserLogin):
     # dépasse 20h, pour ne pas s'afficher à chaque connexion quotidienne normale.
     bilan = None
     last_login = user.get("last_login")
-    log.info(f"[BILAN DEBUG] user={user['email']} last_login={last_login!r}")
     if last_login:
         try:
             last_dt = datetime.fromisoformat(last_login)
-            gap_h = (datetime.now() - last_dt).total_seconds() / 3600
-            log.info(f"[BILAN DEBUG] gap_h={gap_h:.2f}")
-            if gap_h >= 20:
+            if (datetime.now() - last_dt).total_seconds() >= 20 * 3600:
                 # Plafonne le regard en arrière à 60 jours (évite un historique énorme
                 # si last_login n'a jamais été renseigné avant ce fix)
                 depuis = max(last_dt, datetime.now() - timedelta(days=60)).isoformat()
                 bilan = _calculer_bilan(adb.get_db_path(user["agency_slug"]), depuis)
-                log.info(f"[BILAN DEBUG] depuis={depuis} bilan={bilan}")
-        except Exception as e:
-            log.error(f"[BILAN DEBUG] exception: {e!r}")
+                if bilan:
+                    bilan["depuis"] = depuis
+        except Exception:
             bilan = None
 
     adb.update_last_login(user["id"], datetime.now().isoformat())

@@ -628,6 +628,7 @@ export default function MatchingsPageV2() {
   const [searchParams] = useSearchParams()
   const filterBienId      = searchParams.get('bien')     ? parseInt(searchParams.get('bien'))     : null
   const filterProspectId  = searchParams.get('prospect') ? parseInt(searchParams.get('prospect')) : null
+  const filterDepuis      = searchParams.get('depuis')   || null
 
 
   const [matchings, setMatchings]       = useState([])
@@ -661,9 +662,12 @@ export default function MatchingsPageV2() {
 
   const fetchData = useCallback(() => {
     setLoading(true)
-    const url = filterBienId ? `/matchings?bien_id=${filterBienId}` : '/matchings'
+    const qs = new URLSearchParams()
+    if (filterBienId) qs.set('bien_id', filterBienId)
+    if (filterDepuis) qs.set('depuis', filterDepuis)
+    const url = qs.toString() ? `/matchings?${qs.toString()}` : '/matchings'
     return apiFetch(url).then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false))
-  }, [filterBienId])
+  }, [filterBienId, filterDepuis])
   useEffect(() => { fetchData() }, [fetchData])
 
 
@@ -884,6 +888,12 @@ export default function MatchingsPageV2() {
         <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
           <span className="text-blue-700">Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
           <button onClick={() => navigate('/matchings')} className="text-blue-500 hover:underline">Voir tout</button>
+        </div>
+      )}
+      {filterDepuis && (
+        <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 mb-4 text-sm">
+          <span className="text-emerald-700">Depuis votre dernière visite — {filtered.length} matching{filtered.length > 1 ? 's' : ''}</span>
+          <button onClick={() => navigate('/matchings')} className="text-emerald-600 hover:underline">Voir tout</button>
         </div>
       )}
       {filterProspectId && (
