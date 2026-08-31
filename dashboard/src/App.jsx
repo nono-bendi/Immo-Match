@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import TutorialModal from './components/TutorialModal'
 import NewBienModal from './components/NewBienModal'
+import BilanBanner from './components/BilanBanner'
 
 const lazyLoad = (factory) => lazy(() =>
   factory().catch((e) => {
@@ -132,6 +133,7 @@ function AppRoutes() {
 
       <TutorialModal open={isAuthenticated && showTuto} onClose={closeTuto} />
       {newBienId && <NewBienModal bienId={newBienId} onClose={() => setNewBienId(null)} />}
+      {isAuthenticated && <BilanBanner />}
     </>
   )
 }

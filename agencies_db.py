@@ -136,6 +136,7 @@ def init_agencies_db():
     for col, definition in [
         ("is_trial", "INTEGER DEFAULT 0"),
         ("trial_expires_at", "TEXT"),
+        ("last_login", "TEXT"),
     ]:
         try:
             conn.execute(f"ALTER TABLE users ADD COLUMN {col} {definition}")
@@ -223,7 +224,7 @@ def get_user_with_agency(email: str) -> dict | None:
     row = conn.execute('''
         SELECT
             u.id, u.email, u.password_hash, u.nom, u.role, u.agency_id, u.created_at,
-            u.is_trial, u.trial_expires_at,
+            u.is_trial, u.trial_expires_at, u.last_login,
             a.slug          AS agency_slug,
             a.nom           AS agency_nom,
             a.nom_court     AS agency_nom_court,
@@ -258,7 +259,7 @@ def get_user_by_id(user_id: int) -> dict | None:
     row = conn.execute('''
         SELECT
             u.id, u.email, u.password_hash, u.nom, u.role, u.agency_id, u.created_at,
-            u.is_trial, u.trial_expires_at,
+            u.is_trial, u.trial_expires_at, u.last_login,
             a.slug          AS agency_slug,
             a.nom           AS agency_nom,
             a.nom_court     AS agency_nom_court,
@@ -304,6 +305,13 @@ def create_user(email: str, password_hash: str, nom: str, role: str, agency_id: 
 def update_user_password(user_id: int, new_hash: str):
     conn = sqlite3.connect(AGENCIES_DB_PATH)
     conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, user_id))
+    conn.commit()
+    conn.close()
+
+
+def update_last_login(user_id: int, when_iso: str):
+    conn = sqlite3.connect(AGENCIES_DB_PATH)
+    conn.execute("UPDATE users SET last_login = ? WHERE id = ?", (when_iso, user_id))
     conn.commit()
     conn.close()
 

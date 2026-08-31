@@ -142,6 +142,47 @@ def register(user_data: UserRegister):
     )
 
 
+def _calculer_bilan(db_path: str, depuis_iso: str) -> dict | None:
+    """Résumé de l'activité depuis une date donnée (bilan affiché au retour
+    d'un utilisateur absent depuis un moment). None si rien à signaler."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    nouveaux_biens = conn.execute(
+        "SELECT COUNT(*) FROM biens WHERE date_creation >= ?", (depuis_iso,)
+    ).fetchone()[0]
+
+    matchings = conn.execute(
+        "SELECT COUNT(*) FROM matchings WHERE date_analyse >= ? AND bien_id IS NOT NULL",
+        (depuis_iso,)
+    ).fetchone()[0]
+
+    biens_vendus = conn.execute(
+        "SELECT COUNT(*) FROM biens WHERE date_vendu >= ?", (depuis_iso,)
+    ).fetchone()[0]
+
+    top_rows = conn.execute("""
+        SELECT m.score, p.nom AS prospect_nom, b.type AS bien_type, b.ville AS bien_ville
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        JOIN biens b ON m.bien_id = b.id
+        WHERE m.date_analyse >= ? AND m.score >= 80 AND (p.archive = 0 OR p.archive IS NULL)
+        ORDER BY m.score DESC
+        LIMIT 5
+    """, (depuis_iso,)).fetchall()
+    conn.close()
+
+    if not (nouveaux_biens or matchings or biens_vendus):
+        return None
+
+    return {
+        "nouveaux_biens": nouveaux_biens,
+        "matchings": matchings,
+        "biens_vendus": biens_vendus,
+        "top_matchings": [dict(r) for r in top_rows],
+    }
+
+
 @router.post("/auth/login", response_model=TokenResponse)
 def login(request: Request, user_data: UserLogin):
     ip = request.client.host if request.client else "unknown"
@@ -166,6 +207,23 @@ def login(request: Request, user_data: UserLogin):
     _login_attempts.pop(ip, None)  # Reset après succès
     access_token = create_access_token({"user_id": user["id"], "email": user["email"]})
 
+    # Bilan d'activité depuis la dernière connexion — seulement si l'absence
+    # dépasse 20h, pour ne pas s'afficher à chaque connexion quotidienne normale.
+    bilan = None
+    last_login = user.get("last_login")
+    if last_login:
+        try:
+            last_dt = datetime.fromisoformat(last_login)
+            if (datetime.now() - last_dt).total_seconds() >= 20 * 3600:
+                # Plafonne le regard en arrière à 60 jours (évite un historique énorme
+                # si last_login n'a jamais été renseigné avant ce fix)
+                depuis = max(last_dt, datetime.now() - timedelta(days=60)).isoformat()
+                bilan = _calculer_bilan(adb.get_db_path(user["agency_slug"]), depuis)
+        except Exception:
+            bilan = None
+
+    adb.update_last_login(user["id"], datetime.now().isoformat())
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -174,7 +232,8 @@ def login(request: Request, user_data: UserLogin):
             "email": user["email"],
             "nom": user["nom"],
             "role": user["role"],
-        }
+        },
+        "bilan": bilan,
     }
 
 

@@ -100,6 +100,7 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+    bilan: Optional[dict] = None
 
 
 # ── Application FastAPI ───────────────────────────────────────────────────────

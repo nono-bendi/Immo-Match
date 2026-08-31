@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [loading, setLoading] = useState(true)
+  const [bilan, setBilan] = useState(null)
 
   // Vérifie le token au chargement (ou récupère ?token= depuis l'URL)
   useEffect(() => {
@@ -96,6 +97,7 @@ export function AuthProvider({ children }) {
       setModuleToken(data.access_token)
       setToken(data.access_token)
       setUser(data.user)
+      if (data.bilan) setBilan(data.bilan)
       posthog.identify(String(data.user.id), {
         email: data.user.email,
         name: data.user.nom,
@@ -173,7 +175,9 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
-    authFetch
+    authFetch,
+    bilan,
+    clearBilan: () => setBilan(null)
   }
 
   return (
