@@ -214,7 +214,7 @@ function BilanPage() {
 
             <Section className="dash-section-2" title="Matchings analysés" count={data?.matchings?.length || 0} emptyLabel="Aucun matching sur cette période">
               {data?.matchings?.map((m, i) => (
-                <button key={m.id} onClick={() => navigate(`/matchings?prospect=${m.prospect_id}`)} style={{ animation: `row-enter 0.4s ease ${rowDelay(i)}s both` }} className="w-full flex items-center justify-between gap-3 px-5 py-3 row-hover text-left">
+                <button key={m.id} onClick={() => navigate(`/matchings?prospect=${m.prospect_id}&bien=${m.bien_id}`)} style={{ animation: `row-enter 0.4s ease ${rowDelay(i)}s both` }} className="w-full flex items-center justify-between gap-3 px-5 py-3 row-hover text-left">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-gray-800 truncate">
                       {m.prospect_societe || `${m.prospect_prenom || ''} ${m.prospect_nom || ''}`.trim()}

@@ -210,7 +210,7 @@ def get_bilan_detail(depuis: str, jusqua: str = None, current_user: dict = Depen
         JOIN prospects p ON m.prospect_id = p.id
         JOIN biens b ON m.bien_id = b.id
         WHERE m.date_analyse >= ? AND m.date_analyse <= ? AND (p.archive = 0 OR p.archive IS NULL)
-        ORDER BY m.score DESC LIMIT 500
+        ORDER BY m.date_analyse DESC LIMIT 500
     """, (depuis, jusqua)).fetchall()
 
     biens_vendus = conn.execute("""
