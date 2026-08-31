@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Building2, Search, Tag, ChevronRight, Calendar } from 'lucide-react'
+import { Sparkles, Building2, Search, Tag, ChevronRight, Calendar, PartyPopper, Wind, Flame } from 'lucide-react'
 import { apiFetch } from '../api'
 import BienModal from '../components/BienModal'
+import Confetti from '../components/Confetti'
 
 const PRESETS = [
   { key: '7j',  label: '7 derniers jours',  jours: 7 },
@@ -16,14 +17,14 @@ function debutDeJournee(date) {
   return d
 }
 
-function StatCard({ icon: Icon, iconColor, iconBg, value, label }) {
+function StatCard({ icon: Icon, iconColor, iconBg, value, label, className }) {
   return (
-    <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 8px 28px rgba(15,30,48,0.06)' }}>
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: iconBg, color: iconColor }}>
+    <div className={'rounded-2xl p-5 flex items-center gap-4 card-hover ' + (className || '')} style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 8px 28px rgba(15,30,48,0.06)' }}>
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 icon-bounce" style={{ background: iconBg, color: iconColor }}>
         <Icon size={20} />
       </div>
       <div>
-        <div className="text-2xl font-extrabold" style={{ color: iconColor, letterSpacing: '-0.02em' }}>{value}</div>
+        <div key={value} className="text-2xl font-extrabold counter-pop" style={{ color: iconColor, letterSpacing: '-0.02em' }}>{value}</div>
         <div className="text-sm text-gray-500">{label}</div>
       </div>
     </div>
@@ -43,9 +44,9 @@ function ScoreBadge({ score }) {
   )
 }
 
-function Section({ title, count, emptyLabel, children }) {
+function Section({ title, count, emptyLabel, className, children }) {
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 8px 28px rgba(15,30,48,0.06)' }}>
+    <div className={'rounded-2xl overflow-hidden ' + (className || '')} style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 8px 28px rgba(15,30,48,0.06)' }}>
       <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         <span className="text-xs text-gray-400">{count}</span>
@@ -72,13 +73,16 @@ function BilanPage() {
   const [loading, setLoading] = useState(true)
   const [openBienId, setOpenBienId] = useState(null)
   const [openBien, setOpenBien] = useState(null)
+  const [showConfetti, setShowConfetti] = useState(false)
 
-  const { depuis, jusqua, label } = (() => {
+  // ── Période : recalculée uniquement quand l'utilisateur change de choix,
+  // jamais à chaque rendu (sinon la date change en continu -> boucle infinie) ──
+  const { depuis, jusqua, label } = useMemo(() => {
     if (showCustom && customFrom) {
       return {
         depuis: debutDeJournee(customFrom).toISOString(),
         jusqua: customTo ? new Date(customTo + 'T23:59:59').toISOString() : new Date().toISOString(),
-        label: customTo ? `Du ${customFrom} au ${customTo}` : `Depuis le ${customFrom}`,
+        label: customTo ? `du ${customFrom} au ${customTo}` : `depuis le ${customFrom}`,
       }
     }
     const found = PRESETS.find(p => p.key === preset) || PRESETS[0]
@@ -91,14 +95,22 @@ function BilanPage() {
       from.setDate(1)
       from.setHours(0, 0, 0, 0)
     }
-    return { depuis: from.toISOString(), jusqua: new Date().toISOString(), label: found.label }
-  })()
+    return { depuis: from.toISOString(), jusqua: new Date().toISOString(), label: found.label.toLowerCase() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset, showCustom, customFrom, customTo])
 
   const fetchBilan = useCallback(() => {
     setLoading(true)
     apiFetch(`/bilan?depuis=${encodeURIComponent(depuis)}&jusqua=${encodeURIComponent(jusqua)}`)
       .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
+      .then(d => {
+        setData(d)
+        setLoading(false)
+        if ((d?.biens_vendus?.length || 0) > 0) {
+          setShowConfetti(true)
+          setTimeout(() => setShowConfetti(false), 2000)
+        }
+      })
       .catch(() => setLoading(false))
   }, [depuis, jusqua])
 
@@ -112,25 +124,43 @@ function BilanPage() {
   const fmtPrix = v => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v) : '—'
   const fmtDate = v => v ? new Date(v).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'
 
+  const total = (data?.nouveaux_biens?.length || 0) + (data?.matchings?.length || 0) + (data?.biens_vendus?.length || 0)
+  const mood = !data
+    ? { Icon: Sparkles, text: 'On regarde ça…' }
+    : total === 0
+      ? { Icon: Wind, text: `Calme plat ${label}` }
+      : total < 10
+        ? { Icon: Sparkles, text: `Une activité tranquille ${label}` }
+        : total < 60
+          ? { Icon: PartyPopper, text: `Ça a pas mal bougé ${label} !` }
+          : { Icon: Flame, text: `Grosse activité ${label} !` }
+
+  const rowDelay = i => Math.min(i * 0.04, 0.4)
+
   return (
     <div className="p-4 sm:p-6 space-y-5 max-w-6xl mx-auto">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ background: 'var(--gradient-primary)' }}>
+      <Confetti show={showConfetti} />
+
+      <div className="flex items-center gap-3 dash-banner">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white icon-wiggle" style={{ background: 'var(--gradient-primary)' }}>
           <Sparkles size={19} />
         </div>
         <div>
           <h1 className="text-xl font-bold text-[#1E3A5F]">Bilan d'activité</h1>
-          <p className="text-sm text-gray-500">Qu'est-ce qui s'est passé — {label}</p>
+          <p className="text-sm text-gray-500 flex items-center gap-1.5">
+            <mood.Icon size={14} className="text-gray-400" />
+            {mood.text}
+          </p>
         </div>
       </div>
 
       {/* Sélecteur de période */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 dash-banner">
         {PRESETS.map(p => (
           <button
             key={p.key}
             onClick={() => { setPreset(p.key); setShowCustom(false) }}
-            className={'px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ' +
+            className={'px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
               (!showCustom && preset === p.key ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
             style={!showCustom && preset === p.key ? { background: 'var(--gradient-primary)' } : {}}
           >
@@ -139,14 +169,14 @@ function BilanPage() {
         ))}
         <button
           onClick={() => setShowCustom(v => !v)}
-          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all ' +
+          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
             (showCustom ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
           style={showCustom ? { background: 'var(--gradient-primary)' } : {}}
         >
           <Calendar size={14} /> Période personnalisée
         </button>
         {showCustom && (
-          <div className="flex items-center gap-2 ml-1">
+          <div className="flex items-center gap-2 ml-1 animate-fade-in-up">
             <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl text-sm" />
             <span className="text-gray-400 text-sm">à</span>
             <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl text-sm" />
@@ -161,15 +191,15 @@ function BilanPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard icon={Building2} iconColor="#10b981" iconBg="#f0fdf4" value={data?.nouveaux_biens?.length || 0} label="Nouveaux biens ajoutés" />
-            <StatCard icon={Search} iconColor="#3b82f6" iconBg="#eff6ff" value={data?.matchings?.length || 0} label="Matchings analysés" />
-            <StatCard icon={Tag} iconColor="#7c3aed" iconBg="#f5f3ff" value={data?.biens_vendus?.length || 0} label="Biens vendus" />
+            <StatCard className="dash-card-1" icon={Building2} iconColor="#10b981" iconBg="#f0fdf4" value={data?.nouveaux_biens?.length || 0} label="Nouveaux biens ajoutés" />
+            <StatCard className="dash-card-2" icon={Search} iconColor="#3b82f6" iconBg="#eff6ff" value={data?.matchings?.length || 0} label="Matchings analysés" />
+            <StatCard className="dash-card-3" icon={Tag} iconColor="#7c3aed" iconBg="#f5f3ff" value={data?.biens_vendus?.length || 0} label="Biens vendus" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Section title="Nouveaux biens" count={data?.nouveaux_biens?.length || 0} emptyLabel="Aucun nouveau bien sur cette période">
-              {data?.nouveaux_biens?.map(b => (
-                <button key={b.id} onClick={() => handleOpenBien(b.id)} className="w-full flex items-center justify-between gap-3 px-5 py-3 hover:bg-gray-50 text-left transition-colors">
+            <Section className="dash-section-1" title="Nouveaux biens" count={data?.nouveaux_biens?.length || 0} emptyLabel="Aucun nouveau bien sur cette période">
+              {data?.nouveaux_biens?.map((b, i) => (
+                <button key={b.id} onClick={() => handleOpenBien(b.id)} style={{ animation: `row-enter 0.4s ease ${rowDelay(i)}s both` }} className="w-full flex items-center justify-between gap-3 px-5 py-3 row-hover text-left">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-gray-800 truncate">{b.type} à {b.ville}</div>
                     <div className="text-xs text-gray-400 truncate">{b.nom_agence || 'Agence non précisée'} · {fmtDate(b.date_creation)}</div>
@@ -182,9 +212,9 @@ function BilanPage() {
               ))}
             </Section>
 
-            <Section title="Matchings analysés" count={data?.matchings?.length || 0} emptyLabel="Aucun matching sur cette période">
-              {data?.matchings?.map(m => (
-                <button key={m.id} onClick={() => navigate(`/matchings?prospect=${m.prospect_id}`)} className="w-full flex items-center justify-between gap-3 px-5 py-3 hover:bg-gray-50 text-left transition-colors">
+            <Section className="dash-section-2" title="Matchings analysés" count={data?.matchings?.length || 0} emptyLabel="Aucun matching sur cette période">
+              {data?.matchings?.map((m, i) => (
+                <button key={m.id} onClick={() => navigate(`/matchings?prospect=${m.prospect_id}`)} style={{ animation: `row-enter 0.4s ease ${rowDelay(i)}s both` }} className="w-full flex items-center justify-between gap-3 px-5 py-3 row-hover text-left">
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-gray-800 truncate">
                       {m.prospect_societe || `${m.prospect_prenom || ''} ${m.prospect_nom || ''}`.trim()}
@@ -197,9 +227,9 @@ function BilanPage() {
             </Section>
           </div>
 
-          <Section title="Biens vendus" count={data?.biens_vendus?.length || 0} emptyLabel="Aucun bien vendu sur cette période">
-            {data?.biens_vendus?.map(b => (
-              <button key={b.id} onClick={() => handleOpenBien(b.id)} className="w-full flex items-center justify-between gap-3 px-5 py-3 hover:bg-gray-50 text-left transition-colors">
+          <Section className="dash-section-3" title="Biens vendus" count={data?.biens_vendus?.length || 0} emptyLabel="Aucun bien vendu sur cette période">
+            {data?.biens_vendus?.map((b, i) => (
+              <button key={b.id} onClick={() => handleOpenBien(b.id)} style={{ animation: `row-enter 0.4s ease ${rowDelay(i)}s both` }} className="w-full flex items-center justify-between gap-3 px-5 py-3 row-hover text-left">
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-gray-800 truncate">{b.type} à {b.ville}</div>
                   <div className="text-xs text-gray-400 truncate">Vendu le {fmtDate(b.date_vendu)}</div>
