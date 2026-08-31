@@ -183,6 +183,51 @@ def _calculer_bilan(db_path: str, depuis_iso: str) -> dict | None:
     }
 
 
+@router.get("/bilan")
+def get_bilan_detail(depuis: str, jusqua: str = None, current_user: dict = Depends(get_current_user)):
+    """
+    Détail du bilan d'activité sur une période choisie librement — accessible
+    à tout moment depuis la page Bilan (contrairement au bandeau du login,
+    limité à la période depuis la dernière connexion).
+    """
+    db_path = adb.get_db_path(current_user["agency_slug"])
+    jusqua = jusqua or datetime.now().isoformat()
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+
+    nouveaux_biens = conn.execute("""
+        SELECT id, reference, type, ville, quartier, prix, nom_agence, date_creation
+        FROM biens WHERE date_creation >= ? AND date_creation <= ?
+        ORDER BY date_creation DESC LIMIT 200
+    """, (depuis, jusqua)).fetchall()
+
+    matchings = conn.execute("""
+        SELECT m.id, m.score, m.date_analyse, m.bien_id,
+               p.id AS prospect_id, p.nom AS prospect_nom, p.prenom AS prospect_prenom, p.societe AS prospect_societe,
+               b.type AS bien_type, b.ville AS bien_ville, b.prix AS bien_prix
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        JOIN biens b ON m.bien_id = b.id
+        WHERE m.date_analyse >= ? AND m.date_analyse <= ? AND (p.archive = 0 OR p.archive IS NULL)
+        ORDER BY m.score DESC LIMIT 500
+    """, (depuis, jusqua)).fetchall()
+
+    biens_vendus = conn.execute("""
+        SELECT id, reference, type, ville, prix, date_vendu
+        FROM biens WHERE date_vendu >= ? AND date_vendu <= ?
+        ORDER BY date_vendu DESC LIMIT 200
+    """, (depuis, jusqua)).fetchall()
+
+    conn.close()
+
+    return {
+        "nouveaux_biens": [dict(r) for r in nouveaux_biens],
+        "matchings": [dict(r) for r in matchings],
+        "biens_vendus": [dict(r) for r in biens_vendus],
+    }
+
+
 @router.post("/auth/login", response_model=TokenResponse)
 def login(request: Request, user_data: UserLogin):
     ip = request.client.host if request.client else "unknown"

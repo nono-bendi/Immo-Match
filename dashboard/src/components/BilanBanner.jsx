@@ -58,7 +58,7 @@ function BilanBanner() {
             Fermer
           </button>
           <button
-            onClick={() => { clearBilan(); navigate(depuis ? `/matchings?depuis=${encodeURIComponent(depuis)}` : '/matchings') }}
+            onClick={() => { clearBilan(); navigate(depuis ? `/bilan?depuis=${encodeURIComponent(depuis)}` : '/bilan') }}
             className="flex-1 px-4 py-2 text-sm text-white rounded-xl font-semibold transition-all"
             style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
           >
