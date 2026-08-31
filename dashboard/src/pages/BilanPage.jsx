@@ -125,15 +125,32 @@ function BilanPage() {
   const fmtDate = v => v ? new Date(v).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'
 
   const total = (data?.nouveaux_biens?.length || 0) + (data?.matchings?.length || 0) + (data?.biens_vendus?.length || 0)
-  const mood = !data
-    ? { Icon: Sparkles, text: 'On regarde ça…' }
-    : total === 0
-      ? { Icon: Wind, text: `Calme plat ${label}` }
-      : total < 10
-        ? { Icon: Sparkles, text: `Une activité tranquille ${label}` }
-        : total < 60
-          ? { Icon: PartyPopper, text: `Ça a pas mal bougé ${label} !` }
-          : { Icon: Flame, text: `Grosse activité ${label} !` }
+  const moodIcon = !data ? Sparkles : total === 0 ? Wind : total < 10 ? Sparkles : total < 60 ? PartyPopper : Flame
+  const MoodIcon = moodIcon
+
+  // Phrase de synthèse efficace : les chiffres directement, pas juste une ambiance
+  const resume = (() => {
+    if (!data) return 'On regarde ça…'
+    const nb = data.nouveaux_biens?.length || 0
+    const nm = data.matchings?.length || 0
+    const nv = data.biens_vendus?.length || 0
+    if (nb + nm + nv === 0) return `Aucune activité ${label}.`
+
+    const excellents = data.matchings?.filter(m => m.score >= 80).length || 0
+    const bestScore = nm ? Math.max(...data.matchings.map(m => m.score)) : null
+
+    const parts = []
+    if (nb > 0) parts.push(`${nb} nouveau${nb > 1 ? 'x' : ''} bien${nb > 1 ? 's' : ''} ajouté${nb > 1 ? 's' : ''}`)
+    if (nm > 0) parts.push(`${nm} matching${nm > 1 ? 's' : ''} analysé${nm > 1 ? 's' : ''}${excellents > 0 ? ` (dont ${excellents} à 80%+)` : ''}`)
+    if (nv > 0) parts.push(`${nv} bien${nv > 1 ? 's' : ''} vendu${nv > 1 ? 's' : ''}`)
+
+    let sentence = parts.length > 1
+      ? parts.slice(0, -1).join(', ') + ' et ' + parts[parts.length - 1]
+      : parts[0]
+    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1) + ` ${label}.`
+    if (bestScore >= 90) sentence += ` Meilleur score : ${bestScore}/100.`
+    return sentence
+  })()
 
   const rowDelay = i => Math.min(i * 0.04, 0.4)
 
@@ -148,8 +165,8 @@ function BilanPage() {
         <div>
           <h1 className="text-xl font-bold text-[#1E3A5F]">Bilan d'activité</h1>
           <p className="text-sm text-gray-500 flex items-center gap-1.5">
-            <mood.Icon size={14} className="text-gray-400" />
-            {mood.text}
+            <MoodIcon size={14} className="text-gray-400 flex-shrink-0" />
+            {resume}
           </p>
         </div>
       </div>
