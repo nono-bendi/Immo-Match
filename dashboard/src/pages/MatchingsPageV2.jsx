@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, ArrowLeft, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -636,6 +636,9 @@ export default function MatchingsPageV2() {
   const [search, setSearch]             = useState('')
   const [filterScore, setFilterScore]   = useState('all')
   const [sortBy, setSortBy]             = useState('recent')
+  const [periode, setPeriode]           = useState('tout') // 'tout' | '7j' | '30j' | 'custom'
+  const [periodeFrom, setPeriodeFrom]   = useState('')
+  const [periodeTo, setPeriodeTo]       = useState('')
   const [sendingEmail, setSendingEmail] = useState(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [page, setPage]                 = useState(1)
@@ -660,14 +663,35 @@ export default function MatchingsPageV2() {
 
   const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
+  // Période choisie sur la page — recalculée seulement quand le choix change
+  // vraiment (jamais avec new Date() directement dans le rendu, sinon boucle
+  // infinie de rechargement comme sur la page Bilan).
+  const { periodeDepuis, periodeJusqua } = useMemo(() => {
+    if (periode === 'custom' && periodeFrom) {
+      const from = new Date(periodeFrom); from.setHours(0, 0, 0, 0)
+      return {
+        periodeDepuis: from.toISOString(),
+        periodeJusqua: periodeTo ? new Date(periodeTo + 'T23:59:59').toISOString() : null,
+      }
+    }
+    if (periode === '7j' || periode === '30j') {
+      const from = new Date()
+      from.setDate(from.getDate() - (periode === '7j' ? 7 : 30))
+      return { periodeDepuis: from.toISOString(), periodeJusqua: null }
+    }
+    return { periodeDepuis: null, periodeJusqua: null }
+  }, [periode, periodeFrom, periodeTo])
+
   const fetchData = useCallback(() => {
     setLoading(true)
     const qs = new URLSearchParams()
     if (filterBienId) qs.set('bien_id', filterBienId)
-    if (filterDepuis) qs.set('depuis', filterDepuis)
+    const effDepuis = filterDepuis || periodeDepuis
+    if (effDepuis) qs.set('depuis', effDepuis)
+    if (periodeJusqua) qs.set('jusqua', periodeJusqua)
     const url = qs.toString() ? `/matchings?${qs.toString()}` : '/matchings'
     return apiFetch(url).then(r => r.json()).then(data => { setMatchings(Array.isArray(data) ? data : []); setLoading(false) }).catch(() => setLoading(false))
-  }, [filterBienId, filterDepuis])
+  }, [filterBienId, filterDepuis, periodeDepuis, periodeJusqua])
   useEffect(() => { fetchData() }, [fetchData])
 
 
@@ -809,7 +833,7 @@ export default function MatchingsPageV2() {
   }, [matchings, search, filterScore, filterBienId, filterProspectId, sortBy])
 
   // Reset page quand les filtres changent
-  useEffect(() => { setPage(1) }, [search, filterScore, sortBy])
+  useEffect(() => { setPage(1) }, [search, filterScore, sortBy, periode, periodeFrom, periodeTo])
 
   const totalPages  = Math.ceil(groups.length / PAGE_SIZE)
   const pagedGroups = groups.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -829,9 +853,6 @@ export default function MatchingsPageV2() {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/matchings-v1')} className="p-2 rounded-xl text-gray-400 hover:text-[#1E3A5F] hover:bg-white/60 transition-all" title="Ancienne vue">
-          <ArrowLeft size={19} />
-        </button>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
@@ -882,6 +903,36 @@ export default function MatchingsPageV2() {
           ))}
           <div className="glass-sort-glider" style={{ transform: `translateX(${['recent', 'score', 'alpha'].indexOf(sortBy) * 100}%)` }} />
         </div>
+      </div>
+
+      {/* Période */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        {[{ v: 'tout', label: 'Toute période' }, { v: '7j', label: '7 derniers jours' }, { v: '30j', label: '30 derniers jours' }].map(p => (
+          <button
+            key={p.v}
+            onClick={() => setPeriode(p.v)}
+            className={'px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
+              (periode === p.v ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+            style={periode === p.v ? { background: 'var(--gradient-primary)' } : {}}
+          >
+            {p.label}
+          </button>
+        ))}
+        <button
+          onClick={() => setPeriode(periode === 'custom' ? 'tout' : 'custom')}
+          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
+            (periode === 'custom' ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+          style={periode === 'custom' ? { background: 'var(--gradient-primary)' } : {}}
+        >
+          <Calendar size={14} /> Période personnalisée
+        </button>
+        {periode === 'custom' && (
+          <div className="flex items-center gap-2 ml-1 animate-fade-in-up">
+            <input type="date" value={periodeFrom} onChange={e => setPeriodeFrom(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl text-sm" />
+            <span className="text-gray-400 text-sm">à</span>
+            <input type="date" value={periodeTo} onChange={e => setPeriodeTo(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-xl text-sm" />
+          </div>
+        )}
       </div>
 
       {filterBienId && (

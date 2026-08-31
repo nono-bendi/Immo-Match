@@ -491,6 +491,7 @@ def get_matchings(
     tri: str = "pondere",  # "pondere" | "score" | "completude"
     bien_id: int = None,
     depuis: str = None,
+    jusqua: str = None,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -500,8 +501,8 @@ def get_matchings(
     - tri=score            : tri pur par score de matching (comportement original)
     - tri=completude       : tri par complétude du profil d'abord
     - destination          : filtre optionnel (ex: "Principal", "Marchands", "Investissement")
-    - depuis               : ISO datetime — ne renvoie que les matchings analysés depuis cette date
-                             (utilisé par le bandeau "bilan depuis votre dernière visite")
+    - depuis, jusqua       : ISO datetime — ne renvoie que les matchings analysés dans cette
+                             fenêtre (bandeau "bilan" et sélecteur de période sur la page)
     """
     db_path = get_db_path(current_user["agency_slug"])
     settings = get_settings_values(db_path)
@@ -519,6 +520,9 @@ def get_matchings(
     if depuis:
         where_extras += " AND m.date_analyse >= ?"
         params.append(depuis)
+    if jusqua:
+        where_extras += " AND m.date_analyse <= ?"
+        params.append(jusqua)
 
     _ensure_presentations_table(conn)
     cursor = conn.execute(f'''
