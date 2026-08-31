@@ -911,8 +911,8 @@ export default function MatchingsPageV2() {
           <button
             key={p.v}
             onClick={() => setPeriode(p.v)}
-            className={'px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
-              (periode === p.v ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+            className={'px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ' +
+              (periode === p.v ? 'text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300')}
             style={periode === p.v ? { background: 'var(--gradient-primary)' } : {}}
           >
             {p.label}
@@ -920,8 +920,8 @@ export default function MatchingsPageV2() {
         ))}
         <button
           onClick={() => setPeriode(periode === 'custom' ? 'tout' : 'custom')}
-          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
-            (periode === 'custom' ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ' +
+            (periode === 'custom' ? 'text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300')}
           style={periode === 'custom' ? { background: 'var(--gradient-primary)' } : {}}
         >
           <Calendar size={14} /> Période personnalisée

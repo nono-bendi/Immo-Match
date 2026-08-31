@@ -205,8 +205,8 @@ function BilanPage() {
           <button
             key={p.key}
             onClick={() => { setPreset(p.key); setShowCustom(false) }}
-            className={'px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
-              (!showCustom && preset === p.key ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+            className={'px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ' +
+              (!showCustom && preset === p.key ? 'text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300')}
             style={!showCustom && preset === p.key ? { background: 'var(--gradient-primary)' } : {}}
           >
             {p.label}
@@ -214,8 +214,8 @@ function BilanPage() {
         ))}
         <button
           onClick={() => setShowCustom(v => !v)}
-          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium border transition-all btn-press ' +
-            (showCustom ? 'text-white border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300')}
+          className={'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all btn-press ' +
+            (showCustom ? 'text-white' : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300')}
           style={showCustom ? { background: 'var(--gradient-primary)' } : {}}
         >
           <Calendar size={14} /> Période personnalisée
