@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Bell, Home, Star, Users, RefreshCw } from 'lucide-react'
+import { Bell, Home, Star, Users, RefreshCw, Sparkles } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
 
@@ -163,6 +163,13 @@ function NotificationBell() {
               ))
             )}
           </div>
+
+          <button
+            onClick={() => { setIsOpen(false); navigate('/bilan') }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '11px 16px', fontSize: 12.5, fontWeight: 600, color: '#1E3A5F', background: 'white', border: 'none', borderTop: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
+          >
+            <Sparkles size={13} /> Voir le bilan d'activité
+          </button>
         </div>
       )}
     </div>
