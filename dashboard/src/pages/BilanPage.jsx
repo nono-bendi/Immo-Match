@@ -128,6 +128,27 @@ function BilanPage() {
   const moodIcon = !data ? Sparkles : total === 0 ? Wind : total < 10 ? Sparkles : total < 60 ? PartyPopper : Flame
   const MoodIcon = moodIcon
 
+  // Détecte une "Analyse global" (beaucoup de prospects analysés d'un coup, en
+  // peu de temps) pour ne pas faire croire à 500 actions distinctes de l'agent.
+  const detecterAnalyseGlobale = (matchings) => {
+    if (!matchings || matchings.length < 15) return null
+    const buckets = {}
+    for (const m of matchings) {
+      const t = new Date(m.date_analyse).getTime()
+      if (Number.isNaN(t)) continue
+      const key = Math.floor(t / (30 * 60 * 1000)) // fenêtres de 30 min
+      ;(buckets[key] ||= []).push(m)
+    }
+    let biggest = null
+    for (const rows of Object.values(buckets)) {
+      const distinctProspects = new Set(rows.map(r => r.prospect_id)).size
+      if (distinctProspects >= 10 && (!biggest || rows.length > biggest.rows.length)) {
+        biggest = { rows, distinctProspects }
+      }
+    }
+    return biggest
+  }
+
   // Phrase de synthèse efficace : les chiffres directement, pas juste une ambiance
   const resume = (() => {
     if (!data) return 'On regarde ça…'
@@ -138,10 +159,17 @@ function BilanPage() {
 
     const excellents = data.matchings?.filter(m => m.score >= 80).length || 0
     const bestScore = nm ? Math.max(...data.matchings.map(m => m.score)) : null
+    const globale = detecterAnalyseGlobale(data.matchings)
 
     const parts = []
     if (nb > 0) parts.push(`${nb} nouveau${nb > 1 ? 'x' : ''} bien${nb > 1 ? 's' : ''} ajouté${nb > 1 ? 's' : ''}`)
-    if (nm > 0) parts.push(`${nm} matching${nm > 1 ? 's' : ''} analysé${nm > 1 ? 's' : ''}${excellents > 0 ? ` (dont ${excellents} à 80%+)` : ''}`)
+    if (nm > 0) {
+      if (globale && globale.rows.length >= nm * 0.5) {
+        parts.push(`${nm} matching${nm > 1 ? 's' : ''} analysé${nm > 1 ? 's' : ''}, dont une analyse globale sur ${globale.distinctProspects} prospects (${globale.rows.length} matchings d'un coup)`)
+      } else {
+        parts.push(`${nm} matching${nm > 1 ? 's' : ''} analysé${nm > 1 ? 's' : ''}${excellents > 0 ? ` (dont ${excellents} à 80%+)` : ''}`)
+      }
+    }
     if (nv > 0) parts.push(`${nv} bien${nv > 1 ? 's' : ''} vendu${nv > 1 ? 's' : ''}`)
 
     let sentence = parts.length > 1
