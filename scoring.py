@@ -463,6 +463,9 @@ RÉDACTION DES POINTS FORTS — RÈGLE OBLIGATOIRE :
 - INTERDIT (principe général, pas une liste fermée) : tout mot qui catégorise le client au lieu de lui parler — composition du foyer (couple, famille, célibataire, colocataires), âge ou statut (retraités, senior, jeunes actifs). Peu importe la formulation exacte ("pour un couple", "en famille", "pour des retraités", "si le couple a deux voitures"...) : dès que la phrase parle DE la personne au lieu de s'adresser À elle, c'est interdit — remplace toujours par "vous"/"votre".
 - CORRECT : décris le bénéfice concret du bien en s'adressant à "vous". Ex : "Jardin privatif clos — idéal pour votre chien" (pas "critère indispensable satisfait"). Ex : "Parfait pour votre quotidien" (pas "parfait pour le quotidien en famille"). Ex : "Tout le confort au quotidien" (pas "tout le confort pour des retraités"). Ex : "Idéal si vous avez deux véhicules" (pas "idéal si le couple a deux véhicules").
 - VOCABULAIRE : ton professionnel, jamais familier. INTERDIT : "ado" (dire "adolescent"), "appart" (dire "appartement"), "coloc" (dire "colocataire"), et toute autre abréviation familière du même type — toujours le mot complet.
+- PRIX — TON COMMERCIAL, PAS DE JUGEMENT DE VALEUR : n'écris jamais "prix très bas" ou "prix très en dessous du budget" — ça sous-entend que le bien est mal évalué ou brade, ce qui n'est pas vrai (c'est souvent juste le prix du marché) et n'est pas commercial pour un texte lu par le client. Dis "prix attractif" ou "budget maîtrisé". Ne confonds jamais "en dessous du budget du client" (le client a de la marge) et "en dessous du marché" (le bien est sous-évalué) — ce sont deux choses différentes, ne les mélange pas.
+- BUDGET — RESTE SOBRE : "Budget maîtrisé" suffit. Ne rajoute pas le calcul détaillé ("bien sous votre plafond de X€") — ça alourdit inutilement une phrase déjà claire.
+- JARGON IMMOBILIER/FINANCIER INTERDIT : "zone liquide", "marché liquide", "peu liquide", "décote" — vocabulaire d'initié incompréhensible pour un client. Dis simplement "quartier recherché" ou "facile à revendre" si le point est pertinent.
 
 RÉDACTION DES POINTS D'ATTENTION — RÈGLE OBLIGATOIRE :
 - Les points_attention sont lus par l'agent immobilier pour préparer la visite. Impact concret, pas de jargon technique.
@@ -477,11 +480,12 @@ def _build_focus_destination(destination):
     dest = (destination or "").strip().lower()
     if "marchand" in dest:
         return """DESTINATION : MARCHAND DE BIENS
-- Critères prioritaires : potentiel de revente, marge possible, prix d'acquisition vs valeur marché, localisation porteuse
+- Critères prioritaires : potentiel de revente, marge possible, prix d'acquisition vs valeur réelle du bien, localisation porteuse
 - Le prospect achète pour revendre — l'état du bien est secondaire si le prix est cohérent avec les travaux
-- Valorise : décote significative sur le marché, emplacement prime, potentiel de valorisation, DPE améliorable (travaux = plus-value)
-- Pénalise : prix déjà au prix du marché sans marge, problèmes structurels non valorisables, copropriété bloquante, localisation peu liquide
-- Les critères de confort (luminosité, calme, étage) sont non pertinents pour ce profil"""
+- Valorise : prix nettement en dessous de la valeur réelle du bien, emplacement prime, potentiel de valorisation, DPE améliorable (travaux = plus-value)
+- Pénalise : prix déjà au niveau du marché sans marge, problèmes structurels non valorisables, copropriété bloquante, secteur où il est difficile de revendre
+- Les critères de confort (luminosité, calme, étage) sont non pertinents pour ce profil
+- Vocabulaire client : jamais "décote" ni "liquide"/"illiquide" (jargon d'initié) — dis "marge de revente", "prix en dessous de la valeur réelle", "secteur recherché" ou "difficile à revendre"."""
     elif "invest" in dest:
         return """DESTINATION : INVESTISSEMENT LOCATIF
 - Critères prioritaires : rentabilité locative, DPE (A/B = loyer majoré, E/F/G = risque de travaux obligatoires), quartier demandé à la location, charges de copropriété
