@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus, Building2 } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
@@ -336,7 +336,7 @@ function RecoPostit({ text, paletteIdx = 0 }) {
 }
 
 // ─── BienDetail hero ───────────────────────────────────────────────────────────
-function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
+function BienDetail({ match, mail, onPropose, onRefuse, sending, selectionLabel = 'bien' }) {
   const photo   = fPhoto(match.bien_photos)
   const forts   = bul(match.points_forts).slice(0, 4)
   const atts    = bul(match.points_attention).slice(0, 2)
@@ -428,7 +428,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending }) {
         </button>
 
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>1 bien sélectionné</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>1 {selectionLabel} sélectionné</span>
           <button
             onClick={onPropose}
             disabled={!mail || sending}
@@ -620,6 +620,205 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
   )
 })
 
+// ─── GemBadgeProspect — variante de GemBadge pour la vue "par bien" ────────────
+function GemBadgeProspect({ score, nom, societe, budget, selected, onClick, onOpenProspect, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
+  const c = manual ? { c1: '#a21caf', c2: '#c026d3' } : sC(score)
+  const { dark } = useTheme()
+  const _bg  = dark ? '#0f1e30' : '#fff'
+  const _bd  = dark ? 'rgba(255,255,255,0.07)' : '#edf1f7'
+  const _ico = dark ? 'rgba(255,255,255,0.06)' : '#f8fafc'
+  const _tx  = dark ? '#7dd3fc' : '#1E3A5F'
+  const [a, b] = avP(societe || nom)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: 8, borderRadius: 12, background: _bg, border: `1.5px solid ${selected ? c.c1 : _bd}`, boxShadow: selected ? `0 4px 18px ${c.c1}30` : `0 1px 0 ${_bd}`, transition: 'all 0.18s ease' }}>
+      <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, minWidth: 0, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, transform: selected ? 'translateY(-1px)' : 'translateY(0)', transition: 'transform 0.18s ease' }}>
+        <div style={{ width: 44, height: 44, borderRadius: 9, flexShrink: 0, position: 'relative', display: 'grid', placeItems: 'center', background: `linear-gradient(135deg,${a},${b})`, color: '#fff', fontWeight: 800, fontSize: 14 }}>
+          {ini(societe || nom)}
+          {manual
+            ? <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', padding: 3, borderRadius: 9999, display: 'flex', boxShadow: `0 2px 4px ${c.c1}50` }}><UserPlus size={10} /></div>
+            : <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>}
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{societe || nom}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(budget)}</span>
+            {manual && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#a21caf', background: '#fdf4ff', border: '1px solid #f0abfc', borderRadius: 9999, padding: '1px 6px' }}>Manuel</span></>}
+            {emailEnvoye && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 6px' }}>Proposé</span></>}
+            {presented && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 9999, padding: '1px 6px' }}>Visité</span></>}
+          </div>
+        </div>
+      </button>
+      <button onClick={e => { e.stopPropagation(); onOpenProspect() }} title="Voir la fiche du prospect" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+        onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(125,211,252,0.12)':'#eff6ff'; e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+        onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
+      ><ExternalLink size={12} /></button>
+      <button onClick={e => { e.stopPropagation(); onPropose && onPropose() }} disabled={!onPropose} title={emailEnvoye ? 'Renvoyer' : 'Envoyer'} className={onPropose ? 'gem-send' : ''} style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: onPropose ? 'pointer' : 'default', color: '#94a3b8', opacity: onPropose ? 1 : 0.4 }}
+      ><Send size={12} /></button>
+      <button onClick={e => { e.stopPropagation(); onRefuse() }} title="Refuser" style={{ flexShrink: 0, width: 28, height: 28, borderRadius: 8, background: _ico, border: `1px solid ${_bd}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s' }}
+        onMouseEnter={e => { e.currentTarget.style.background='#fef2f2'; e.currentTarget.style.color='#ef4444'; e.currentTarget.style.borderColor='#fecaca' }}
+        onMouseLeave={e => { e.currentTarget.style.background=_ico; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.borderColor=_bd }}
+      ><X size={12} /></button>
+    </div>
+  )
+}
+
+// ─── BienGroupCard — miroir de ProspectCard : une carte par bien, prospects dedans ──
+const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen }) {
+  const sorted = [...group.matchings]
+    .filter(m => m.statut_prospect !== 'refused')
+    .sort((a, b) => b.score - a.score)
+  const best = sorted[0]
+  const [selId, setSelId] = useState(defaultOpen && best ? best.id : null)
+  const [prospectModalData, setProspectModalData] = useState(null)
+  const [bienModal, setBienModal] = useState(null)
+  const [expanded, setExpanded] = useState(false)
+  const presentedIds = useMemo(() => new Set(group.matchings.filter(m => m.date_presentation).map(m => m.prospect_id)), [group.matchings])
+  const sel = selId ? sorted.find(m => m.id === selId) || best : null
+  const photo = fPhoto(group.bien_photos)
+  const { dark } = useTheme()
+  const _bg    = dark ? '#0f1e30' : '#fff'
+  const _bd    = dark ? 'rgba(255,255,255,0.07)' : '#edf1f7'
+  const _sep   = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'
+  const _tx    = dark ? '#7dd3fc' : '#1E3A5F'
+  const _sub   = dark ? 'rgba(255,255,255,0.45)' : '#64748b'
+  const _mid   = dark ? '#0f1e30' : 'linear-gradient(180deg,#fbfcfe 0%,#f8fafc 100%)'
+  const _dot   = dark ? 'rgba(30,58,95,0.15)' : 'rgba(30,58,95,0.05)'
+  const _brief = dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)'
+  const _btn   = dark ? 'rgba(255,255,255,0.06)' : '#fbfcfe'
+  const _btnBd = dark ? 'rgba(255,255,255,0.08)' : '#e8eef5'
+  const c1 = '#1E3A5F', c2 = '#2D5A8A'
+  const lastNew  = sorted.find(m => m.date_creation && new Date(m.date_creation).getTime() > _24H_AGO)
+  const heureNew = lastNew?.date_creation ? lastNew.date_creation.slice(11, 16) : null
+
+  const openProspectModal = async (prospectId) => {
+    const data = await apiFetch(`/prospects/${prospectId}`).then(r => r.json()).catch(() => null)
+    if (data) setProspectModalData({ ...data, _open: true })
+  }
+  const openBienModal = async () => {
+    const data = await apiFetch(`/biens/${group.bien_id}`).then(r => r.json()).catch(() => null)
+    if (data) setBienModal(data)
+  }
+
+  return (
+    <>
+      {prospectModalData?._open && (
+        <ProspectModal
+          prospect={prospectModalData}
+          gradientFrom={c1}
+          gradientTo={c2}
+          onClose={() => setProspectModalData(d => ({ ...d, _open: false }))}
+        />
+      )}
+      {bienModal && <BienModal bien={bienModal} onClose={() => setBienModal(null)} />}
+
+      <div style={{ background: _bg, borderRadius: 20, border: `1px solid ${_bd}`, boxShadow: dark ? '0 1px 0 rgba(255,255,255,0.05),0 8px 32px rgba(0,0,0,0.3)' : '0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s ease,transform 0.2s ease' }}
+        onMouseEnter={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.07),0 16px 44px rgba(0,0,0,0.4)':'0 1px 0 #e8eef5,0 16px 44px rgba(30,58,95,0.10)'; e.currentTarget.style.transform='translateY(-2px)' }}
+        onMouseLeave={e => { e.currentTarget.style.boxShadow=dark?'0 1px 0 rgba(255,255,255,0.05),0 8px 32px rgba(0,0,0,0.3)':'0 1px 0 #e8eef5,0 8px 32px rgba(30,58,95,0.06)'; e.currentTarget.style.transform='translateY(0)' }}
+      >
+        <div className="pc-grid" style={{ '--pc-sep': _sep }}>
+
+          {/* ── GAUCHE — brief bien ── */}
+          <div className="pc-sep-right" style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: -60, left: -50, width: 200, height: 200, borderRadius: '50%', background: `radial-gradient(circle at 30% 30%,${c1}24 0%,transparent 70%)`, filter: 'blur(14px)', pointerEvents: 'none' }} />
+
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', inset: -4, background: `linear-gradient(135deg,${c1},${c2})`, borderRadius: 18, filter: 'blur(10px)', opacity: 0.45 }} />
+                <div style={{ position: 'relative', width: 54, height: 54, borderRadius: 16, overflow: 'hidden', background: photo ? 'transparent' : `linear-gradient(135deg,${c1},${c2})`, display: 'grid', placeItems: 'center', color: '#fff' }}>
+                  {photo ? <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Building2 size={22} />}
+                </div>
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {group.bien_type} à {group.bien_ville}
+                </div>
+                <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
+                  <span>{sorted.length} prospect{sorted.length > 1 ? 's' : ''} compatible{sorted.length > 1 ? 's' : ''}</span>
+                  {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={openBienModal}
+              style={{ position: 'relative', padding: '14px 16px', background: _brief, backdropFilter: 'blur(4px)', borderRadius: 13, border: `1px solid ${_bd}`, cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'all 0.18s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.background=dark?'rgba(255,255,255,0.1)':'#f0f4ff'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+              onMouseLeave={e => { e.currentTarget.style.background=_brief; e.currentTarget.style.borderColor=_bd }}
+            >
+              <div style={{ position: 'absolute', top: 11, left: -1, width: 3, height: 'calc(100% - 22px)', background: `linear-gradient(to bottom,${c1},${c2})`, borderRadius: 9999 }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Fiche du bien</div>
+                <span style={{ fontSize: 11, color: '#94a3b8' }}>›</span>
+              </div>
+              <div style={{ fontSize: 15, color: _tx, lineHeight: 1.4, fontWeight: 500 }}>
+                {group.bien_surface && <>{group.bien_surface} m²</>}
+                {group.bien_pieces && <> · {group.bien_pieces} pièces</>}
+                {group.bien_reference && <> · Réf. {group.bien_reference}</>}
+              </div>
+            </button>
+
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>Prix</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: _tx, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1.15 }}>{mon(group.bien_prix)}</div>
+              </div>
+              <button onClick={e => onRunSingle(e, group.bien_id)} disabled={analyzing} title="Relancer l'analyse"
+                style={{ width: 34, height: 34, borderRadius: 11, border: `1px solid ${_btnBd}`, background: _btn, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', transition: 'all 0.15s', flexShrink: 0 }}
+                onMouseEnter={e => { e.currentTarget.style.color=dark?'#7dd3fc':'#1E3A5F'; e.currentTarget.style.background=dark?'rgba(255,255,255,0.1)':'#eff6ff'; e.currentTarget.style.borderColor=dark?'rgba(125,211,252,0.3)':'#bfdbfe' }}
+                onMouseLeave={e => { e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background=_btn; e.currentTarget.style.borderColor=_btnBd }}
+              ><RefreshCw size={14} /></button>
+            </div>
+          </div>
+
+          {/* ── CENTRE — ScoreRing (meilleur score) ── */}
+          <div className="pc-sep-right" style={{ display: 'grid', placeItems: 'center', padding: '10px 10px', background: _mid, position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle,${_dot} 1px,transparent 1px)`, backgroundSize: '14px 14px', pointerEvents: 'none', opacity: 0.6 }} />
+            <div style={{ position: 'relative' }}>{best && <ScoreRing score={(sel ?? best).score} manual={(sel ?? best).statut_prospect === 'manuel'} size={window.innerWidth >= 1400 ? 140 : window.innerWidth >= 1200 ? 124 : 104} />}</div>
+          </div>
+
+          {/* ── DROITE — prospects compatibles ── */}
+          <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
+            {(expanded ? sorted : sorted.slice(0, 3)).map(m => (
+              <GemBadgeProspect key={m.id} score={m.score}
+                nom={[m.prospect_titre, m.prospect_prenom, m.prospect_nom].filter(Boolean).join(' ')}
+                societe={m.prospect_societe} budget={m.prospect_budget}
+                manual={m.statut_prospect === 'manuel'}
+                selected={sel?.id === m.id}
+                onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
+                onOpenProspect={() => openProspectModal(m.prospect_id)}
+                emailEnvoye={m.date_email_envoye}
+                onPropose={(m.prospect_mail || m.prospect_email2) ? () => onPropose(m, [m.prospect_mail, m.prospect_email2].filter(Boolean).join(', '), (m.prospect_titre ? m.prospect_titre + ' ' : '') + m.prospect_nom, m.prospect_prenom, m.prospect_prenom2, m.prospect_nom2) : null}
+                onRefuse={() => onRefuse(m)}
+                presented={presentedIds.has(m.prospect_id)}
+              />
+            ))}
+            {sorted.length > 3 && (
+              <button onClick={() => setExpanded(v => !v)}
+                style={{ fontSize: 12, color: '#94a3b8', paddingLeft: 10, marginTop: 2, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '2px 10px', transition: 'color 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.color='#3b82f6'}
+                onMouseLeave={e => e.currentTarget.style.color='#94a3b8'}
+              >
+                {expanded ? 'Voir moins' : `+${sorted.length - 3} autre${sorted.length - 3 > 1 ? 's' : ''}`}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Panneau détail — réutilise BienDetail, les points forts/reco sont liés au matching, pas au sens de lecture ── */}
+        <div style={{ maxHeight: sel ? '1000px' : '0px', opacity: sel ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease' }}>
+          {sel && (
+            <BienDetail match={sel} mail={[sel.prospect_mail, sel.prospect_email2].filter(Boolean).join(', ')} sending={sendingEmail === sel.id} selectionLabel="prospect"
+              onPropose={() => onPropose(sel, [sel.prospect_mail, sel.prospect_email2].filter(Boolean).join(', '), (sel.prospect_titre ? sel.prospect_titre + ' ' : '') + sel.prospect_nom, sel.prospect_prenom, sel.prospect_prenom2, sel.prospect_nom2)}
+              onRefuse={() => onRefuse(sel)}
+            />
+          )}
+        </div>
+      </div>
+    </>
+  )
+})
+
 // ─── Page ──────────────────────────────────────────────────────────────────────
 export default function MatchingsPageV2() {
   const { agency } = useAgency()
@@ -629,6 +828,10 @@ export default function MatchingsPageV2() {
   const filterBienId      = searchParams.get('bien')     ? parseInt(searchParams.get('bien'))     : null
   const filterProspectId  = searchParams.get('prospect') ? parseInt(searchParams.get('prospect')) : null
   const filterDepuis      = searchParams.get('depuis')   || null
+  // Vue "par bien" (matching inversé) : une carte par bien avec ses prospects
+  // compatibles dedans, au lieu d'une carte par prospect — activée dès qu'on
+  // arrive filtré sur un bien précis (ex: depuis le bilan ou la fiche bien).
+  const byBien = !!filterBienId
 
 
   const [matchings, setMatchings]       = useState([])
@@ -719,6 +922,13 @@ export default function MatchingsPageV2() {
     setOverlayCompleted(true); setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
   }, [fetchData])
 
+  const runSingleBien = useCallback(async (e, bienId) => {
+    e.stopPropagation(); setAnalyzing(true); setShowOverlay(true); setOverlayCompleted(false)
+    setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName('ce bien')
+    try { const d = await apiFetch(`/matching/run-by-bien/${bienId}`, { method: 'POST' }).then(r => r.json()); if (d.error) alert('Erreur: ' + d.error); else await fetchData() } catch { alert("Erreur lors de l'analyse") }
+    setOverlayCompleted(true); setTimeout(() => { setShowOverlay(false); setOverlayCompleted(false); setAnalyzing(false) }, 700)
+  }, [fetchData])
+
   const openEmail = useCallback((match, mail, nom, prenom, prenom2, nom2) => {
     if (!mail) { setEmailModal({ isOpen: true, type: 'error', data: { error: "Pas d'email enregistré." }, isLoading: false }); return }
     const draft = sessionStorage.getItem(`emailDraft_${match.id}`)
@@ -804,8 +1014,13 @@ export default function MatchingsPageV2() {
       return true
     })
     const grouped = filtered.reduce((acc, m) => {
-      if (!acc[m.prospect_id]) acc[m.prospect_id] = { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
-      acc[m.prospect_id].matchings.push(m); return acc
+      const key = byBien ? m.bien_id : m.prospect_id
+      if (!acc[key]) {
+        acc[key] = byBien
+          ? { bien_id: m.bien_id, bien_type: m.bien_type, bien_ville: m.bien_ville, bien_prix: m.bien_prix, bien_surface: m.bien_surface, bien_pieces: m.bien_pieces, bien_photos: m.bien_photos, bien_reference: m.bien_reference, matchings: [] }
+          : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
+      }
+      acc[key].matchings.push(m); return acc
     }, {})
     const vals = Object.values(grouped).filter(g => g.matchings.some(m => m.statut_prospect !== 'refused'))
     // Précalculer les valeurs de tri une seule fois par groupe
@@ -816,12 +1031,15 @@ export default function MatchingsPageV2() {
     }
     const groups = vals.sort((a, b) => {
       if (sortBy === 'score') return b._maxScore - a._maxScore
-      if (sortBy === 'alpha') return (a.prospect_nom || '').localeCompare(b.prospect_nom || '', 'fr')
+      if (sortBy === 'alpha') return (byBien ? (a.bien_ville || '') : (a.prospect_nom || '')).localeCompare(byBien ? (b.bien_ville || '') : (b.prospect_nom || ''), 'fr')
       const sameMinute = Math.abs(b._maxDate - a._maxDate) < 60000
       if (!sameMinute) return b._maxDate - a._maxDate
       return b._maxRaw - a._maxRaw
     })
-    if (sortBy === 'recent') {
+    // Vue "par bien" : on montre tout le vivier de prospects compatibles, pas
+    // seulement la dernière session d'analyse (contrairement à la vue par
+    // prospect, un bien reste le même objet qu'il soit analysé une ou dix fois).
+    if (sortBy === 'recent' && !byBien) {
       // Garder uniquement les matchings de la dernière session d'analyse (fenêtre 24h)
       for (const g of groups) {
         const cutoff = g._maxDate - 24 * 60 * 60 * 1000
@@ -830,7 +1048,7 @@ export default function MatchingsPageV2() {
       }
     }
     return { filtered, groups }
-  }, [matchings, search, filterScore, filterBienId, filterProspectId, sortBy])
+  }, [matchings, search, filterScore, filterBienId, filterProspectId, sortBy, byBien])
 
   // Reset page quand les filtres changent
   useEffect(() => { setPage(1) }, [search, filterScore, sortBy, periode, periodeFrom, periodeTo])
@@ -858,7 +1076,9 @@ export default function MatchingsPageV2() {
             <h1 className="text-2xl font-bold text-[#1E3A5F]">Matchings</h1>
           </div>
           <p className="text-sm text-gray-400 mt-0.5">
-            {loading ? 'Chargement…' : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
+            {loading ? 'Chargement…' : byBien
+              ? `${filtered.length} prospect${filtered.length > 1 ? 's' : ''} compatible${filtered.length > 1 ? 's' : ''}`
+              : `${groups.length} prospect${groups.length > 1 ? 's' : ''} · ${filtered.length} matchings`}
           </p>
         </div>
 
@@ -937,7 +1157,9 @@ export default function MatchingsPageV2() {
 
       {filterBienId && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
-          <span className="text-blue-700">Filtré sur le bien #{filterBienId} — {filtered.length} résultat{filtered.length > 1 ? 's' : ''}</span>
+          <span className="text-blue-700">
+            {groups[0] ? `${groups[0].bien_type} à ${groups[0].bien_ville}` : `Bien #${filterBienId}`} — {filtered.length} prospect{filtered.length > 1 ? 's' : ''} compatible{filtered.length > 1 ? 's' : ''}
+          </span>
           <button onClick={() => navigate('/matchings')} className="text-blue-500 hover:underline">Voir tout</button>
         </div>
       )}
@@ -1033,13 +1255,23 @@ export default function MatchingsPageV2() {
                     <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, #e2e8f0, #38bdf8 40%, transparent)' }} />
                   </div>
                 ),
-                <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0 && page === 1}
-                  onRunSingle={runSingle}
-                  onPropose={openEmail}
-                  onRefuse={handleRefuse}
-                  sendingEmail={sendingEmail}
-                  analyzing={analyzing}
-                />
+                byBien ? (
+                  <BienGroupCard key={g.bien_id} group={g} defaultOpen={idx === 0 && page === 1}
+                    onRunSingle={runSingleBien}
+                    onPropose={openEmail}
+                    onRefuse={handleRefuse}
+                    sendingEmail={sendingEmail}
+                    analyzing={analyzing}
+                  />
+                ) : (
+                  <ProspectCard key={g.prospect_id} group={g} defaultOpen={idx === 0 && page === 1}
+                    onRunSingle={runSingle}
+                    onPropose={openEmail}
+                    onRefuse={handleRefuse}
+                    sendingEmail={sendingEmail}
+                    analyzing={analyzing}
+                  />
+                )
               ].filter(Boolean)
             })
           })()}
