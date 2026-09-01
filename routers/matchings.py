@@ -145,6 +145,160 @@ def bien_respecte_contraintes_observations(bien, contraintes):
     return True
 
 
+# Table d'incompatibilités strictes : clé = mot dans type prospect, valeurs = mots exclus dans type bien
+INCOMPATIBLES_TYPE = {
+    "local": ["appartement", "maison", "villa", "t1", "t2", "t3", "t4", "t5", "studio", "immeuble"],
+    "immeuble": ["appartement", "local", "studio"],
+    "parking": ["appartement", "maison", "villa", "local", "immeuble"],
+    "maison de village": ["appartement", "local", "immeuble"],
+}
+
+
+def _type_incompatible_pour_un_type(tp, tb):
+    """Teste l'incompatibilité pour UN SEUL type de recherche du prospect (ex: "maison")."""
+    # Bien parking/box : seuls les chercheurs explicites de parking sont compatibles
+    if ("parking" in tb or "box" in tb) and not any(k in tp for k in ["parking", "box", "garage"]):
+        return True
+
+    for mot_p, exclusions in INCOMPATIBLES_TYPE.items():
+        if mot_p in tp:
+            for exclu in exclusions:
+                if exclu in tb:
+                    return True
+
+    # Maison cherche maison : exclure appartement et local
+    if ("maison" in tp or "villa" in tp) and ("appartement" in tb or "local" in tb or "immeuble" in tb):
+        return True
+
+    # Bien maison/villa : incompatible si prospect cherche uniquement un T-type (T2, T3…)
+    # sans mention de "maison" ou "villa" → il veut un appartement, pas une maison
+    if ("maison" in tb or "villa" in tb):
+        cherche_t_type = bool(re.search(r'\bt[1-5]\b', tp)) or "appartement" in tp or "studio" in tp
+        cherche_maison = "maison" in tp or "villa" in tp
+        if cherche_t_type and not cherche_maison:
+            return True
+
+    return False
+
+
+def types_incompatibles(type_prospect, type_bien):
+    """Retourne True si le type bien est clairement incompatible avec la recherche.
+
+    Le prospect peut rechercher plusieurs types à la fois (ex: "Appartement, Maison") —
+    le bien n'est exclu que s'il est incompatible avec CHACUN des types demandés,
+    sinon un match sur un seul type suffit à le garder candidat (même logique de
+    découpage multi-types que calculer_score_objectif dans scoring.py).
+
+    Partagée par prefiltre_biens (prospect -> biens) et prefiltre_prospects_pour_bien
+    (bien -> prospects, "matching inversé") pour éviter que les deux sens divergent.
+    """
+    if not type_prospect or not type_bien:
+        return False
+    tp_full = type_prospect.lower().strip()
+    tb = type_bien.lower().strip()
+    # "Tous biens" = pas de filtre
+    if "tous" in tp_full:
+        return False
+
+    types_demandes = [t.strip() for t in tp_full.replace(";", ",").split(",") if t.strip()]
+    if not types_demandes:
+        return False
+
+    return all(_type_incompatible_pour_un_type(tp, tb) for tp in types_demandes)
+
+
+# Zones géographiques (villes proches entre elles)
+ZONES_GEOGRAPHIQUES = [
+    # Zone Fréjus / Saint-Raphaël / Estérel
+    ["frejus", "fréjus", "saint-raphael", "saint-raphaël", "st-raphael", "st raphael",
+     "roquebrune-sur-argens", "roquebrune sur argens", "puget-sur-argens", "puget sur argens",
+     "saint-aygulf", "st-aygulf", "le muy", "les adrets", "bagnols-en-foret", "bagnols en foret",
+     "les adrets-de-l'esterel", "adrets de l'esterel"],
+    # Zone Cannes / Antibes / Grasse
+    ["cannes", "antibes", "grasse", "mougins", "le cannet", "mandelieu", "vallauris",
+     "valbonne", "biot", "villeneuve-loubet", "cagnes-sur-mer"],
+    # Zone Nice / Monaco
+    ["nice", "monaco", "menton", "villefranche-sur-mer", "beaulieu-sur-mer", "eze",
+     "cap-d'ail", "roquebrune-cap-martin", "la trinite", "saint-laurent-du-var"],
+    # Zone Toulon / Hyères
+    ["toulon", "hyeres", "hyères", "la seyne-sur-mer", "six-fours", "sanary",
+     "bandol", "le pradet", "carqueiranne", "la garde"],
+    # Zone Draguignan / Var intérieur
+    ["draguignan", "lorgues", "vidauban", "trans-en-provence", "flayosc",
+     "taradeau", "les arcs", "le thoronet"],
+    # Zone Marseille / Aix
+    ["marseille", "aix-en-provence", "aix en provence", "cassis", "la ciotat",
+     "aubagne", "gardanne", "vitrolles", "martigues", "istres"],
+    # Zone Avignon / Cavaillon
+    ["avignon", "cavaillon", "carpentras", "orange", "apt", "l'isle-sur-la-sorgue",
+     "isle sur la sorgue", "pertuis", "gordes", "roussillon"]
+]
+
+
+def trouver_zone(ville):
+    """Trouve la zone géographique d'une ville"""
+    ville_clean = ville.lower().strip().replace('é', 'e').replace('è', 'e').replace('ë', 'e')
+    for i, zone in enumerate(ZONES_GEOGRAPHIQUES):
+        for v in zone:
+            v_clean = v.replace('é', 'e').replace('è', 'e')
+            if v_clean in ville_clean or ville_clean in v_clean:
+                return i
+    return -1  # Zone inconnue
+
+
+def villes_meme_zone(ville1, ville2):
+    """Vérifie si deux villes sont dans la même zone géographique"""
+    zone1 = trouver_zone(ville1)
+    zone2 = trouver_zone(ville2)
+    # Si une des zones est inconnue, on accepte (on laisse Claude décider)
+    if zone1 == -1 or zone2 == -1:
+        return True
+    return zone1 == zone2
+
+
+def ville_hors_secteur(villes_recherchees_str, ville_bien_str):
+    """
+    Compare une liste de villes recherchées (chaîne, séparées par virgule/point-virgule)
+    à la ville d'un bien. Retourne (exclu, hors_secteur) :
+    - exclu=True  → bien dans une zone géographique trop éloignée, à écarter complètement
+    - hors_secteur=True → ville proche mais pas la ville exacte demandée (flag informatif)
+
+    Gère "tous secteurs"/"tout secteur" (prospect flexible = jamais exclu) et le
+    regroupement par zone géographique pour ne pas exclure une ville voisine.
+    Partagée par prefiltre_biens et prefiltre_prospects_pour_bien.
+    """
+    if not villes_recherchees_str or not ville_bien_str:
+        return False, False
+
+    villes_recherchees = [v.strip() for v in villes_recherchees_str.lower().replace(';', ',').split(',') if v.strip()]
+    if not villes_recherchees:
+        return False, False
+
+    # "Tous secteurs" / "Tout secteur" / "tous" = pas de filtre géographique
+    if any("tous" in v or "tout secteur" in v for v in villes_recherchees):
+        return False, False
+
+    ville_bien = ville_bien_str.lower().strip()
+    zone_bien = trouver_zone(ville_bien)
+    zones_recherchees = {z for z in (trouver_zone(v) for v in villes_recherchees) if z != -1}
+
+    # Zone complètement différente → exclusion dure
+    if zone_bien != -1 and zones_recherchees and zone_bien not in zones_recherchees:
+        return True, True
+
+    ville_bien_clean = ville_bien.replace('é', 'e').replace('è', 'e').replace('ë', 'e')
+    dans_secteur = False
+    for v in villes_recherchees:
+        v_clean = v.replace('é', 'e').replace('è', 'e').replace('ë', 'e')
+        if (v_clean in ville_bien_clean or ville_bien_clean in v_clean or
+                (v_clean.startswith('st ') and ville_bien_clean.startswith('saint')) or
+                (v_clean.startswith('st-') and ville_bien_clean.startswith('saint'))):
+            dans_secteur = True
+            break
+
+    return False, not dans_secteur
+
+
 def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance=130):
     """
     Préfiltre les biens pour ne garder que les candidats potentiels.
@@ -159,119 +313,6 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
     contraintes_obs = extraire_contraintes_observations(client.get("observation"))
     if contraintes_obs:
         log.info(f"[PREFILT] Contraintes observations actives pour {client.get('nom', '?')}: {contraintes_obs}")
-
-    # Table d'incompatibilités strictes : clé = mot dans type prospect, valeurs = mots exclus dans type bien
-    INCOMPATIBLES_TYPE = {
-        "local": ["appartement", "maison", "villa", "t1", "t2", "t3", "t4", "t5", "studio", "immeuble"],
-        "immeuble": ["appartement", "local", "studio"],
-        "parking": ["appartement", "maison", "villa", "local", "immeuble"],
-        "maison de village": ["appartement", "local", "immeuble"],
-    }
-
-    def _type_incompatible_pour_un_type(tp, tb):
-        """Teste l'incompatibilité pour UN SEUL type de recherche du prospect (ex: "maison")."""
-        # Bien parking/box : seuls les chercheurs explicites de parking sont compatibles
-        if ("parking" in tb or "box" in tb) and not any(k in tp for k in ["parking", "box", "garage"]):
-            return True
-
-        for mot_p, exclusions in INCOMPATIBLES_TYPE.items():
-            if mot_p in tp:
-                for exclu in exclusions:
-                    if exclu in tb:
-                        return True
-
-        # Maison cherche maison : exclure appartement et local
-        if ("maison" in tp or "villa" in tp) and ("appartement" in tb or "local" in tb or "immeuble" in tb):
-            return True
-
-        # Bien maison/villa : incompatible si prospect cherche uniquement un T-type (T2, T3…)
-        # sans mention de "maison" ou "villa" → il veut un appartement, pas une maison
-        if ("maison" in tb or "villa" in tb):
-            cherche_t_type = bool(re.search(r'\bt[1-5]\b', tp)) or "appartement" in tp or "studio" in tp
-            cherche_maison = "maison" in tp or "villa" in tp
-            if cherche_t_type and not cherche_maison:
-                return True
-
-        return False
-
-    def types_incompatibles(type_prospect, type_bien):
-        """Retourne True si le type bien est clairement incompatible avec la recherche.
-
-        Le prospect peut rechercher plusieurs types à la fois (ex: "Appartement, Maison") —
-        le bien n'est exclu que s'il est incompatible avec CHACUN des types demandés,
-        sinon un match sur un seul type suffit à le garder candidat (même logique de
-        découpage multi-types que calculer_score_objectif dans scoring.py).
-        """
-        if not type_prospect or not type_bien:
-            return False
-        tp_full = type_prospect.lower().strip()
-        tb = type_bien.lower().strip()
-        # "Tous biens" = pas de filtre
-        if "tous" in tp_full:
-            return False
-
-        types_demandes = [t.strip() for t in tp_full.replace(";", ",").split(",") if t.strip()]
-        if not types_demandes:
-            return False
-
-        return all(_type_incompatible_pour_un_type(tp, tb) for tp in types_demandes)
-
-    # Définir les zones géographiques (villes proches entre elles)
-    zones_geographiques = [
-        # Zone Fréjus / Saint-Raphaël / Estérel
-        ["frejus", "fréjus", "saint-raphael", "saint-raphaël", "st-raphael", "st raphael",
-         "roquebrune-sur-argens", "roquebrune sur argens", "puget-sur-argens", "puget sur argens",
-         "saint-aygulf", "st-aygulf", "le muy", "les adrets", "bagnols-en-foret", "bagnols en foret",
-         "les adrets-de-l'esterel", "adrets de l'esterel"],
-        # Zone Cannes / Antibes / Grasse
-        ["cannes", "antibes", "grasse", "mougins", "le cannet", "mandelieu", "vallauris",
-         "valbonne", "biot", "villeneuve-loubet", "cagnes-sur-mer"],
-        # Zone Nice / Monaco
-        ["nice", "monaco", "menton", "villefranche-sur-mer", "beaulieu-sur-mer", "eze",
-         "cap-d'ail", "roquebrune-cap-martin", "la trinite", "saint-laurent-du-var"],
-        # Zone Toulon / Hyères
-        ["toulon", "hyeres", "hyères", "la seyne-sur-mer", "six-fours", "sanary",
-         "bandol", "le pradet", "carqueiranne", "la garde"],
-        # Zone Draguignan / Var intérieur
-        ["draguignan", "lorgues", "vidauban", "trans-en-provence", "flayosc",
-         "taradeau", "les arcs", "le thoronet"],
-        # Zone Marseille / Aix
-        ["marseille", "aix-en-provence", "aix en provence", "cassis", "la ciotat",
-         "aubagne", "gardanne", "vitrolles", "martigues", "istres"],
-        # Zone Avignon / Cavaillon
-        ["avignon", "cavaillon", "carpentras", "orange", "apt", "l'isle-sur-la-sorgue",
-         "isle sur la sorgue", "pertuis", "gordes", "roussillon"]
-    ]
-
-    def trouver_zone(ville):
-        """Trouve la zone géographique d'une ville"""
-        ville_clean = ville.lower().strip().replace('é', 'e').replace('è', 'e').replace('ë', 'e')
-        for i, zone in enumerate(zones_geographiques):
-            for v in zone:
-                v_clean = v.replace('é', 'e').replace('è', 'e')
-                if v_clean in ville_clean or ville_clean in v_clean:
-                    return i
-        return -1  # Zone inconnue
-
-    def villes_meme_zone(ville1, ville2):
-        """Vérifie si deux villes sont dans la même zone géographique"""
-        zone1 = trouver_zone(ville1)
-        zone2 = trouver_zone(ville2)
-        # Si une des zones est inconnue, on accepte (on laisse Claude décider)
-        if zone1 == -1 or zone2 == -1:
-            return True
-        return zone1 == zone2
-
-    villes_client = []
-    zones_client = set()
-    if client.get("ville"):
-        villes_raw = client["ville"].lower().strip()
-        villes_client = [v.strip() for v in villes_raw.replace(';', ',').split(',')]
-        # Identifier toutes les zones recherchées par le client
-        for v in villes_client:
-            zone = trouver_zone(v)
-            if zone != -1:
-                zones_client.add(zone)
 
     for bien in biens:
         exclu = False
@@ -293,31 +334,10 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
                 exclu = True
 
         # Filtre géographique
-        if not exclu and villes_client and bien.get("ville"):
-            ville_bien = bien["ville"].lower().strip()
-            zone_bien = trouver_zone(ville_bien)
-
-            # Si "tous secteurs" ou "tous", on garde tout
-            if any("tous" in v for v in villes_client):
-                hors_secteur = False
-            # Si le bien est dans une zone complètement différente → EXCLURE
-            elif zone_bien != -1 and zones_client and zone_bien not in zones_client:
-                exclu = True  # Trop loin, on exclut complètement
-            else:
-                # Le bien est dans une zone acceptable, vérifier si c'est la ville exacte
-                ville_bien_clean = ville_bien.replace('é', 'e').replace('è', 'e').replace('ë', 'e')
-                dans_secteur = False
-
-                for ville_recherchee in villes_client:
-                    ville_recherchee_clean = ville_recherchee.replace('é', 'e').replace('è', 'e').replace('ë', 'e')
-                    if (ville_recherchee_clean in ville_bien_clean or
-                            ville_bien_clean in ville_recherchee_clean or
-                            (ville_recherchee_clean.startswith('st ') and ville_bien_clean.startswith('saint')) or
-                            (ville_recherchee_clean.startswith('st-') and ville_bien_clean.startswith('saint'))):
-                        dans_secteur = True
-                        break
-
-                hors_secteur = not dans_secteur
+        if not exclu and client.get("ville") and bien.get("ville"):
+            exclu_v, hors_secteur = ville_hors_secteur(client.get("ville"), bien.get("ville"))
+            if exclu_v:
+                exclu = True
 
         if not exclu:
             bien_copy = bien.copy()
@@ -328,11 +348,24 @@ def prefiltre_biens(client, biens, budget_min_tolerance=50, budget_max_tolerance
 
 
 def prefiltre_prospects_pour_bien(bien, prospects, budget_min_pct=70, budget_max_pct=130):
-    """Filtre inverse : trouve les prospects potentiellement compatibles avec un bien."""
+    """Filtre inverse : trouve les prospects potentiellement compatibles avec un bien.
+
+    Réutilise types_incompatibles() et ville_hors_secteur() — les mêmes fonctions que
+    prefiltre_biens() — pour que le "matching inversé" (depuis un bien) reconnaisse les
+    mêmes équivalences de type (ex: T1/T2 = Appartement) et le même traitement des
+    prospects "Tout secteur" (jamais exclus géographiquement) que le sens normal.
+
+    Le plancher budget_min_pct est plafonné à 50 % : côté prospect -> biens, un plancher
+    élevé sert à ne pas proposer un bien trop en dessous du budget cible. Mais côté
+    bien -> prospects, la question n'est pas "ce bien est-il dans SA cible ?" mais
+    "peut-il se l'offrir ?" — un prospect dont le budget max couvre largement le prix
+    reste un acheteur potentiel légitime, il ne doit pas être écarté sur ce seul critère.
+    """
+    budget_min_pct = min(budget_min_pct, 50)
     compatibles = []
     prix_bien = bien.get("prix") or 0
-    type_bien = (bien.get("type") or "").lower()
-    ville_bien = (bien.get("ville") or "").lower()
+    type_bien = bien.get("type") or ""
+    ville_bien = bien.get("ville") or ""
 
     for prospect in prospects:
         budget_max = prospect.get("budget_max") or 0
@@ -342,17 +375,12 @@ def prefiltre_prospects_pour_bien(bien, prospects, budget_min_pct=70, budget_max
             if prix_bien < seuil_min or prix_bien > seuil_max:
                 continue
 
-        types_prospect = (prospect.get("bien") or "").lower()
-        if types_prospect and types_prospect not in ("tous", "tous biens", "tous types", ""):
-            types_list = [t.strip() for t in types_prospect.replace(";", ",").split(",")]
-            if not any(t in type_bien or type_bien in t for t in types_list if t):
-                continue
+        if types_incompatibles(prospect.get("bien"), type_bien):
+            continue
 
-        villes_prospect = (prospect.get("villes") or "").lower()
-        if villes_prospect:
-            villes_list = [v.strip() for v in villes_prospect.replace(";", ",").split(",")]
-            if not any(v in ville_bien or ville_bien in v for v in villes_list if v):
-                continue
+        exclu, _ = ville_hors_secteur(prospect.get("villes"), ville_bien)
+        if exclu:
+            continue
 
         compatibles.append(prospect)
     return compatibles
