@@ -197,7 +197,8 @@ def get_bilan_detail(depuis: str, jusqua: str = None, current_user: dict = Depen
     conn.row_factory = sqlite3.Row
 
     nouveaux_biens = conn.execute("""
-        SELECT id, reference, type, ville, quartier, prix, nom_agence, date_creation
+        SELECT id, reference, type, ville, quartier, prix, nom_agence, date_creation,
+               (SELECT COUNT(*) FROM matchings m WHERE m.bien_id = biens.id) AS matchings_count
         FROM biens WHERE date_creation >= ? AND date_creation <= ?
         ORDER BY date_creation DESC LIMIT 200
     """, (depuis, jusqua)).fetchall()

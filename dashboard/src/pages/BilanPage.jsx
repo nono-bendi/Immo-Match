@@ -251,6 +251,16 @@ function BilanPage() {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className="text-sm font-semibold text-gray-600">{fmtPrix(b.prix)}</span>
+                    {b.matchings_count > 0 && (
+                      <span
+                        onClick={e => { e.stopPropagation(); navigate(`/matchings?bien=${b.id}`) }}
+                        className="px-2 py-1 rounded-lg text-xs font-semibold hover:opacity-80 transition-opacity"
+                        style={{ background: '#eff6ff', color: '#3b82f6' }}
+                        title="Voir les rapprochements de ce bien"
+                      >
+                        {b.matchings_count} rapprochement{b.matchings_count > 1 ? 's' : ''}
+                      </span>
+                    )}
                     <ChevronRight size={15} className="text-gray-300" />
                   </div>
                 </button>
