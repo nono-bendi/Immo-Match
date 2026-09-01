@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 from datetime import datetime, timedelta
 from typing import Optional
@@ -751,10 +752,20 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
     return HTMLResponse(content=html)
 
 
+def _extraire_surface_pieces(criteres_txt):
+    """Surface min / Pièces min sont saisies en texte libre dans 'criteres'
+    (ex: 'Surface min: 45m² | Pièces min: 3') — aucune colonne dédiée n'existe."""
+    txt = (criteres_txt or "").lower()
+    surf = re.search(r'surface\s+min\s*:\s*(\d+)', txt)
+    pieces = re.search(r'pi[eè]ces?\s+min\s*:\s*(\d+)', txt)
+    return (int(surf.group(1)) if surf else None, int(pieces.group(1)) if pieces else None)
+
+
 @router.get("/rapport/portefeuille", response_class=HTMLResponse)
 def rapport_portefeuille(
     type_bien: str = Query(...),
     budget_min: Optional[int] = None,
+    budget_max: Optional[int] = None,
     current_user: dict = Depends(get_user_from_token_param)
 ):
     VALID_TYPES = {
@@ -772,12 +783,18 @@ def rapport_portefeuille(
         SELECT * FROM prospects
         WHERE (archive = 0 OR archive IS NULL)
         AND (demo = 0 OR demo IS NULL)
-        AND (bien LIKE ? OR bien LIKE '%Tous biens%')
     """
-    params = [f'%{type_bien}%']
+    params = []
+    if type_bien != 'Tous biens':
+        # "Tous biens" = tout le portefeuille, sans filtrer sur le champ recherche
+        query += " AND (bien LIKE ? OR bien LIKE '%Tous biens%')"
+        params.append(f'%{type_bien}%')
     if budget_min:
         query += " AND (budget_max IS NULL OR budget_max >= ?)"
         params.append(budget_min)
+    if budget_max:
+        query += " AND (budget_max IS NULL OR budget_max <= ?)"
+        params.append(budget_max)
     query += " ORDER BY budget_max IS NULL, budget_max DESC"
 
     prospects = conn.execute(query, params).fetchall()
@@ -789,7 +806,7 @@ def rapport_portefeuille(
     budgets = [p['budget_max'] for p in prospects if p.get('budget_max')]
     budget_moyen = int(sum(budgets) / len(budgets)) if budgets else 0
     budget_max_val = int(max(budgets)) if budgets else 0
-    surfaces = [p['surface_min'] for p in prospects if p.get('surface_min')]
+    surfaces = [s for s, _ in (_extraire_surface_pieces(p.get('criteres')) for p in prospects) if s]
     surface_moy = int(sum(surfaces) / len(surfaces)) if surfaces else 0
 
     agency_nom = current_user.get('agency_nom', 'ImmoFlash')
@@ -838,55 +855,37 @@ def rapport_portefeuille(
             except Exception:
                 pass
 
-        # Budget
-        bmin = fmt_prix(p.get('budget_min'))
-        bmax = fmt_prix(p.get('budget_max'))
-        budget_range = f'{bmin} → {bmax}' if p.get('budget_min') and p.get('budget_max') else bmax
+        # Budget — budget_min existe en base mais n'est renseigné nulle part dans
+        # l'app (aucun formulaire ne l'écrit) : on n'affiche que le budget max réel.
+        budget_range = fmt_prix(p.get('budget_max'))
 
         # Critères
         villes = (p.get('villes') or '').strip()
         villes_display = ', '.join(v.strip() for v in villes.split(',') if v.strip()) or 'Tout secteur'
 
-        surf_min = int(p['surface_min']) if p.get('surface_min') else None
-        surf_max = int(p['surface_max']) if p.get('surface_max') else None
-        if surf_min and surf_max:
-            surf_str = f'{surf_min} – {surf_max} m²'
-        elif surf_min:
-            surf_str = f'{surf_min} m² min'
-        elif surf_max:
-            surf_str = f'jusqu\'à {surf_max} m²'
-        else:
-            surf_str = None
-
-        pieces = p.get('pieces_min')
-        pieces_str = f'{pieces} pièce{"s" if int(pieces or 0) > 1 else ""} min' if pieces else None
+        surf_min, pieces_min = _extraire_surface_pieces(p.get('criteres'))
+        surf_str = f'{surf_min} m² min' if surf_min else None
+        pieces_str = f'{pieces_min} pièce{"s" if pieces_min > 1 else ""} min' if pieces_min else None
 
         dest = (p.get('destination') or '').strip()
-        etat = (p.get('etat_bien') or '').strip()
-
-        financement = (p.get('financement') or '').strip()
-        apport = p.get('apport')
+        etat = (p.get('etat') or '').strip()
 
         obs = (p.get('observation') or '').strip()
 
         # Grille critères
-        criteres = []
+        crit_items = []
         if surf_str:
-            criteres.append(('📐 Surface', surf_str))
+            crit_items.append(('Surface', surf_str))
         if pieces_str:
-            criteres.append(('🚪 Pièces', pieces_str))
+            crit_items.append(('Pièces', pieces_str))
         if etat:
-            criteres.append(('🔧 État', etat[:40]))
+            crit_items.append(('État recherché', etat[:40]))
         if dest:
-            criteres.append(('🎯 Projet', dest[:40]))
-        if financement:
-            criteres.append(('💳 Financement', financement[:30]))
-        elif apport:
-            criteres.append(('💳 Apport', fmt_prix(apport)))
+            crit_items.append(('Projet', dest[:40]))
 
         grid_html = ''
-        if criteres:
-            items = ''.join(f'<div class="crit-item"><span class="crit-key">{k}</span><span class="crit-val">{v}</span></div>' for k, v in criteres)
+        if crit_items:
+            items = ''.join(f'<div class="crit-item"><span class="crit-key">{k}</span><span class="crit-val">{v}</span></div>' for k, v in crit_items)
             grid_html = f'<div class="crit-grid">{items}</div>'
 
         obs_html = f'<div class="card-obs">"{obs}"</div>' if obs else ''
@@ -899,7 +898,7 @@ def rapport_portefeuille(
               <div class="card-num" style="background:{color}">{'%02d' % (i + 1)}</div>
               <div class="card-identity">
                 <div class="card-name">{name}</div>
-                <div class="card-date">{'📍 ' + villes_display[:50]}</div>
+                <div class="card-date">{villes_display[:50]}</div>
               </div>
             </div>
             <div class="card-right">
@@ -908,8 +907,8 @@ def rapport_portefeuille(
             </div>
           </div>
           <div class="card-meta-row">
-            <span class="meta-budget-range">💰 Budget : {budget_range}</span>
-            {f'<span class="meta-since">🕐 {jours_str}</span>' if jours_str else (f'<span class="meta-since">Enregistré le {date_str}</span>' if date_str else '')}
+            <span class="meta-budget-range">Budget : {budget_range}</span>
+            {f'<span class="meta-since">{jours_str}</span>' if jours_str else (f'<span class="meta-since">Enregistré le {date_str}</span>' if date_str else '')}
           </div>
           {grid_html}
           {obs_html}
@@ -1042,7 +1041,7 @@ def rapport_portefeuille(
     <div class="header-body">
       <div class="header-eyebrow">Document de prospection commerciale</div>
       <div class="header-title">Portefeuille<br>Acheteurs</div>
-      <div class="header-pill">🏢 {type_bien}</div>
+      <div class="header-pill">{type_bien}</div>
       <div class="header-sub">{len(prospects)} acheteur{"s" if len(prospects) > 1 else ""} qualifié{"s" if len(prospects) > 1 else ""} &nbsp;·&nbsp; Préparé par {agency_nom}</div>
     </div>
   </div>

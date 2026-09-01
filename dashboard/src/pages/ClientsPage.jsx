@@ -215,6 +215,9 @@ function EditProspectModal({ prospect, saving, onChange, onSave, onClose }) {
   )
 }
 
+const TRANCHES_BUDGET = [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000, 500000, 600000, 700000, 800000, 1000000, 1500000, 2000000]
+const fmtTranche = v => v.toLocaleString('fr-FR')
+
 function ClientsPage() {
   const [prospects, setProspects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -231,8 +234,9 @@ function ClientsPage() {
 
   const openPortefeuille = () => {
     const t = localStorage.getItem('token')
-    const params = new URLSearchParams({ type_bien: filterBien, token: t })
+    const params = new URLSearchParams({ type_bien: filterBien || 'Tous biens', token: t })
     if (filterBudget) params.append('budget_min', filterBudget)
+    if (filterBudgetMax) params.append('budget_max', filterBudgetMax)
     window.open(`${API_URL}/rapport/portefeuille?${params.toString()}`, '_blank')
   }
 
@@ -625,51 +629,34 @@ function ClientsPage() {
             {['Maison','Appartement','Immeuble','Local commercial','Terrain','Maison divisée','T1','T2','T3','T4','T5+'].map(b => <option key={b} value={b}>{b}</option>)}
           </select>
 
-          {filterBien && (
-            <>
-              <select
-                value={filterBudget}
-                onChange={e => { setFilterBudget(e.target.value); setCurrentPage(1) }}
-                className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
-              >
-                <option value="">Budget min</option>
-                <option value="100000">≥ 100 000 €</option>
-                <option value="200000">≥ 200 000 €</option>
-                <option value="300000">≥ 300 000 €</option>
-                <option value="500000">≥ 500 000 €</option>
-                <option value="700000">≥ 700 000 €</option>
-                <option value="1000000">≥ 1 000 000 €</option>
-              </select>
-              <select
-                value={filterBudgetMax}
-                onChange={e => { setFilterBudgetMax(e.target.value); setCurrentPage(1) }}
-                className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
-              >
-                <option value="">Budget max</option>
-                <option value="150000">≤ 150 000 €</option>
-                <option value="200000">≤ 200 000 €</option>
-                <option value="300000">≤ 300 000 €</option>
-                <option value="400000">≤ 400 000 €</option>
-                <option value="500000">≤ 500 000 €</option>
-                <option value="700000">≤ 700 000 €</option>
-                <option value="1000000">≤ 1 000 000 €</option>
-              </select>
-            </>
-          )}
+          <select
+            value={filterBudget}
+            onChange={e => { setFilterBudget(e.target.value); setCurrentPage(1) }}
+            className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
+          >
+            <option value="">Budget min</option>
+            {TRANCHES_BUDGET.map(v => <option key={v} value={v}>&#8805; {fmtTranche(v)} €</option>)}
+          </select>
+          <select
+            value={filterBudgetMax}
+            onChange={e => { setFilterBudgetMax(e.target.value); setCurrentPage(1) }}
+            className="px-3 py-2.5 bg-white border-2 border-[#1E3A5F]/25 rounded-xl text-sm font-medium text-[#1E3A5F] focus:outline-none focus:ring-2 focus:ring-[#1E3A5F]/30 focus:border-[#1E3A5F] transition-all shadow-sm"
+          >
+            <option value="">Budget max</option>
+            {TRANCHES_BUDGET.map(v => <option key={v} value={v}>&#8804; {fmtTranche(v)} €</option>)}
+          </select>
         </div>
 
         <div className="flex items-center gap-2">
-          {filterBien && (
-            <button
-              onClick={openPortefeuille}
-              className="px-4 py-2.5 font-semibold rounded-xl btn-press flex items-center gap-2 text-white shadow-md hover:shadow-lg transition-all"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
-            >
-              <Printer size={15} />
-              <span className="hidden lg:inline">Portefeuille acheteurs</span>
-              <span className="lg:hidden">Portefeuille</span>
-            </button>
-          )}
+          <button
+            onClick={openPortefeuille}
+            className="px-4 py-2.5 font-semibold rounded-xl btn-press flex items-center gap-2 text-white shadow-md hover:shadow-lg transition-all"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+          >
+            <Printer size={15} />
+            <span className="hidden lg:inline">Portefeuille acheteurs</span>
+            <span className="lg:hidden">Portefeuille</span>
+          </button>
           <input ref={importInputRef} type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
           <button
             onClick={() => importInputRef.current?.click()}
