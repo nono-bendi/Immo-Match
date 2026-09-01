@@ -10,6 +10,7 @@ from jose import jwt
 
 from agencies_db import get_db_path
 from routers.auth import get_current_user
+from routers.matchings import _ensure_presentations_table
 from config import AUTH_CONFIG, APP_BASE_URL
 
 
@@ -344,6 +345,19 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
         ORDER BY m.score DESC
     ''', (bien_id,)).fetchall()
 
+    # Suivi commercial : preuve d'activite pour le vendeur — a qui le bien a
+    # deja ete propose (email) ou presente (visite), tous scores confondus.
+    _ensure_presentations_table(conn)
+    envois = conn.execute('''
+        SELECT p.nom as prospect_nom, m.date_email_envoye,
+               pr.date_presentation as date_presentation, pr.commentaire as commentaire_presentation
+        FROM matchings m
+        JOIN prospects p ON m.prospect_id = p.id
+        LEFT JOIN presentations pr ON pr.prospect_id = m.prospect_id AND pr.bien_id = m.bien_id
+        WHERE m.bien_id = ? AND (m.date_email_envoye IS NOT NULL OR pr.date_presentation IS NOT NULL)
+        ORDER BY COALESCE(pr.date_presentation, m.date_email_envoye) DESC
+    ''', (bien_id,)).fetchall()
+
     conn.close()
 
     b = dict(bien)
@@ -366,6 +380,44 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
     nb_exc = sum(1 for m in matchings if m['score'] >= 75)
     best = matchings[0]['score'] if matchings else 0
     photo_principale = (b.get('photos') or '').split('|')[0].strip()
+
+    def fmt_date(d):
+        if not d: return None
+        try: return datetime.fromisoformat(d).strftime("%d/%m/%Y")
+        except Exception: return d[:10]
+
+    envoi_rows = ''
+    for e in envois:
+        ed = dict(e)
+        badges = ''
+        if ed.get('date_presentation'):
+            badges += f'<span class="envoi-badge envoi-badge-visite">Visite le {fmt_date(ed["date_presentation"])}</span>'
+        if ed.get('date_email_envoye'):
+            badges += f'<span class="envoi-badge envoi-badge-mail">Proposé par email le {fmt_date(ed["date_email_envoye"])}</span>'
+        commentaire = f'<div class="envoi-commentaire">{ed["commentaire_presentation"]}</div>' if ed.get('commentaire_presentation') else ''
+        envoi_rows += f'''
+        <div class="envoi-row">
+          <div class="envoi-nom">{ed["prospect_nom"]}</div>
+          <div class="envoi-badges">{badges}</div>
+          {commentaire}
+        </div>'''
+    nb_envois = len(envois)
+
+    summary_envoi_html = ''
+    envoi_section_html = ''
+    if nb_envois:
+        summary_envoi_html = (
+            '<div class="summary-item">'
+            f'<div class="summary-value" style="color:#1d4ed8">{nb_envois}</div>'
+            '<div class="summary-label">Bien proposé à</div>'
+            '</div>'
+        )
+        envoi_section_html = (
+            '<div class="envoi-section">'
+            f'<div class="section-title">Suivi commercial — bien déjà proposé à {nb_envois} prospect{"s" if nb_envois > 1 else ""}</div>'
+            f'{envoi_rows}'
+            '</div>'
+        )
 
     prospect_rows = ''
     for i, m in enumerate(matchings):
@@ -408,13 +460,21 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
     .bien-title {{ font-size:36px; font-weight:800; margin-bottom:8px; }}
     .bien-sub {{ opacity:.8; font-size:15px; display:flex; gap:20px; flex-wrap:wrap; margin-bottom:6px; }}
     .card {{ background:white; border-radius:0 0 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.08); overflow:hidden; }}
-    .summary-bar {{ display:grid; grid-template-columns:repeat(3,1fr); background:#f8fafc; border-bottom:1px solid #e2e8f0; }}
+    .summary-bar {{ display:grid; grid-template-columns:repeat({4 if nb_envois else 3},1fr); background:#f8fafc; border-bottom:1px solid #e2e8f0; }}
     .summary-item {{ padding:24px 32px; text-align:center; border-right:1px solid #e2e8f0; }}
     .summary-item:last-child {{ border-right:none; }}
     .summary-value {{ font-size:32px; font-weight:800; color:#1E3A5F; }}
     .summary-label {{ font-size:11px; color:#64748b; margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.05em; }}
     .bien-hero-photo {{ width:100%; max-height:260px; object-fit:cover; display:block; }}
     .bien-detail {{ padding:28px 40px; border-bottom:1px solid #f1f5f9; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }}
+    .envoi-section {{ padding:24px 40px; border-bottom:1px solid #f1f5f9; }}
+    .envoi-row {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; margin-bottom:10px; }}
+    .envoi-nom {{ font-size:14px; font-weight:700; color:#1E3A5F; margin-bottom:6px; }}
+    .envoi-badges {{ display:flex; gap:8px; flex-wrap:wrap; }}
+    .envoi-badge {{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:8px; }}
+    .envoi-badge-mail {{ background:#eff6ff; color:#1d4ed8; }}
+    .envoi-badge-visite {{ background:#fffbeb; color:#b45309; }}
+    .envoi-commentaire {{ font-size:12px; color:#64748b; margin-top:8px; font-style:italic; }}
     .detail-item {{ background:#f8fafc; border-radius:10px; padding:12px 16px; }}
     .detail-label {{ font-size:11px; color:#94a3b8; font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }}
     .detail-val {{ font-size:15px; font-weight:700; color:#1e293b; }}
@@ -482,6 +542,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
         <div class="summary-value">{best}</div>
         <div class="summary-label">Meilleur score</div>
       </div>
+      {summary_envoi_html}
     </div>
 
     <div class="bien-detail">
@@ -499,6 +560,8 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
       <div class="accroche-title">Argument pour le vendeur</div>
       <div class="accroche-text">Notre IA a identifié {len(matchings)} acheteur{"s" if len(matchings) > 1 else ""} en portefeuille avec un score de compatibilité excellent (≥ 75/100) pour votre bien. Ces profils ont été sélectionnés parmi l'ensemble de notre base prospects et présentent une forte probabilité de correspondance.</div>
     </div>
+
+    {envoi_section_html}
 
     <div class="prospects-section">
       <div class="section-title">{len(matchings)} prospect{"s" if len(matchings) > 1 else ""} — triés par score IA</div>
