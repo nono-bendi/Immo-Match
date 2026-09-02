@@ -339,10 +339,11 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
                p.bien as prospect_type_recherche, p.villes as prospect_villes
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
-        WHERE m.bien_id = ? AND m.score >= 75
+        WHERE m.bien_id = ? AND m.score >= 65
           AND (m.statut_prospect IS NULL OR m.statut_prospect != 'refused')
           AND (p.archive = 0 OR p.archive IS NULL)
         ORDER BY m.score DESC
+        LIMIT 10
     ''', (bien_id,)).fetchall()
 
     # Suivi commercial : preuve d'activite pour le vendeur — a qui le bien a
@@ -386,35 +387,48 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
         try: return datetime.fromisoformat(d).strftime("%d/%m/%Y")
         except Exception: return d[:10]
 
-    envoi_rows = ''
+    # Un événement par démarche (un prospect avec email + visite donne 2 lignes),
+    # triés du plus récent au plus ancien.
+    envoi_events = []
     for e in envois:
         ed = dict(e)
-        badges = ''
         if ed.get('date_presentation'):
-            badges += f'<span class="envoi-badge envoi-badge-visite">Visite le {fmt_date(ed["date_presentation"])}</span>'
+            envoi_events.append({'type': 'visite', 'nom': ed['prospect_nom'], 'date': ed['date_presentation'], 'note': ed.get('commentaire_presentation')})
         if ed.get('date_email_envoye'):
-            badges += f'<span class="envoi-badge envoi-badge-mail">Proposé par email le {fmt_date(ed["date_email_envoye"])}</span>'
-        commentaire = f'<div class="envoi-commentaire">{ed["commentaire_presentation"]}</div>' if ed.get('commentaire_presentation') else ''
-        envoi_rows += f'''
-        <div class="envoi-row">
-          <div class="envoi-nom">{ed["prospect_nom"]}</div>
-          <div class="envoi-badges">{badges}</div>
-          {commentaire}
-        </div>'''
+            envoi_events.append({'type': 'mail', 'nom': ed['prospect_nom'], 'date': ed['date_email_envoye'], 'note': None})
+    envoi_events.sort(key=lambda x: x['date'] or '', reverse=True)
     nb_envois = len(envois)
+
+    ICON_MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>'
+    ICON_VISITE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>'
+
+    envoi_rows = ''
+    for ev in envoi_events:
+        note_html = f'<div class="envoi-note">« {ev["note"]} »</div>' if ev.get('note') else ''
+        label = 'Visite réalisée' if ev['type'] == 'visite' else 'Bien proposé par e-mail'
+        icon = ICON_VISITE if ev['type'] == 'visite' else ICON_MAIL
+        envoi_rows += f'''
+        <div class="envoi-row {ev['type']}">
+          <span class="envoi-ic">{icon}</span>
+          <div class="envoi-body">
+            <div class="envoi-nom-wrap"><div class="envoi-nom">{ev['nom']}</div><div class="envoi-detail">{label}</div>{note_html}</div>
+            <span class="envoi-date">{fmt_date(ev['date']) or ''}</span>
+          </div>
+        </div>'''
 
     summary_envoi_html = ''
     envoi_section_html = ''
     if nb_envois:
         summary_envoi_html = (
-            '<div class="summary-item">'
-            f'<div class="summary-value" style="color:#1d4ed8">{nb_envois}</div>'
-            '<div class="summary-label">Bien proposé à</div>'
+            '<div class="stat">'
+            '<svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>'
+            f'<div class="stat-val" style="color:#1d4ed8">{nb_envois}</div>'
+            '<div class="stat-lbl">Bien proposé à</div>'
             '</div>'
         )
         envoi_section_html = (
             '<div class="envoi-section">'
-            f'<div class="section-title">Suivi commercial — bien déjà proposé à {nb_envois} prospect{"s" if nb_envois > 1 else ""}</div>'
+            f'<div class="section-title">Ce que nous avons déjà fait — {nb_envois} prospect{"s" if nb_envois > 1 else ""} contacté{"s" if nb_envois > 1 else ""}</div>'
             f'{envoi_rows}'
             '</div>'
         )
@@ -425,21 +439,18 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
         sc = md['score']
         prospect_rows += f'''
         <div class="prospect-card">
-          <div class="prospect-header" style="border-left:4px solid {score_color(sc)}">
-            <div class="prospect-rank">#{i+1}</div>
-            <div class="prospect-info">
-              <div class="prospect-name">{md["prospect_nom"]}</div>
-              <div class="prospect-sub">Budget : {fmt_prix(md["budget_max"])} · {md["prospect_type_recherche"] or "—"}</div>
-              {f'<div class="prospect-sub">{md["prospect_villes"]}</div>' if md.get("prospect_villes") else ''}
-            </div>
-            <div class="score-block" style="background:{score_color(sc)}">
-              <div class="score-num">{sc}</div>
-              <div class="score-lbl">{score_label(sc)}</div>
-            </div>
+          <div class="prospect-rank">{i+1}</div>
+          <div class="prospect-info">
+            <div class="prospect-name">{md["prospect_nom"]}</div>
+            <div class="prospect-sub">Budget : {fmt_prix(md["budget_max"])} · {md["prospect_type_recherche"] or "—"}{f' · {md["prospect_villes"]}' if md.get("prospect_villes") else ''}</div>
+          </div>
+          <div class="score-block" style="background:{score_color(sc)}">
+            <div class="score-num">{sc}</div>
+            <div class="score-lbl">{score_label(sc)}</div>
           </div>
         </div>'''
 
-    photo_html = f'<img src="{photo_principale}" class="bien-hero-photo" alt="" />' if photo_principale else ''
+    hero_bg = f'<img src="{photo_principale}" alt="" />' if photo_principale else ''
 
     html = f'''<!DOCTYPE html>
 <html lang="fr">
@@ -450,103 +461,151 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * {{ margin:0; padding:0; box-sizing:border-box; }}
-    body {{ font-family:'Inter',sans-serif; background:#f1f5f9; color:#1e293b; padding:40px 20px; }}
+    body {{
+      font-family:'Inter',sans-serif; color:#1e293b; padding:44px 20px 60px;
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(96,165,250,0.10), transparent 60%),
+        radial-gradient(700px 500px at 100% 10%, rgba(30,58,95,0.06), transparent 55%),
+        #eef2f7;
+    }}
     .page {{ max-width:900px; margin:0 auto; }}
-    .header {{ background:linear-gradient(135deg,#1E3A5F 0%,#2D5A8A 100%); padding:48px 56px 40px; color:white; border-radius:20px 20px 0 0; }}
-    .header-top {{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }}
-    .logo {{ font-size:22px; font-weight:800; letter-spacing:-.04em; }}
-    .logo span {{ color:#60a5fa; }}
-    .badge {{ background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; }}
-    .bien-title {{ font-size:36px; font-weight:800; margin-bottom:8px; }}
-    .bien-sub {{ opacity:.8; font-size:15px; display:flex; gap:20px; flex-wrap:wrap; margin-bottom:6px; }}
-    .card {{ background:white; border-radius:0 0 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.08); overflow:hidden; }}
-    .summary-bar {{ display:grid; grid-template-columns:repeat({4 if nb_envois else 3},1fr); background:#f8fafc; border-bottom:1px solid #e2e8f0; }}
-    .summary-item {{ padding:24px 32px; text-align:center; border-right:1px solid #e2e8f0; }}
-    .summary-item:last-child {{ border-right:none; }}
-    .summary-value {{ font-size:32px; font-weight:800; color:#1E3A5F; }}
-    .summary-label {{ font-size:11px; color:#64748b; margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.05em; }}
-    .bien-hero-photo {{ width:100%; max-height:260px; object-fit:cover; display:block; }}
-    .bien-detail {{ padding:28px 40px; border-bottom:1px solid #f1f5f9; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }}
-    .envoi-section {{ padding:24px 40px; border-bottom:1px solid #f1f5f9; }}
-    .envoi-row {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; margin-bottom:10px; }}
-    .envoi-nom {{ font-size:14px; font-weight:700; color:#1E3A5F; margin-bottom:6px; }}
-    .envoi-badges {{ display:flex; gap:8px; flex-wrap:wrap; }}
-    .envoi-badge {{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:8px; }}
-    .envoi-badge-mail {{ background:#eff6ff; color:#1d4ed8; }}
-    .envoi-badge-visite {{ background:#fffbeb; color:#b45309; }}
-    .envoi-commentaire {{ font-size:12px; color:#64748b; margin-top:8px; font-style:italic; }}
-    .detail-item {{ background:#f8fafc; border-radius:10px; padding:12px 16px; }}
-    .detail-label {{ font-size:11px; color:#94a3b8; font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }}
-    .detail-val {{ font-size:15px; font-weight:700; color:#1e293b; }}
-    .desc-section {{ padding:24px 40px; border-bottom:1px solid #f1f5f9; }}
-    .section-title {{ font-size:16px; font-weight:700; color:#1E3A5F; margin-bottom:16px; display:flex; align-items:center; gap:10px; }}
-    .section-title::before {{ content:""; display:block; width:4px; height:18px; background:linear-gradient(#1E3A5F,#60a5fa); border-radius:2px; }}
-    .desc-text {{ font-size:13px; color:#475569; line-height:1.7; white-space:pre-wrap; }}
-    .prospects-section {{ padding:32px 40px 40px; }}
-    .prospect-card {{ background:#fafbfc; border:1px solid #e2e8f0; border-radius:14px; margin-bottom:12px; overflow:hidden; }}
-    .prospect-header {{ display:flex; align-items:center; gap:16px; padding:16px 20px; background:white; }}
-    .prospect-rank {{ font-size:13px; font-weight:700; color:#94a3b8; width:28px; flex-shrink:0; }}
-    .prospect-info {{ flex:1; min-width:0; }}
-    .prospect-name {{ font-size:15px; font-weight:700; color:#1E3A5F; }}
-    .prospect-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
-    .score-block {{ padding:10px 16px; border-radius:10px; text-align:center; color:white; flex-shrink:0; }}
-    .score-num {{ font-size:24px; font-weight:800; line-height:1; }}
-    .score-lbl {{ font-size:10px; font-weight:600; opacity:.85; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }}
-    .prospect-body {{ padding:12px 20px; border-top:1px solid #f1f5f9; }}
-    .pf-text {{ font-size:13px; color:#374151; line-height:1.6; background:#f0fdf4; padding:10px 14px; border-radius:8px; }}
-    .no-match {{ padding:48px; text-align:center; color:#94a3b8; }}
-    .footer {{ text-align:center; color:#94a3b8; font-size:12px; padding:24px; }}
     .toolbar {{ max-width:900px; margin:0 auto 16px; display:flex; justify-content:space-between; align-items:center; }}
     .toolbar-btn {{ display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:.15s; }}
     .btn-back {{ background:white; color:#1E3A5F; box-shadow:0 1px 4px rgba(0,0,0,.1); }}
     .btn-back:hover {{ background:#f1f5f9; }}
     .btn-pdf {{ background:#1E3A5F; color:white; box-shadow:0 2px 8px rgba(30,58,95,.3); }}
     .btn-pdf:hover {{ background:#2D5A8A; }}
-    .accroche {{ background:linear-gradient(135deg,#f0f9ff,#e0f2fe); border:1px solid #bae6fd; border-radius:14px; padding:20px 24px; margin:0 40px 24px; }}
-    .accroche-title {{ font-size:15px; font-weight:700; color:#0369a1; margin-bottom:6px; }}
-    .accroche-text {{ font-size:13px; color:#0c4a6e; line-height:1.6; }}
-    @media print {{ * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }} body {{ background:white; padding:0; }} .page {{ max-width:100%; }} .header {{ border-radius:0; }} .card {{ box-shadow:none; border-radius:0; }} .no-print {{ display:none !important; }} }}
+    .toolbar-btn svg {{ display:block; }}
+
+    .doc {{ border-radius:22px; overflow:hidden; box-shadow:0 30px 70px -18px rgba(20,35,55,.28); background:#fff; }}
+
+    .topbar {{ background:#1E3A5F; color:#fff; padding:16px 40px; display:flex; justify-content:space-between; align-items:center; }}
+    .logo {{ font-size:16px; font-weight:800; letter-spacing:-.03em; }}
+    .logo span {{ color:#7dd3fc; }}
+    .badge {{ background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); padding:5px 13px; border-radius:20px; font-size:11.5px; font-weight:600; letter-spacing:.01em; }}
+
+    .hero {{ position:relative; height:300px; background:linear-gradient(135deg,#1E3A5F,#2D5A8A); }}
+    .hero img {{ width:100%; height:100%; object-fit:cover; display:block; }}
+    .hero::after {{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(to top, rgba(8,16,28,.92) 0%, rgba(8,16,28,.45) 45%, transparent 78%); }}
+    .hero-text {{ position:absolute; z-index:2; left:40px; right:40px; bottom:22px; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.35); }}
+    .hero-title {{ font-size:30px; font-weight:800; letter-spacing:-.02em; }}
+    .hero-sub {{ display:flex; gap:18px; flex-wrap:wrap; margin-top:7px; font-size:13.5px; opacity:.9; font-variant-numeric:tabular-nums; }}
+    .hero-sub b {{ font-weight:700; }}
+
+    .stats {{ display:grid; grid-template-columns:repeat({4 if nb_envois else 3},1fr); background:#f8fafc; border-bottom:1px solid #e6ebf1; }}
+    .stat {{ padding:20px 14px; text-align:center; border-right:1px solid #e6ebf1; }}
+    .stat:last-child {{ border-right:none; }}
+    .stat-ic {{ width:26px; height:26px; margin:0 auto 8px; color:#1E3A5F; }}
+    .stat-val {{ font-size:26px; font-weight:800; color:#1E3A5F; font-variant-numeric:tabular-nums; line-height:1; }}
+    .stat-lbl {{ font-size:10.5px; color:#64748b; margin-top:5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }}
+
+    .bien-detail {{ padding:26px 40px 4px; display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }}
+    .detail-item {{ background:#f8fafc; border-radius:10px; padding:12px 16px; }}
+    .detail-label {{ font-size:11px; color:#94a3b8; font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }}
+    .detail-val {{ font-size:15px; font-weight:700; color:#1e293b; }}
+
+    .desc-section {{ padding:26px 40px 4px; }}
+    .desc-text {{ font-size:13px; color:#475569; line-height:1.7; white-space:pre-wrap; }}
+
+    .section-title {{ font-size:15.5px; font-weight:700; color:#1E3A5F; margin-bottom:16px; display:flex; align-items:center; gap:9px; }}
+    .section-title::before {{ content:""; display:block; width:4px; height:17px; background:linear-gradient(#1E3A5F,#60a5fa); border-radius:2px; }}
+
+    .pitch {{ padding:26px 40px 4px; }}
+    .pitch-box {{ position:relative; padding:16px 22px; background:linear-gradient(135deg,#f0f7ff,#f7fbff); border-radius:12px; }}
+    .pitch-box::before {{ content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:9999px; background:linear-gradient(#1E3A5F,#60a5fa); }}
+    .pitch-text {{ font-size:14.5px; color:#2c3e50; line-height:1.7; max-width:66ch; }}
+    .pitch-text b {{ color:#1E3A5F; }}
+
+    .method {{ padding:30px 40px 6px; }}
+    .method-grid {{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }}
+    .method-card {{ border:1px solid #e6ebf1; border-radius:14px; padding:18px 16px; background:#fbfdff; }}
+    .method-ic {{ width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#1E3A5F,#60a5fa); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:11px; }}
+    .method-ic svg {{ width:17px; height:17px; }}
+    .method-h {{ font-size:13.5px; font-weight:700; color:#1E3A5F; margin-bottom:4px; }}
+    .method-p {{ font-size:12px; color:#64748b; line-height:1.55; }}
+
+    .envoi-section {{ padding:32px 40px 6px; }}
+    .envoi-row {{ display:flex; align-items:flex-start; gap:13px; padding:13px 16px; border-radius:12px; margin-bottom:9px; border-left:3px solid; }}
+    .envoi-row.mail {{ background:#f0f9ff; border-color:#38bdf8; }}
+    .envoi-row.visite {{ background:#fffbeb; border-color:#f59e0b; }}
+    .envoi-ic {{ flex-shrink:0; width:30px; height:30px; border-radius:9999px; display:flex; align-items:center; justify-content:center; margin-top:1px; }}
+    .envoi-row.mail .envoi-ic {{ background:#dbeafe; color:#1d4ed8; }}
+    .envoi-row.visite .envoi-ic {{ background:#fef3c7; color:#b45309; }}
+    .envoi-ic svg {{ width:14px; height:14px; }}
+    .envoi-body {{ flex:1; min-width:0; display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }}
+    .envoi-nom {{ font-size:14px; font-weight:700; color:#1e293b; }}
+    .envoi-detail {{ font-size:12px; color:#64748b; margin-top:1px; }}
+    .envoi-note {{ font-size:11.5px; color:#92702a; margin-top:4px; font-style:italic; }}
+    .envoi-date {{ flex-shrink:0; font-size:11.5px; color:#64748b; font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }}
+
+    .prospects-section {{ padding:32px 40px 38px; }}
+    .prospect-card {{ display:flex; align-items:center; gap:15px; border:1px solid #e6ebf1; border-radius:14px; padding:14px 18px; margin-bottom:10px; }}
+    .prospect-rank {{ flex-shrink:0; width:30px; height:30px; border-radius:9999px; background:linear-gradient(135deg,#1E3A5F,#2D5A8A); color:#fff; font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center; }}
+    .prospect-info {{ flex:1; min-width:0; }}
+    .prospect-name {{ font-size:14.5px; font-weight:700; color:#1E3A5F; }}
+    .prospect-sub {{ font-size:12px; color:#64748b; margin-top:2px; }}
+    .score-block {{ flex-shrink:0; padding:9px 15px; border-radius:10px; text-align:center; color:#fff; }}
+    .score-num {{ font-size:21px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }}
+    .score-lbl {{ font-size:9px; font-weight:700; opacity:.9; margin-top:2px; text-transform:uppercase; letter-spacing:.05em; }}
+    .no-match {{ padding:48px; text-align:center; color:#94a3b8; }}
+
+    .footer {{ text-align:center; color:#64748b; font-size:11.5px; padding:22px; letter-spacing:.02em; }}
+    .footer b {{ color:#1E3A5F; }}
+
+    @media print {{ * {{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }} body {{ background:white; padding:0; }} .page {{ max-width:100%; }} .doc {{ box-shadow:none; border-radius:0; }} .no-print {{ display:none !important; }} }}
+    @media(max-width:700px) {{
+      .topbar,.pitch,.method,.envoi-section,.prospects-section,.bien-detail,.desc-section {{ padding-left:22px; padding-right:22px; }}
+      .hero-text {{ left:22px; right:22px; }}
+      .stats {{ grid-template-columns:repeat(2,1fr); }}
+      .method-grid {{ grid-template-columns:1fr; }}
+      .hero {{ height:220px; }}
+      .hero-title {{ font-size:23px; }}
+    }}
   </style>
 </head>
 <body>
 <div class="toolbar no-print">
-  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back">&#8592; Retour</button>
-  <button onclick="window.print()" class="toolbar-btn btn-pdf">&#8615; T&eacute;l&eacute;charger PDF</button>
+  <button onclick="window.opener ? window.close() : history.back()" class="toolbar-btn btn-back"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Retour</button>
+  <button onclick="window.print()" class="toolbar-btn btn-pdf"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 19h16"/></svg>Télécharger le PDF</button>
 </div>
 <div class="page">
-  <div class="header">
-    <div class="header-top">
+  <div class="doc">
+
+    <div class="topbar">
       <div class="logo">Immo<span>Flash</span></div>
-      <span class="badge">Rapport bien</span>
+      <span class="badge">Synthèse pour le propriétaire</span>
     </div>
-    <div class="bien-title">{b.get("type","Bien")} à {b.get("ville","")}</div>
-    <div class="bien-sub">
-      <span>{fmt_prix(b.get("prix"))}</span>
-      {f'<span>{int(b["surface"])} m²</span>' if b.get("surface") else ''}
-      {f'<span>{b["pieces"]} pièces</span>' if b.get("pieces") else ''}
-      {f'<span>Réf. {b["reference"]}</span>' if b.get("reference") else ''}
+
+    <div class="hero">
+      {hero_bg}
+      <div class="hero-text">
+        <div class="hero-title">{b.get("type","Bien")} à {b.get("ville","")}</div>
+        <div class="hero-sub">
+          <span><b>{fmt_prix(b.get("prix"))}</b></span>
+          {f'<span>{int(b["surface"])} m²</span>' if b.get("surface") else ''}
+          {f'<span>{b["pieces"]} pièces</span>' if b.get("pieces") else ''}
+          {f'<span>Réf. {b["reference"]}</span>' if b.get("reference") else ''}
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="card">
-    {photo_html}
-    <div class="summary-bar">
-      <div class="summary-item">
-        <div class="summary-value">{len(matchings)}</div>
-        <div class="summary-label">Prospects analysés</div>
+
+    <div class="stats">
+      <div class="stat">
+        <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/><path d="M17 3.5a4 4 0 010 7"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
+        <div class="stat-val">{len(matchings)}</div><div class="stat-lbl">Profils étudiés</div>
       </div>
-      <div class="summary-item">
-        <div class="summary-value" style="color:#10b981">{nb_exc}</div>
-        <div class="summary-label">Scores excellents</div>
+      <div class="stat">
+        <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.6 6.6L22 9l-5.6 4.6L18 22l-6-4-6 4 1.6-8.4L2 9l7.4-.4z"/></svg>
+        <div class="stat-val" style="color:#10b981">{nb_exc}</div><div class="stat-lbl">Scores excellents</div>
       </div>
-      <div class="summary-item">
-        <div class="summary-value">{best}</div>
-        <div class="summary-label">Meilleur score</div>
+      <div class="stat">
+        <svg class="stat-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M7 6H4a2 2 0 002 4M17 6h3a2 2 0 01-2 4"/></svg>
+        <div class="stat-val">{best}</div><div class="stat-lbl">Meilleur score</div>
       </div>
       {summary_envoi_html}
     </div>
 
     <div class="bien-detail">
-      {f'<div class="detail-item"><div class="detail-label">Prix</div><div class="detail-val">{fmt_prix(b.get("prix"))}</div></div>' if b.get("prix") else ''}
       {f'<div class="detail-item"><div class="detail-label">Surface</div><div class="detail-val">{int(b["surface"])} m²</div></div>' if b.get("surface") else ''}
       {f'<div class="detail-item"><div class="detail-label">Pièces</div><div class="detail-val">{b["pieces"]}</div></div>' if b.get("pieces") else ''}
       {f'<div class="detail-item"><div class="detail-label">Chambres</div><div class="detail-val">{b["chambres"]}</div></div>' if b.get("chambres") else ''}
@@ -556,19 +615,41 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
 
     {f'<div class="desc-section"><div class="section-title">Description</div><p class="desc-text">{b["description"]}</p></div>' if b.get("description") else ''}
 
-    <div class="accroche">
-      <div class="accroche-title">Argument pour le vendeur</div>
-      <div class="accroche-text">Notre IA a identifié {len(matchings)} acheteur{"s" if len(matchings) > 1 else ""} en portefeuille avec un score de compatibilité excellent (≥ 75/100) pour votre bien. Ces profils ont été sélectionnés parmi l'ensemble de notre base prospects et présentent une forte probabilité de correspondance.</div>
+    <div class="pitch">
+      <div class="pitch-box">
+        <p class="pitch-text">Bonjour, voici où en est la commercialisation de votre bien. Depuis sa mise en vente, nous l'avons activement présenté aux acheteurs de notre portefeuille qui correspondent à votre profil — <b>le détail de ce travail est ci-dessous.</b></p>
+      </div>
+    </div>
+
+    <div class="method">
+      <div class="section-title">Comment nous travaillons pour vous</div>
+      <div class="method-grid">
+        <div class="method-card">
+          <div class="method-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.5L18 9l-4.1 1.5L12 15l-1.9-4.5L6 9l4.1-1.5z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></div>
+          <div class="method-h">Analyse continue</div>
+          <div class="method-p">Votre bien est comparé à chaque nouvel acheteur qui rejoint notre portefeuille, pas seulement au moment de la mise en vente.</div>
+        </div>
+        <div class="method-card">
+          <div class="method-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg></div>
+          <div class="method-h">Au-delà des chiffres</div>
+          <div class="method-p">Le projet de chaque acheteur est étudié dans le détail — pas seulement son budget, sa vraie recherche.</div>
+        </div>
+        <div class="method-card">
+          <div class="method-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg></div>
+          <div class="method-h">Suivi actif</div>
+          <div class="method-p">Chaque envoi et chaque visite sont enregistrés, pour une commercialisation sans angle mort.</div>
+        </div>
+      </div>
     </div>
 
     {envoi_section_html}
 
     <div class="prospects-section">
-      <div class="section-title">{len(matchings)} prospect{"s" if len(matchings) > 1 else ""} — triés par score IA</div>
+      <div class="section-title">{len(matchings)} acheteur{"s" if len(matchings) > 1 else ""} potentiel{"s" if len(matchings) > 1 else ""} identifié{"s" if len(matchings) > 1 else ""}</div>
       {prospect_rows if prospect_rows else '<div class="no-match"><p>Aucun matching pour ce bien.</p></div>'}
     </div>
   </div>
-  <div class="footer">ImmoFlash · Rapport confidentiel · {now.strftime("%d/%m/%Y")} · {b.get("type","Bien")} à {b.get("ville","")}</div>
+  <div class="footer"><b>ImmoFlash</b> · Synthèse confidentielle · {now.strftime("%d/%m/%Y")} · {b.get("type","Bien")} à {b.get("ville","")}</div>
 </div>
 </body>
 </html>'''
