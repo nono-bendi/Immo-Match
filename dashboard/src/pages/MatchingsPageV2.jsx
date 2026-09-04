@@ -1018,7 +1018,7 @@ export default function MatchingsPageV2() {
       if (!acc[key]) {
         acc[key] = byBien
           ? { bien_id: m.bien_id, bien_type: m.bien_type, bien_ville: m.bien_ville, bien_prix: m.bien_prix, bien_surface: m.bien_surface, bien_pieces: m.bien_pieces, bien_photos: m.bien_photos, bien_reference: m.bien_reference, matchings: [] }
-          : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, matchings: [] }
+          : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, prospect_type: m.prospect_type, prospect_villes: m.prospect_villes, matchings: [] }
       }
       acc[key].matchings.push(m); return acc
     }, {})
