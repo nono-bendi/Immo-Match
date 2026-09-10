@@ -181,7 +181,7 @@ export default function AdministrationPage() {
           nom: d.nom || '', nom_court: d.nom_court || '', nom_filtre: d.nom_filtre || '',
           adresse: d.adresse || '', telephone: d.telephone || '', email: d.email || '', site_web: d.site_web || '',
           logo_url: d.logo_url || '', couleur_primaire: d.couleur_primaire || '#1E3A5F', logo_fond_colore: d.logo_fond_colore || 0, logo_bg_color: d.logo_bg_color || '#ffffff',
-          smtp_user: d.smtp_user || '', smtp_password: d.smtp_password || '',
+          smtp_user: d.smtp_user || '', smtp_password: '', smtp_password_set: !!d.smtp_password_set,
           smtp_from_name: d.smtp_from_name || '', smtp_reply_to: d.smtp_reply_to || '',
           smtp_server: d.smtp_server || 'smtp.gmail.com', smtp_port: d.smtp_port || 587
         })
@@ -658,7 +658,8 @@ export default function AdministrationPage() {
               <Field label="Mot de passe d'application">
                 <div className="relative">
                   <Input type={showSmtpPass ? 'text' : 'password'} className="pr-10"
-                    value={agencyForm.smtp_password} onChange={e => chgA('smtp_password', e.target.value)} placeholder="••••••••••••" />
+                    value={agencyForm.smtp_password} onChange={e => chgA('smtp_password', e.target.value)}
+                    placeholder={agencyForm.smtp_password_set ? '•••••••••••• (déjà configuré — laisser vide pour ne pas changer)' : '••••••••••••'} />
                   <button type="button" onClick={() => setShowSmtpPass(o => !o)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showSmtpPass ? <EyeOff size={17} /> : <Eye size={17} />}

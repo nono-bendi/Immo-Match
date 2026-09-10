@@ -27,7 +27,11 @@ def get_agency_config(current_user: dict = Depends(require_admin)):
     conn.close()
     if not row:
         raise HTTPException(status_code=404, detail="Agence introuvable")
-    return dict(row)
+    d = dict(row)
+    # Ne jamais renvoyer le secret SMTP au client : juste indiquer s'il est défini.
+    d["smtp_password_set"] = bool(d.get("smtp_password"))
+    d["smtp_password"] = ""
+    return d
 
 
 @router.patch("/admin/agency")
@@ -40,8 +44,14 @@ def update_agency_config(data: dict, current_user: dict = Depends(require_admin)
         "smtp_server", "smtp_port"
     }
     fields = {k: v for k, v in data.items() if k in allowed}
-    if "smtp_password" in fields and fields["smtp_password"]:
-        fields["smtp_password"] = _encrypt_smtp_pw(fields["smtp_password"])
+    # Mot de passe SMTP : champ vide => on ne touche pas à l'existant.
+    # Valeur déjà chiffrée (renvoyée par erreur puis re-soumise) => on ignore, sinon double chiffrement.
+    if "smtp_password" in fields:
+        pw = fields["smtp_password"]
+        if not pw or str(pw).startswith("fernet:"):
+            fields.pop("smtp_password")
+        else:
+            fields["smtp_password"] = _encrypt_smtp_pw(pw)
     if not fields:
         return {"message": "Rien à mettre à jour"}
 

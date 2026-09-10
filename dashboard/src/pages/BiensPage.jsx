@@ -49,7 +49,7 @@ function SkeletonRow() {
 function BiensPage() {
   const location = useLocation()
   const { agency } = useAgency()
-  const nomFiltre = agency?.nom_filtre || 'SAINT FRANCOIS'
+  const nomFiltre = agency?.nom_filtre || agency?.nom_court || agency?.nom || ''
   const [biens, setBiens] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -498,11 +498,12 @@ function BiensPage() {
                           </div>
                         )}
                         <div>
-                          <button 
+                          <button
                             onClick={() => openModal(bien)}
-                            className="font-semibold text-[#1E3A5F] hover:text-[#2D5A8A] hover:underline text-left transition-colors"
+                            title={bien.titre || bien.type || 'Bien'}
+                            className="font-semibold text-[#1E3A5F] hover:text-[#2D5A8A] hover:underline text-left transition-colors line-clamp-2"
                           >
-                            {bien.type || 'Bien'}
+                            {bien.titre || bien.type || 'Bien'}
                           </button>
                           <p className="text-[10px] text-gray-300 font-mono tracking-wide">{bien.reference || ''}</p>
                           {bien.statut === 'vendu' && (
