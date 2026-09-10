@@ -438,7 +438,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         logo_block = f"""
         <tr>
           <td style="padding:20px 24px;background:{bg};{border}">
-            <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom', 'Agence'))}"
+            <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom') or 'Agence')}"
                  style="display:block;border:0;max-height:64px;height:64px;width:auto;max-width:300px;" />
           </td>
         </tr>
@@ -447,7 +447,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         logo_block = f"""
         <tr>
           <td style="padding:28px 20px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;">
-            <p style="margin:0;font-size:20px;font-weight:700;color:{color};">{escape(agency.get('agency_nom', 'Agence Immobilière'))}</p>
+            <p style="margin:0;font-size:20px;font-weight:700;color:{color};">{escape(agency.get('agency_nom') or 'Agence Immobilière')}</p>
           </td>
         </tr>
         """
@@ -622,9 +622,9 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                     <p style="margin:0 0 4px 0;font-size:15px;font-weight:600;color:#111827;">{escape(agent_nom or 'Votre conseiller')}</p>
                     <p style="margin:0 0 12px 0;font-size:13px;color:#6B7280;">{agent_title}</p>
                     <p style="margin:0;font-size:13px;line-height:1.8;color:#374151;">
-                      {escape(agency.get('agency_adresse', ''))}<br />
-                      Tél. <a href="tel:{escape((agency.get('agency_telephone') or '').replace(' ', ''))}" style="color:{color};text-decoration:none;font-weight:500;">{escape(agency.get('agency_telephone', ''))}</a><br />
-                      <a href="mailto:{escape(agency.get('agency_email', ''))}" style="color:{color};text-decoration:none;">{escape(agency.get('agency_email', ''))}</a>
+                      {escape(agency.get('agency_adresse') or '')}<br />
+                      Tél. <a href="tel:{escape((agency.get('agency_telephone') or '').replace(' ', ''))}" style="color:{color};text-decoration:none;font-weight:500;">{escape(agency.get('agency_telephone') or '')}</a><br />
+                      <a href="mailto:{escape(agency.get('agency_email') or '')}" style="color:{color};text-decoration:none;">{escape(agency.get('agency_email') or '')}</a>
                     </p>
                   </td>
                 </tr>
@@ -709,9 +709,9 @@ Surface : {data.bien_surface or 'Non précisée'}
 {agent_title}
 
 {(agency.get('agency_nom') or '').upper()}
-{agency.get('agency_adresse', '')}
-Tél. {agency.get('agency_telephone', '')}
-{agency.get('agency_email', '')}
+{agency.get('agency_adresse') or ''}
+Tél. {agency.get('agency_telephone') or ''}
+{agency.get('agency_email') or ''}
 
 ──────────────────────────────────────────────────────
 Vous recevez cet email car vous avez effectué une recherche immobilière auprès de notre agence.
