@@ -160,6 +160,13 @@ def _type_incompatible_pour_un_type(tp, tb):
     if ("parking" in tb or "box" in tb) and not any(k in tp for k in ["parking", "box", "garage"]):
         return True
 
+    # Bien terrain : seul un chercheur explicite de terrain est compatible, et
+    # un chercheur de terrain ne veut pas d'un bien bâti.
+    if "terrain" in tb and not any(k in tp for k in ["terrain", "parcelle", "constructible", "foncier"]):
+        return True
+    if "terrain" in tp and "terrain" not in tb:
+        return True
+
     for mot_p, exclusions in INCOMPATIBLES_TYPE.items():
         if mot_p in tp:
             for exclu in exclusions:
