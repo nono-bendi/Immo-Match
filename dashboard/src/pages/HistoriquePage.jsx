@@ -3,6 +3,7 @@ import { Clock, Calendar, Users, Building2, TrendingUp, ChevronDown, ChevronUp, 
 import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
+import ExempleTag from '../components/ExempleTag'
 import { apiFetch } from '../api'
 import Pagination from '../components/Pagination'
 import SparkleButton from '../components/SparkleButton'
@@ -351,6 +352,7 @@ function HistoriquePage() {
                                       budget_max: match.prospect_budget,
                                       mail: match.prospect_mail,
                                       telephone: match.prospect_tel,
+                                      demo: match.prospect_demo,
                                     },
                                     matchings: []
                                   }
@@ -361,9 +363,12 @@ function HistoriquePage() {
                             ).map((group, gIndex) => (
                               <div key={gIndex} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                                 <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
-                                  <ProspectLink prospect={group.prospect} className="font-semibold text-[#1E3A5F] text-sm">
-                                    {group.prospect.nom}
-                                  </ProspectLink>
+                                  <span className="flex items-center gap-2">
+                                    <ProspectLink prospect={group.prospect} className="font-semibold text-[#1E3A5F] text-sm">
+                                      {group.prospect.nom}
+                                    </ProspectLink>
+                                    <ExempleTag show={!!group.prospect.demo} />
+                                  </span>
                                   <span className="text-xs text-gray-400">Budget : {formatBudget(group.prospect.budget_max)}</span>
                                 </div>
                                 <div className="divide-y divide-gray-50">

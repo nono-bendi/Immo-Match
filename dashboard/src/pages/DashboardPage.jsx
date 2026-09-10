@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import ProspectLink from '../components/ProspectLink'
 import BienLink from '../components/BienLink'
+import ExempleTag from '../components/ExempleTag'
 import BienModal from '../components/BienModal'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import { API_URL } from '../config'
@@ -127,6 +128,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const isReseau = user?.agency_slug === 'saint_francois'
+  const isDemo = user?.role === 'demo' || user?.email === 'demo@immowatch.fr'
 
   const handleAnalyzeAll = async () => {
     const prospects = stats.prospects_sans_matching
@@ -247,7 +249,7 @@ export default function DashboardPage() {
       />
 
       {/* ── Bandeau statut — sobre ───────────────────────── */}
-      {(stats?.prospects_sans_matching||[]).length > 0 && (
+      {!isDemo && (stats?.prospects_sans_matching||[]).length > 0 && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '11px 20px', borderRadius: 14,
@@ -370,6 +372,7 @@ export default function DashboardPage() {
                             {m.prospect_nom}
                           </ProspectLink>
                         </span>
+                        <ExempleTag show={!!m.prospect_demo} />
                         {isTop && (
                           <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 5, background: '#f0fdf4', color: '#059669', flexShrink: 0 }}>
                             COUP DE CŒUR

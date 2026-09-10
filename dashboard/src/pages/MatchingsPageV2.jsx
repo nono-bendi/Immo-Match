@@ -7,6 +7,7 @@ import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
 import ProspectModal from '../components/ProspectModal'
 import BienModal from '../components/BienModal'
+import ExempleTag from '../components/ExempleTag'
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -563,6 +564,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
                   <span>Actif · {sorted.length} match{sorted.length > 1 ? 's' : ''}</span>
+                  <ExempleTag show={!!group.prospect_demo} />
                   {heureNew && <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 8px' }}>Nouveau · {heureNew}</span>}
                 </div>
                 {analyseLabel && <div style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.28)' : '#b0bec9', marginTop: 4, letterSpacing: '0.01em' }}>Analysé {analyseLabel}</div>}
@@ -648,7 +650,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
 })
 
 // ─── GemBadgeProspect — variante de GemBadge pour la vue "par bien" ────────────
-function GemBadgeProspect({ score, nom, societe, budget, selected, onClick, onOpenProspect, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
+function GemBadgeProspect({ score, nom, societe, budget, demo, selected, onClick, onOpenProspect, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
   const c = manual ? { c1: '#a21caf', c2: '#c026d3' } : sC(score)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -669,6 +671,7 @@ function GemBadgeProspect({ score, nom, societe, budget, selected, onClick, onOp
           <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{societe || nom}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(budget)}</span>
+            {demo ? <ExempleTag /> : null}
             {manual && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#a21caf', background: '#fdf4ff', border: '1px solid #f0abfc', borderRadius: 9999, padding: '1px 6px' }}>Manuel</span></>}
             {emailEnvoye && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 9999, padding: '1px 6px' }}>Proposé</span></>}
             {presented && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 10, fontWeight: 700, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 9999, padding: '1px 6px' }}>Visité</span></>}
@@ -813,7 +816,7 @@ const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropos
             {(expanded ? sorted : sorted.slice(0, 3)).map(m => (
               <GemBadgeProspect key={m.id} score={m.score}
                 nom={[m.prospect_titre, m.prospect_prenom, m.prospect_nom].filter(Boolean).join(' ')}
-                societe={m.prospect_societe} budget={m.prospect_budget}
+                societe={m.prospect_societe} budget={m.prospect_budget} demo={m.prospect_demo}
                 manual={m.statut_prospect === 'manuel'}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
@@ -1052,7 +1055,7 @@ export default function MatchingsPageV2() {
       if (!acc[key]) {
         acc[key] = byBien
           ? { bien_id: m.bien_id, bien_titre: m.bien_titre, bien_type: m.bien_type, bien_ville: m.bien_ville, bien_prix: m.bien_prix, bien_surface: m.bien_surface, bien_pieces: m.bien_pieces, bien_photos: m.bien_photos, bien_reference: m.bien_reference, matchings: [] }
-          : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, prospect_type: m.prospect_type, prospect_villes: m.prospect_villes, matchings: [] }
+          : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_demo: m.prospect_demo, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, prospect_type: m.prospect_type, prospect_villes: m.prospect_villes, matchings: [] }
       }
       acc[key].matchings.push(m); return acc
     }, {})
@@ -1205,7 +1208,7 @@ export default function MatchingsPageV2() {
       )}
       {filterProspectId && !filterBienId && (
         <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-4 text-sm">
-          <span className="text-indigo-700">{groups[0]?.prospect_nom || `Prospect #${filterProspectId}`} — {filtered.length} matching{filtered.length > 1 ? 's' : ''}</span>
+          <span className="text-indigo-700">{groups[0]?.prospect_nom || `Prospect #${filterProspectId}`} <ExempleTag show={!!groups[0]?.prospect_demo} /> — {filtered.length} matching{filtered.length > 1 ? 's' : ''}</span>
           <button onClick={() => navigate('/matchings')} className="text-indigo-500 hover:underline">Voir tout</button>
         </div>
       )}

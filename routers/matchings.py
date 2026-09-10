@@ -562,6 +562,7 @@ def get_matchings(
     _ensure_presentations_table(conn)
     cursor = conn.execute(f'''
         SELECT m.*, p.nom as prospect_nom, p.titre as prospect_titre, p.prenom as prospect_prenom, p.budget_max as prospect_budget,
+               p.demo as prospect_demo,
                p.prenom2 as prospect_prenom2, p.nom2 as prospect_nom2, p.societe as prospect_societe,
                p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
                p.bien as prospect_type, p.villes as prospect_villes,
@@ -706,7 +707,7 @@ def get_matchings_by_bien(bien_id: int, current_user: dict = Depends(get_current
     conn.row_factory = sqlite3.Row
     rows = conn.execute('''
         SELECT m.score, m.points_forts, m.points_attention, m.recommandation,
-               p.nom as prospect_nom, p.budget_max as prospect_budget
+               p.nom as prospect_nom, p.budget_max as prospect_budget, p.demo as prospect_demo
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id
         WHERE m.bien_id = ? AND (p.archive = 0 OR p.archive IS NULL)
@@ -727,7 +728,7 @@ def get_matchings_by_date(date_analyse: str, current_user: dict = Depends(get_cu
 
     matchings = conn.execute('''
         SELECT m.*,
-               p.nom as prospect_nom, p.budget_max as prospect_budget, p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
+               p.nom as prospect_nom, p.budget_max as prospect_budget, p.demo as prospect_demo, p.mail as prospect_mail, p.email2 as prospect_email2, p.telephone as prospect_tel,
                b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix, b.surface as bien_surface, b.pieces as bien_pieces, b.id as bien_id,
                b.lien_annonce as lien_annonce
         FROM matchings m
@@ -763,7 +764,7 @@ def get_stats(current_user: dict = Depends(get_current_user)):
 
     # Top 5 matchings
     top_matchings = conn.execute('''
-        SELECT m.*, p.nom as prospect_nom, p.telephone as prospect_tel, p.mail as prospect_mail,
+        SELECT m.*, p.nom as prospect_nom, p.demo as prospect_demo, p.telephone as prospect_tel, p.mail as prospect_mail,
                b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix
         FROM matchings m
         JOIN prospects p ON m.prospect_id = p.id

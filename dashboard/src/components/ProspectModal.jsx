@@ -89,6 +89,9 @@ function ProspectModal({ prospect, onClose, gradientFrom, gradientTo }) {
                   )}
                 </h2>
                 <div className="flex items-center gap-3 mt-0.5 text-white/70 text-sm flex-wrap">
+                  {!!prospect.demo && (
+                    <span className="text-[11px] font-medium border border-dashed border-white/40 text-white/80 rounded px-1.5 py-0.5 leading-tight">exemple</span>
+                  )}
                   <span className="flex items-center gap-1"><Calendar size={12} />Inscrit le {formatDate(prospect.date)}</span>
                   {prospect.domicile && <span className="flex items-center gap-1"><MapPin size={12} />Habite à {prospect.domicile}</span>}
                   <span className="flex items-center gap-1.5">
