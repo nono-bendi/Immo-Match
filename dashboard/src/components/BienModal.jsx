@@ -286,10 +286,10 @@ function BienModal({ bien, onClose }) {
             </div>
           )}
 
-          {/* Vendeur */}
+          {/* Négociateur */}
           {bien.vendeur && (
             <div className="p-3 bg-blue-50 rounded-xl">
-              <p className="text-xs text-blue-400 mb-1">Vendeur</p>
+              <p className="text-xs text-blue-400 mb-1">Négociateur</p>
               <p className="text-sm font-medium text-blue-700">{bien.vendeur}</p>
             </div>
           )}
