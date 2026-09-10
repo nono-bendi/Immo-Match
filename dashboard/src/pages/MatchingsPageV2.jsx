@@ -359,7 +359,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending, selectionLabel 
 
         <div className="bd-hero-header">
           <div>
-            <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_type}</div>
+            <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_titre || match.bien_type}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={13} style={{ opacity: 0.7, flexShrink: 0 }} />{match.bien_ville}</span>
               {match.bien_surface && <><span style={{ opacity: 0.4 }}>·</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{match.bien_surface} m²</span></>}
