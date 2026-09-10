@@ -80,7 +80,7 @@ export default function AdministrationPage() {
   // ── App settings (API key, IA, FTP, préférences) ─────────────────────────
   const [settings, setSettings] = useState({
     api_key: '',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     score_minimum: 0,
     max_matchings_par_prospect: 5,
     max_biens_par_prospect: 5,
@@ -403,7 +403,7 @@ export default function AdministrationPage() {
 
   const models = [
     { id: 'claude-haiku-4-5-20251001', name: 'Haiku 4.5', desc: 'Rapide & économique', price: '~0.002€/analyse', icon: Zap },
-    { id: 'claude-sonnet-4-20250514', name: 'Sonnet 4', desc: 'Meilleur rapport qualité/prix', price: '~0.006€/analyse', icon: Star, best: true },
+    { id: 'claude-sonnet-4-6', name: 'Sonnet 4.5', desc: 'Meilleur rapport qualité/prix', price: '~0.006€/analyse', icon: Star, best: true },
   ]
 
   const formatSync = d => {
