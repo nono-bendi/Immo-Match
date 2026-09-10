@@ -6,6 +6,7 @@ import secrets as _secrets
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate, make_msgid
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials
 from jose import JWTError, jwt
@@ -460,6 +461,8 @@ def forgot_password(request: Request, data: dict):
         msg["Subject"] = "Reinitialisation de votre mot de passe ImmoFlash"
         msg["From"]    = f"{_SYSTEM_SMTP['from_name']} <{_SYSTEM_SMTP['user']}>"
         msg["To"]      = email
+        msg["Date"]    = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid(domain=(_SYSTEM_SMTP["user"].split("@")[-1] if "@" in _SYSTEM_SMTP["user"] else "immoflash.app"))
         msg.attach(MIMEText(html, "html", "utf-8"))
         with smtplib.SMTP(_SYSTEM_SMTP["server"], _SYSTEM_SMTP["port"]) as s:
             s.ehlo(); s.starttls(); s.ehlo()

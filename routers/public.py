@@ -9,6 +9,7 @@ import sqlite3
 from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formatdate, make_msgid
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from html import escape
@@ -105,6 +106,8 @@ def contact_form(form: ContactForm):
     msg["From"] = f"ImmoFlash Contact <{SMTP_FALLBACK['user']}>"
     msg["To"] = CONTACT_DEST
     msg["Reply-To"] = form.email
+    msg["Date"] = formatdate(localtime=True)
+    msg["Message-ID"] = make_msgid(domain="immoflash.app")
 
     body = f"""Nouveau message depuis le formulaire de contact ImmoFlash.
 

@@ -7,6 +7,7 @@ from datetime import datetime
 from html import escape
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate, make_msgid
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -829,6 +830,11 @@ async def send_email(data: EmailRequest, _user: dict = Depends(get_current_user)
         msg["From"] = f"{smtp_cfg['from_name']} <{smtp_cfg['user']}>"
         msg["To"] = data.to_email
         msg["Reply-To"] = smtp_cfg["reply_to"]
+        # Date + Message-ID : sans eux, Gmail/Outlook classent en spam ou rejettent
+        # silencieusement (message "accepté" côté OVH mais jamais distribué).
+        msg["Date"] = formatdate(localtime=True)
+        _from_domain = smtp_cfg["user"].split("@")[-1] if "@" in smtp_cfg["user"] else "immoflash.app"
+        msg["Message-ID"] = make_msgid(domain=_from_domain)
         # Désinscription en un clic (RFC 8058) : bouton natif Gmail/Outlook + meilleure délivrabilité
         _unsub = _build_unsub_url(data, _user)
         if _unsub:
