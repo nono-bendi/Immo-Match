@@ -19,6 +19,17 @@ from qa_digest import envoyer_digest
 
 router = APIRouter()
 
+# Agences ayant quitté le groupement Primmo : leurs annonces ne doivent plus être
+# importées. On ne les ajoute pas non plus à csv_references, donc les biens déjà
+# en base tombent dans le mécanisme "absent du CSV" (marqué retiré puis supprimé).
+AGENCES_EXCLUES = ("intramuros",)
+
+
+def _agence_exclue(nom_agence: str) -> bool:
+    n = (nom_agence or "").lower()
+    return any(a in n for a in AGENCES_EXCLUES)
+
+
 # Scheduler global
 from apscheduler.schedulers.background import BackgroundScheduler
 scheduler = BackgroundScheduler()
@@ -110,6 +121,12 @@ def sync_hektor_ftp(db_path: str = None):
             d = parse_hektor_cols(cols)
 
             if d["transaction"].lower() != "vente":
+                skipped += 1
+                continue
+
+            # Agence sortie du groupement : on ignore l'annonce et on ne
+            # l'inscrit pas dans csv_references (retrait automatique ensuite).
+            if _agence_exclue(d.get("nom_agence")):
                 skipped += 1
                 continue
 
