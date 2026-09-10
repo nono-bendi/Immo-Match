@@ -340,6 +340,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     salutation = format_salutation(raw_name, data.to_prenom, data.to_prenom2, data.to_nom2)
     bien_type = safe_html_text(data.bien_type, "Bien immobilier")
     bien_ville = safe_html_text(data.bien_ville, "Non précisé")
+    bien_titre = safe_html_text(data.bien_titre, "") or f"{bien_type} à {bien_ville}"
     bien_prix = safe_html_text(data.bien_prix, "Non précisé")
     bien_surface = safe_html_text(data.bien_surface, "Non précisée")
     bien_pieces = safe_html_text(data.bien_pieces, "")
@@ -457,7 +458,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         image_block = f"""
         <tr>
           <td style="padding:0 0 20px 0;">
-            <img src="{safe_image_url}" alt="{bien_type} à {bien_ville}" width="720"
+            <img src="{safe_image_url}" alt="{bien_titre}" width="720"
                  style="display:block;width:100%;height:auto;border:0;" />
           </td>
         </tr>
@@ -558,7 +559,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
                 <tr>
                   <td style="background:{color};padding:18px 24px;">
                     <p style="margin:0;color:#FFFFFF;font-size:18px;font-weight:600;">
-                      {bien_type} à {bien_ville}
+                      {bien_titre}
                     </p>
                   </td>
                 </tr>
@@ -683,7 +684,7 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
 {intro_text}
 
 ══════════════════════════════════════════════════════
-BIEN PROPOSÉ : {data.bien_type} à {data.bien_ville}
+BIEN PROPOSÉ : {data.bien_titre or f"{data.bien_type} à {data.bien_ville}"}
 ══════════════════════════════════════════════════════
 
 Prix : {data.bien_prix}

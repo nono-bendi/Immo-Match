@@ -204,7 +204,7 @@ function ScoreRing({ score, size = 140, manual = false }) {
 }
 
 // ─── GemBadge — Card avec photo + btn bien ─────────────────────────────────────
-function GemBadge({ score, type, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
+function GemBadge({ score, titre, type, ville, prix, surface, pieces, photos, selected, onClick, onOpenBien, emailEnvoye, onPropose, onRefuse, presented, manual = false }) {
   const c = manual ? { c1: '#a21caf', c2: '#c026d3' } : sC(score); const photo = fPhoto(photos)
   const { dark } = useTheme()
   const _bg  = dark ? '#0f1e30' : '#fff'
@@ -222,7 +222,7 @@ function GemBadge({ score, type, ville, prix, surface, pieces, photos, selected,
             : <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{type ? `${type} · ${ville}` : ville}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{titre || (type ? `${type} · ${ville}` : ville)}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
             {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
@@ -268,7 +268,7 @@ function RefuseModal({ match, onConfirm, onClose }) {
       <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 420, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.2)' }}>
         <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 4 }}>{visite ? 'Marquer comme visité' : 'Refuser ce matching'}</div>
         <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-          {match.bien_type} à {match.bien_ville} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
+          {match.bien_titre || `${match.bien_type} à ${match.bien_ville}`} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
         </div>
 
         {/* Case "Déjà visité/présenté" en premier — change le comportement */}
@@ -583,7 +583,7 @@ const ProspectCard = memo(function ProspectCard({ group, onRunSingle, onPropose,
           {/* ── DROITE — GemBadges ── */}
           <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' }}>
             {(expanded ? sorted : sorted.slice(0, 3)).map(m => (
-              <GemBadge key={m.id} score={m.score} type={m.bien_type} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
+              <GemBadge key={m.id} score={m.score} titre={m.bien_titre} type={m.bien_type} ville={m.bien_ville} prix={m.bien_prix} surface={m.bien_surface} pieces={m.bien_pieces} photos={m.bien_photos}
                 manual={m.statut_prospect === 'manuel'}
                 selected={sel?.id === m.id}
                 onClick={() => setSelId(sel?.id === m.id ? null : m.id)}
@@ -734,7 +734,7 @@ const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropos
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {group.bien_type} à {group.bien_ville}
+                  {group.bien_titre || `${group.bien_type} à ${group.bien_ville}`}
                 </div>
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
@@ -871,7 +871,7 @@ export default function MatchingsPageV2() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [langue, setLangue] = useState('')
 
-  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
+  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_titre || `${m.bien_type} à ${m.bien_ville}`} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
   // Période choisie sur la page — recalculée seulement quand le choix change
   // vraiment (jamais avec new Date() directement dans le rendu, sinon boucle
@@ -952,7 +952,7 @@ export default function MatchingsPageV2() {
     setPreviewLoading(true); setPreviewHtml(null)
     const photo = photoUrl !== undefined ? photoUrl : selectedPhoto
     try {
-      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, to_prenom: prenom || null, to_prenom2: prenom2 || null, to_nom2: nom2 || null, subject: content.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: photo, custom_intro: content.intro, custom_conclusion: content.conclusion, langue: langue || null }) })
+      const r = await apiFetch('/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: mail.trim(), to_name: nom, to_prenom: prenom || null, to_prenom2: prenom2 || null, to_nom2: nom2 || null, subject: content.subject, bien_titre: match.bien_titre || null, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: content.points_forts, points_attention: content.points_attention, recommandation: content.recommandation, lien_annonce: content.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: photo, custom_intro: content.intro, custom_conclusion: content.conclusion, langue: langue || null }) })
       const res = await r.json(); setPreviewHtml(res.success ? res.html : `<div style="padding:20px;color:red">${res.error}</div>`)
     } catch (err) { setPreviewHtml(`<div style="padding:20px;color:red">Erreur: ${err.message}</div>`) }
     setPreviewLoading(false)
@@ -963,7 +963,7 @@ export default function MatchingsPageV2() {
     const { match, prospectMail, prospectNom, prospectPrenom, prospectPrenom2, prospectNom2 } = pendingEmail
     setEmailModal(p => ({ ...p, isLoading: true })); setSendingEmail(match.id)
     try {
-      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, to_prenom: prospectPrenom || null, to_prenom2: prospectPrenom2 || null, to_nom2: prospectNom2 || null, subject: emailContent.subject, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion, langue: langue || null }) }).then(r => r.json())
+      const res = await apiFetch('/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to_email: prospectMail.trim(), to_name: prospectNom, to_prenom: prospectPrenom || null, to_prenom2: prospectPrenom2 || null, to_nom2: prospectNom2 || null, subject: emailContent.subject, bien_titre: match.bien_titre || null, bien_type: match.bien_type, bien_ville: match.bien_ville, bien_prix: mon(match.bien_prix), bien_surface: match.bien_surface ? `${match.bien_surface} m²` : null, bien_pieces: match.bien_pieces ? `${match.bien_pieces} pièces` : null, points_forts: emailContent.points_forts, points_attention: emailContent.points_attention, recommandation: emailContent.recommandation, lien_annonce: emailContent.lien_annonce, bien_id: match.bien_id, agency_slug: agency?.slug, bien_image_url: selectedPhoto, custom_intro: emailContent.intro, custom_conclusion: emailContent.conclusion, langue: langue || null }) }).then(r => r.json())
       if (res.success) {
         sessionStorage.removeItem(`emailDraft_${match.id}`)
         await apiFetch(`/matchings/${match.id}/email-sent`, { method: 'PATCH' })
@@ -1024,7 +1024,7 @@ export default function MatchingsPageV2() {
       const key = byBien ? m.bien_id : m.prospect_id
       if (!acc[key]) {
         acc[key] = byBien
-          ? { bien_id: m.bien_id, bien_type: m.bien_type, bien_ville: m.bien_ville, bien_prix: m.bien_prix, bien_surface: m.bien_surface, bien_pieces: m.bien_pieces, bien_photos: m.bien_photos, bien_reference: m.bien_reference, matchings: [] }
+          ? { bien_id: m.bien_id, bien_titre: m.bien_titre, bien_type: m.bien_type, bien_ville: m.bien_ville, bien_prix: m.bien_prix, bien_surface: m.bien_surface, bien_pieces: m.bien_pieces, bien_photos: m.bien_photos, bien_reference: m.bien_reference, matchings: [] }
           : { prospect_id: m.prospect_id, prospect_nom: m.prospect_nom, prospect_titre: m.prospect_titre, prospect_prenom: m.prospect_prenom, prospect_prenom2: m.prospect_prenom2, prospect_nom2: m.prospect_nom2, prospect_societe: m.prospect_societe, prospect_budget: m.prospect_budget, prospect_mail: m.prospect_mail, prospect_email2: m.prospect_email2, prospect_type: m.prospect_type, prospect_villes: m.prospect_villes, matchings: [] }
       }
       acc[key].matchings.push(m); return acc
@@ -1165,7 +1165,7 @@ export default function MatchingsPageV2() {
       {filterBienId && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
           <span className="text-blue-700">
-            {groups[0] ? `${groups[0].bien_type} à ${groups[0].bien_ville}` : `Bien #${filterBienId}`} — {filtered.length} prospect{filtered.length > 1 ? 's' : ''} compatible{filtered.length > 1 ? 's' : ''}
+            {groups[0] ? (groups[0].bien_titre || `${groups[0].bien_type} à ${groups[0].bien_ville}`) : `Bien #${filterBienId}`} — {filtered.length} prospect{filtered.length > 1 ? 's' : ''} compatible{filtered.length > 1 ? 's' : ''}
           </span>
           <button onClick={() => navigate('/matchings')} className="text-blue-500 hover:underline">Voir tout</button>
         </div>

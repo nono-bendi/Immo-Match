@@ -457,7 +457,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rapport bien — {b.get("type","Bien")} à {b.get("ville","")}</title>
+  <title>Rapport bien — {b.get("titre") or (b.get("type","Bien") + " à " + b.get("ville",""))}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     * {{ margin:0; padding:0; box-sizing:border-box; }}
@@ -579,7 +579,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
     <div class="hero">
       {hero_bg}
       <div class="hero-text">
-        <div class="hero-title">{b.get("type","Bien")} à {b.get("ville","")}</div>
+        <div class="hero-title">{b.get("titre") or (b.get("type","Bien") + " à " + b.get("ville",""))}</div>
         <div class="hero-sub">
           <span><b>{fmt_prix(b.get("prix"))}</b></span>
           {f'<span>{int(b["surface"])} m²</span>' if b.get("surface") else ''}
@@ -649,7 +649,7 @@ def rapport_bien(bien_id: int, current_user: dict = Depends(get_user_from_token_
       {prospect_rows if prospect_rows else '<div class="no-match"><p>Aucun matching pour ce bien.</p></div>'}
     </div>
   </div>
-  <div class="footer"><b>ImmoFlash</b> · Synthèse confidentielle · {now.strftime("%d/%m/%Y")} · {b.get("type","Bien")} à {b.get("ville","")}</div>
+  <div class="footer"><b>ImmoFlash</b> · Synthèse confidentielle · {now.strftime("%d/%m/%Y")} · {b.get("titre") or (b.get("type","Bien") + " à " + b.get("ville",""))}</div>
 </div>
 </body>
 </html>'''
@@ -668,7 +668,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
         return HTMLResponse(content="<h1>Prospect introuvable</h1>", status_code=404)
 
     matchings = conn.execute('''
-        SELECT m.*, b.type as bien_type, b.ville, b.prix, b.surface, b.pieces,
+        SELECT m.*, b.titre as bien_titre, b.type as bien_type, b.ville, b.prix, b.surface, b.pieces,
                b.chambres, b.etat, b.exposition, b.stationnement, b.exterieur,
                b.etage, b.description, b.reference, b.photos, b.vendeur
         FROM matchings m
@@ -749,7 +749,7 @@ def rapport_prospect(prospect_id: int, current_user: dict = Depends(get_user_fro
           <div class="matching-header" style="border-left:4px solid {score_color(sc)}">
             {photo_html}
             <div class="matching-info">
-              {f'<a href="{bien_url}" target="_blank" rel="noopener" class="matching-title-link"><div class="matching-title">{md["bien_type"]} à {md["ville"]}</div></a>' if bien_url else f'<div class="matching-title">{md["bien_type"]} à {md["ville"]}</div>'}
+              {f'<a href="{bien_url}" target="_blank" rel="noopener" class="matching-title-link"><div class="matching-title">{md.get("bien_titre") or (md["bien_type"] + " à " + md["ville"]) }</div></a>' if bien_url else f'<div class="matching-title">{md.get("bien_titre") or (md["bien_type"] + " à " + md["ville"]) }</div>'}
               <div class="matching-sub">{fmt_prix(md["prix"])} · {int(md["surface"] or 0)} m² · {md["pieces"] or "—"} pièces</div>
               {ref_html}
               {vendeur_html}

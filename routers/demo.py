@@ -134,7 +134,7 @@ def _import_hektor_bytes(raw: bytes, db_path: str) -> int:
         try:
             cur.execute("""
                 INSERT OR IGNORE INTO biens (
-                    reference,type,ville,quartier,prix,surface,pieces,chambres,
+                    titre,reference,type,ville,quartier,prix,surface,pieces,chambres,
                     description,photos,vendeur,lien_annonce,
                     etage_bien,nb_etages_immeuble,ascenseur,cave,
                     nb_parkings,nb_boxes,terrasse,nb_balcons,
@@ -142,9 +142,9 @@ def _import_hektor_bytes(raw: bytes, db_path: str) -> int:
                     dpe_lettre,dpe_kwh,ges_lettre,ges_co2,latitude,longitude,video_url,
                     nb_salles_bain,nb_salles_eau,nb_wc,surface_cave,prix_hn,honoraires_pct,
                     date_ajout,nom_agence,statut,source,date_creation
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, (
-                d["reference"], d["type_bien"], d["ville"], d["adresse"],
+                d.get("titre") or "", d["reference"], d["type_bien"], d["ville"], d["adresse"],
                 d["prix"], d["surface"], d["pieces"], d["chambres"],
                 d["description"], d["photos_str"], d["vendeur"], "",
                 d["etage_bien"], d["nb_etages_immeuble"], d["ascenseur"], d["cave"],
@@ -249,15 +249,15 @@ def _import_scraped_biens(biens: list, db_path: str) -> int:
 
             conn.execute("""
                 INSERT INTO biens (
-                    reference, type, ville, prix, surface, pieces, chambres,
+                    titre, reference, type, ville, prix, surface, pieces, chambres,
                     description, photos,
                     terrasse, cave, nb_parkings, exposition,
                     charges_mensuelles, dpe_lettre, dpe_kwh, ges_lettre, ges_co2,
                     copropriete, nb_salles_bain, etage_bien,
                     statut, source, date_creation, date_ajout
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """, (
-                b.get("reference"), b.get("type"), b.get("ville"),
+                b.get("titre") or "", b.get("reference"), b.get("type"), b.get("ville"),
                 b.get("prix"), b.get("surface"), b.get("pieces"), b.get("chambres"),
                 desc or None, photos_str,
                 _bool(b.get("terrasse")), _bool(b.get("cave")),

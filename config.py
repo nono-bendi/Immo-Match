@@ -62,6 +62,7 @@ class EmailRequest(BaseModel):
     to_prenom2: Optional[str] = None
     to_nom2: Optional[str] = None
     subject: str
+    bien_titre: Optional[str] = None
     bien_type: str
     bien_ville: str
     bien_prix: str

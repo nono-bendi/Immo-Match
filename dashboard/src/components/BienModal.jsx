@@ -176,7 +176,7 @@ function BienModal({ bien, onClose }) {
                 </>
               )}
               <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h2 className="text-xl font-bold">{bien.type} à {bien.ville}</h2>
+                <h2 className="text-xl font-bold">{bien.titre || `${bien.type} à ${bien.ville}`}</h2>
                 {bien.reference && <p className="text-white/70 text-sm">Réf. {bien.reference}</p>}
               </div>
             </div>
@@ -185,7 +185,7 @@ function BienModal({ bien, onClose }) {
               <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mb-4">
                 <Building2 size={28} />
               </div>
-              <h2 className="text-xl font-bold">{bien.type} à {bien.ville}</h2>
+              <h2 className="text-xl font-bold">{bien.titre || `${bien.type} à ${bien.ville}`}</h2>
               {bien.reference && <p className="text-white/70 text-sm">Réf. {bien.reference}</p>}
             </div>
           )}

@@ -263,6 +263,7 @@ def init_db(db_path: str = "immomatch.db"):
         ('surface_cave',    'REAL'),
         ('prix_hn',         'REAL'),
         ('honoraires_pct',  'REAL'),
+        ('titre',           'TEXT'),   # titre d'annonce (Hektor col. 19) — sinon "type à ville"
     ]
     for col_name, col_type in nouvelles_colonnes_v2:
         try:

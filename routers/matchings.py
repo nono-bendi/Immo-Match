@@ -567,7 +567,7 @@ def get_matchings(
                p.bien as prospect_type, p.villes as prospect_villes,
                p.destination as prospect_destination, p.criteres as prospect_criteres,
                p.stationnement as prospect_stationnement, p.exterieur as prospect_exterieur,
-               b.type as bien_type, b.ville as bien_ville, b.quartier as bien_quartier,
+               b.titre as bien_titre, b.type as bien_type, b.ville as bien_ville, b.quartier as bien_quartier,
                b.reference as bien_reference, b.prix as bien_prix,
                b.surface as bien_surface, b.pieces as bien_pieces, b.photos as bien_photos,
                b.lien_annonce as lien_annonce,
@@ -1178,7 +1178,7 @@ def get_presentations_prospect(prospect_id: int, current_user: dict = Depends(ge
     _ensure_presentations_table(conn)
     rows = conn.execute("""
         SELECT pr.date_presentation, pr.commentaire,
-               b.id as bien_id, b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix,
+               b.id as bien_id, b.titre as bien_titre, b.type as bien_type, b.ville as bien_ville, b.prix as bien_prix,
                b.surface as bien_surface, b.pieces as bien_pieces,
                b.reference as bien_reference, b.photos as bien_photos
         FROM presentations pr

@@ -151,7 +151,7 @@ def sync_hektor_ftp(db_path: str = None):
 
                 cursor.execute('''
                     UPDATE biens SET
-                        type=?, ville=?, quartier=?, prix=?, surface=?, pieces=?, chambres=?,
+                        titre=?, type=?, ville=?, quartier=?, prix=?, surface=?, pieces=?, chambres=?,
                         description=?, photos=?, vendeur=?, lien_annonce=?,
                         etage_bien=?, nb_etages_immeuble=?, ascenseur=?, cave=?,
                         nb_parkings=?, nb_boxes=?, terrasse=?, nb_balcons=?,
@@ -162,7 +162,7 @@ def sync_hektor_ftp(db_path: str = None):
                         date_ajout=?, nom_agence=?, statut=?, source=?, date_vendu=NULL
                     WHERE id=?
                 ''', (
-                    d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
+                    d.get("titre") or "", d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
                     d["vendeur"], "",
                     d["etage_bien"], d["nb_etages_immeuble"], d["ascenseur"], d["cave"],
@@ -178,7 +178,7 @@ def sync_hektor_ftp(db_path: str = None):
             else:
                 cursor.execute('''
                     INSERT INTO biens (
-                        reference, type, ville, quartier, prix, surface, pieces, chambres,
+                        titre, reference, type, ville, quartier, prix, surface, pieces, chambres,
                         description, photos, vendeur, lien_annonce,
                         etage_bien, nb_etages_immeuble, ascenseur, cave,
                         nb_parkings, nb_boxes, terrasse, nb_balcons,
@@ -187,9 +187,9 @@ def sync_hektor_ftp(db_path: str = None):
                         latitude, longitude, video_url,
                         nb_salles_bain, nb_salles_eau, nb_wc, surface_cave, prix_hn, honoraires_pct,
                         date_ajout, nom_agence, source, date_creation, statut
-                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ''', (
-                    d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
+                    d.get("titre") or "", d["reference"], d["type_bien"], d["ville"], d["adresse"], d["prix"], d["surface"],
                     d["pieces"], d["chambres"], d["description"], d["photos_str"],
                     d["vendeur"], "",
                     d["etage_bien"], d["nb_etages_immeuble"], d["ascenseur"], d["cave"],
