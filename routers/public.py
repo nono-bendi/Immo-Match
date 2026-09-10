@@ -582,7 +582,7 @@ def _render_page(bien: dict, agency: dict) -> str:
       border-bottom: 1px solid var(--border);
     }}
     .hdr-left {{ display: flex; align-items: center; gap: 10px; }}
-    .hdr-logo {{ height: 52px; width: auto; object-fit: contain; }}
+    .hdr-logo {{ height: 60px; width: auto; object-fit: contain; }}
     .hdr-ini {{ width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; }}
     .hdr-name {{ font-weight: 600; font-size: 15px; }}
     .hdr-badge {{ font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--ink); color: var(--ink); }}
@@ -690,7 +690,7 @@ def _render_page(bien: dict, agency: dict) -> str:
     .card-prix {{ font-size: 36px; font-weight: 800; color: var(--ink); margin-bottom: 8px; letter-spacing: -.03em; line-height: 1; }}
     .card-prix-sub {{ font-size: 12px; color: var(--muted); margin-bottom: 24px; }}
     .card-ag {{ display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--bg); border-radius: 12px; margin-bottom: 24px; }}
-    .card-logo {{ height: 42px; width: auto; object-fit: contain; max-width: 110px; }}
+    .card-logo {{ height: 50px; width: auto; object-fit: contain; max-width: 130px; }}
     .card-ini {{ width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: #fff; flex-shrink: 0; }}
     .card-ag-name {{ font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
     .card-ag-addr {{ font-size: 12px; color: var(--muted); margin-top: 3px; }}

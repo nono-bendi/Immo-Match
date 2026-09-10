@@ -439,7 +439,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
         <tr>
           <td style="padding:20px 24px;background:{bg};{border}">
             <img src="{safe_logo_url}" alt="{escape(agency.get('agency_nom') or 'Agence')}"
-                 style="display:block;border:0;max-height:64px;height:64px;width:auto;max-width:300px;" />
+                 style="display:block;border:0;max-height:76px;height:76px;width:auto;max-width:320px;" />
           </td>
         </tr>
         """
