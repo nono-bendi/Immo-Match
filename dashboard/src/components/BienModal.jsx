@@ -455,13 +455,18 @@ function BienModal({ bien, onClose }) {
                     })}
                 </div>
                 {addedIds.length > 0 && (
-                  <button
-                    onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}`) }}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all"
-                    style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}
-                  >
-                    Voir et envoyer l'email <ArrowRight size={12} />
-                  </button>
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-gray-500">
+                      Le bien est rattaché au prospect. Il reste à <b>lui envoyer l'email</b> :
+                    </p>
+                    <button
+                      onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}${addedIds.length === 1 ? `&prospect=${addedIds[0]}` : ''}`) }}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
+                      style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
+                    >
+                      Envoyer l'email <ArrowRight size={14} />
+                    </button>
+                  </div>
                 )}
               </div>
             )}

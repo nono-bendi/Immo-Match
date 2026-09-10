@@ -1169,7 +1169,7 @@ export default function MatchingsPageV2() {
           <button onClick={() => navigate('/matchings')} className="text-emerald-600 hover:underline">Voir tout</button>
         </div>
       )}
-      {filterProspectId && (
+      {filterProspectId && !filterBienId && (
         <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-4 text-sm">
           <span className="text-indigo-700">{groups[0]?.prospect_nom || `Prospect #${filterProspectId}`} — {filtered.length} matching{filtered.length > 1 ? 's' : ''}</span>
           <button onClick={() => navigate('/matchings')} className="text-indigo-500 hover:underline">Voir tout</button>
