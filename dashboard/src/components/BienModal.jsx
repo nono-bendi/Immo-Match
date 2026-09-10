@@ -47,8 +47,10 @@ function BienModal({ bien, onClose }) {
         body: JSON.stringify({ prospect_id: prospectId, bien_id: bien.id })
       })
       const data = await res.json()
-      if (data.error) setAddError(data.error)
-      else setAddedIds(prev => [...prev, prospectId])
+      // Déjà associé = pas une erreur : le lien existe, on ouvre juste le chemin
+      // pour aller envoyer l'email au lieu d'un cul-de-sac rouge.
+      if (data.success || data.matching_id) setAddedIds(prev => [...new Set([...prev, prospectId])])
+      else if (data.error) setAddError(data.error)
     } catch {
       setAddError('Erreur réseau')
     }
