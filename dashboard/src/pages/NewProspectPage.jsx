@@ -10,6 +10,8 @@ function NewProspectPage() {
   const navigate = useNavigate()
   const { agency } = useAgency()
   const isDemo = agency?.slug === 'demo'
+  // Agences non littorales : pas de critères "vue mer / plage"
+  const isInland = ['loire_immobilier'].includes(agency?.slug)
   const [saving, setSaving] = useState(false)
   const [villeInput, setVilleInput] = useState('')
   const [quartierInput, setQuartierInput] = useState('')
@@ -216,7 +218,11 @@ function NewProspectPage() {
       label: 'Environnement',
       options: [
         { value: 'Au calme', label: 'Au calme' },
-        ...(!isDemo ? [
+        ...(isInland ? [
+          { value: 'Vue dégagée souhaitée', label: 'Vue dégagée souhaitée' },
+          { value: 'Proche Loire / espaces verts', label: 'Proche Loire / espaces verts' },
+          { value: 'Proche tram / gare', label: 'Proche tram / gare' },
+        ] : !isDemo ? [
           { value: 'Vue mer souhaitée', label: 'Vue mer souhaitée' },
           { value: 'Vue mer indispensable', label: 'Vue mer indispensable' },
           { value: 'Plages à pieds', label: 'Plages à pieds' },
