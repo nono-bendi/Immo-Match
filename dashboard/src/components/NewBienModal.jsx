@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   X, Building2, Euro, Maximize, Home,
   AlertCircle, Sparkles, Loader2, CheckCircle2, ChevronRight, Save, MapPin
@@ -82,8 +83,8 @@ function NewBienModal({ bienId, onClose }) {
   const photos = bien?.photos ? bien.photos.split('|').filter(p => p.trim()) : []
   const photo = photos[0]
 
-  return (
-    <div className="fixed inset-0 lg:left-64 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+  return createPortal((
+    <div className="fixed inset-0 lg:left-64 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }} onClick={onClose}>
       <div className="rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" style={{ background: 'white', border: '1px solid #e5e7eb', boxShadow: '0 20px 60px rgba(0,0,0,0.12)' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -254,7 +255,7 @@ function NewBienModal({ bienId, onClose }) {
       </div>
       {showFullModal && bien && <BienModal bien={bien} onClose={() => setShowFullModal(false)} />}
     </div>
-  )
+  ), document.body)
 }
 
 export default NewBienModal

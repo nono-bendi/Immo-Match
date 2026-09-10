@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Send, CheckCircle2, XCircle, Eye, Mail, Edit3, RotateCcw, Sparkles, AlertCircle, Settings, Languages, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../api'
@@ -103,8 +104,8 @@ function EmailModal({
     URL.revokeObjectURL(url)
   }
 
-  return (
-    <div className="fixed inset-0 lg:left-64 z-50 flex items-end sm:items-center justify-center">
+  return createPortal((
+    <div className="fixed inset-0 lg:left-64 flex items-end sm:items-center justify-center" style={{ zIndex: 99999 }}>
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
@@ -543,7 +544,7 @@ function EmailModal({
         </div>
       </div>
     </div>
-  )
+  ), document.body)
 }
 
 export default EmailModal
