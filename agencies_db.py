@@ -118,6 +118,7 @@ def init_agencies_db():
         ("smtp_port", "INTEGER DEFAULT 587"),
         ("plan_id", "TEXT DEFAULT 'agence'"),
         ("site_web", "TEXT"),
+        ("titre_admin", "TEXT DEFAULT 'Gérante'"),  # titre affiché dans la signature email pour un user 'admin'
     ]:
         try:
             conn.execute(f"ALTER TABLE agencies ADD COLUMN {col} {definition}")
@@ -239,7 +240,8 @@ def get_user_with_agency(email: str) -> dict | None:
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
             a.plan_id       AS agency_plan_id,
-            a.site_web      AS agency_site_web
+            a.site_web      AS agency_site_web,
+            a.titre_admin   AS agency_titre_admin
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.email = ?
@@ -274,7 +276,8 @@ def get_user_by_id(user_id: int) -> dict | None:
             a.smtp_user, a.smtp_password, a.smtp_from_name, a.smtp_reply_to,
             a.smtp_server, a.smtp_port,
             a.plan_id       AS agency_plan_id,
-            a.site_web      AS agency_site_web
+            a.site_web      AS agency_site_web,
+            a.titre_admin   AS agency_titre_admin
         FROM users u
         JOIN agencies a ON u.agency_id = a.id
         WHERE u.id = ?

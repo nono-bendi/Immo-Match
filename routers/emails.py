@@ -333,7 +333,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     color_light = _lighten(color, 0.18)
     color_dark  = _darken(color, 0.22)
     tr = _TR.get(data.langue or 'fr', _TR['fr'])
-    agent_title = tr['agent_title_admin'] if agency.get("role") == "admin" else tr['agent_title']
+    agent_title = (agency.get("agency_titre_admin") or tr['agent_title_admin']) if agency.get("role") == "admin" else tr['agent_title']
     _unsub = _build_unsub_url(data, agency)
 
     raw_name = (data.to_name or "").strip()
@@ -656,7 +656,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
 def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict = None) -> str:
     """Génère la version texte de l'email (fallback)"""
     agency = agency or {}
-    agent_title = "Gérante" if agency.get("role") == "admin" else "Conseiller immobilier"
+    agent_title = (agency.get("agency_titre_admin") or "Gérante") if agency.get("role") == "admin" else "Conseiller immobilier"
 
     salutation = format_salutation(data.to_name, data.to_prenom, data.to_prenom2, data.to_nom2)
     default_intro = "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention."
