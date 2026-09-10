@@ -460,7 +460,7 @@ function BienModal({ bien, onClose }) {
                       Le bien est rattaché au prospect. Il reste à <b>lui envoyer l'email</b> :
                     </p>
                     <button
-                      onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}${addedIds.length === 1 ? `&prospect=${addedIds[0]}` : ''}`) }}
+                      onClick={() => { onClose(); navigate(`/matchings?bien=${bien.id}${addedIds.length === 1 ? `&focus=${addedIds[0]}` : ''}`) }}
                       className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
                       style={{ background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)' }}
                     >

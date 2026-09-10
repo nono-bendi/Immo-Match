@@ -663,12 +663,16 @@ function GemBadgeProspect({ score, nom, societe, budget, selected, onClick, onOp
 }
 
 // ─── BienGroupCard — miroir de ProspectCard : une carte par bien, prospects dedans ──
-const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen }) {
-  const sorted = [...group.matchings]
+const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropose, onRefuse, sendingEmail, analyzing, defaultOpen, focusProspectId }) {
+  const scored = [...group.matchings]
     .filter(m => m.statut_prospect !== 'refused')
     .sort((a, b) => b.score - a.score)
-  const best = sorted[0]
-  const [selId, setSelId] = useState(defaultOpen && best ? best.id : null)
+  // Si on arrive en visant un prospect précis (bouton "Envoyer l'email"),
+  // il passe en tête de liste et son panneau s'ouvre — pas celui du mieux noté.
+  const focusMatch = focusProspectId ? scored.find(m => m.prospect_id === focusProspectId) : null
+  const sorted = focusMatch ? [focusMatch, ...scored.filter(m => m.id !== focusMatch.id)] : scored
+  const best = focusMatch || sorted[0]
+  const [selId, setSelId] = useState((defaultOpen || focusMatch) && best ? best.id : null)
   const [prospectModalData, setProspectModalData] = useState(null)
   const [bienModal, setBienModal] = useState(null)
   const [expanded, setExpanded] = useState(false)
@@ -828,6 +832,9 @@ export default function MatchingsPageV2() {
   const filterBienId      = searchParams.get('bien')     ? parseInt(searchParams.get('bien'))     : null
   const filterProspectId  = searchParams.get('prospect') ? parseInt(searchParams.get('prospect')) : null
   const filterDepuis      = searchParams.get('depuis')   || null
+  // ?focus=<id> : ne filtre pas la liste, met juste ce prospect en tête de la
+  // carte bien avec son panneau ouvert (arrivée depuis "Envoyer l'email").
+  const focusProspectId   = searchParams.get('focus')    ? parseInt(searchParams.get('focus'))    : null
   // Vue "par bien" (matching inversé) : une carte par bien avec ses prospects
   // compatibles dedans, au lieu d'une carte par prospect — activée dès qu'on
   // arrive filtré sur un bien précis (ex: depuis le bilan ou la fiche bien).
@@ -1257,6 +1264,7 @@ export default function MatchingsPageV2() {
                 ),
                 byBien ? (
                   <BienGroupCard key={g.bien_id} group={g} defaultOpen={idx === 0 && page === 1}
+                    focusProspectId={focusProspectId || filterProspectId}
                     onRunSingle={runSingleBien}
                     onPropose={openEmail}
                     onRefuse={handleRefuse}
