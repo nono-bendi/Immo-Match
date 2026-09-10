@@ -42,7 +42,7 @@ if (typeof document !== 'undefined' && !document.getElementById('immo-kf')) {
     .gem-send svg{position:relative;z-index:1;transition:color .25s ease;}
     .gem-send:hover svg{color:#fff !important;}
     .matchings-wrap{padding:32px 24px;}
-    .pc-grid{display:grid;grid-template-columns:1.2fr 210px 1.2fr;min-height:250px;}
+    .pc-grid{display:grid;grid-template-columns:minmax(0,1.2fr) 210px minmax(0,1.2fr);min-height:250px;}
     .pc-sep-right{border-right:1px solid var(--pc-sep);}
     .bd-hero-pad{padding:28px 30px;}
     .bd-hero-header{position:relative;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;}
