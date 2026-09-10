@@ -340,7 +340,7 @@ def generate_email_html(data: EmailRequest, agent_nom: str = None, agency: dict 
     salutation = format_salutation(raw_name, data.to_prenom, data.to_prenom2, data.to_nom2)
     bien_type = safe_html_text(data.bien_type, "Bien immobilier")
     bien_ville = safe_html_text(data.bien_ville, "Non précisé")
-    bien_titre = safe_html_text(data.bien_titre, "") or f"{bien_type} à {bien_ville}"
+    bien_titre = f"{bien_type} à {bien_ville}"   # nom simple dans l'email, pas le titre d'annonce
     bien_prix = safe_html_text(data.bien_prix, "Non précisé")
     bien_surface = safe_html_text(data.bien_surface, "Non précisée")
     bien_pieces = safe_html_text(data.bien_pieces, "")
@@ -684,7 +684,7 @@ def generate_email_text(data: EmailRequest, agent_nom: str = None, agency: dict 
 {intro_text}
 
 ══════════════════════════════════════════════════════
-BIEN PROPOSÉ : {data.bien_titre or f"{data.bien_type} à {data.bien_ville}"}
+BIEN PROPOSÉ : {data.bien_type} à {data.bien_ville}
 ══════════════════════════════════════════════════════
 
 Prix : {data.bien_prix}

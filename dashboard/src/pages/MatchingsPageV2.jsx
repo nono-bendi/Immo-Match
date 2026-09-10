@@ -898,7 +898,7 @@ export default function MatchingsPageV2() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [langue, setLangue] = useState('')
 
-  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${shortTitre(m.bien_titre, m.bien_type, m.bien_ville)} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
+  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_type} à ${m.bien_ville} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
   // Période choisie sur la page — recalculée seulement quand le choix change
   // vraiment (jamais avec new Date() directement dans le rendu, sinon boucle
