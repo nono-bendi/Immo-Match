@@ -95,6 +95,33 @@ const mon    = (v) => v ? new Intl.NumberFormat('fr-FR', { style: 'currency', cu
 const dt     = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : ''
 const fPhoto = (s) => { if (!s || typeof s !== 'string') return null; return s.split('|').map(u => u.trim()).find(u => /^https?:\/\//i.test(u)) || null }
 
+// Titre d'annonce court : max 3 mots utiles, nettoyé (les titres CRM sont souvent
+// des phrases entières en majuscules). Repli sur "Type · Ville".
+const _TITRE_STOP = new Set(['de','des','du','la','le','les','un','une','avec','et','à','a','en','sur','pour','au','aux','d','l','sa','ses','son'])
+const _TITRE_PROMO = /\b(?:exclusivit[eé]s?|en exclusivit[eé]|coup de c(?:oe|œ)ur|sp[eé]cial investisseur|investisseur|nouveaut[eé]|nouveau prix|[àa] vendre|vendu|sous compromis|sous offre|rare|id[eé]al)\b/gi
+function shortTitre(titre, type, ville) {
+  const fallback = type ? `${type} · ${ville || ''}`.trim().replace(/·\s*$/, '').trim() : (ville || 'Bien')
+  if (!titre || !String(titre).trim()) return fallback
+  let t = String(titre).trim()
+    .replace(/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’\s]{2,}?[-–:]\s+/, '')   // préfixe "OLIVET- " / "BEAUGENCY : "
+    .replace(_TITRE_PROMO, ' ')
+    .replace(/[-–_/,.;:()"]+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+  const words = t.split(/\s+/).filter(w => {
+    const bare = w.replace(/[^0-9A-Za-zÀ-ÿ²]/g, '').toLowerCase()
+    if (!bare) return false
+    if (_TITRE_STOP.has(bare)) return false
+    if (/^\d{4}$/.test(bare)) return false          // année seule
+    return true
+  })
+  if (!words.length) return fallback
+  const norm = (w) => /^[A-ZÀ-Ÿ]{2,}/.test(w) ? w.charAt(0) + w.slice(1).toLowerCase() : w
+  let out = words.slice(0, 3).map(norm).join(' ')
+  out = out.charAt(0).toUpperCase() + out.slice(1)
+  return out
+}
+
 const AV_PAL = [
   ['#1E3A5F', '#2D5A8A'], ['#0e7490', '#06b6d4'], ['#047857', '#10b981'],
   ['#b45309', '#f59e0b'], ['#5b21b6', '#a78bfa'], ['#1d4ed8', '#60a5fa'],
@@ -222,7 +249,7 @@ function GemBadge({ score, titre, type, ville, prix, surface, pieces, photos, se
             : <div style={{ position: 'absolute', top: 3, right: 3, background: `linear-gradient(135deg,${c.c1},${c.c2})`, color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 9999, boxShadow: `0 2px 4px ${c.c1}50` }}>{score}</div>}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{titre || (type ? `${type} · ${ville}` : ville)}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: _tx, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{shortTitre(titre, type, ville)}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: _tx, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{mon(prix)}</span>
             {surface && <><span style={{ fontSize: 10, color: dark?'rgba(255,255,255,0.2)':'#cbd5e1' }}>·</span><span style={{ fontSize: 12, color: _sub }}>{surface}m²</span></>}
@@ -268,7 +295,7 @@ function RefuseModal({ match, onConfirm, onClose }) {
       <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 420, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.2)' }}>
         <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a', marginBottom: 4 }}>{visite ? 'Marquer comme visité' : 'Refuser ce matching'}</div>
         <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>
-          {match.bien_titre || `${match.bien_type} à ${match.bien_ville}`} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
+          {shortTitre(match.bien_titre, match.bien_type, match.bien_ville)} — {match.bien_prix ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(match.bien_prix) : ''}
         </div>
 
         {/* Case "Déjà visité/présenté" en premier — change le comportement */}
@@ -359,7 +386,7 @@ function BienDetail({ match, mail, onPropose, onRefuse, sending, selectionLabel 
 
         <div className="bd-hero-header">
           <div>
-            <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{match.bien_titre || match.bien_type}</div>
+            <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', letterSpacing: '-0.03em' }}>{shortTitre(match.bien_titre, match.bien_type, match.bien_ville)}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 6, display: 'flex', gap: 8, alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MapPin size={13} style={{ opacity: 0.7, flexShrink: 0 }} />{match.bien_ville}</span>
               {match.bien_surface && <><span style={{ opacity: 0.4 }}>·</span><span style={{ fontVariantNumeric: 'tabular-nums' }}>{match.bien_surface} m²</span></>}
@@ -734,7 +761,7 @@ const BienGroupCard = memo(function BienGroupCard({ group, onRunSingle, onPropos
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: _tx, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {group.bien_titre || `${group.bien_type} à ${group.bien_ville}`}
+                  {shortTitre(group.bien_titre, group.bien_type, group.bien_ville)}
                 </div>
                 <div style={{ fontSize: 13, color: _sub, marginTop: 3, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                   <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 0 3px rgba(16,185,129,0.15)', flexShrink: 0 }} />
@@ -871,7 +898,7 @@ export default function MatchingsPageV2() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [langue, setLangue] = useState('')
 
-  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${m.bien_titre || `${m.bien_type} à ${m.bien_ville}`} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
+  const buildDefault = (m) => ({ subject: `Proposition immobilière - ${shortTitre(m.bien_titre, m.bien_type, m.bien_ville)} | ${agencyNom}`, intro: "Suite à notre dernier échange, nous avons le plaisir de vous proposer un bien qui pourrait vous intéresser. Voici pourquoi je pense qu'il mérite votre attention.", points_forts: m.points_forts || '', points_attention: m.points_attention || '', recommandation: m.recommandation || '', conclusion: "Ce bien vous intéresse ? N'hésitez pas à me contacter pour organiser une visite.", lien_annonce: m.lien_annonce || '' })
 
   // Période choisie sur la page — recalculée seulement quand le choix change
   // vraiment (jamais avec new Date() directement dans le rendu, sinon boucle
@@ -1165,7 +1192,7 @@ export default function MatchingsPageV2() {
       {filterBienId && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
           <span className="text-blue-700">
-            {groups[0] ? (groups[0].bien_titre || `${groups[0].bien_type} à ${groups[0].bien_ville}`) : `Bien #${filterBienId}`} — {filtered.length} prospect{filtered.length > 1 ? 's' : ''} compatible{filtered.length > 1 ? 's' : ''}
+            {groups[0] ? shortTitre(groups[0].bien_titre, groups[0].bien_type, groups[0].bien_ville) : `Bien #${filterBienId}`} — {filtered.length} prospect{filtered.length > 1 ? 's' : ''} compatible{filtered.length > 1 ? 's' : ''}
           </span>
           <button onClick={() => navigate('/matchings')} className="text-blue-500 hover:underline">Voir tout</button>
         </div>
