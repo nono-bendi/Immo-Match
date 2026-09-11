@@ -38,14 +38,14 @@ function TrialInfoModal({ left, onClose }) {
   return createPortal((
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
       <div className="rounded-2xl w-full overflow-hidden" style={{ maxWidth: 480, background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-        <div style={{ background: 'var(--gradient-primary)', padding: '20px 24px', color: '#fff', position: 'relative' }}>
-          <button onClick={onClose} className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/15" style={{ color: '#fff' }}>
+        <div style={{ background: 'var(--gradient-primary)', padding: '20px 44px 20px 24px', color: '#fff', position: 'relative' }}>
+          <button onClick={onClose} className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/15" style={{ color: '#fff', zIndex: 2 }}>
             <X size={18} />
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.85 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', opacity: 0.85, pointerEvents: 'none' }}>
             <Clock size={14} /> Espace de démonstration
           </div>
-          <div style={{ fontSize: 19, fontWeight: 800, marginTop: 4 }}>Ce que vous voyez ici, ce que vous aurez ensuite</div>
+          <div style={{ fontSize: 19, fontWeight: 800, marginTop: 4, pointerEvents: 'none' }}>Ce que vous voyez ici, ce que vous aurez ensuite</div>
         </div>
 
         <div style={{ padding: '22px 24px 24px' }}>
