@@ -3013,10 +3013,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // Onglets "Fonctionnalités" (Matching IA / Agent IA / Emails / Import de
   // biens / Dashboard & Analytics) : ces 5 icônes ne sont jamais vues par
   // l'IntersectionObserver plus bas (décalage de layout après chargement des
-  // polices/vidéo hero), donc jamais chargées. Icône fixe plutôt qu'animée :
-  // certaines de ces animations Lottie utilisent un trim-path (tracé qui se
-  // dessine puis s'efface, invisible aux deux bouts de la boucle) — geler sur
-  // une frame en plein milieu garantit qu'elle est toujours visible.
+  // polices/vidéo hero), donc jamais chargées. Icône fixe plutôt qu'animée.
+  // Certaines utilisent un trim-path (tracé qui se dessine puis s'efface en
+  // boucle) : la frame "complète" (100% du tracé visible) n'est pas la même
+  // pour chacune — Import de biens est complet aux frames 0/300, Dashboard &
+  // Analytics seulement à la frame 150. D'où une frame par icône plutôt
+  // qu'une frame unique pour les 5 (ce qui coupait Import de biens à 73%).
+  var TAB_ICON_STATIC_FRAME = {
+    "https://cdn.lottielab.com/l/C8u52DnTbscSk7.json": 0,   // Import de biens : complet à 0 (et 300), 73% à 150
+    "https://cdn.lottielab.com/l/Ax5saJ9F11KH8D.json": 150, // Dashboard & Analytics : complet seulement à 150
+  };
   function initStaticTabIcons() {
     var icons = Array.from(document.querySelectorAll(".tab_button_icon .u-lottie"));
     if (!icons.length) return;
@@ -3025,15 +3031,17 @@ document.addEventListener("DOMContentLoaded", function () {
       icons.forEach(function (target) {
         if (target.getAttribute("data-lottie-fired") === "true") return;
         target.setAttribute("data-lottie-fired", "true");
+        var src = target.getAttribute("data-lottie-src");
+        var frame = Object.prototype.hasOwnProperty.call(TAB_ICON_STATIC_FRAME, src) ? TAB_ICON_STATIC_FRAME[src] : 0;
         var animation = lottie.loadAnimation({
           container: target,
           renderer: "svg",
           loop: false,
           autoplay: false,
-          path: target.getAttribute("data-lottie-src")
+          path: src
         });
         animation.addEventListener("DOMLoaded", function () {
-          animation.goToAndStop(150, true);
+          animation.goToAndStop(frame, true);
         });
       });
     }).catch(function () {});
