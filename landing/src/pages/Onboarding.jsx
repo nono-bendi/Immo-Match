@@ -129,7 +129,6 @@ export default function Onboarding() {
   const [importMode, setImportMode] = useState(null)   // 'assisted' | 'demo' | 'csv' | 'scrape'
 
   /* ── State assisté (pas de compte créé, on envoie une demande) ── */
-  const [assistedInfo, setAssistedInfo] = useState('')
   const [assistedSent, setAssistedSent] = useState(false)
 
   /* ── State upload ── */
@@ -217,6 +216,7 @@ export default function Onboarding() {
       else setStep(3)
     } else if (step === 3) {
       if (importMode === 'assisted') {
+        if (!siteUrl.trim()) { setFieldErrors({ siteUrl: 'Obligatoire' }); return }
         submitAssisted()
       } else if (importMode === 'csv') {
         if (!file) { setApiError('Veuillez sélectionner un fichier.'); return }
@@ -256,7 +256,7 @@ export default function Onboarding() {
   function back() {
     setApiError(null)
     if (step === 2) setStep(1)
-    if (step === 3) { setStep(2); setFile(null); setScrapePreview(null); setScrapeError(null); setAssistedInfo('') }
+    if (step === 3) { setStep(2); setFile(null); setScrapePreview(null); setScrapeError(null) }
   }
 
   /* ── Soumission ── */
@@ -301,7 +301,7 @@ export default function Onboarding() {
           name: nom.trim(),
           email: email.trim().toLowerCase(),
           sujet: 'Nouvelle demande de démo assistée',
-          message: `Agence : ${agence.trim()}\n\nComment récupérer les biens :\n${assistedInfo.trim() || '(non précisé)'}`,
+          message: `Agence : ${agence.trim()}\nSite à scraper : ${siteUrl.trim()}`,
         }),
       })
       const data = await res.json()
@@ -358,7 +358,7 @@ export default function Onboarding() {
         <a href="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 18, color: '#f1f5f9' }}>
           Immo<span style={{ color: '#38bdf8' }}>Flash</span>
         </a>
-        <a href={`${DASHBOARD_URL}login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
+        <a href={`${DASHBOARD_URL.replace(/\/$/, '')}/login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
           onMouseEnter={e => e.target.style.color = '#94a3b8'}
           onMouseLeave={e => e.target.style.color = '#475569'}>
           Déjà un compte ? <span style={{ color: '#38bdf8', fontWeight: 600 }}>Se connecter</span>
@@ -494,7 +494,7 @@ export default function Onboarding() {
                       badge: 'Recommandé',
                       icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/></svg>,
                       title: 'On s’en occupe pour vous',
-                      desc: 'Envoyez-nous vos biens (CSV, site, logiciel métier…), on prépare votre démo personnalisée — un peu plus long, mais le meilleur résultat',
+                      desc: 'Donnez-nous le lien de votre site, on récupère vos biens et prépare votre démo personnalisée — un peu plus long, mais le meilleur résultat',
                     },
                     {
                       id: 'csv',
@@ -585,10 +585,10 @@ export default function Onboarding() {
                 <div key="step3-assisted" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '1.75rem' }}>
                     <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
-                      Comment récupérer vos biens ?
+                      Le lien de votre site
                     </h1>
                     <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
-                      Un lien vers votre site, le nom de votre logiciel métier, ou un fichier que vous nous enverrez par email — dites-nous-en un peu plus, on s'occupe du reste.
+                      On récupère vos biens directement dessus — aucun fichier à préparer de votre côté.
                     </p>
                   </div>
 
@@ -601,19 +601,7 @@ export default function Onboarding() {
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '1.1rem' }}>
-                    <label style={S.label}>Détails</label>
-                    <textarea
-                      value={assistedInfo}
-                      onChange={e => setAssistedInfo(e.target.value)}
-                      placeholder="Ex : www.mon-agence.fr, ou le nom de mon logiciel métier, ou je préfère envoyer un fichier Excel par email…"
-                      autoFocus
-                      rows={4}
-                      style={{ ...S.input(false), resize: 'vertical', lineHeight: 1.5 }}
-                      onFocus={e => { e.target.style.borderColor = '#38bdf8'; e.target.style.background = 'rgba(56,189,248,0.06)' }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)' }}
-                    />
-                  </div>
+                  <Field label="Site de votre agence" value={siteUrl} onChange={setSiteUrl} placeholder="www.mon-agence.fr" required error={fieldErrors.siteUrl} autoFocus hint="Idéalement la page qui liste vos annonces" />
 
                   {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '0.75rem' }}>{apiError}</p>}
 
