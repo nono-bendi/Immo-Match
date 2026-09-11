@@ -2780,19 +2780,6 @@ document.addEventListener("DOMContentLoaded", () => {
                       <div aria-hidden="true" class="button_main_text u-text-style-mini">Demander à Claude</div>
                     </div>
                   </div>
-                  <div data-wf--button-main--variant="primary" data-trigger="hover focus" class="button_main_wrap u-theme-dark">
-                    <div data-wf--clickable--variant="focus-ring-outside" class="clickable_wrap u-cover-absolute">
-                      <a data-ai="gemini" aria-label="Demander à Gemini" href="https://www.karam-agency.com/" target="_blank" class="clickable_link w-inline-block"></a>
-                    </div>
-                    <div data-button="" class="button_main_element">
-                      <div class="button_main_icon">
-                        <div aria-hidden="true" data-wf--icon--variant="full" class="u-icon w-embed"><svg width="800" height="800" viewbox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M766.05 399.316C567.6 391.483 408.5 232.399 400.684 33.9493L400 16.666L399.317 33.9493C391.5 232.399 232.4 391.483 33.9503 399.316L16.667 399.999L33.9503 400.683C232.4 408.516 391.484 567.599 399.317 766.049L400 783.333L400.684 766.049C408.517 567.599 567.6 408.516 766.05 400.683L783.334 399.999L766.05 399.316Z" fill="black"></path>
-                          </svg></div>
-                      </div>
-                      <div aria-hidden="true" class="button_main_text u-text-style-mini">Demander à Gemini</div>
-                    </div>
-                  </div>
                 </div>
               </div>
               <div class="cta_bottom">
@@ -2819,9 +2806,8 @@ document.addEventListener("DOMContentLoaded", function () {
   ].join(" ");
   var encodedPrompt = encodeURIComponent(prompt);
   var destinations = {
-    chatgpt: "https://chatgpt.com/?prompt=" + encodedPrompt,
-    claude: "https://claude.ai/new?q=" + encodedPrompt,
-    gemini: "https://gemini.google.com/app?q=" + encodedPrompt
+    chatgpt: "https://chatgpt.com/?q=" + encodedPrompt,
+    claude: "https://claude.ai/new?q=" + encodedPrompt
   };
   document.querySelectorAll("[data-ai]").forEach(function (button) {
     var platform = button.getAttribute("data-ai");
