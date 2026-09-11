@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus, Building2, Info } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus, Building2 } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
 import ProspectModal from '../components/ProspectModal'
 import BienModal from '../components/BienModal'
-import Modal from '../components/Modal'
 import ExempleTag from '../components/ExempleTag'
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
@@ -343,6 +342,57 @@ function RefuseModal({ match, onConfirm, onClose }) {
           <button onClick={() => onConfirm(visite ? null : (motif || custom || null), visite, commentaireVisite)}
             style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: visite ? '#f59e0b' : '#ef4444', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
             {visite ? 'Marquer comme visité' : 'Refuser ce bien'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Rappel affiché avant "Analyse global" — relit à chaque clic sauf si l'utilisateur
+// a coché "Ne plus afficher ce message" (mémorisé dans le navigateur).
+const _HIDE_ANALYSE_INFO_KEY = 'immoFlash_hideAnalyseGlobalInfo'
+
+function AnalyseGlobalModal({ onConfirm, onClose }) {
+  const [dontShow, setDontShow] = useState(false)
+  const handleConfirm = () => {
+    if (dontShow) { try { localStorage.setItem(_HIDE_ANALYSE_INFO_KEY, '1') } catch {} }
+    onConfirm()
+  }
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: '#fff', borderRadius: 20, padding: '28px 24px', maxWidth: 440, width: '100%', boxShadow: '0 24px 60px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <AlertTriangle size={18} color="#f59e0b" />
+          </div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>À quoi sert « Analyse global » ?</div>
+        </div>
+
+        <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 12px' }}>
+          Ce bouton relance l'analyse IA pour <strong>tous vos prospects</strong> contre <strong>tous vos biens</strong>, et recalcule tous les scores et rapprochements.
+        </p>
+        <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 12px' }}>
+          Ce n'est pas nécessaire au quotidien : un nouveau bien ou un nouveau prospect est déjà analysé automatiquement à sa création. Utilisez plutôt le bouton ↻ sur une carte pour relancer l'analyse d'un seul prospect ou d'un seul bien.
+        </p>
+        <p style={{ fontSize: 13.5, color: '#475569', lineHeight: 1.6, margin: '0 0 20px' }}>
+          Réservez « Analyse global » aux cas exceptionnels : après un import massif de biens, ou après avoir modifié les critères de plusieurs prospects d'un coup. Le lancer souvent consomme inutilement votre quota IA et prend plusieurs minutes.
+        </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: '#f8fafc', border: '1px solid #e2e8f0', marginBottom: 20, cursor: 'pointer' }}
+          onClick={() => setDontShow(v => !v)}
+        >
+          <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${dontShow ? '#1E3A5F' : '#cbd5e1'}`, background: dontShow ? '#1E3A5F' : '#fff', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+            {dontShow && <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Ne plus afficher ce message</div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc', color: '#64748b', fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>Annuler</button>
+          <button onClick={handleConfirm}
+            style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: 'var(--gradient-primary)', boxShadow: 'var(--shadow-button)', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            Lancer l'analyse
           </button>
         </div>
       </div>
@@ -954,6 +1004,16 @@ export default function MatchingsPageV2() {
     setAnalyzing(false)
   }
 
+  // Le bouton "Analyse global" est coûteux (relance TOUS les prospects) — on
+  // rappelle à quoi il sert avant chaque clic, sauf si l'utilisateur a coché
+  // "Ne plus afficher ce message".
+  const handleAnalyseGlobalClick = () => {
+    let hidden = false
+    try { hidden = localStorage.getItem(_HIDE_ANALYSE_INFO_KEY) === '1' } catch {}
+    if (hidden) runGlobal()
+    else setShowAnalyseInfo(true)
+  }
+
   const runSingle = useCallback(async (e, id, nom) => {
     e.stopPropagation(); setAnalyzing(true); setShowOverlay(true); setOverlayCompleted(false)
     setTotalProspects(1); setCurrentProspectIndex(1); setCurrentProspectName(nom || '')
@@ -1121,31 +1181,17 @@ export default function MatchingsPageV2() {
           </p>
         </div>
 
-        <div className="ml-auto" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <SparkleButton onClick={runGlobal} disabled={analyzing} className="match-sparkle-full">
-            {analyzing
-              ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
-              : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
-            }
-          </SparkleButton>
-          <button onClick={() => setShowAnalyseInfo(true)} title="À quoi sert ce bouton ?"
-            style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', flexShrink: 0, transition: 'all 0.15s' }}
-            onMouseEnter={e => { e.currentTarget.style.color = '#1E3A5F'; e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.background = '#f0f4ff' }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#fff' }}
-          >
-            <Info size={15} />
-          </button>
-        </div>
+        <SparkleButton onClick={handleAnalyseGlobalClick} disabled={analyzing} className="ml-auto match-sparkle-full">
+          {analyzing
+            ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
+            : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
+          }
+        </SparkleButton>
       </div>
 
-      <Modal
-        isOpen={showAnalyseInfo}
-        onClose={() => setShowAnalyseInfo(false)}
-        type="warning"
-        title="À quoi sert « Analyse global » ?"
-        message={"Ce bouton relance l'analyse IA pour TOUS vos prospects contre TOUS vos biens, et recalcule tous les scores et rapprochements.\n\nCe n'est pas nécessaire au quotidien : un nouveau bien ou un nouveau prospect est déjà analysé automatiquement à sa création. Utilisez plutôt le bouton ↻ sur une carte pour relancer l'analyse d'un seul prospect ou d'un seul bien.\n\nRéservez « Analyse global » aux cas exceptionnels : après un import massif de biens, ou après avoir modifié les critères de plusieurs prospects d'un coup. Le lancer souvent consomme inutilement votre quota IA et prend plusieurs minutes."}
-        confirmText="Compris"
-      />
+      {showAnalyseInfo && (
+        <AnalyseGlobalModal onConfirm={() => { setShowAnalyseInfo(false); runGlobal() }} onClose={() => setShowAnalyseInfo(false)} />
+      )}
 
       {/* Recherche */}
       <div className="relative mb-3">
