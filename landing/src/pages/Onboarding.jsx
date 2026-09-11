@@ -7,7 +7,6 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
 
 const API_URL       = import.meta.env.VITE_API_URL       ?? ''
 const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL ||
@@ -348,9 +347,9 @@ export default function Onboarding() {
 
       {/* ── Header ── */}
       <header style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <Link to="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 18, color: '#f1f5f9' }}>
+        <a href="/" style={{ textDecoration: 'none', fontWeight: 800, fontSize: 18, color: '#f1f5f9' }}>
           Immo<span style={{ color: '#38bdf8' }}>Flash</span>
-        </Link>
+        </a>
         <a href={`${DASHBOARD_URL}login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
           onMouseEnter={e => e.target.style.color = '#94a3b8'}
           onMouseLeave={e => e.target.style.color = '#475569'}>
@@ -451,7 +450,7 @@ export default function Onboarding() {
                   </div>
 
                   <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
-                    En continuant, vous acceptez les <Link to="/cgu" style={{ color: '#334155' }}>CGU</Link> et la <Link to="/confidentialite" style={{ color: '#334155' }}>Politique de confidentialité</Link>
+                    En continuant, vous acceptez les <a href="/cgu" style={{ color: '#334155' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#334155' }}>Politique de confidentialité</a>
                   </p>
                 </div>
               )}

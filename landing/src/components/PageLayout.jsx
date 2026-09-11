@@ -17,20 +17,22 @@ export default function PageLayout({ title, category, meta, children }) {
       <ScrollTop />
 
       {/* ── Navbar ── */}
+      {/* "/" est désormais une page statique (export Webflow) : lien <a>
+          classique pour sortir du SPA plutôt qu'un <Link> React Router. */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
         background: '#ffffff', borderBottom: '1px solid #e2e8f0',
         padding: '0 1.5rem', height: 60,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <Link
-          to="/"
+        <a
+          href="/"
           style={{ fontWeight: 800, fontSize: 18, color: '#0f172a', textDecoration: 'none', letterSpacing: '-0.5px' }}
         >
           Immo<span style={{ color: '#38bdf8' }}>Flash</span>
-        </Link>
-        <Link
-          to="/"
+        </a>
+        <a
+          href="/"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6,
             color: '#64748b', textDecoration: 'none', fontSize: 14, fontWeight: 500,
@@ -40,7 +42,7 @@ export default function PageLayout({ title, category, meta, children }) {
           onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
         >
           ← Retour au site
-        </Link>
+        </a>
       </nav>
 
       {/* ── En-tête de page ── */}
@@ -72,28 +74,34 @@ export default function PageLayout({ title, category, meta, children }) {
       {/* ── Footer minimal ── */}
       <footer style={{ background: '#0f172a', padding: '2rem 1.5rem' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ fontWeight: 700, fontSize: 16, color: '#ffffff', textDecoration: 'none' }}>
+          <a href="/" style={{ fontWeight: 700, fontSize: 16, color: '#ffffff', textDecoration: 'none' }}>
             Immo<span style={{ color: '#38bdf8' }}>Flash</span>
-          </Link>
+          </a>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
+            {/* Pages statiques (mentions-legales/cgu/confidentialite/cookies) : <a>
+                pour sortir du SPA. Blog/FAQ restent dans le SPA : <Link>. */}
             {[
-              { label: 'Blog', to: '/blog' },
+              { label: 'Blog', to: '/blog', spa: true },
               { label: 'Mentions légales', to: '/mentions-legales' },
               { label: 'CGU', to: '/cgu' },
               { label: 'Confidentialité', to: '/confidentialite' },
               { label: 'Cookies', to: '/cookies' },
-              { label: 'FAQ', to: '/faq' },
-            ].map(l => (
-              <Link
-                key={l.to}
-                to={l.to}
-                style={{ color: '#475569', fontSize: 13, textDecoration: 'none', transition: 'color 150ms' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
-              >
-                {l.label}
-              </Link>
-            ))}
+              { label: 'FAQ', to: '/faq', spa: true },
+            ].map(l => {
+              const Tag = l.spa ? Link : 'a'
+              const linkProps = l.spa ? { to: l.to } : { href: l.to }
+              return (
+                <Tag
+                  key={l.to}
+                  {...linkProps}
+                  style={{ color: '#475569', fontSize: 13, textDecoration: 'none', transition: 'color 150ms' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#94a3b8')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#475569')}
+                >
+                  {l.label}
+                </Tag>
+              )
+            })}
           </div>
         </div>
       </footer>

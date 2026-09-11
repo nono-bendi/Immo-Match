@@ -12,71 +12,10 @@ const { render, faqs, blogPosts } = await import('./dist/server/entry-server.mjs
 /* ── JSON-LD ──────────────────────────────────────────────────────────────────
    Un bloc par page, injecté à la place de <!--jsonld--> dans le template.
    Ton factuel : les données structurées servent à l'extraction (moteurs,
-   IA génératives), pas au marketing. */
-
-const softwareApplication = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'ImmoFlash',
-  url: `${SITE}/`,
-  description:
-    "Logiciel SaaS de matching immobilier pour agences : il croise le catalogue de biens avec chaque prospect acheteur, attribue un score de correspondance sur 100 et génère un email de proposition personnalisé. Compatible avec les logiciels Hektor et Primmo. Hébergement en Europe, conforme RGPD.",
-  applicationCategory: 'BusinessApplication',
-  applicationSubCategory: 'Real Estate Software',
-  operatingSystem: 'Web',
-  offers: [
-    {
-      '@type': 'Offer',
-      name: 'Essentiel',
-      price: '49',
-      priceCurrency: 'EUR',
-      description: '49 € HT/mois — 1 utilisateur, 20 matchings IA par mois, emails personnalisés inclus.',
-    },
-    {
-      '@type': 'Offer',
-      name: 'Pro',
-      price: '89',
-      priceCurrency: 'EUR',
-      description: "89 € HT/mois — jusqu'à 3 agents, matchings IA et emails illimités.",
-    },
-    {
-      '@type': 'Offer',
-      name: 'Réseau',
-      price: '179',
-      priceCurrency: 'EUR',
-      description: "179 € HT/mois — jusqu'à 10 agents, matchings illimités, questions à l'agent IA illimitées.",
-    },
-  ],
-  featureList: [
-    'Matching IA entre prospects acheteurs et biens immobiliers, score sur 100',
-    "Génération automatique d'emails personnalisés",
-    'Assistant IA conversationnel sur le portefeuille',
-    'Synchronisation du catalogue de biens toutes les 6 heures (Hektor, Primmo)',
-    'Import Excel/CSV, tableau de bord et rapports mensuels',
-    'Conformité RGPD, hébergement européen, contrat de sous-traitance Article 28',
-  ],
-  audience: { '@type': 'Audience', audienceType: 'Agences immobilières, agents immobiliers, mandataires' },
-  inLanguage: 'fr',
-  countryOfOrigin: 'FR',
-}
-
-const organization = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Nowa',
-  legalName: 'Bendiaf Noa',
-  brand: { '@type': 'Brand', name: 'ImmoFlash' },
-  url: `${SITE}/`,
-  email: 'contact@immoflash.app',
-  foundingDate: '2025',
-  founder: { '@type': 'Person', name: 'Noa Bendiaf' },
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Montauroux',
-    postalCode: '83440',
-    addressCountry: 'FR',
-  },
-}
+   IA génératives), pas au marketing.
+   NB : le JSON-LD SoftwareApplication/Organization de l'accueil vit désormais
+   directement dans landing/landing v2/index.html (page statique Webflow,
+   copiée par copy-webflow.mjs — voir project_landing_prerender). */
 
 const faqPage = {
   '@context': 'https://schema.org',
@@ -105,14 +44,11 @@ const blogPosting = (post) => ({
   inLanguage: 'fr',
 })
 
-/* ── Métadonnées par route (title / description / canonical / OG / JSON-LD) ── */
+/* ── Métadonnées par route (title / description / canonical / OG / JSON-LD) ──
+   "/", "/mentions-legales", "/cgu", "/confidentialite" et "/cookies" ne sont
+   plus prérendues ici : ce sont des pages statiques Webflow copiées par
+   copy-webflow.mjs après ce script (voir landing/landing v2/). */
 const routes = [
-  {
-    url: '/',
-    title: "Logiciel de matching immobilier par IA — ImmoFlash",
-    desc: "ImmoFlash croise vos prospects acheteurs et votre catalogue de biens, score chaque matching sur 100 et rédige l'email. Essai gratuit 10 jours.",
-    jsonld: [softwareApplication, organization],
-  },
   {
     url: '/demarrer',
     title: "Démarrer — Essai gratuit 10 jours — ImmoFlash",
@@ -144,26 +80,6 @@ const routes = [
     url: '/documentation',
     title: "Documentation — ImmoFlash",
     desc: "Documentation complète d'ImmoFlash : gestion des prospects, matchings IA, emails personnalisés, synchronisation du catalogue de biens.",
-  },
-  {
-    url: '/mentions-legales',
-    title: "Mentions légales — ImmoFlash",
-    desc: "Mentions légales du site immoflash.app, édité par Nowa (Montauroux, France).",
-  },
-  {
-    url: '/cgu',
-    title: "Conditions Générales d'Utilisation — ImmoFlash",
-    desc: "Conditions générales d'utilisation du logiciel de matching immobilier ImmoFlash.",
-  },
-  {
-    url: '/confidentialite',
-    title: "Politique de confidentialité — ImmoFlash",
-    desc: "Politique de confidentialité d'ImmoFlash : données hébergées en Europe, conformité RGPD, contrat de sous-traitance Article 28.",
-  },
-  {
-    url: '/cookies',
-    title: "Politique de cookies — ImmoFlash",
-    desc: "Politique de cookies du site immoflash.app : cookies utilisés, finalités et gestion du consentement.",
   },
   {
     // Page interne de design system : prérendue pour rester accessible
