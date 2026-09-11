@@ -1,9 +1,11 @@
 /* ════════════════════════════════════════════════════════════════
    Page /demarrer — Onboarding ImmoFlash
    Étape 1 : Votre agence
-   Étape 2 : Méthode d'import  (Hektor FTP · CSV/Excel · Démo)
-   Étape 3 : Config FTP  OU  Upload fichier  (selon choix étape 2)
-   → POST /api/onboard → JWT → redirect dashboard connecté
+   Étape 2 : Méthode d'import  (Assisté · CSV/Excel · Site web · Démo)
+   Étape 3 : Infos pour l'assistance  OU  Upload fichier  OU  URL du site
+             (selon choix étape 2 — la démo saute directement l'étape 3)
+   → Assisté : POST /api/contact (mail à Noa, pas de compte créé tout de suite)
+   → Les autres modes : POST /api/onboard → JWT → redirect dashboard connecté
    ════════════════════════════════════════════════════════════════ */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
@@ -124,13 +126,11 @@ export default function Onboarding() {
 
   /* ── State wizard ── */
   const [step, setStep] = useState(1)
-  const [importMode, setImportMode] = useState(null)   // 'demo' | 'csv' | 'hektor_ftp'
+  const [importMode, setImportMode] = useState(null)   // 'assisted' | 'demo' | 'csv' | 'scrape'
 
-  /* ── State FTP ── */
-  const [ftpHost, setFtpHost] = useState('')
-  const [ftpUser, setFtpUser] = useState('')
-  const [ftpPass, setFtpPass] = useState('')
-  const [ftpPath, setFtpPath] = useState('/Annonces.csv')
+  /* ── State assisté (pas de compte créé, on envoie une demande) ── */
+  const [assistedInfo, setAssistedInfo] = useState('')
+  const [assistedSent, setAssistedSent] = useState(false)
 
   /* ── State upload ── */
   const [file, setFile] = useState(null)
@@ -205,16 +205,6 @@ export default function Onboarding() {
     return !Object.keys(e).length
   }
 
-  function validateFtp() {
-    const e = {}
-    if (!ftpHost.trim()) e.ftpHost = 'Obligatoire'
-    if (!ftpUser.trim()) e.ftpUser = 'Obligatoire'
-    if (!ftpPass.trim()) e.ftpPass = 'Obligatoire'
-    if (!ftpPath.trim()) e.ftpPath = 'Obligatoire'
-    setFieldErrors(e)
-    return !Object.keys(e).length
-  }
-
   /* ── Navigation ── */
   function next() {
     setApiError(null)
@@ -226,9 +216,8 @@ export default function Onboarding() {
       if (importMode === 'demo') submit()
       else setStep(3)
     } else if (step === 3) {
-      if (importMode === 'hektor_ftp') {
-        if (!validateFtp()) return
-        submit()
+      if (importMode === 'assisted') {
+        submitAssisted()
       } else if (importMode === 'csv') {
         if (!file) { setApiError('Veuillez sélectionner un fichier.'); return }
         submit()
@@ -267,7 +256,7 @@ export default function Onboarding() {
   function back() {
     setApiError(null)
     if (step === 2) setStep(1)
-    if (step === 3) { setStep(2); setFile(null); setScrapePreview(null); setScrapeError(null) }
+    if (step === 3) { setStep(2); setFile(null); setScrapePreview(null); setScrapeError(null); setAssistedInfo('') }
   }
 
   /* ── Soumission ── */
@@ -280,12 +269,6 @@ export default function Onboarding() {
     fd.append('email', email.trim().toLowerCase())
     fd.append('agence_nom', agence.trim())
     fd.append('mode', importMode)
-    if (importMode === 'hektor_ftp') {
-      fd.append('ftp_host', ftpHost.trim())
-      fd.append('ftp_user', ftpUser.trim())
-      fd.append('ftp_pass', ftpPass.trim())
-      fd.append('ftp_path', ftpPath.trim())
-    }
     if (importMode === 'csv' && file) fd.append('file', file)
     // Scrape : on envoie les biens déjà récupérés — pas de re-scraping côté serveur
     if (importMode === 'scrape' && scrapePreview) {
@@ -300,6 +283,31 @@ export default function Onboarding() {
       setTimeout(() => {
         window.location.href = `${DASHBOARD_URL.replace(/\/$/, '')}/?token=${data.access_token}`
       }, 2800)
+    } catch {
+      setApiError('Impossible de contacter le serveur.')
+      setLoading(false)
+    }
+  }
+
+  /* ── Soumission — mode assisté : pas de compte créé, juste un mail à l'équipe ── */
+  async function submitAssisted() {
+    setLoading(true)
+    setApiError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nom.trim(),
+          email: email.trim().toLowerCase(),
+          sujet: 'Nouvelle demande de démo assistée',
+          message: `Agence : ${agence.trim()}\n\nComment récupérer les biens :\n${assistedInfo.trim() || '(non précisé)'}`,
+        }),
+      })
+      const data = await res.json()
+      if (!data.ok) { setApiError("Erreur lors de l'envoi. Réessayez ou écrivez-nous directement à contact@immoflash.app."); setLoading(false); return }
+      setAssistedSent(true)
+      setLoading(false)
     } catch {
       setApiError('Impossible de contacter le serveur.')
       setLoading(false)
@@ -370,8 +378,28 @@ export default function Onboarding() {
           padding: '2.5rem 2.5rem 2rem',
         }}>
 
-          {/* ════ SUCCÈS ════ */}
-          {result ? (
+          {/* ════ SUCCÈS — mode assisté (pas de compte, on revient vers eux) ════ */}
+          {assistedSent ? (
+            <div key="assisted-success" style={{ textAlign: 'center', animation: 'stepIn 320ms ease' }}>
+              <div style={{
+                width: 80, height: 80, borderRadius: '50%', margin: '0 auto 1.75rem',
+                background: 'rgba(56,189,248,0.1)', border: '2px solid rgba(56,189,248,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 13l4 4L19 7" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
+              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 800, letterSpacing: '-0.8px', margin: '0 0 1rem', color: '#f1f5f9' }}>
+                Demande envoyée !
+              </h1>
+
+              <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+                On prépare votre démo personnalisée avec vos vrais biens et on revient vers vous sous 24-48h à <strong style={{ color: '#38bdf8' }}>{email}</strong>.
+              </p>
+            </div>
+          ) : result ? (
             <div key="success" style={{ textAlign: 'center', animation: 'stepIn 320ms ease' }}>
               <div style={{
                 width: 80, height: 80, borderRadius: '50%', margin: '0 auto 1.75rem',
@@ -387,19 +415,12 @@ export default function Onboarding() {
                 Votre espace est prêt !
               </h1>
 
-              {result.syncing ? (
-                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
-                  La synchronisation Hektor est en cours en arrière-plan.<br/>
-                  Vos biens apparaîtront dans votre dashboard dans quelques instants.
-                </p>
-              ) : (
-                <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
-                  {result.nb_biens > 0
-                    ? <><strong style={{ color: '#38bdf8' }}>{result.nb_biens} biens</strong> importés avec succès. </>
-                    : ''}
-                  Vous allez être redirigé automatiquement.
-                </p>
-              )}
+              <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+                {result.nb_biens > 0
+                  ? <><strong style={{ color: '#38bdf8' }}>{result.nb_biens} biens</strong> importés avec succès. </>
+                  : ''}
+                Vous allez être redirigé automatiquement.
+              </p>
 
               {/* Lien de reconnexion */}
               <div style={{ background: 'rgba(255,193,7,0.08)', border: '1px solid rgba(255,193,7,0.25)', borderRadius: 14, padding: '14px 18px', marginBottom: '1.5rem', textAlign: 'left' }}>
@@ -469,11 +490,11 @@ export default function Onboarding() {
 
                   {[
                     {
-                      id: 'hektor_ftp',
+                      id: 'assisted',
                       badge: 'Recommandé',
-                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0 1 14.93-4M20 12a8 8 0 0 1-14.93 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M18 4l2 4h-4M6 20l-2-4h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-                      title: 'Logiciel Hektor',
-                      desc: 'Connexion directe via FTP — vos biens se synchronisent automatiquement',
+                      icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/></svg>,
+                      title: 'On s’en occupe pour vous',
+                      desc: 'Envoyez-nous vos biens (CSV, site, logiciel métier…), on prépare votre démo personnalisée — un peu plus long, mais le meilleur résultat',
                     },
                     {
                       id: 'csv',
@@ -559,15 +580,15 @@ export default function Onboarding() {
                 </div>
               )}
 
-              {/* ════ ÉTAPE 3a — Hektor FTP ════ */}
-              {step === 3 && importMode === 'hektor_ftp' && (
-                <div key="step3-ftp" style={{ animation: 'stepIn 280ms ease' }}>
+              {/* ════ ÉTAPE 3a — Assisté (pas d'import auto, on prépare la démo nous-mêmes) ════ */}
+              {step === 3 && importMode === 'assisted' && (
+                <div key="step3-assisted" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '1.75rem' }}>
                     <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, letterSpacing: '-0.5px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
-                      Vos accès FTP Hektor
+                      Comment récupérer vos biens ?
                     </h1>
                     <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
-                      Ces informations vous sont fournies par le support Hektor.
+                      Un lien vers votre site, le nom de votre logiciel métier, ou un fichier que vous nous enverrez par email — dites-nous-en un peu plus, on s'occupe du reste.
                     </p>
                   </div>
 
@@ -575,25 +596,31 @@ export default function Onboarding() {
                   <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.18)', borderRadius: 12, padding: '14px 16px', marginBottom: '1.5rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#38bdf8' }}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
                     <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
-                      <strong style={{ color: '#94a3b8' }}>Vous n'avez pas vos accès FTP ?</strong><br/>
-                      Contactez le support Hektor et demandez vos "identifiants d'export FTP". Ils vous fourniront le serveur, l'identifiant, le mot de passe et le chemin du fichier CSV.
+                      <strong style={{ color: '#94a3b8' }}>Pas d'accès instantané</strong><br/>
+                      On prépare votre démo à la main avec vos vrais biens — comptez 24 à 48h, on vous écrit dès que c'est prêt.
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
-                    <Field label="Serveur FTP" value={ftpHost} onChange={setFtpHost} placeholder="ftp.hektor.fr" required error={fieldErrors.ftpHost} autoFocus />
-                    <Field label="Port" value="21" onChange={() => {}} placeholder="21" hint="Généralement 21" />
+                  <div style={{ marginBottom: '1.1rem' }}>
+                    <label style={S.label}>Détails</label>
+                    <textarea
+                      value={assistedInfo}
+                      onChange={e => setAssistedInfo(e.target.value)}
+                      placeholder="Ex : www.mon-agence.fr, ou le nom de mon logiciel métier, ou je préfère envoyer un fichier Excel par email…"
+                      autoFocus
+                      rows={4}
+                      style={{ ...S.input(false), resize: 'vertical', lineHeight: 1.5 }}
+                      onFocus={e => { e.target.style.borderColor = '#38bdf8'; e.target.style.background = 'rgba(56,189,248,0.06)' }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)' }}
+                    />
                   </div>
-                  <Field label="Identifiant" value={ftpUser} onChange={setFtpUser} placeholder="mon_agence_ftp" required error={fieldErrors.ftpUser} />
-                  <Field label="Mot de passe FTP" type="password" value={ftpPass} onChange={setFtpPass} placeholder="••••••••••" required error={fieldErrors.ftpPass} />
-                  <Field label="Chemin du fichier" value={ftpPath} onChange={setFtpPath} placeholder="/Annonces.csv" required error={fieldErrors.ftpPath} hint='Généralement "/Annonces.csv" ou "/export/Annonces.csv"' />
 
                   {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '0.75rem' }}>{apiError}</p>}
 
                   <div style={{ display: 'flex', gap: 10, marginTop: '1.5rem' }}>
                     <button onClick={back} className="ob-back" style={S.btnBack}>← Retour</button>
                     <button onClick={next} disabled={loading} className="ob-primary" style={S.btnPrimary(loading)}>
-                      {loading ? <><Spinner />Connexion en cours…</> : <>Connecter Hektor →</>}
+                      {loading ? <><Spinner />Envoi…</> : <>Envoyer ma demande →</>}
                     </button>
                   </div>
                 </div>
