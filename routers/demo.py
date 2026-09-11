@@ -2,7 +2,7 @@
 # ONBOARDING — Provisionnement automatique d'un compte trial
 #
 # POST /api/onboard  — multipart : demo | csv | hektor_ftp
-#   → crée agence isolée + DB + user trial + retourne JWT 6 jours
+#   → crée agence isolée + DB + user trial + retourne JWT 10 jours
 #
 # POST /api/start-demo — JSON legacy (conservé)
 # ════════════════════════════════════════════════════════════════════════════
@@ -82,7 +82,7 @@ def _create_account(email: str, nom: str, agence_nom: str, telephone: str = "") 
     agency_id = conn.execute("SELECT id FROM agencies WHERE slug=?", (slug,)).fetchone()[0]
 
     pw_hash = bcrypt.hashpw(_random_password().encode(), bcrypt.gensalt()).decode()
-    expires_iso = (datetime.now() + timedelta(days=6)).isoformat()
+    expires_iso = (datetime.now() + timedelta(days=10)).isoformat()
 
     cur = conn.cursor()
     cur.execute(

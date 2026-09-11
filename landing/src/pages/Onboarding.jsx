@@ -450,7 +450,7 @@ export default function Onboarding() {
                 <div key="step1" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.18)', borderRadius: 999, padding: '4px 14px', fontSize: 11, fontWeight: 600, color: '#7dd3fc', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
-                      Gratuit · 6 jours · Sans carte bancaire
+                      Gratuit · 10 jours · Sans carte bancaire
                     </div>
                     <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontWeight: 800, letterSpacing: '-0.8px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Créons votre espace
@@ -486,6 +486,15 @@ export default function Onboarding() {
                     <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>
                       Choisissez votre source, on s'occupe du reste.
                     </p>
+                  </div>
+
+                  {/* Ce à quoi ils ont droit pendant l'essai */}
+                  <div style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.18)', borderRadius: 12, padding: '14px 16px', marginBottom: '1.25rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#38bdf8' }}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+                    <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
+                      <strong style={{ color: '#94a3b8' }}>Ce à quoi vous aurez droit</strong><br/>
+                      10 jours d'essai gratuit, sans carte bancaire. Vos biens sont importés une seule fois pour tester avec vos vraies données — le catalogue reste figé pendant l'essai (pas de mise à jour automatique, ça c'est en version complète).
+                    </div>
                   </div>
 
                   {[
