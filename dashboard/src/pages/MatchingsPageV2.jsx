@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus, Building2 } from 'lucide-react'
+import { Sparkles, Search, RefreshCw, Send, XCircle, Calendar, Zap, AlertTriangle, ExternalLink, MapPin, FileText, X, Eye, UserPlus, Building2, Info } from 'lucide-react'
 import AnalysisOverlay from '../components/AnalysisOverlay'
 import SparkleButton from '../components/SparkleButton'
 import Confetti from '../components/Confetti'
 import EmailModal from '../components/EmailModal'
 import ProspectModal from '../components/ProspectModal'
 import BienModal from '../components/BienModal'
+import Modal from '../components/Modal'
 import ExempleTag from '../components/ExempleTag'
 import { apiFetch } from '../api'
 import { useAgency } from '../contexts/AgencyContext'
@@ -885,6 +886,7 @@ export default function MatchingsPageV2() {
   const PAGE_SIZE = 20
 
   const [analyzing, setAnalyzing]               = useState(false)
+  const [showAnalyseInfo, setShowAnalyseInfo]    = useState(false)
   const [showOverlay, setShowOverlay]           = useState(false)
   const [overlayCompleted, setOverlayCompleted] = useState(false)
   const [totalProspects, setTotalProspects]     = useState(0)
@@ -1119,13 +1121,31 @@ export default function MatchingsPageV2() {
           </p>
         </div>
 
-        <SparkleButton onClick={runGlobal} disabled={analyzing} className="ml-auto match-sparkle-full">
-          {analyzing
-            ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
-            : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
-          }
-        </SparkleButton>
+        <div className="ml-auto" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <SparkleButton onClick={runGlobal} disabled={analyzing} className="match-sparkle-full">
+            {analyzing
+              ? <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />Analyse en cours…</span>
+              : <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Sparkles size={16} />Analyse global</span>
+            }
+          </SparkleButton>
+          <button onClick={() => setShowAnalyseInfo(true)} title="À quoi sert ce bouton ?"
+            style={{ width: 30, height: 30, borderRadius: '50%', border: '1px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94a3b8', flexShrink: 0, transition: 'all 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#1E3A5F'; e.currentTarget.style.borderColor = '#bfdbfe'; e.currentTarget.style.background = '#f0f4ff' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#fff' }}
+          >
+            <Info size={15} />
+          </button>
+        </div>
       </div>
+
+      <Modal
+        isOpen={showAnalyseInfo}
+        onClose={() => setShowAnalyseInfo(false)}
+        type="warning"
+        title="À quoi sert « Analyse global » ?"
+        message={"Ce bouton relance l'analyse IA pour TOUS vos prospects contre TOUS vos biens, et recalcule tous les scores et rapprochements.\n\nCe n'est pas nécessaire au quotidien : un nouveau bien ou un nouveau prospect est déjà analysé automatiquement à sa création. Utilisez plutôt le bouton ↻ sur une carte pour relancer l'analyse d'un seul prospect ou d'un seul bien.\n\nRéservez « Analyse global » aux cas exceptionnels : après un import massif de biens, ou après avoir modifié les critères de plusieurs prospects d'un coup. Le lancer souvent consomme inutilement votre quota IA et prend plusieurs minutes."}
+        confirmText="Compris"
+      />
 
       {/* Recherche */}
       <div className="relative mb-3">
