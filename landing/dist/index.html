@@ -3010,14 +3010,40 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     return lottiePromise;
   }
+  // Onglets "Fonctionnalités" (Matching IA / Agent IA / Emails / Import de
+  // biens / Dashboard & Analytics) : ces 5 icônes ne sont jamais vues par
+  // l'IntersectionObserver plus bas (décalage de layout après chargement des
+  // polices/vidéo hero), donc jamais chargées. Icône fixe plutôt qu'animée :
+  // certaines de ces animations Lottie utilisent un trim-path (tracé qui se
+  // dessine puis s'efface, invisible aux deux bouts de la boucle) — geler sur
+  // une frame en plein milieu garantit qu'elle est toujours visible.
+  function initStaticTabIcons() {
+    var icons = Array.from(document.querySelectorAll(".tab_button_icon .u-lottie"));
+    if (!icons.length) return;
+    loadLottieLibrary().then(function (lottie) {
+      if (!lottie) return;
+      icons.forEach(function (target) {
+        if (target.getAttribute("data-lottie-fired") === "true") return;
+        target.setAttribute("data-lottie-fired", "true");
+        var animation = lottie.loadAnimation({
+          container: target,
+          renderer: "svg",
+          loop: false,
+          autoplay: false,
+          path: target.getAttribute("data-lottie-src")
+        });
+        animation.addEventListener("DOMLoaded", function () {
+          animation.goToAndStop(150, true);
+        });
+      });
+    }).catch(function () {});
+  }
   function initLottieAnimations() {
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var allTargets = Array.from(document.querySelectorAll("[data-lottie]"));
-    if (!allTargets.length) return;
-    // Onglets "Fonctionnalités" : chargement immédiat (voir commentaire plus haut).
-    var eagerTargets = allTargets.filter(function (t) { return t.closest(".tab_button_icon"); });
-    var targets = allTargets.filter(function (t) { return !t.closest(".tab_button_icon"); });
-    eagerTargets.forEach(function (t) { createAnimation(t); });
+    var targets = Array.from(document.querySelectorAll("[data-lottie]")).filter(function (t) {
+      return !t.closest(".tab_button_icon");
+    });
+    if (!targets.length) return;
     function createAnimation(target) {
       if (target.getAttribute("data-lottie-fired") === "true") return;
       target.setAttribute("data-lottie-fired", "true");
@@ -3059,8 +3085,12 @@ document.addEventListener("DOMContentLoaded", function () {
     targets.forEach(function (target) { observer.observe(target); });
   }
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initLottieAnimations, { once: true });
+    document.addEventListener("DOMContentLoaded", function () {
+      initStaticTabIcons();
+      initLottieAnimations();
+    }, { once: true });
   } else {
+    initStaticTabIcons();
     initLottieAnimations();
   }
 })();
