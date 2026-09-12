@@ -341,7 +341,7 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#031e39',
+      background: 'radial-gradient(ellipse 1300px 900px at 50% 115%, rgba(15,120,200,0.6) 0%, rgba(15,120,200,0.22) 45%, transparent 72%), #031e39',
       fontFamily: "'Montserrat', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
@@ -350,18 +350,6 @@ export default function Onboarding() {
 
         {/* Grille de points */}
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
-        {/* Halo cyan — coin haut gauche, intense */}
-        <div style={{ position: 'absolute', width: 1000, height: 800, top: -300, left: -250, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(6,182,212,0.26) 0%, rgba(14,165,233,0.10) 40%, transparent 68%)', filter: 'blur(50px)' }} />
-
-        {/* Halo indigo — coin bas droite */}
-        <div style={{ position: 'absolute', width: 900, height: 750, bottom: -280, right: -200, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(99,60,220,0.28) 0%, rgba(124,58,237,0.10) 40%, transparent 68%)', filter: 'blur(50px)' }} />
-
-        {/* Halo bleu — coin haut droite, secondaire */}
-        <div style={{ position: 'absolute', width: 500, height: 420, top: -100, right: -80, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,193,255,0.12) 0%, transparent 65%)', filter: 'blur(45px)' }} />
-
-        {/* Halo violet — coin bas gauche, secondaire */}
-        <div style={{ position: 'absolute', width: 460, height: 380, bottom: -80, left: -60, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(139,92,246,0.13) 0%, transparent 65%)', filter: 'blur(40px)' }} />
 
         {/* Lueur centrale douce derrière le formulaire */}
         <div style={{ position: 'absolute', width: 600, height: 400, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
