@@ -9,6 +9,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import HeroBackground from '../components/HeroBackground'
 
 const API_URL       = import.meta.env.VITE_API_URL       ?? ''
 const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL ||
@@ -341,23 +342,12 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'radial-gradient(ellipse 1300px 900px at 50% 115%, rgba(15,120,200,0.6) 0%, rgba(15,120,200,0.22) 45%, transparent 72%), #031e39',
+      background: '#031e39',
       fontFamily: "'Montserrat', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
-      {/* ── Scène lumineuse ── */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
-
-        {/* Grille de points */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
-        {/* Lueur centrale douce derrière le formulaire */}
-        <div style={{ position: 'absolute', width: 600, height: 400, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
-
-        {/* Ligne lumineuse en haut */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent 5%, rgba(0,193,255,0.2) 30%, rgba(139,92,246,0.18) 70%, transparent 95%)' }} />
-
-      </div>
+      {/* ── Fond du hero — même scène animée (Unicorn Studio) que la landing ── */}
+      <HeroBackground />
 
       {/* ── Header ── */}
       <header style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>

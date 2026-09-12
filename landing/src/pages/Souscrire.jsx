@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import HeroBackground from '../components/HeroBackground'
 
 /* ════ Styles partagés (repris de Onboarding.jsx pour la même DA) ══ */
 
@@ -84,16 +85,6 @@ function Logo({ height = 20 }) {
   )
 }
 
-function BackgroundScene() {
-  return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(148,163,184,0.04) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-      <div style={{ position: 'absolute', width: 600, height: 400, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(14,165,233,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'linear-gradient(90deg, transparent 5%, rgba(0,193,255,0.2) 30%, rgba(139,92,246,0.18) 70%, transparent 95%)' }} />
-    </div>
-  )
-}
-
 /* ════ Plans (miroir de plans.py + copy de la section tarifs de l'accueil) ══ */
 
 const PLANS = {
@@ -166,11 +157,11 @@ export default function Souscrire() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: 'radial-gradient(ellipse 1300px 900px at 50% 115%, rgba(15,120,200,0.6) 0%, rgba(15,120,200,0.22) 45%, transparent 72%), #031e39',
+      background: '#031e39',
       fontFamily: "'Montserrat', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
-      <BackgroundScene />
+      <HeroBackground />
 
       <header style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <a href="/" style={{ display: 'inline-flex', textDecoration: 'none', color: '#f1f5f9' }} aria-label="ImmoFlash">
