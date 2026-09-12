@@ -20,7 +20,7 @@ const S = {
     boxSizing: 'border-box', transition: 'border-color 150ms, background 150ms',
   }),
   label: {
-    display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b',
+    display: 'block', fontSize: 11, fontWeight: 700, color: '#94a3b8',
     letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 7,
   },
   btnPrimary: (disabled) => ({
@@ -52,7 +52,7 @@ function Field({ label, type = 'text', value, onChange, placeholder, required, e
         onFocus={e => { e.target.style.borderColor = '#00c1ff'; e.target.style.background = 'rgba(0,193,255,0.06)' }}
         onBlur={e => { e.target.style.borderColor = error ? '#f87171' : 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)' }}
       />
-      {hint && !error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#334155' }}>{hint}</p>}
+      {hint && !error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#64748b' }}>{hint}</p>}
       {error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#f87171' }}>{error}</p>}
     </div>
   )
@@ -167,9 +167,9 @@ export default function Souscrire() {
         <a href="/" style={{ display: 'inline-flex', textDecoration: 'none', color: '#f1f5f9' }} aria-label="ImmoFlash">
           <Logo height={20} />
         </a>
-        <a href="/#Tarifs" style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
+        <a href="/#Tarifs" style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'none', transition: 'color 150ms' }}
           onMouseEnter={e => e.target.style.color = '#94a3b8'}
-          onMouseLeave={e => e.target.style.color = '#475569'}>
+          onMouseLeave={e => e.target.style.color = '#94a3b8'}>
           ← Retour aux tarifs
         </a>
       </header>
@@ -195,7 +195,7 @@ export default function Souscrire() {
             <p style={{ fontFamily: "'Montserrat', system-ui, sans-serif", fontSize: 22, fontWeight: 800, color: '#00c1ff', margin: '0 0 0.5rem' }}>
               {plan.price} € <span style={{ fontSize: 13, fontWeight: 600, color: '#7ee6ff' }}>HT/mois</span>
             </p>
-            <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>{plan.tagline}</p>
+            <p style={{ color: '#94a3b8', fontSize: 15, margin: 0 }}>{plan.tagline}</p>
           </div>
 
           {/* Récap des fonctionnalités du plan */}
@@ -235,7 +235,7 @@ export default function Souscrire() {
             </div>
 
             <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
-              En continuant, vous acceptez les <a href="/cgu" style={{ color: '#334155' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#334155' }}>Politique de confidentialité</a>
+              En continuant, vous acceptez les <a href="/cgu" style={{ color: '#64748b' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#64748b' }}>Politique de confidentialité</a>
             </p>
           </form>
         </div>
@@ -244,7 +244,7 @@ export default function Souscrire() {
       <style>{`
         * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg) } }
-        ::placeholder { color: #334155; }
+        ::placeholder { color: #64748b; }
       `}</style>
     </div>
   )

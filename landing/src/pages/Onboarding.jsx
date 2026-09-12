@@ -26,7 +26,7 @@ const S = {
     boxSizing: 'border-box', transition: 'border-color 150ms, background 150ms',
   }),
   label: {
-    display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b',
+    display: 'block', fontSize: 11, fontWeight: 700, color: '#94a3b8',
     letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 7,
   },
   btnPrimary: (disabled) => ({
@@ -42,7 +42,7 @@ const S = {
   }),
   btnBack: {
     padding: '14px 20px', borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.1)',
-    background: 'rgba(255,255,255,0.04)', color: '#64748b', fontSize: 14, fontWeight: 600,
+    background: 'rgba(255,255,255,0.04)', color: '#94a3b8', fontSize: 14, fontWeight: 600,
     cursor: 'pointer', fontFamily: 'inherit', transition: 'all 150ms',
   },
 }
@@ -63,7 +63,7 @@ function Field({ label, type = 'text', value, onChange, placeholder, required, e
         onFocus={e => { e.target.style.borderColor = '#00c1ff'; e.target.style.background = 'rgba(0,193,255,0.06)' }}
         onBlur={e => { e.target.style.borderColor = error ? '#f87171' : 'rgba(255,255,255,0.1)'; e.target.style.background = 'rgba(255,255,255,0.05)' }}
       />
-      {hint && !error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#334155' }}>{hint}</p>}
+      {hint && !error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#64748b' }}>{hint}</p>}
       {error && <p style={{ margin: '5px 0 0', fontSize: 12, color: '#f87171' }}>{error}</p>}
     </div>
   )
@@ -114,7 +114,7 @@ function Stepper({ step, total }) {
               border: `2px solid ${done || active ? '#00c1ff' : 'rgba(255,255,255,0.1)'}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 12, fontWeight: 700, transition: 'all 300ms',
-              color: done ? '#0f172a' : active ? '#00c1ff' : '#334155',
+              color: done ? '#0f172a' : active ? '#00c1ff' : '#64748b',
             }}>
               {done
                 ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -354,9 +354,9 @@ export default function Onboarding() {
         <a href="/" style={{ display: 'inline-flex', textDecoration: 'none', color: '#f1f5f9' }} aria-label="ImmoFlash">
           <Logo height={20} />
         </a>
-        <a href={`${DASHBOARD_URL.replace(/\/$/, '')}/login`} style={{ fontSize: 13, color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}
+        <a href={`${DASHBOARD_URL.replace(/\/$/, '')}/login`} style={{ fontSize: 13, color: '#94a3b8', textDecoration: 'none', transition: 'color 150ms' }}
           onMouseEnter={e => e.target.style.color = '#94a3b8'}
-          onMouseLeave={e => e.target.style.color = '#475569'}>
+          onMouseLeave={e => e.target.style.color = '#94a3b8'}>
           Déjà un compte ? <span style={{ color: '#00c1ff', fontWeight: 600 }}>Se connecter</span>
         </a>
       </header>
@@ -391,7 +391,7 @@ export default function Onboarding() {
                 Demande envoyée !
               </h1>
 
-              <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+              <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                 On prépare votre démo personnalisée avec vos vrais biens et on revient vers vous sous 24-48h à <strong style={{ color: '#00c1ff' }}>{email}</strong>.
               </p>
             </div>
@@ -411,7 +411,7 @@ export default function Onboarding() {
                 Votre espace est prêt !
               </h1>
 
-              <p style={{ color: '#64748b', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
+              <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.7, margin: '0 0 1.5rem' }}>
                 {result.nb_biens > 0
                   ? <><strong style={{ color: '#00c1ff' }}>{result.nb_biens} biens</strong> importés avec succès. </>
                   : ''}
@@ -451,7 +451,7 @@ export default function Onboarding() {
                     <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.8px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Créons votre espace
                     </h1>
-                    <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>
+                    <p style={{ color: '#94a3b8', fontSize: 15, margin: 0 }}>
                       30 secondes et vous êtes opérationnel.
                     </p>
                   </div>
@@ -467,7 +467,7 @@ export default function Onboarding() {
                   </div>
 
                   <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
-                    En continuant, vous acceptez les <a href="/cgu" style={{ color: '#334155' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#334155' }}>Politique de confidentialité</a>
+                    En continuant, vous acceptez les <a href="/cgu" style={{ color: '#64748b' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#64748b' }}>Politique de confidentialité</a>
                   </p>
                 </div>
               )}
@@ -479,7 +479,7 @@ export default function Onboarding() {
                     <h1 style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.6px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Comment sont gérés<br />vos biens ?
                     </h1>
-                    <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>
+                    <p style={{ color: '#94a3b8', fontSize: 15, margin: 0 }}>
                       Choisissez votre source, on s'occupe du reste.
                     </p>
                   </div>
@@ -487,7 +487,7 @@ export default function Onboarding() {
                   {/* Ce à quoi ils ont droit pendant l'essai */}
                   <div style={{ background: 'rgba(0,193,255,0.06)', border: '1px solid rgba(0,193,255,0.18)', borderRadius: 12, padding: '14px 16px', marginBottom: '1.25rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#00c1ff' }}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                    <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
                       <strong style={{ color: '#94a3b8' }}>Ce à quoi vous aurez droit</strong><br/>
                       10 jours d'essai gratuit, sans carte bancaire. Vos biens sont importés une seule fois pour tester avec vos vraies données — le catalogue reste figé pendant l'essai (pas de mise à jour automatique, ça c'est en version complète).
                     </div>
@@ -541,7 +541,7 @@ export default function Onboarding() {
                           background: sel ? 'rgba(0,193,255,0.13)' : 'rgba(255,255,255,0.05)',
                           border: `1px solid ${sel ? 'rgba(0,193,255,0.3)' : 'rgba(255,255,255,0.07)'}`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: sel ? '#00c1ff' : '#475569', transition: 'all 170ms',
+                          color: sel ? '#00c1ff' : '#94a3b8', transition: 'all 170ms',
                         }}>
                           {m.icon}
                         </div>
@@ -550,12 +550,12 @@ export default function Onboarding() {
                             <span style={{ fontSize: 15, fontWeight: 700, color: sel ? '#f1f5f9' : '#94a3b8' }}>{m.title}</span>
                             {m.badge && <span style={{ fontSize: 10, fontWeight: 700, background: '#00c1ff', color: '#0f172a', borderRadius: 999, padding: '2px 8px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{m.badge}</span>}
                           </div>
-                          <p style={{ margin: 0, fontSize: 13, color: '#475569', lineHeight: 1.5 }}>{m.desc}</p>
+                          <p style={{ margin: 0, fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>{m.desc}</p>
                         </div>
                         {/* Radio */}
                         <div style={{
                           width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                          border: `2px solid ${sel ? '#00c1ff' : '#334155'}`,
+                          border: `2px solid ${sel ? '#00c1ff' : '#64748b'}`,
                           background: sel ? '#00c1ff' : 'transparent',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           transition: 'all 170ms',
@@ -592,7 +592,7 @@ export default function Onboarding() {
                     <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Le lien de votre site
                     </h1>
-                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                    <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
                       On récupère vos biens directement dessus — aucun fichier à préparer de votre côté.
                     </p>
                   </div>
@@ -600,7 +600,7 @@ export default function Onboarding() {
                   {/* Info box */}
                   <div style={{ background: 'rgba(0,193,255,0.06)', border: '1px solid rgba(0,193,255,0.18)', borderRadius: 12, padding: '14px 16px', marginBottom: '1.5rem', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1, color: '#00c1ff' }}><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                    <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
                       <strong style={{ color: '#94a3b8' }}>Pas d'accès instantané</strong><br/>
                       On prépare votre démo à la main avec vos vrais biens — comptez 24 à 48h, on vous écrit dès que c'est prêt.
                     </div>
@@ -626,7 +626,7 @@ export default function Onboarding() {
                     <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.4rem', color: '#f1f5f9' }}>
                       Votre site immobilier
                     </h1>
-                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                    <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
                       On extrait jusqu'à <strong style={{ color: '#94a3b8' }}>15 biens</strong> automatiquement — sans export, sans fichier.
                     </p>
                   </div>
@@ -650,7 +650,7 @@ export default function Onboarding() {
                         </svg>
                         <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.65 }}>
                           <strong style={{ color: '#fbbf24' }}>Collez l'URL de votre page de biens à vendre</strong> — pas la page d'accueil.<br/>
-                          <span style={{ color: '#64748b' }}>
+                          <span style={{ color: '#94a3b8' }}>
                             Exemple : <span style={{ fontFamily: 'monospace', color: '#7ee6ff' }}>mon-agence.fr<strong style={{ color: '#f1f5f9' }}>/vente</strong></span>
                             {' '}ou{' '}
                             <span style={{ fontFamily: 'monospace', color: '#7ee6ff' }}>mon-agence.fr<strong style={{ color: '#f1f5f9' }}>/annonces</strong></span>
@@ -666,7 +666,7 @@ export default function Onboarding() {
                         error={scrapeError}
                         autoFocus
                       />
-                      <p style={{ margin: '-0.6rem 0 1.25rem', fontSize: 12, color: '#334155' }}>
+                      <p style={{ margin: '-0.6rem 0 1.25rem', fontSize: 12, color: '#64748b' }}>
                         Maximum 15 biens extraits · Vous pourrez en ajouter d'autres ensuite.
                       </p>
 
@@ -707,18 +707,18 @@ export default function Onboarding() {
                                     ) : active ? (
                                       <Spinner size={13} color="#00c1ff" />
                                     ) : (
-                                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#334155' }} />
+                                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#64748b' }} />
                                     )}
                                   </div>
                                   {/* Texte */}
                                   <div>
                                     <p style={{
                                       margin: 0, fontSize: 13, fontWeight: active ? 700 : 500,
-                                      color: done ? '#00c1ff' : active ? '#f1f5f9' : '#334155',
+                                      color: done ? '#00c1ff' : active ? '#f1f5f9' : '#64748b',
                                       transition: 'color 400ms',
                                     }}>{s.text}</p>
                                     {active && (
-                                      <p style={{ margin: '2px 0 0', fontSize: 11, color: '#475569', animation: 'stepIn 300ms ease' }}>
+                                      <p style={{ margin: '2px 0 0', fontSize: 11, color: '#94a3b8', animation: 'stepIn 300ms ease' }}>
                                         {s.sub}
                                       </p>
                                     )}
@@ -755,7 +755,7 @@ export default function Onboarding() {
                             <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>
                               {scrapePreview.nb_biens} bien{scrapePreview.nb_biens > 1 ? 's' : ''} trouvé{scrapePreview.nb_biens > 1 ? 's' : ''}
                             </p>
-                            <p style={{ margin: 0, fontSize: 12, color: '#475569', wordBreak: 'break-all' }}>{scrapePreview.url}</p>
+                            <p style={{ margin: 0, fontSize: 12, color: '#94a3b8', wordBreak: 'break-all' }}>{scrapePreview.url}</p>
                           </div>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -768,7 +768,7 @@ export default function Onboarding() {
                             </div>
                           ))}
                           {scrapePreview.nb_biens > 4 && (
-                            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#475569', textAlign: 'center' }}>
+                            <p style={{ margin: '4px 0 0', fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
                               + {scrapePreview.nb_biens - 4} autres biens
                             </p>
                           )}
@@ -795,7 +795,7 @@ export default function Onboarding() {
                     <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Importez votre fichier
                     </h1>
-                    <p style={{ color: '#475569', fontSize: 14, margin: 0 }}>
+                    <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
                       Fichier Excel (.xlsx) ou CSV standard.
                     </p>
                   </div>
@@ -823,24 +823,24 @@ export default function Onboarding() {
                       </>
                     ) : (
                       <>
-                        <div style={{ width: 52, height: 52, borderRadius: 12, margin: '0 auto 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155' }}>
+                        <div style={{ width: 52, height: 52, borderRadius: 12, margin: '0 auto 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </div>
-                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#64748b' }}>Glissez votre fichier ici</p>
-                        <p style={{ margin: 0, fontSize: 13, color: '#334155' }}>ou <span style={{ color: '#00c1ff' }}>parcourir</span> · .xlsx, .xls, .csv</p>
+                        <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#94a3b8' }}>Glissez votre fichier ici</p>
+                        <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>ou <span style={{ color: '#00c1ff' }}>parcourir</span> · .xlsx, .xls, .csv</p>
                       </>
                     )}
                   </div>
 
                   {/* Colonnes attendues */}
                   <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px', marginBottom: '0.25rem' }}>
-                    <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#475569', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Colonnes attendues</p>
+                    <p style={{ margin: '0 0 8px', fontSize: 12, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Colonnes attendues</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {['Reference', 'Type', 'Ville', 'Quartier', 'Prix', 'Surface', 'Pieces', 'Chambres', 'Description', 'Etat', 'Date'].map(col => (
                         <span key={col} style={{ fontSize: 12, background: 'rgba(0,193,255,0.07)', border: '1px solid rgba(0,193,255,0.15)', color: '#7ee6ff', borderRadius: 6, padding: '3px 9px', fontFamily: 'monospace' }}>{col}</span>
                       ))}
                     </div>
-                    <p style={{ margin: '10px 0 0', fontSize: 12, color: '#334155' }}>Seules Reference, Type, Ville et Prix sont obligatoires. Les autres colonnes sont facultatives.</p>
+                    <p style={{ margin: '10px 0 0', fontSize: 12, color: '#64748b' }}>Seules Reference, Type, Ville et Prix sont obligatoires. Les autres colonnes sont facultatives.</p>
                   </div>
 
                   {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '1rem' }}>{apiError}</p>}
@@ -867,7 +867,7 @@ export default function Onboarding() {
         @keyframes spin     { to { transform: rotate(360deg) } }
         @keyframes shimmer  { 0% { background-position: -200% center } 100% { background-position: 200% center } }
 
-        ::placeholder { color: #334155; }
+        ::placeholder { color: #64748b; }
 
         /* ── Bouton primaire ── */
         .ob-primary {
