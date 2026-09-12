@@ -234,8 +234,8 @@ export default function Souscrire() {
               </button>
             </div>
 
-            <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
-              En continuant, vous acceptez les <a href="/cgu" style={{ color: '#f1f5f9' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#f1f5f9' }}>Politique de confidentialité</a>
+            <p style={{ textAlign: 'center', fontSize: 12, color: '#f1f5f9', marginTop: '1rem' }}>
+              En continuant, vous acceptez les <a href="/cgu" style={{ color: '#f1f5f9', fontWeight: 700, textDecoration: 'underline' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#f1f5f9', fontWeight: 700, textDecoration: 'underline' }}>Politique de confidentialité</a>
             </p>
           </form>
         </div>

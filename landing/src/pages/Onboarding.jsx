@@ -387,7 +387,7 @@ export default function Onboarding() {
                 </svg>
               </div>
 
-              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.8px', wordSpacing: '0.15em', margin: '0 0 1rem', color: '#f1f5f9' }}>
+              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 1rem', color: '#f1f5f9' }}>
                 Demande envoyée !
               </h1>
 
@@ -407,7 +407,7 @@ export default function Onboarding() {
                 </svg>
               </div>
 
-              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.8px', wordSpacing: '0.15em', margin: '0 0 1rem', color: '#f1f5f9' }}>
+              <h1 style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 1rem', color: '#f1f5f9' }}>
                 Votre espace est prêt !
               </h1>
 
@@ -448,7 +448,7 @@ export default function Onboarding() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: 'rgba(0,193,255,0.08)', border: '1px solid rgba(0,193,255,0.18)', borderRadius: 999, padding: '4px 14px', fontSize: 11, fontWeight: 600, color: '#7ee6ff', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
                       Gratuit · 10 jours · Sans carte bancaire
                     </div>
-                    <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.8px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                    <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Créons votre espace
                     </h1>
                     <p style={{ color: '#f1f5f9', fontSize: 15, margin: 0 }}>
@@ -466,8 +466,8 @@ export default function Onboarding() {
                     </button>
                   </div>
 
-                  <p style={{ textAlign: 'center', fontSize: 12, color: '#1e3a5f', marginTop: '1rem' }}>
-                    En continuant, vous acceptez les <a href="/cgu" style={{ color: '#f1f5f9' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#f1f5f9' }}>Politique de confidentialité</a>
+                  <p style={{ textAlign: 'center', fontSize: 12, color: '#f1f5f9', marginTop: '1rem' }}>
+                    En continuant, vous acceptez les <a href="/cgu" style={{ color: '#f1f5f9', fontWeight: 700, textDecoration: 'underline' }}>CGU</a> et la <a href="/confidentialite" style={{ color: '#f1f5f9', fontWeight: 700, textDecoration: 'underline' }}>Politique de confidentialité</a>
                   </p>
                 </div>
               )}
@@ -476,7 +476,7 @@ export default function Onboarding() {
               {step === 2 && (
                 <div key="step2" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-                    <h1 style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.6px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                    <h1 style={{ fontSize: 'clamp(22px, 4vw, 32px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Comment sont gérés<br />vos biens ?
                     </h1>
                     <p style={{ color: '#f1f5f9', fontSize: 15, margin: 0 }}>
@@ -589,7 +589,7 @@ export default function Onboarding() {
               {step === 3 && importMode === 'assisted' && (
                 <div key="step3-assisted" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '1.75rem' }}>
-                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Le lien de votre site
                     </h1>
                     <p style={{ color: '#f1f5f9', fontSize: 14, margin: 0 }}>
@@ -623,7 +623,7 @@ export default function Onboarding() {
               {step === 3 && importMode === 'scrape' && (
                 <div key="step3-scrape" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '1.5rem' }}>
-                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.4rem', color: '#f1f5f9' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 0.4rem', color: '#f1f5f9' }}>
                       Votre site immobilier
                     </h1>
                     <p style={{ color: '#f1f5f9', fontSize: 14, margin: 0 }}>
@@ -792,7 +792,7 @@ export default function Onboarding() {
               {step === 3 && importMode === 'csv' && (
                 <div key="step3-csv" style={{ animation: 'stepIn 280ms ease' }}>
                   <div style={{ marginBottom: '1.75rem' }}>
-                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '-0.5px', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+                    <h1 style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.05em', wordSpacing: '0.15em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
                       Importez votre fichier
                     </h1>
                     <p style={{ color: '#f1f5f9', fontSize: 14, margin: 0 }}>
