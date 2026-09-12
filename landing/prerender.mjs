@@ -55,6 +55,14 @@ const routes = [
     desc: "Créez votre compte ImmoFlash en quelques minutes. Essai gratuit 10 jours, sans engagement ni carte bancaire, opérationnel en 24h.",
   },
   {
+    // Étape intermédiaire avant Stripe (récap plan + formulaire) : jamais
+    // partagée telle quelle (dépend du ?plan= choisi), exclue de l'indexation.
+    url: '/souscrire',
+    title: "Souscrire — ImmoFlash",
+    desc: "Finalisez votre abonnement ImmoFlash.",
+    noindex: true,
+  },
+  {
     url: '/faq',
     title: "Questions fréquentes — ImmoFlash",
     desc: "Fonctionnement du matching IA, tarifs (49 à 179 € HT/mois), conformité RGPD, compatibilité Hektor et Primmo : toutes les réponses sur ImmoFlash.",

@@ -6,6 +6,7 @@ import Documentation from './pages/Documentation'
 import Showcase from './pages/Showcase'
 import Video from './pages/Video'
 import Onboarding from './pages/Onboarding'
+import Souscrire from './pages/Souscrire'
 import Blog from './pages/Blog'
 import BlogPost from './pages/BlogPost'
 
@@ -18,6 +19,7 @@ export default function AppRoutes() {
       <CookieBanner />
       <Routes>
         <Route path="/demarrer"           element={<Onboarding />} />
+        <Route path="/souscrire"          element={<Souscrire />} />
         <Route path="/showcase"           element={<Showcase />} />
         <Route path="/video"              element={<Video />} />
         <Route path="/faq"                element={<FAQ />} />
