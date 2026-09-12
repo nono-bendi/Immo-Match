@@ -1132,6 +1132,70 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
               </div>
             </div>
+            <a href="#Comment-ca-marche" aria-label="Découvrir la suite" id="hero-scroll-down" class="hero_scroll-down">
+              <div class="hero_scroll-down_label">Découvrir</div>
+              <div class="hero_scroll-down_icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+            </a>
+            <div class="u-embed-css w-embed">
+              <style>
+  .hero_scroll-down {
+    position: fixed;
+    left: 50%;
+    bottom: 2rem;
+    transform: translateX(-50%);
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--swatch--light-100);
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .hero_scroll-down:hover {
+    opacity: 1;
+  }
+  .hero_scroll-down.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .hero_scroll-down_label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .hero_scroll-down_icon {
+    display: flex;
+    animation: heroScrollBounce 1.8s ease-in-out infinite;
+  }
+  @keyframes heroScrollBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero_scroll-down_icon { animation: none; }
+  }
+  @media screen and (max-width: 767px) {
+    .hero_scroll-down { display: none; }
+  }
+</style>
+              <script>
+  (function () {
+    var el = document.getElementById('hero-scroll-down');
+    if (!el) return;
+    window.addEventListener('scroll', function () {
+      el.classList.toggle('is-hidden', window.scrollY > 80);
+    }, { passive: true });
+  })();
+</script>
+            </div>
           </section>
           <section id="Comment-ca-marche" data-wf-component-id="a2c33db4-6dcd-b3a8-71a7-a3f5900818a3" data-wf-variant-state="base" class="timeline_section u-theme-light">
             <div data-wf--space-switcher--variant="main" class="u-section-spacer w-variant-60a7ad7d-02b0-6682-95a5-2218e6fd1490"></div>
@@ -2982,6 +3046,21 @@ document.addEventListener("DOMContentLoaded", function () {
   lenis.raf(time * 1000);
 	});
 	gsap.ticker.lagSmoothing(0);
+
+  /* Liens d'ancre (#Tarifs, #Fonctionnalites, etc.) : sans ce hook, le saut
+     natif du navigateur et le scroll virtuel de Lenis se désynchronisent —
+     le premier clic est absorbé et il en faut un second pour que ça "prenne". */
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    var hash = link.getAttribute('href');
+    if (!hash || hash.length < 2) return;
+    var target = document.querySelector(hash);
+    if (!target) return;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      lenis.scrollTo(target);
+      if (history.pushState) history.pushState(null, '', hash);
+    });
+  });
 </script>
   <script>
 (function () {
