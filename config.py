@@ -19,11 +19,15 @@ SMTP_BASE = {
 }
 
 # ── SMTP de secours : utilisé quand l'agence n'a pas configuré le sien ────────
+# Reprend le même compte système que _SYSTEM_SMTP (routers/auth.py) —
+# DEMO_SMTP_* est déjà configuré en prod (contact@immoflash.app via OVH) ;
+# SMTP_FALLBACK_* n'a jamais été renseigné, ce qui faisait échouer /contact
+# en silence (503 "smtp_missing").
 SMTP_FALLBACK = {
-    "server":    os.getenv("SMTP_FALLBACK_SERVER", "smtp.gmail.com"),
-    "port":      int(os.getenv("SMTP_FALLBACK_PORT", "587")),
-    "user":      os.getenv("SMTP_FALLBACK_USER", ""),
-    "password":  os.getenv("SMTP_FALLBACK_PASSWORD", ""),
+    "server":    os.getenv("SMTP_FALLBACK_SERVER", os.getenv("DEMO_SMTP_SERVER", "smtp.mail.ovh.net")),
+    "port":      int(os.getenv("SMTP_FALLBACK_PORT", os.getenv("DEMO_SMTP_PORT", "587"))),
+    "user":      os.getenv("SMTP_FALLBACK_USER", os.getenv("DEMO_SMTP_USER", "contact@immoflash.app")),
+    "password":  os.getenv("SMTP_FALLBACK_PASSWORD", os.getenv("DEMO_SMTP_PASSWORD", "")),
     "from_name": os.getenv("SMTP_FALLBACK_FROM_NAME", "ImmoFlash"),
 }
 

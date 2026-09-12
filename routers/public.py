@@ -96,7 +96,7 @@ class ContactForm(BaseModel):
     message: str
 
 
-@router.post("/api/contact")
+@router.post("/contact")
 def contact_form(form: ContactForm):
     if not SMTP_FALLBACK.get("user") or not SMTP_FALLBACK.get("password"):
         return JSONResponse({"ok": False, "error": "smtp_missing"}, status_code=503)
