@@ -40,7 +40,7 @@
     "@type": "SoftwareApplication",
     "name": "ImmoFlash",
     "url": "https://immoflash.app/",
-    "description": "Logiciel SaaS de matching immobilier pour agences : il croise le catalogue de biens avec chaque prospect acheteur, attribue un score de correspondance sur 100 et génère un email de proposition personnalisé. Compatible avec la plupart des logiciels métier (Hektor, Apimo, Netty, API...). Hébergement en Europe, conforme RGPD.",
+    "description": "Logiciel SaaS de matching immobilier pour agences : il croise le catalogue de biens avec chaque prospect acheteur, attribue un score de correspondance sur 100 et génère un email de proposition personnalisé. Synchronisation automatique avec Hektor ; import Excel/CSV ou API pour les autres logiciels métier (Apimo, Netty...). Hébergement en Europe, conforme RGPD.",
     "applicationCategory": "BusinessApplication",
     "applicationSubCategory": "Real Estate Software",
     "operatingSystem": "Web",
@@ -71,8 +71,8 @@
       "Matching IA entre prospects acheteurs et biens immobiliers, score sur 100",
       "Génération automatique d'emails personnalisés",
       "Assistant IA conversationnel sur le portefeuille",
-      "Synchronisation du catalogue de biens toutes les 6 heures (Hektor, Apimo, Netty...)",
-      "Import Excel/CSV, tableau de bord et rapports mensuels",
+      "Synchronisation automatique du catalogue de biens toutes les 6 heures (Hektor)",
+      "Import Excel/CSV ou API pour les autres logiciels métier (Apimo, Netty...), tableau de bord et rapports mensuels",
       "Conformité RGPD, hébergement européen, contrat de sous-traitance Article 28"
     ],
     "audience": {
@@ -1233,7 +1233,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div data-wf--content-wrapper--variant="left" style="" class="u-content-wrapper w-variant-e85a4315-14bc-e5ef-0d3e-2c8c9ed7d2f1">
                       <div class="u-display-contents">
                         <div data-number="60" data-wf--typography-paragraph--variant="text-main" class="u-text w-variant-61d538b2-709c-eb7a-4258-8c0890dc07fc u-rich-text w-richtext">
-                          <p>On connecte ImmoFlash à votre logiciel métier - Hektor, Apimo, Netty... Vos biens se synchronisent automatiquement, vous n&#x27;avez rien à faire.</p>
+                          <p>On connecte ImmoFlash à votre logiciel métier. Avec Hektor, vos biens se synchronisent automatiquement toutes les 6h, sans rien faire. Avec Apimo, Netty ou un autre outil, un import Excel/CSV ou API prend quelques minutes.</p>
                         </div>
                       </div>
                     </div>
@@ -1720,8 +1720,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="bouncy-tabs__item-text">
                       <div data-wf--content-wrapper--variant="left" style="" class="u-content-wrapper w-variant-e85a4315-14bc-e5ef-0d3e-2c8c9ed7d2f1">
                         <div class="u-display-contents">
-                          <div data-number="20" data-wf--typography-heading--variant="h3" class="u-heading w-variant-701c4b6c-37cf-de59-d80d-80a1822c4994 w-richtext">Votre portefeuille se met à jour automatiquement.</div>
-                          <div data-number="60" data-wf--typography-paragraph--variant="text-small" class="u-text w-variant-4099173f-f581-635c-a5fe-cf4a89c62029 u-rich-text w-richtext u-color-faded">ImmoFlash se connecte à votre logiciel métier, notamment Hektor, Apimo ou Netty. Chaque nouveau bien remonte automatiquement, sans nouvelle saisie pour votre équipe.</div>
+                          <div data-number="20" data-wf--typography-heading--variant="h3" class="u-heading w-variant-701c4b6c-37cf-de59-d80d-80a1822c4994 w-richtext">Votre portefeuille se met à jour, sans ressaisie.</div>
+                          <div data-number="60" data-wf--typography-paragraph--variant="text-small" class="u-text w-variant-4099173f-f581-635c-a5fe-cf4a89c62029 u-rich-text w-richtext u-color-faded">Avec Hektor, vos biens se synchronisent automatiquement toutes les 6h. Avec Apimo, Netty ou un autre logiciel métier, un import Excel/CSV ou API suffit — aucune ressaisie manuelle pour votre équipe.</div>
                           <div data-wf--button-main--variant="primary" data-trigger="hover focus" class="button_main_wrap">
                             <div data-wf--clickable--variant="focus-ring-outside" class="clickable_wrap u-cover-absolute"><button type="button" aria-label="Commençer maintenant" class="clickable_btn"></button></div>
                             <div data-button="" class="button_main_element">
@@ -2582,7 +2582,7 @@ document.addEventListener("DOMContentLoaded", () => {
                           <div class="accordion_content_wrap">
                             <div class="accordion_content_padding">
                               <div class="accordion_content_text u-rich-text w-richtext">
-                                <p>Depuis votre logiciel métier (Hektor, Apimo, Netty, API...), un fichier Excel ou CSV, ou en saisie manuelle. L&#x27;import prend moins de 5 minutes. Aucune ligne de code, aucune intégration technique.</p>
+                                <p>Avec Hektor, la synchronisation est automatique (toutes les 6h, sans rien faire). Avec Apimo, Netty ou un autre logiciel métier, vous importez vos biens via un fichier Excel/CSV, une API ou en saisie manuelle — moins de 5 minutes, aucune ligne de code.</p>
                               </div>
                             </div>
                           </div>

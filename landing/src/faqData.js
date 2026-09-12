@@ -29,8 +29,8 @@ const faqs = [
     section: 'Mise en place',
     items: [
       {
-        q: 'ImmoFlash est-il compatible avec Hektor ou Primmo ?',
-        a: 'Oui. ImmoFlash synchronise automatiquement le catalogue de biens depuis les logiciels Hektor et Primmo, avec une mise à jour toutes les 6 heures. Pour les autres logiciels métier, l\'import se fait en quelques minutes depuis un fichier Excel ou CSV. Dans tous les cas, vous conservez votre logiciel actuel : ImmoFlash vient en complément.',
+        q: 'ImmoFlash est-il compatible avec Hektor, Apimo, Netty ou un autre logiciel métier ?',
+        a: 'Avec Hektor, ImmoFlash synchronise automatiquement votre catalogue de biens, avec une mise à jour toutes les 6 heures. Pour les autres logiciels métier (Apimo, Netty...), l\'import se fait via un fichier Excel/CSV, une API ou en saisie manuelle, en quelques minutes. Dans tous les cas, vous conservez votre logiciel actuel : ImmoFlash vient en complément.',
       },
       {
         q: 'Combien de temps prend la mise en place ?',
@@ -97,7 +97,7 @@ const faqs = [
     items: [
       {
         q: 'Mes données sont-elles sécurisées ?',
-        a: 'Les données de votre agence sont stockées dans une base de données isolée — chaque agence dispose de sa propre instance, séparée des autres. Les accès sont protégés par authentification JWT. Toutes les communications sont chiffrées (HTTPS). Nous n\'utilisons pas vos données pour entraîner des modèles ou les transmettre à des tiers.',
+        a: 'Les données de votre agence sont stockées dans une base de données isolée — chaque agence dispose de sa propre instance, séparée des autres. Les accès sont protégés par authentification JWT. Toutes les communications sont chiffrées (HTTPS). Nous n\'utilisons pas vos données pour entraîner des modèles d\'IA. Certains sous-traitants techniques interviennent pour faire fonctionner le service (hébergement, IA de matching, envoi d\'email, mesure d\'audience) : ils sont listés dans notre contrat de sous-traitance RGPD, disponible sur demande.',
       },
       {
         q: 'Qui a accès aux données de mon agence ?',

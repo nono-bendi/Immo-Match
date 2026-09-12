@@ -224,7 +224,7 @@ export default function Souscrire() {
             <Field label="Nom complet" value={nom} onChange={setNom} placeholder="Sophie Martin" required error={fieldErrors.nom} autoFocus />
             <Field label="Email professionnel" type="email" value={email} onChange={setEmail} placeholder="sophie@agence.fr" required error={fieldErrors.email} />
             <Field label="Nom de votre agence" value={agence} onChange={setAgence} placeholder="Martin Immobilier" required error={fieldErrors.agence} />
-            <Field label="Logiciel métier utilisé" value={logiciel} onChange={setLogiciel} placeholder="Hektor, Primmo, Netty, aucun…" hint="Pour préparer la mise en place de la synchronisation" />
+            <Field label="Logiciel métier utilisé" value={logiciel} onChange={setLogiciel} placeholder="Hektor, Apimo, Netty, aucun…" hint="Pour préparer la mise en place de la synchronisation" />
 
             {apiError && <p style={{ fontSize: 13, color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '10px 14px', marginTop: '0.5rem' }}>{apiError}</p>}
 

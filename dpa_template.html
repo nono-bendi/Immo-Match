@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contrat de sous-traitance RGPD — ImmoFlash</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #1e293b;
+      background: #fff;
+      padding: 60px 80px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── En-tête ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      border-bottom: 3px solid transparent;
+      border-image: linear-gradient(135deg, #1E3A5F, #38bdf8) 1;
+      margin-bottom: 32px;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1E3A5F;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: #38bdf8; }
+    .doc-meta {
+      text-align: right;
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    /* ── Titre ── */
+    .title-block {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .title-block h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1E3A5F;
+      margin-bottom: 4px;
+    }
+    .title-block p {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* ── Parties ── */
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .partie {
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .partie.responsable { background: linear-gradient(135deg, #f0f7ff, #e8f0fa); border-color: #bfdbfe; }
+    .partie.soustraitant { background: linear-gradient(135deg, #f0fdf4, #e6f5ea); border-color: #bbf7d0; }
+    .partie-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .responsable .partie-label { color: #1E3A5F; }
+    .soustraitant .partie-label { color: #16a34a; }
+    .partie-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .partie-detail {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .partie-field {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e2e8f0;
+    }
+    .partie-field-label { font-size: 10px; color: #94a3b8; min-width: 60px; }
+    .partie-field-value {
+      font-size: 11px;
+      color: #1e293b;
+      font-weight: 500;
+      border-bottom: 1px solid #cbd5e1;
+      flex: 1;
+      min-height: 16px;
+    }
+
+    /* ── Articles ── */
+    .article {
+      margin-bottom: 24px;
+    }
+    .article h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1E3A5F;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .article h2 .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, #1E3A5F, #38bdf8);
+      color: white;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(56,189,248,0.35);
+    }
+    .article p { margin-bottom: 6px; color: #334155; }
+    .article ul {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+    .article ul li { margin-bottom: 4px; color: #334155; }
+
+    /* ── Tableau sous-traitants ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 12px;
+    }
+    thead tr { background: linear-gradient(135deg, #1E3A5F, #38bdf8); }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-weight: 600;
+      color: #ffffff;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Note ── */
+    .note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 11px;
+      color: #92400e;
+      margin: 10px 0;
+    }
+
+    /* ── Signatures ── */
+    .signatures {
+      margin-top: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .sig-block { }
+    .sig-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: linear-gradient(135deg, #1E3A5F, #2D5A8A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .sig-line {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: flex-end;
+    }
+    .sig-line-label { font-size: 11px; color: #64748b; white-space: nowrap; min-width: 80px; }
+    .sig-line-value {
+      flex: 1;
+      border-bottom: 1px solid #94a3b8;
+      min-height: 18px;
+    }
+    .sig-area {
+      margin-top: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #cbd5e1;
+      font-style: italic;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 10px;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    @media print {
+      body { padding: 40px 60px; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Bouton impression (masqué à l'impression) -->
+  <div class="no-print" style="position:fixed;top:20px;right:20px;z-index:999;">
+    <button onclick="window.print()" style="padding:10px 20px;background:#1E3A5F;color:white;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+      ⬇ Enregistrer en PDF
+    </button>
+  </div>
+
+  <!-- En-tête -->
+  <div class="header">
+    <div class="logo">Immo<span>Flash</span></div>
+    <div class="doc-meta">
+      Contrat de sous-traitance de données personnelles<br />
+      RGPD — Article 28<br />
+      Version 1.1 — Septembre 2026
+    </div>
+  </div>
+
+  <!-- Titre -->
+  <div class="title-block">
+    <h1>Contrat de sous-traitance de données personnelles</h1>
+    <p>Conclu en application de l'article 28 du Règlement (UE) 2016/679 (RGPD)</p>
+  </div>
+
+  <!-- Parties -->
+  <div class="parties">
+    <div class="partie responsable">
+      <div class="partie-label">Responsable de traitement</div>
+      <div class="partie-name">L'Agence</div>
+      <div class="partie-detail">ci-après désignée « l'Agence »</div>
+      <div class="partie-field">
+        <span class="partie-field-label">Raison sociale</span>
+        <span class="partie-field-value"></span>
+      </div>
+      <div class="partie-field">
+        <span class="partie-field-label">SIRET</span>
+        <span class="partie-field-value"></span>
+      </div>
+      <div class="partie-field">
+        <span class="partie-field-label">Adresse</span>
+        <span class="partie-field-value"></span>
+      </div>
+      <div class="partie-field">
+        <span class="partie-field-label">Email</span>
+        <span class="partie-field-value"></span>
+      </div>
+    </div>
+    <div class="partie soustraitant">
+      <div class="partie-label">Sous-traitant</div>
+      <div class="partie-name">Bendiaf Noa — ImmoFlash</div>
+      <div class="partie-detail">
+        Entrepreneur individuel · Nom commercial : Nowa<br />
+        8 Impasse des Sangliers, 83440 Montauroux<br />
+        SIRET : 990 077 331 00017<br />
+        contact@immoflash.app
+      </div>
+    </div>
+  </div>
+
+  <!-- Article 1 -->
+  <div class="article">
+    <h2><span class="num">1</span> Objet et durée</h2>
+    <p>Dans le cadre de l'utilisation de la plateforme ImmoFlash, l'Agence confie à ImmoFlash le traitement de données personnelles de ses prospects acheteurs aux seules fins décrites au présent contrat.</p>
+    <p>Ce contrat prend effet à la date de souscription à ImmoFlash et reste valable pendant toute la durée de l'abonnement.</p>
+  </div>
+
+  <!-- Article 2 -->
+  <div class="article">
+    <h2><span class="num">2</span> Nature des données traitées</h2>
+    <p>Les données traitées par ImmoFlash pour le compte de l'Agence sont :</p>
+    <ul>
+      <li>Identité des prospects : nom, prénom</li>
+      <li>Coordonnées : téléphone, adresse email, domicile</li>
+      <li>Critères de recherche immobilière : budget, localisation souhaitée, type de bien, superficie, critères de confort</li>
+      <li>Observations et notes saisies par l'Agence concernant le prospect</li>
+    </ul>
+    <p>Les personnes concernées sont les prospects acheteurs de l'Agence.</p>
+  </div>
+
+  <!-- Article 3 -->
+  <div class="article">
+    <h2><span class="num">3</span> Finalités autorisées</h2>
+    <p>ImmoFlash est autorisé à traiter ces données uniquement pour :</p>
+    <ul>
+      <li>Générer des matchings automatisés entre prospects et biens immobiliers</li>
+      <li>Calculer des scores de compatibilité</li>
+      <li>Produire des emails personnalisés à destination des prospects</li>
+      <li>Afficher des rapports et statistiques à l'Agence</li>
+    </ul>
+    <p>Tout autre usage est strictement interdit, notamment la revente, l'exploitation commerciale ou le croisement avec d'autres bases de données.</p>
+  </div>
+
+  <!-- Article 4 -->
+  <div class="article">
+    <h2><span class="num">4</span> Obligations d'ImmoFlash</h2>
+    <p>ImmoFlash s'engage à :</p>
+    <ul>
+      <li>Traiter les données uniquement sur instruction documentée de l'Agence</li>
+      <li>Garantir la confidentialité par un accès restreint au seul personnel habilité</li>
+      <li>Ne pas revendre, céder ni exploiter les données à des fins autres que celles définies à l'article 3</li>
+      <li>Mettre en œuvre des mesures de sécurité adaptées (HTTPS/TLS, authentification JWT, isolation des bases par agence, sauvegardes régulières)</li>
+      <li>Notifier l'Agence dans les meilleurs délais en cas de violation de données susceptible d'engager sa responsabilité</li>
+      <li>Supprimer l'intégralité des données de l'Agence dans un délai de 30 jours suivant la résiliation de l'abonnement</li>
+      <li>Mettre à disposition les informations nécessaires à la démonstration du respect du présent contrat et du RGPD</li>
+    </ul>
+  </div>
+
+  <!-- Article 5 -->
+  <div class="article">
+    <h2><span class="num">5</span> Sous-traitants ultérieurs</h2>
+    <p>L'Agence autorise ImmoFlash à faire appel aux sous-traitants suivants :</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Sous-traitant</th>
+          <th>Rôle</th>
+          <th>Pays</th>
+          <th>Garanties</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Hetzner Online GmbH</strong></td>
+          <td>Hébergement des données</td>
+          <td>Allemagne (UE)</td>
+          <td>RGPD applicable</td>
+        </tr>
+        <tr>
+          <td><strong>Anthropic PBC</strong></td>
+          <td>Analyse IA des matchings</td>
+          <td>États-Unis</td>
+          <td>Clauses Contractuelles Types (SCCs)</td>
+        </tr>
+        <tr>
+          <td><strong>OVH SAS</strong></td>
+          <td>Envoi d'emails (relais SMTP de secours)</td>
+          <td>France (UE)</td>
+          <td>RGPD applicable</td>
+        </tr>
+        <tr>
+          <td><strong>PostHog Inc.</strong></td>
+          <td>Mesure d'audience et statistiques d'usage</td>
+          <td>États-Unis</td>
+          <td>Clauses Contractuelles Types (SCCs)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      ⚠️ Concernant Anthropic et PostHog : seuls les critères de recherche anonymisés et les descriptions de biens sont transmis à Anthropic. Aucune coordonnée (email, téléphone, adresse) n'est envoyée à l'un ou l'autre de ces sous-traitants. Les transferts hors UE sont encadrés par les Clauses Contractuelles Types de la Commission européenne.
+    </div>
+    <p>Tout changement de sous-traitant ultérieur fera l'objet d'une information préalable à l'Agence.</p>
+  </div>
+
+  <!-- Article 6 -->
+  <div class="article">
+    <h2><span class="num">6</span> Obligations de l'Agence</h2>
+    <p>L'Agence, en qualité de responsable de traitement, s'engage à :</p>
+    <ul>
+      <li>Informer ses prospects de l'existence d'un traitement automatisé de leurs données à des fins de matching immobilier</li>
+      <li>Recueillir les consentements nécessaires selon son propre cadre légal et son activité</li>
+      <li>N'importer dans ImmoFlash que des données collectées licitement</li>
+      <li>Notifier ImmoFlash de toute demande d'exercice de droits (accès, rectification, suppression) d'un prospect afin qu'ImmoFlash puisse y donner suite</li>
+    </ul>
+  </div>
+
+  <!-- Article 7 -->
+  <div class="article">
+    <h2><span class="num">7</span> Exercice des droits des personnes</h2>
+    <p>En cas de demande d'un prospect souhaitant exercer ses droits (accès, rectification, effacement, portabilité), l'Agence en informe ImmoFlash à l'adresse <strong>contact@immoflash.app</strong>. ImmoFlash s'engage à donner suite dans un délai de 72 heures.</p>
+  </div>
+
+  <!-- Article 8 -->
+  <div class="article">
+    <h2><span class="num">8</span> Droit applicable</h2>
+    <p>Le présent contrat est soumis au droit français. Tout litige relatif à son interprétation ou son exécution sera soumis aux tribunaux compétents.</p>
+  </div>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <div class="sig-block">
+      <div class="sig-title">Pour l'Agence — Responsable de traitement</div>
+      <div class="sig-line">
+        <span class="sig-line-label">Nom et prénom</span>
+        <span class="sig-line-value"></span>
+      </div>
+      <div class="sig-line">
+        <span class="sig-line-label">Fonction</span>
+        <span class="sig-line-value"></span>
+      </div>
+      <div class="sig-line">
+        <span class="sig-line-label">Date</span>
+        <span class="sig-line-value"></span>
+      </div>
+      <div class="sig-area">Signature</div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-title">Pour ImmoFlash — Sous-traitant</div>
+      <div class="sig-line">
+        <span class="sig-line-label">Nom</span>
+        <span class="sig-line-value">Bendiaf Noa</span>
+      </div>
+      <div class="sig-line">
+        <span class="sig-line-label">Fonction</span>
+        <span class="sig-line-value">Fondateur — ImmoFlash / Nowa</span>
+      </div>
+      <div class="sig-line">
+        <span class="sig-line-label">Date</span>
+        <span class="sig-line-value"></span>
+      </div>
+      <div class="sig-area">Signature</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>ImmoFlash — Nowa · SIRET 990 077 331 00017 · contact@immoflash.app</span>
+    <span>Document confidentiel — RGPD Art. 28 · v1.1 Septembre 2026</span>
+  </div>
+
+</body>
+</html>

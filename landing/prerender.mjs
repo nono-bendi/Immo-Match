@@ -65,7 +65,7 @@ const routes = [
   {
     url: '/faq',
     title: "Questions fréquentes — ImmoFlash",
-    desc: "Fonctionnement du matching IA, tarifs (49 à 179 € HT/mois), conformité RGPD, compatibilité Hektor et Primmo : toutes les réponses sur ImmoFlash.",
+    desc: "Fonctionnement du matching IA, tarifs (49 à 179 € HT/mois), conformité RGPD, compatibilité Hektor, Apimo, Netty : toutes les réponses sur ImmoFlash.",
     jsonld: [faqPage],
   },
   {

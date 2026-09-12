@@ -170,6 +170,6 @@ Les biens ajoutés manuellement (`source = 'manual'`) ne sont jamais marqués ve
 
 SQLite — fichier `immomatch.db`
 
-Tables : `prospects`, `biens`, `matchings`, `users`, `settings`, `notifications`, `emails_sent`, `calibration_feedback`
+Tables : `prospects`, `biens`, `matchings` (dont `date_email_envoye`, horodatage du dernier email envoyé pour ce matching), `users`, `settings`, `notifications`, `calibration_feedback`
 
 Les migrations sont automatiques au démarrage (`database.py`).
