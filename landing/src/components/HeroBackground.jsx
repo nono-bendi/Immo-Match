@@ -133,6 +133,13 @@ export default function HeroBackground() {
         data-us-fps="24"
         className="hero_background-unicorn"
       />
+      {/* Voile central : la carte de contenu est centrée ici (contrairement à la
+          landing où le hero-content est plus haut), on assombrit juste le milieu
+          pour la lisibilité — l'animation reste intacte et bien visible sur les côtés. */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none',
+        background: 'radial-gradient(ellipse 620px 520px at 50% 50%, rgba(3,25,46,0.55) 0%, rgba(3,25,46,0.32) 45%, transparent 72%)',
+      }} />
     </div>
   )
 }
