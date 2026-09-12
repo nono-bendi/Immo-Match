@@ -199,9 +199,15 @@ export default function Souscrire() {
           padding: '2.5rem 2.5rem 2rem',
         }}>
           <div style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
-            <h1 style={{ fontSize: 'clamp(24px, 5vw, 32px)', fontWeight: 800, letterSpacing: '-0.6px', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
-              Plan {plan.name} — {plan.price} € HT/mois
+            {/* Titre en Anomaly (police d'affichage de l'accueil) : texte pur, sans
+                chiffres ni symbole — ce type de police custom gère mal les glyphes
+                hors alphabet (le prix est affiché séparément, en Montserrat). */}
+            <h1 style={{ fontSize: 'clamp(26px, 5vw, 34px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0px', wordSpacing: '0.25em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+              Plan{'  '}{plan.name}
             </h1>
+            <p style={{ fontFamily: "'Montserrat', system-ui, sans-serif", fontSize: 22, fontWeight: 800, color: '#00c1ff', margin: '0 0 0.5rem' }}>
+              {plan.price} € <span style={{ fontSize: 13, fontWeight: 600, color: '#7ee6ff' }}>HT/mois</span>
+            </p>
             <p style={{ color: '#475569', fontSize: 15, margin: 0 }}>{plan.tagline}</p>
           </div>
 
