@@ -170,7 +170,7 @@ export default function Souscrire() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#050c15',
+      background: '#031e39',
       fontFamily: "'Montserrat', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
@@ -202,8 +202,8 @@ export default function Souscrire() {
             {/* Titre en Anomaly (police d'affichage de l'accueil) : texte pur, sans
                 chiffres ni symbole — ce type de police custom gère mal les glyphes
                 hors alphabet (le prix est affiché séparément, en Montserrat). */}
-            <h1 style={{ fontSize: 'clamp(26px, 5vw, 34px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0px', wordSpacing: '0.25em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
-              Plan{'  '}{plan.name}
+            <h1 style={{ fontSize: 'clamp(26px, 5vw, 34px)', fontFamily: "'Anomaly', Arial, sans-serif", fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.03em', wordSpacing: '0.25em', margin: '0 0 0.5rem', color: '#f1f5f9' }}>
+              Plan{'  '}<span style={{ color: '#7ee6ff' }}>{plan.name}</span>
             </h1>
             <p style={{ fontFamily: "'Montserrat', system-ui, sans-serif", fontSize: 22, fontWeight: 800, color: '#00c1ff', margin: '0 0 0.5rem' }}>
               {plan.price} € <span style={{ fontSize: 13, fontWeight: 600, color: '#7ee6ff' }}>HT/mois</span>

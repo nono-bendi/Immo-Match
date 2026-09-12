@@ -341,7 +341,7 @@ export default function Onboarding() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#050c15',
+      background: '#031e39',
       fontFamily: "'Montserrat', system-ui, sans-serif",
       color: '#f1f5f9',
     }}>
